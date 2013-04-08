@@ -14,6 +14,9 @@ rng.modules.tabsManager = function(sandbox) {
         if(prevActive.length)
             prevSlug = prevActive.find('a').attr('href').substr(1);
         
+        if(prevSlug == slug)
+            return;
+        
         tabBar.find('li').removeClass('active');
         tabBar.find('a[href=#' + slug + ']').parent().addClass('active');
         
