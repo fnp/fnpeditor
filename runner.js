@@ -31,6 +31,7 @@ var Runner = function($, _, app) {
         }
         
         this.publish = function(eventName) {
+            console.log(moduleName + ': ' + eventName);
             var eventArgs = Array.prototype.slice.call(arguments, 1)
             _.each(eventListeners, function(listenerModuleName) {
                 var listener = moduleInstances[listenerModuleName];
