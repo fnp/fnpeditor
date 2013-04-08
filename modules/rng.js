@@ -1,7 +1,7 @@
 rng.modules.rng = function(sandbox) {
 
-    function addTab(title, view) {
-        sandbox.getModule('tabsModule').addTab(title, view);
+    function addTab(title, slug, view) {
+        sandbox.getModule('tabsManager').addTab(title, slug, view);
     }
     
     /* Events handling */
@@ -25,7 +25,13 @@ rng.modules.rng = function(sandbox) {
     
     eventHandlers.sourceEditor = {
         ready: function() {
-            addTab('Source', sandbox.getModule('sourceEditor').getView());
+            addTab('Source', 'source',  sandbox.getModule('sourceEditor').getView());
+        }
+    };
+    
+    eventHandlers.visualEditor = {
+        ready: function() {
+            addTab('Visual', 'visual', sandbox.getModule('visualEditor').getView());
         }
     };
     

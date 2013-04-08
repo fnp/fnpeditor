@@ -6,16 +6,25 @@ rng.modules.tabsManager = function(sandbox) {
     
     var tabContent = {};
     
-    function selectTab(tabCode) {
-        var tabBar = $(view, '#rng-main-tabs');
-        var prevTabCode = tabBar.find('li.active a').attr('href').substr(1);
+    function selectTab(slug) {
+        var tabBar = view.find('#rng-tabsManager-tabBar');
+        
+        var prevActive = tabBar.find('li.active');
+        var prevSlug;
+        if(prevActive.length)
+            prevSlug = prevActive.find('a').attr('href').substr(1);
+        
         tabBar.find('li').removeClass('active');
-        tabBar.find('a[href=#' + tabCode + ']').parent().addClass('active');
-        $(view, '.rng-tab-content').hide();
-        $(view, '#rng-tab-content-' + tabCode).show();
+        tabBar.find('a[href=#' + slug + ']').parent().addClass('active');
+        
+        if(prevSlug)
+            tabContent[prevSlug].detach();
+        tabContent[slug].appendTo(view.find('#rng-tabsManager-content'));
     }
+       
     
-    $('#rng-main-tabs li a').click(function(e) {
+    
+    view.on('click', 'li a', function(e) {
         selectTab($(e.target).attr('href').substr(1));
     });
     
@@ -28,8 +37,11 @@ rng.modules.tabsManager = function(sandbox) {
             return view;
         },
         
-        addTab: function(title, view) {
-            tabContent[title] = view;
+        addTab: function(title, slug, contentView) {
+            tabContent[slug] = contentView;
+            view.find('#rng-tabsManager-tabBar').append(sandbox.getTemplate('tabHandle')({title: title, slug: slug}));
+            if(_.values(tabContent).length === 1)
+                selectTab(slug);
         }
     }
 
