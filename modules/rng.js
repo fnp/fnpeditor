@@ -17,7 +17,7 @@ rng.modules.rng = function(sandbox) {
     eventHandlers.tabsManager = {
         ready: function() {
             sandbox.getModule('skelton').setMainView(sandbox.getModule('tabsManager').getView());
-            _.each(['sourceEditor', 'visualEditor'], function(moduleName) {
+            _.each(['visualEditor', 'sourceEditor'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
         }
