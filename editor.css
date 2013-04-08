@@ -1,0 +1,12 @@
+body {
+    padding-top: 30px;
+}
+
+#publication_content {
+    height: 300px;
+    overflow-y: scroll;
+}
+
+.rng-tab-content {
+    display: none;
+}
