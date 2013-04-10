@@ -3,7 +3,7 @@ rng.modules.tabsManager = function(sandbox) {
     var $ = sandbox.$;
     
     var view = $(sandbox.getTemplate('main')());
-    
+    var currentSlug;
     var tabContent = {};
     
     function selectTab(slug) {
@@ -25,6 +25,7 @@ rng.modules.tabsManager = function(sandbox) {
         if(prevSlug)
             tabContent[prevSlug].detach();
         tabContent[slug].appendTo(view.find('#rng-tabsManager-content'));
+        currentSlug = slug;
     }
        
     
@@ -46,6 +47,9 @@ rng.modules.tabsManager = function(sandbox) {
             view.find('#rng-tabsManager-tabBar').append(sandbox.getTemplate('tabHandle')({title: title, slug: slug}));
             if(_.values(tabContent).length === 1)
                 selectTab(slug);
+        },
+        getCurrentSlug: function() {
+            return currentSlug;
         }
     }
 

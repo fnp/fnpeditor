@@ -11,6 +11,18 @@ rng.modules.rng = function(sandbox) {
     eventHandlers.skelton = {
         ready: function() {
             sandbox.getModule('tabsManager').start();
+        },
+        'cmd.save': function() {
+            var editorSlugs = ['visual', 'source'];
+            var slug = sandbox.getModule('tabsManager').getCurrentSlug();
+            if(_.contains(editorSlugs, slug)) {
+                var editor = sandbox.getModule(slug+'Editor');
+                if(editor.isDirty()) {
+                    sandbox.getModule('data').commitDocument(editor.getDocument(), slug + '_edit');
+                    editor.setDirty(false);
+                }
+            }
+            sandbox.getModule('data').saveDocument();
         }
     };
     

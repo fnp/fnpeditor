@@ -1,17 +1,45 @@
 rng.modules.data = function(sandbox) {
 
-    var document = sandbox.getBootstrappedData().document;
+    var doc = sandbox.getBootstrappedData().document;
+    var document_id = sandbox.getBootstrappedData().document_id;
 
+    function readCookie(name) {
+        var nameEQ = escape(name) + "=";
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) == 0) return unescape(c.substring(nameEQ.length, c.length));
+        }
+        return null;
+    }
+    
+    $.ajaxSetup({
+        crossDomain: false,
+        beforeSend: function(xhr, settings) {
+            if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type))) {
+                xhr.setRequestHeader("X-CSRFToken", readCookie('csrftoken'));
+            }
+        }
+    });
+    
     return {
         start: function() {
             sandbox.publish('ready');
         },
         getDocument: function() {
-            return document;
+            return doc;
         },
         commitDocument: function(newDocument, reason) {
-            document = newDocument;
-            sandbox.publish('documentChanged', document, reason);
+            doc = newDocument;
+            sandbox.publish('documentChanged', doc, reason);
+        },
+        saveDocument: function() {
+            $.ajax({
+                method: 'post',
+                url: '/editor/' + document_id,
+                data: JSON.stringify({document:doc})
+            });
         }
         
     }

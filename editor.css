@@ -10,3 +10,11 @@ body {
 .rng-tab-content {
     display: none;
 }
+
+#rng-skelton-menu {
+    float: right;
+}
+
+#rng-skelton-menu ul {
+    list-style-type: none;
+}
