@@ -1,15 +1,9 @@
 rng.modules.visualEditor = function(sandbox) {
+    var transformations = rng.modules.visualEditor.transformations;
 
     var view = $(sandbox.getTemplate('main')());
     var isDirty = false;
     
-    var document2html = function(document) {
-        return document;
-    }
-    
-    var html2document = function() {
-        return $('#rng-visualEditor-content').text();
-    }
     
     $('#rng-visualEditor-content', view).on('keyup', function() {
         isDirty = true;
@@ -22,12 +16,13 @@ rng.modules.visualEditor = function(sandbox) {
         getView: function() {
             return view;
         },
-        setDocument: function(document) {
-            $('#rng-visualEditor-content', view).html(document2html(document));
+        setDocument: function(xml) {
+            var transformed = transformations.fromXML.getDocumentDescription(xml);
+            $('#rng-visualEditor-content', view).html(transformed.HTMLTree);
             isDirty = false;
         },
         getDocument: function() {
-            return html2document();
+            return transformations.toXML.getXML({HTMLTree: $('#rng-visualEditor-content').text(), metadata: {}});
         },
         isDirty: function() {
             return isDirty;
