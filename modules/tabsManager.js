@@ -16,6 +16,8 @@ rng.modules.tabsManager = function(sandbox) {
         
         if(prevSlug == slug)
             return;
+        if(prevSlug)
+            sandbox.publish('leaving', prevSlug);
         
         tabBar.find('li').removeClass('active');
         tabBar.find('a[href=#' + slug + ']').parent().addClass('active');
@@ -25,7 +27,6 @@ rng.modules.tabsManager = function(sandbox) {
         tabContent[slug].appendTo(view.find('#rng-tabsManager-content'));
     }
        
-    
     
     view.on('click', 'li a', function(e) {
         selectTab($(e.target).attr('href').substr(1));

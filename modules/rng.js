@@ -20,27 +20,48 @@ rng.modules.rng = function(sandbox) {
             _.each(['visualEditor', 'sourceEditor'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
+        },
+        leaving: function(slug) {
+            if(slug === 'source' || slug === 'visual') {
+                var editor = sandbox.getModule(slug+'Editor');
+                if(editor.isDirty()) {
+                    sandbox.getModule('data').commitDocument(editor.getDocument(), slug + '_edit');
+                    editor.setDirty(false);
+                }
+            }
         }
     };
     
     eventHandlers.sourceEditor = {
         ready: function() {
             addTab('Source', 'source',  sandbox.getModule('sourceEditor').getView());
+            sandbox.getModule('sourceEditor').setDocument(sandbox.getModule('data').getDocument());
         }
     };
     
     eventHandlers.visualEditor = {
         ready: function() {
             addTab('Visual', 'visual', sandbox.getModule('visualEditor').getView());
+            sandbox.getModule('visualEditor').setDocument(sandbox.getModule('data').getDocument());
         }
     };
+    
+    eventHandlers.data = {
+        ready: function() {
+            sandbox.getModule('skelton').start();
+        },
+        documentChanged: function(document, reason) {
+            var slug = (reason === 'visual_edit' ? 'source' : 'visual');
+            sandbox.getModule(slug+'Editor').setDocument(document);
+        }
+    }
     
     
     /* api */
     
     return {
         start: function() {
-            sandbox.getModule('skelton').start();
+            sandbox.getModule('data').start();
         },
         handleEvent: function(moduleName, eventName, args) {
             if(eventHandlers[moduleName] && eventHandlers[moduleName][eventName]) {
