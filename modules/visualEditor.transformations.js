@@ -8,7 +8,31 @@ if(typeof module !== 'undefined' && module.exports) {
 
     transformations.fromXML = {
         getHTMLTree: function(xml) {
-            return xml;
+            var inner = $(xml).clone();
+            var toret = $('<div></div>');
+            toret.append(inner);
+            toret.find('metadata').remove();
+            
+            var toBlock = ['div', 'document', 'section', 'header'];
+            var toInline = ['aside'];
+            
+            toBlock.forEach(function(tagName) {
+                tagName = tagName.toLowerCase();
+                console.log('running ' + tagName);
+                toret.find(tagName).replaceWith(function() {
+                    var suffix = tagName !== 'div'  ? tagName : 'block';
+                    return $('<div></div>').addClass('rng-' + suffix).append($(this).contents());
+                });
+            });
+            
+            toInline.forEach(function(tagName) {
+                tagName = tagName.toLowerCase();
+                toret.find(tagName).replaceWith(function() {
+                    var node = this;
+                    return $('<span></span>').addClass('rng-' + tagName).append($(this).contents());
+                });
+            });
+            return toret.children();
         },
         getMetaData: function(xml) {
             var toret = {};
