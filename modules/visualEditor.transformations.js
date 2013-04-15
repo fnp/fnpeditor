@@ -52,7 +52,26 @@ if(typeof module !== 'undefined' && module.exports) {
 
     transformations.toXML = {
         getXML: function(documentDescription) {
-            return documentDescription.HTMLTree;
+            
+            var inner = $(documentDescription.HTMLTree);
+            var toret = $('<div></div>');
+            toret.append(inner);
+            
+            toret.find('div, span').replaceWith(function() {
+                var div = $(this);
+                var tagName = div.attr('class').split('rng-')[1];
+                return $('<'+tagName+'>').append(div.contents());
+            });
+            
+            var meta = $('<metadata>');
+            _.each(_.keys(documentDescription.metadata), function(key) {
+                meta.append($('<dc:'+key+'>' + documentDescription.metadata[key] + '</dc:'+key+'>'));
+            });
+            
+            toret.find('document').prepend(meta);
+            
+            return toret.html();
+            
         }
     }
 
