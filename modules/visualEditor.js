@@ -3,6 +3,16 @@ rng.modules.visualEditor = function(sandbox) {
 
     var view = {
         node: $(sandbox.getTemplate('main')()),
+        setup: function() {
+            var node = this.node;
+            node.find('#rng-visualEditor-content').on('keyup', function() {
+                isDirty = true;
+            });
+            
+            node.find('#rng-visualEditor-meta').on('keyup', function() {
+                isDirty = true;
+            });
+        },
         getMetaData: function() {
             var toret = {};
             this.node.find('#rng-visualEditor-meta table tr').each(function() {
@@ -25,20 +35,13 @@ rng.modules.visualEditor = function(sandbox) {
             this.node.find('#rng-visualEditor-content').html(HTMLTree);
         },
         getBody: function() {
-            return this.find('#rng-visualEditor-content').html();
+            return this.node.find('#rng-visualEditor-content').html();
         }   
     };
+    view.setup();
     
     var isDirty = false;
     
-    
-    $('#rng-visualEditor-content', view).on('keyup', function() {
-        isDirty = true;
-    });
-    
-    $('#rng-visualEditor-meta', view).on('keyup', function() {
-        isDirty = true;
-    });
     
     return {
         start: function() {
