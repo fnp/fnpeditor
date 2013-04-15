@@ -1,28 +1,36 @@
 rng.modules.visualEditor = function(sandbox) {
     var transformations = rng.modules.visualEditor.transformations;
 
-    var view = $(sandbox.getTemplate('main')());
+    var view = {
+        node: $(sandbox.getTemplate('main')()),
+        getMetaData: function() {
+            var toret = {};
+            this.node.find('#rng-visualEditor-meta table tr').each(function() {
+                var tr = $(this);
+                var key = $(tr.find('td')[0]).html();
+                var value = $(tr.find('td input')[0]).val();
+                toret[key] = value;
+            });
+            console.log(toret);
+            return toret;
+        },
+        setMetaData: function(metadata) {
+            var table = this.node.find('#rng-visualEditor-meta table');
+            table.empty();
+            _.each(_.keys(metadata), function(key) {    
+                $(sandbox.getTemplate('metaItem')({key: key, value: metadata[key]})).appendTo(table);
+            });
+        },
+        setBody: function(HTMLTree) {
+            this.node.find('#rng-visualEditor-content').html(HTMLTree);
+        },
+        getBody: function() {
+            return this.find('#rng-visualEditor-content').html();
+        }   
+    };
+    
     var isDirty = false;
     
-    var getMetaData = function() {
-        var toret = {};
-        view.find('#rng-visualEditor-meta table tr').each(function() {
-            var tr = $(this);
-            var key = $(tr.find('td')[0]).html();
-            var value = $(tr.find('td input')[0]).val();
-            toret[key] = value;
-        });
-        console.log(toret);
-        return toret;
-    };
-    
-    var setMetaData = function(metadata) {
-        var table = view.find('#rng-visualEditor-meta table');
-        table.empty();
-        _.each(_.keys(metadata), function(key) {    
-            $(sandbox.getTemplate('metaItem')({key: key, value: metadata[key]})).appendTo(table);
-        });
-    };
     
     $('#rng-visualEditor-content', view).on('keyup', function() {
         isDirty = true;
@@ -37,16 +45,16 @@ rng.modules.visualEditor = function(sandbox) {
             sandbox.publish('ready');
         },
         getView: function() {
-            return view;
+            return view.node;
         },
         setDocument: function(xml) {
             var transformed = transformations.fromXML.getDocumentDescription(xml);
-            $('#rng-visualEditor-content', view).html(transformed.HTMLTree);
-            setMetaData(transformed.metadata);
+            view.setBody(transformed.HTMLTree);
+            view.setMetaData(transformed.metadata);
             isDirty = false;
         },
         getDocument: function() {
-            return transformations.toXML.getXML({HTMLTree: $('#rng-visualEditor-content').html(), metadata: getMetaData()});
+            return transformations.toXML.getXML({HTMLTree: view.getBody(), metadata: view.getMetaData()});
         },
         isDirty: function() {
             return isDirty;
