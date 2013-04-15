@@ -18,3 +18,11 @@ body {
 #rng-skelton-menu ul {
     list-style-type: none;
 }
+
+#rng-visualEditor-content {
+    float:left;
+}
+
+#rng-visualEditor-meta {
+    float:right;
+}
