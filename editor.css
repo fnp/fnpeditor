@@ -21,6 +21,8 @@ body {
 
 #rng-visualEditor-content {
     float:left;
+    width: 540px;
+    height: 500px;
 }
 
 #rng-visualEditor-meta {
