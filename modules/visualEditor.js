@@ -4,20 +4,29 @@ rng.modules.visualEditor = function(sandbox) {
     var view = {
         node: $(sandbox.getTemplate('main')()),
         setup: function() {
-            var node = this.node;
-            node.find('#rng-visualEditor-content').on('keyup', function() {
+            var view = this;
+
+            this.node.find('#rng-visualEditor-content').on('keyup', function() {
                 isDirty = true;
             });
             
-            node.find('#rng-visualEditor-meta').on('keyup', function() {
+            this.node.find('#rng-visualEditor-meta').on('keyup', function() {
                 isDirty = true;
             });
 
             this.node.on('mouseover', '.rng', function(e) { $(e.target).addClass('rng-hover')});
             this.node.on('mouseout', '.rng', function(e) { $(e.target).removeClass('rng-hover')});
             this.node.on('click', '.rng', function(e) {
-                node.find('.rng').removeClass('rng-current');
-                $(e.target).addClass('rng-current');
+                view._markSelected($(e.target));
+            });
+
+            this.node.on('keyup', function(e) {
+                var anchor = $(window.getSelection().anchorNode);
+                if(anchor[0].nodeType === Node.TEXT_NODE)
+                    anchor = anchor.parent();
+                if(!anchor.hasClass('rng'))
+                    return;
+                view._markSelected(anchor);
             });
         },
         getMetaData: function() {
@@ -43,7 +52,11 @@ rng.modules.visualEditor = function(sandbox) {
         },
         getBody: function() {
             return this.node.find('#rng-visualEditor-content').html();
-        }   
+        }, 
+        _markSelected: function(node) {
+            this.node.find('.rng').removeClass('rng-current');
+            node.addClass('rng-current');
+        }
     };
     view.setup();
     
