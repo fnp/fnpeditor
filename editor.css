@@ -30,6 +30,27 @@ body {
     padding: 5px 10px;
 }
 
+#rng-visualEditor-contentWrapper::-webkit-scrollbar {
+    width: 9px;
+}
+ 
+#rng-visualEditor-contentWrapper::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+
+#rng-visualEditor-contentWrapper::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: rgba(73,175,205,0.8); 
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+}
+#rng-visualEditor-contentWrapper::-webkit-scrollbar-thumb:window-inactive {
+    background: rgba(73,175,205,0.4); 
+}
+
+
 #rng-visualEditor-content {
 
     outline: 0px solid transparent;
