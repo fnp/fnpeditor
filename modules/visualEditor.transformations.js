@@ -14,14 +14,14 @@ if(typeof module !== 'undefined' && module.exports) {
             toret.find('metadata').remove();
             
             var toBlock = ['div', 'document', 'section', 'header'];
-            var toInline = ['aside'];
+            var toInline = ['aside', 'span'];
             
             toBlock.forEach(function(tagName) {
                 tagName = tagName.toLowerCase();
                 console.log('running ' + tagName);
                 toret.find(tagName).replaceWith(function() {
                     var suffix = tagName !== 'div'  ? tagName : 'block';
-                    return $('<div></div>').addClass('rng-' + suffix).append($(this).contents());
+                    return $('<div></div>').addClass('rng rng-' + suffix).append($(this).contents());
                 });
             });
             
@@ -29,7 +29,7 @@ if(typeof module !== 'undefined' && module.exports) {
                 tagName = tagName.toLowerCase();
                 toret.find(tagName).replaceWith(function() {
                     var node = this;
-                    return $('<span></span>').addClass('rng-' + tagName).append($(this).contents());
+                    return $('<span></span>').addClass('rng rng-' + tagName).append($(this).contents());
                 });
             });
             return toret.children();

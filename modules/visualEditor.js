@@ -12,6 +12,13 @@ rng.modules.visualEditor = function(sandbox) {
             node.find('#rng-visualEditor-meta').on('keyup', function() {
                 isDirty = true;
             });
+
+            this.node.on('mouseover', '.rng', function(e) { $(e.target).addClass('rng-hover')});
+            this.node.on('mouseout', '.rng', function(e) { $(e.target).removeClass('rng-hover')});
+            this.node.on('click', '.rng', function(e) {
+                node.find('.rng').removeClass('rng-current');
+                $(e.target).addClass('rng-current');
+            });
         },
         getMetaData: function() {
             var toret = {};

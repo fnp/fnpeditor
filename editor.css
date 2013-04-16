@@ -19,12 +19,53 @@ body {
     list-style-type: none;
 }
 
-#rng-visualEditor-content {
+#rng-visualEditor-contentWrapper {
+    border-color: grey;
+    border-style: solid;
+    border-width: 1px;
     float:left;
-    width: 540px;
+    width: 620px;
     height: 500px;
+    overflow-y: scroll;
+    padding: 5px 10px;
+}
+
+#rng-visualEditor-content {
+
+    outline: 0px solid transparent;
 }
 
 #rng-visualEditor-meta {
     float:right;
+}
+
+.rng {
+    float: none !important; /* temporaty workaround for Bootstrap's influence via [class*="span"] { float: left; } */
+    border-color: white;
+    border-style:solid;
+    border-width:1px;
+}
+
+.rng-header {
+    font-size: 19px;
+    font-style: bold;
+    margin-bottom: 10px;
+}
+
+.rng-section {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.rng-hover {
+    border-color: red;
+    border-style:solid;
+    border-width:1px;
+}
+
+.rng-current {
+    background: #fffacd;
+    border-color: grey;
+    border-style:dashed;
+    border-width:1px;
 }
