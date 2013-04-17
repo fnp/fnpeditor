@@ -75,12 +75,12 @@ body {
     border-bottom: none !important;
 }
 
-#rng-visualEditor-meta table tr td:nth-child(1) [contenteditable] {
-    width:90px;
+#rng-visualEditor-meta table tr td:nth-child(1){
+    width: 20%;
 }
 
-#rng-visualEditor-meta table tr td:nth-child(2) [contenteditable]  {
-    width:150px;
+#rng-visualEditor-meta table tr td:nth-child(2)  {
+    width:80%;
 }
 
 #rng-visualEditor-meta .rng-visualEditor-metaAddBtn {
