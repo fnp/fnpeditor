@@ -14,9 +14,10 @@ rng.modules.visualEditor = function(sandbox) {
                 isDirty = true;
             });
 
-            this.node.on('mouseover', '.rng', function(e) { $(e.target).addClass('rng-hover')});
-            this.node.on('mouseout', '.rng', function(e) { $(e.target).removeClass('rng-hover')});
-            this.node.on('click', '.rng', function(e) {
+            this.node.on('mouseover', '[wlxml-tag]', function(e) { $(e.target).addClass('rng-hover')});
+            this.node.on('mouseout', '[wlxml-tag]', function(e) { $(e.target).removeClass('rng-hover')});
+            this.node.on('click', '[wlxml-tag]', function(e) {
+                console.log('clicked node type: '+e.target.nodeType);
                 view._markSelected($(e.target));
             });
 
@@ -24,7 +25,7 @@ rng.modules.visualEditor = function(sandbox) {
                 var anchor = $(window.getSelection().anchorNode);
                 if(anchor[0].nodeType === Node.TEXT_NODE)
                     anchor = anchor.parent();
-                if(!anchor.hasClass('rng'))
+                if(!anchor.is('[wlxml-tag]'))
                     return;
                 view._markSelected(anchor);
             });
@@ -54,7 +55,7 @@ rng.modules.visualEditor = function(sandbox) {
             return this.node.find('#rng-visualEditor-content').html();
         }, 
         _markSelected: function(node) {
-            this.node.find('.rng').removeClass('rng-current');
+            this.node.find('.rng-current').removeClass('rng-current');
             node.addClass('rng-current');
         }
     };

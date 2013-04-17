@@ -21,7 +21,7 @@ if(typeof module !== 'undefined' && module.exports) {
                 console.log('running ' + tagName);
                 toret.find(tagName).replaceWith(function() {
                     var suffix = tagName !== 'div'  ? tagName : 'block';
-                    return $('<div></div>').addClass('rng rng-' + suffix).append($(this).contents());
+                    return $('<div></div>').attr('wlxml-tag', suffix).append($(this).contents());
                 });
             });
             
@@ -29,7 +29,7 @@ if(typeof module !== 'undefined' && module.exports) {
                 tagName = tagName.toLowerCase();
                 toret.find(tagName).replaceWith(function() {
                     var node = this;
-                    return $('<span></span>').addClass('rng rng-' + tagName).append($(this).contents());
+                    return $('<span></span>').attr('wlxml-tag', tagName).append($(this).contents());
                 });
             });
             return toret.children();
@@ -59,7 +59,7 @@ if(typeof module !== 'undefined' && module.exports) {
             
             toret.find('div, span').replaceWith(function() {
                 var div = $(this);
-                var tagName = div.attr('class').split('rng-')[1];
+                var tagName = div.attr('wlxml-tag');
                 return $('<'+tagName+'>').append(div.contents());
             });
             

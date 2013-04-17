@@ -65,20 +65,20 @@ body {
     height: 500px;
 }
 
-.rng {
+[wlxml-tag] {
     float: none !important; /* temporaty workaround for Bootstrap's influence via [class*="span"] { float: left; } */
     border-color: white;
     border-style:solid;
     border-width:1px;
 }
 
-.rng-header {
+[wlxml-tag=header] {
     font-size: 19px;
     font-style: bold;
     margin-bottom: 10px;
 }
 
-.rng-section {
+[wlxml-tag=section] {
     margin-top: 10px;
     margin-bottom: 10px;
 }
