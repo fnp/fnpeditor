@@ -60,6 +60,11 @@ body {
     float:right;
 }
 
+#rng-sourceEditor-editor {
+    width: 940px;
+    height: 500px;
+}
+
 .rng {
     float: none !important; /* temporaty workaround for Bootstrap's influence via [class*="span"] { float: left; } */
     border-color: white;
