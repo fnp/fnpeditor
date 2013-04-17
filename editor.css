@@ -20,7 +20,7 @@ body {
 }
 
 #rng-visualEditor-contentWrapper {
-    border-color: grey;
+    border-color: #ddd;
     border-style: solid;
     border-width: 1px;
     float:left;
