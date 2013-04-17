@@ -56,10 +56,36 @@ body {
     outline: 0px solid transparent;
 }
 
-#rng-visualEditor-meta {
+#rng-visualEditor-sidebar {
     float:right;
-    width: 290px;
+    width: 266px;
+    height:500px;
+    position:relative;
+    border-width: 1px 1px 1px 1px;
+    border-style: solid;
+    border-color: #ddd;
+    padding: 5px 15px;
 }
+
+#rng-visualEditor-sidebarButtons {
+            /*-webkit-transform: rotate(90deg);
+            -moz-transform: rotate(90deg);
+            -ms-transform: rotate(90deg); */
+            
+            position:absolute;
+            top:-1px;
+            right:-50px;
+            border-width: 1px 1px 1px 0px;
+            border-style: solid;
+            border-color: #ddd;
+            padding: 5px;
+            background: #ededed;
+}
+
+#rng-visualEditor-sidebarButtons  ul {
+    margin-bottom: 0px;
+}
+
 
 #rng-visualEditor-meta table {
     margin-bottom:10px;
