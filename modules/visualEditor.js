@@ -89,6 +89,7 @@ rng.modules.visualEditor = function(sandbox) {
         _markSelected: function(node) {
             this.node.find('.rng-current').removeClass('rng-current');
             node.addClass('rng-current');
+            mediator.nodeSelected(node);
         },
         _addMetaRow: function(key, value) {
             var newRow = $(sandbox.getTemplate('metaItem')({key: key || '', value: value || ''}));
@@ -117,14 +118,24 @@ rng.modules.visualEditor = function(sandbox) {
            this.node.find('#rng-visualEditor-sidebarButtons li').removeClass('active');
            this.node.find('#rng-visualEditor-sidebarButtons li a[data-content-id=' + id + ']').parent().addClass('active');
         
+        },
+        updateEditPane: function(node) {
+            var pane = this.node.find('#rng-visualEditor-edit');
+            pane.html( $(sandbox.getTemplate('editPane')({tag: node.attr('wlxml-tag'), klass: node.attr('wlxml-class')})));
         }
-    
     }
     
     view.setup();
     sideBarView.setup();
     
+    var mediator = {
+        nodeSelected: function(node) {
+            sideBarView.updateEditPane(node);
+        }
+    }
+    
     var isDirty = false;
+    
     
     
     return {
