@@ -75,6 +75,11 @@ body {
     width:150px;
 }
 
+#rng-visualEditor-meta .btn{
+    padding:3px;
+    line-height:10px;
+}
+
 #rng-sourceEditor-editor {
     width: 940px;
     height: 500px;
