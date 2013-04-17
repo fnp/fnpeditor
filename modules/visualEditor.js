@@ -21,7 +21,7 @@ rng.modules.visualEditor = function(sandbox) {
                 view._markSelected($(e.target));
             });
 
-            this.node.on('keyup', function(e) {
+            this.node.on('keyup', '#rng-visualEditor-contentWrapper', function(e) {
                 var anchor = $(window.getSelection().anchorNode);
                 if(anchor[0].nodeType === Node.TEXT_NODE)
                     anchor = anchor.parent();
@@ -31,10 +31,11 @@ rng.modules.visualEditor = function(sandbox) {
             });
             
             
-            this.metaTable = this.node.find('#rng-visualEditor-meta table');
+            var metaTable = this.metaTable = this.node.find('#rng-visualEditor-meta table');
             
             this.metaTable.find('.rng-visualEditor-metaAddBtn').click(function() {
-                view._addMetaRow();
+                var newRow = view._addMetaRow('', '');
+                $(newRow.find('td div')[0]).focus();
                 isDirty = true;
             });
             
@@ -42,15 +43,31 @@ rng.modules.visualEditor = function(sandbox) {
                 $(e.target).closest('tr').remove();
                 isDirty = true;
             });
+            
+            this.metaTable.on('keydown', '[contenteditable]', function(e) {
+                console.log(e.which);
+                if(e.which === 13) { 
+                    if($('*:focus').hasClass('rng-visualEditor-metaItemKey')) {
+                        metaTable.find('.rng-visualEditor-metaItemValue').focus();
+                    } else {
+                        var input = $('<input>');
+                        input.appendTo('body').focus()
+                        metaTable.find('.rng-visualEditor-metaAddBtn').focus();
+                        input.remove();
+                    }
+                    e.preventDefault();
+                }
+                
+            });
 
         },
         getMetaData: function() {
             var toret = {};
             this.metaTable.find('tr').not('.rng-visualEditor-addMetaRow').each(function() {
                 var tr = $(this);
-                var inputs = $(this).find('td input');
-                var key = $(inputs[0]).val()
-                var value = $(inputs[1]).val()
+                var inputs = $(this).find('td [contenteditable]');
+                var key = $(inputs[0]).text();
+                var value = $(inputs[1]).text();
                 toret[key] = value;
             });
             console.log(toret);
@@ -75,7 +92,9 @@ rng.modules.visualEditor = function(sandbox) {
         },
         _addMetaRow: function(key, value) {
             var addRow = this.metaTable.find('.rng-visualEditor-addMetaRow');
-            $(sandbox.getTemplate('metaItem')({key: key || '', value: value || ''})).insertBefore(addRow);
+            var newRow = $(sandbox.getTemplate('metaItem')({key: key || '', value: value || ''}));
+            newRow.insertBefore(addRow);
+            return newRow;
         }
     };
     view.setup();

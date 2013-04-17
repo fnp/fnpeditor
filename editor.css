@@ -60,17 +60,18 @@ body {
     float:right;
 }
 
-#rng-visualEditor-meta table input {
+#rng-visualEditor-meta table [contenteditable] {
     font-size: 11px;
     line-height:13px;
+    cursor: pointer;
 
 }
 
-#rng-visualEditor-meta table tr td:nth-child(1) input  {
+#rng-visualEditor-meta table tr td:nth-child(1) [contenteditable] {
     width:90px;
 }
 
-#rng-visualEditor-meta table tr td:nth-child(2) input  {
+#rng-visualEditor-meta table tr td:nth-child(2) [contenteditable]  {
     width:150px;
 }
 
