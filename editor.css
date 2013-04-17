@@ -61,11 +61,18 @@ body {
     width: 290px;
 }
 
+#rng-visualEditor-meta table {
+    margin-bottom:10px;
+}
+
 #rng-visualEditor-meta table [contenteditable] {
     font-size: 11px;
     line-height:13px;
     cursor: pointer;
+}
 
+#rng-visualEditor-meta table li:last-child {
+    border-bottom: none !important;
 }
 
 #rng-visualEditor-meta table tr td:nth-child(1) [contenteditable] {
@@ -76,8 +83,9 @@ body {
     width:150px;
 }
 
-#rng-visualEditor-meta table .rng-visualEditor-addMetaRow td:nth-child(3) {
-    width:15px;
+#rng-visualEditor-meta .rng-visualEditor-metaAddBtn {
+    float:right;
+    margin-right:6px;
 }
 
 #rng-visualEditor-meta .btn{

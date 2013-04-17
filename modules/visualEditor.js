@@ -33,7 +33,7 @@ rng.modules.visualEditor = function(sandbox) {
             
             var metaTable = this.metaTable = this.node.find('#rng-visualEditor-meta table');
             
-            this.metaTable.find('.rng-visualEditor-metaAddBtn').click(function() {
+            this.node.find('.rng-visualEditor-metaAddBtn').click(function() {
                 var newRow = view._addMetaRow('', '');
                 $(newRow.find('td div')[0]).focus();
                 isDirty = true;
@@ -52,7 +52,7 @@ rng.modules.visualEditor = function(sandbox) {
                     } else {
                         var input = $('<input>');
                         input.appendTo('body').focus()
-                        metaTable.find('.rng-visualEditor-metaAddBtn').focus();
+                        view.node.find('.rng-visualEditor-metaAddBtn').focus();
                         input.remove();
                     }
                     e.preventDefault();
@@ -63,7 +63,7 @@ rng.modules.visualEditor = function(sandbox) {
         },
         getMetaData: function() {
             var toret = {};
-            this.metaTable.find('tr').not('.rng-visualEditor-addMetaRow').each(function() {
+            this.metaTable.find('tr').each(function() {
                 var tr = $(this);
                 var inputs = $(this).find('td [contenteditable]');
                 var key = $(inputs[0]).text();
@@ -75,7 +75,7 @@ rng.modules.visualEditor = function(sandbox) {
         },
         setMetaData: function(metadata) {
             var view = this;
-            this.metaTable.find('tr').not('.rng-visualEditor-addMetaRow').remove();
+            this.metaTable.find('tr').remove();
             _.each(_.keys(metadata), function(key) {    
                 view._addMetaRow(key, metadata[key]);
             });
@@ -91,9 +91,8 @@ rng.modules.visualEditor = function(sandbox) {
             node.addClass('rng-current');
         },
         _addMetaRow: function(key, value) {
-            var addRow = this.metaTable.find('.rng-visualEditor-addMetaRow');
             var newRow = $(sandbox.getTemplate('metaItem')({key: key || '', value: value || ''}));
-            newRow.insertBefore(addRow);
+            newRow.appendTo(this.metaTable);
             return newRow;
         }
     };
