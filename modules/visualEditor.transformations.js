@@ -21,15 +21,24 @@ if(typeof module !== 'undefined' && module.exports) {
                 console.log('running ' + tagName);
                 toret.find(tagName).replaceWith(function() {
                     var suffix = tagName !== 'div'  ? tagName : 'block';
-                    return $('<div></div>').attr('wlxml-tag', suffix).append($(this).contents());
+                    var toret = $('<div></div>').attr('wlxml-tag', suffix);
+                    var currentTag = $(this);
+                    if(currentTag.attr('class'))
+                        toret.attr('wlxml-class', currentTag.attr('class'));
+                    toret.append(currentTag.contents());
+                    return toret;
                 });
             });
             
             toInline.forEach(function(tagName) {
                 tagName = tagName.toLowerCase();
                 toret.find(tagName).replaceWith(function() {
-                    var node = this;
-                    return $('<span></span>').attr('wlxml-tag', tagName).append($(this).contents());
+                    var currentTag = $(this);
+                    var toret = $('<span></span>').attr('wlxml-tag', tagName);
+                    if(currentTag.attr('class'))
+                        toret.attr('wlxml-class', currentTag.attr('class'));
+                    toret.append(currentTag.contents());
+                    return toret;
                 });
             });
             return toret.children();
