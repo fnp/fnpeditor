@@ -29,7 +29,7 @@ rng.modules.tabsManager = function(sandbox) {
     }
        
     
-    view.on('click', 'li a', function(e) {
+    view.on('click', '#rng-tabsManager-tabBar li a', function(e) {
         selectTab($(e.target).attr('href').substr(1));
     });
     
