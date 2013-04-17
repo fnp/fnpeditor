@@ -96,7 +96,33 @@ rng.modules.visualEditor = function(sandbox) {
             return newRow;
         }
     };
+    
+    
+    var sideBarView = {
+        node: view.node.find('#rng-visualEditor-sidebar'),
+        setup: function() {
+            var view = this;
+            this.node.find('#rng-visualEditor-sidebarButtons a').click(function(e) {
+                e.preventDefault();
+                var target = $(e.currentTarget);
+                if(!target.attr('data-content-id'))
+                    return;
+                view.selectTab(target.attr('data-content-id'));
+            });
+            view.selectTab('rng-visualEditor-edit');
+        },
+        selectTab: function(id) {
+           this.node.find('.rng-visualEditor-sidebarContentItem').hide();
+           this.node.find('#'+id).show();
+           this.node.find('#rng-visualEditor-sidebarButtons li').removeClass('active');
+           this.node.find('#rng-visualEditor-sidebarButtons li a[data-content-id=' + id + ']').parent().addClass('active');
+        
+        }
+    
+    }
+    
     view.setup();
+    sideBarView.setup();
     
     var isDirty = false;
     
