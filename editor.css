@@ -58,6 +58,7 @@ body {
 
 #rng-visualEditor-meta {
     float:right;
+    width: 290px;
 }
 
 #rng-visualEditor-meta table [contenteditable] {
@@ -73,6 +74,10 @@ body {
 
 #rng-visualEditor-meta table tr td:nth-child(2) [contenteditable]  {
     width:150px;
+}
+
+#rng-visualEditor-meta table .rng-visualEditor-addMetaRow td:nth-child(3) {
+    width:15px;
 }
 
 #rng-visualEditor-meta .btn{
