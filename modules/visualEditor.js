@@ -29,23 +29,38 @@ rng.modules.visualEditor = function(sandbox) {
                     return;
                 view._markSelected(anchor);
             });
+            
+            
+            this.metaTable = this.node.find('#rng-visualEditor-meta table');
+            
+            this.metaTable.find('.rng-visualEditor-metaAddBtn').click(function() {
+                view._addMetaRow();
+                isDirty = true;
+            });
+            
+            this.metaTable.on('click', '.rng-visualEditor-metaRemoveBtn', function(e) {
+                $(e.target).closest('tr').remove();
+                isDirty = true;
+            });
+
         },
         getMetaData: function() {
             var toret = {};
-            this.node.find('#rng-visualEditor-meta table tr').each(function() {
+            this.metaTable.find('tr').not('.rng-visualEditor-addMetaRow').each(function() {
                 var tr = $(this);
-                var key = $(tr.find('td')[0]).html();
-                var value = $(tr.find('td input')[0]).val();
+                var inputs = $(this).find('td input');
+                var key = $(inputs[0]).val()
+                var value = $(inputs[1]).val()
                 toret[key] = value;
             });
             console.log(toret);
             return toret;
         },
         setMetaData: function(metadata) {
-            var table = this.node.find('#rng-visualEditor-meta table');
-            table.empty();
+            var view = this;
+            this.metaTable.find('tr').not('.rng-visualEditor-addMetaRow').remove();
             _.each(_.keys(metadata), function(key) {    
-                $(sandbox.getTemplate('metaItem')({key: key, value: metadata[key]})).appendTo(table);
+                view._addMetaRow(key, metadata[key]);
             });
         },
         setBody: function(HTMLTree) {
@@ -57,6 +72,10 @@ rng.modules.visualEditor = function(sandbox) {
         _markSelected: function(node) {
             this.node.find('.rng-current').removeClass('rng-current');
             node.addClass('rng-current');
+        },
+        _addMetaRow: function(key, value) {
+            var addRow = this.metaTable.find('.rng-visualEditor-addMetaRow');
+            $(sandbox.getTemplate('metaItem')({key: key || '', value: value || ''})).insertBefore(addRow);
         }
     };
     view.setup();
