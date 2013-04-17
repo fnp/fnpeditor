@@ -91,6 +91,13 @@ rng.modules.visualEditor = function(sandbox) {
             node.addClass('rng-current');
             mediator.nodeSelected(node);
         },
+        markFirstSelected: function() {
+            var firstNodeWithText = this.node.find('[wlxml-tag]').filter(function() {
+                return $(this).clone().children().remove().end().text().trim() !== '';
+            }).first();
+            if(firstNodeWithText.length)
+                $(firstNodeWithText[0]).click().focus();
+        },
         _addMetaRow: function(key, value) {
             var newRow = $(sandbox.getTemplate('metaItem')({key: key || '', value: value || ''}));
             newRow.appendTo(this.metaTable);
@@ -135,7 +142,7 @@ rng.modules.visualEditor = function(sandbox) {
     }
     
     var isDirty = false;
-    
+    var wasShownAlready = false;
     
     
     return {
@@ -159,6 +166,12 @@ rng.modules.visualEditor = function(sandbox) {
         },
         setDirty: function(dirty) {
             isDirty = dirty;
+        },
+        onShowed: function() {
+            if(!wasShownAlready) {
+                wasShownAlready = true;
+                view.markFirstSelected();
+            }
         }
     
     }

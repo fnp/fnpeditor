@@ -26,6 +26,7 @@ rng.modules.tabsManager = function(sandbox) {
             tabContent[prevSlug].detach();
         tabContent[slug].appendTo(view.find('#rng-tabsManager-content'));
         currentSlug = slug;
+        sandbox.publish('showed', slug);
     }
        
     

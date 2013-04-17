@@ -41,6 +41,10 @@ rng.modules.rng = function(sandbox) {
                     editor.setDirty(false);
                 }
             }
+        },
+        showed: function(slug) {
+            if(slug === 'visual')
+                sandbox.getModule('visualEditor').onShowed();
         }
     };
     
@@ -53,8 +57,9 @@ rng.modules.rng = function(sandbox) {
     
     eventHandlers.visualEditor = {
         ready: function() {
-            addTab('Visual', 'visual', sandbox.getModule('visualEditor').getView());
             sandbox.getModule('visualEditor').setDocument(sandbox.getModule('data').getDocument());
+            addTab('Visual', 'visual', sandbox.getModule('visualEditor').getView());
+            
         }
     };
     
