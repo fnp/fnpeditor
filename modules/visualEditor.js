@@ -47,7 +47,7 @@ rng.modules.visualEditor = function(sandbox) {
             this.metaTable.on('keydown', '[contenteditable]', function(e) {
                 console.log(e.which);
                 if(e.which === 13) { 
-                    if($('*:focus').hasClass('rng-visualEditor-metaItemKey')) {
+                    if($(document.activeElement).hasClass('rng-visualEditor-metaItemKey')) {
                         metaTable.find('.rng-visualEditor-metaItemValue').focus();
                     } else {
                         var input = $('<input>');
