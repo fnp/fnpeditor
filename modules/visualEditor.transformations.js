@@ -20,8 +20,7 @@ if(typeof module !== 'undefined' && module.exports) {
                 tagName = tagName.toLowerCase();
                 console.log('running ' + tagName);
                 toret.find(tagName).replaceWith(function() {
-                    var suffix = tagName !== 'div'  ? tagName : 'block';
-                    var toret = $('<div></div>').attr('wlxml-tag', suffix);
+                    var toret = $('<div></div>').attr('wlxml-tag', tagName);
                     var currentTag = $(this);
                     if(currentTag.attr('class'))
                         toret.attr('wlxml-class', currentTag.attr('class'));
