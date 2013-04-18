@@ -161,7 +161,7 @@ body {
 }
 
 [wlxml-tag=header] {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
     margin-bottom: 10px;
 }
@@ -169,6 +169,39 @@ body {
 [wlxml-tag=section] {
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+[wlxml-class|="cite"] {
+    font-style: italic;
+}
+
+[wlxml-class|="cite-code"] {
+    font-family: monospace;
+}
+
+[wlxml-class|="cite-code-xml"] {
+    color: blue;
+}
+
+[wlxml-tag=header] > [wlxml-class=author] {
+    font-size: 14px;
+}
+
+[wlxml-tag=header] > [wlxml-class=title] {
+    font-size:18px;
+}
+
+[wlxml-class|="uri"] {
+    color: blue;
+    text-decoration: underline;
+}
+
+[wlxml-class|="p"] {
+    text-indent: 1.5em;
+}
+
+[wlxml-class|="emph-tech"] {
+    font-style: italic;
 }
 
 .rng-hover {
