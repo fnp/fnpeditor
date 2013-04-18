@@ -23,7 +23,7 @@ if(typeof module !== 'undefined' && module.exports) {
                     var toret = $('<div></div>').attr('wlxml-tag', tagName);
                     var currentTag = $(this);
                     if(currentTag.attr('class'))
-                        toret.attr('wlxml-class', currentTag.attr('class'));
+                        toret.attr('wlxml-class', currentTag.attr('class').replace(/\./g, '-'));
                     toret.append(currentTag.contents());
                     return toret;
                 });
@@ -35,7 +35,7 @@ if(typeof module !== 'undefined' && module.exports) {
                     var currentTag = $(this);
                     var toret = $('<span></span>').attr('wlxml-tag', tagName);
                     if(currentTag.attr('class'))
-                        toret.attr('wlxml-class', currentTag.attr('class'));
+                        toret.attr('wlxml-class', currentTag.attr('class').replace(/\./g, '-'));
                     toret.append(currentTag.contents());
                     return toret;
                 });
@@ -70,7 +70,7 @@ if(typeof module !== 'undefined' && module.exports) {
                 var tagName = div.attr('wlxml-tag');
                 var toret = $('<'+tagName+'>');
                 if(div.attr('wlxml-class'))
-                    toret.attr('class', div.attr('wlxml-class'))
+                    toret.attr('class', div.attr('wlxml-class').replace(/-/g, '.'))
                 toret.append(div.contents());
                 return toret;
             });
