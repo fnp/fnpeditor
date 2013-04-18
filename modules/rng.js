@@ -50,7 +50,7 @@ rng.modules.rng = function(sandbox) {
     
     eventHandlers.sourceEditor = {
         ready: function() {
-            addTab('Source', 'source',  sandbox.getModule('sourceEditor').getView());
+            addTab(gettext('Source'), 'source',  sandbox.getModule('sourceEditor').getView());
             sandbox.getModule('sourceEditor').setDocument(sandbox.getModule('data').getDocument());
         }
     };
@@ -58,7 +58,7 @@ rng.modules.rng = function(sandbox) {
     eventHandlers.visualEditor = {
         ready: function() {
             sandbox.getModule('visualEditor').setDocument(sandbox.getModule('data').getDocument());
-            addTab('Visual', 'visual', sandbox.getModule('visualEditor').getView());
+            addTab(gettext('Visual'), 'visual', sandbox.getModule('visualEditor').getView());
             
         }
     };
