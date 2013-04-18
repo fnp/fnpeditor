@@ -65,6 +65,29 @@ body {
     border-style: solid;
     border-color: #ddd;
     padding: 5px 15px;
+
+}
+
+#rng-visualEditor-sidebar p,
+#rng-visualEditor-sidebar td,
+#rng-visualEditor-sidebar label,
+#rng-visualEditor-sidebar input,
+#rng-visualEditor-sidebar select {
+    font-size: 11px;
+    line-height:13px;
+}
+
+#rng-visualEditor-sidebar select {
+    -webkit-appearance: button;
+    -moz-appearance: button;
+    appearance: button;
+    height: auto;
+    line-height: 14px;
+}
+
+#rng-visualEditor-sidebar label + select {
+    position:relative;
+    top: 5px;
 }
 
 #rng-visualEditor-sidebarButtons {
@@ -86,9 +109,13 @@ body {
     margin-bottom: 0px;
 }
 
-.rng-visualEditor-sidebarContentItem {
-    font-size: 11px;
-    line-height:13px;
+.rng-visualEditor-editPaneNodeForm  label {
+    width: 50px;
+    display: inline-block;
+}
+
+.rng-visualEditor-editPaneNodeForm  select {
+    width: 100px;
 }
 
 #rng-visualEditor-meta table {
