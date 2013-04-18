@@ -69,7 +69,11 @@ if(typeof module !== 'undefined' && module.exports) {
             toret.find('div, span').replaceWith(function() {
                 var div = $(this);
                 var tagName = div.attr('wlxml-tag');
-                return $('<'+tagName+'>').append(div.contents());
+                var toret = $('<'+tagName+'>');
+                if(div.attr('wlxml-class'))
+                    toret.attr('class', div.attr('wlxml-class'))
+                toret.append(div.contents());
+                return toret;
             });
             
             var meta = $('<metadata>');
