@@ -20,8 +20,10 @@ if(typeof module !== 'undefined' && module.exports) {
                 tagName = tagName.toLowerCase();
                 console.log('running ' + tagName);
                 toret.find(tagName).replaceWith(function() {
-                    var toret = $('<div></div>').attr('wlxml-tag', tagName);
                     var currentTag = $(this);
+                    if(currentTag.attr('wlxml-tag'))
+                        return;
+                    var toret = $('<div></div>').attr('wlxml-tag', tagName);
                     if(currentTag.attr('class'))
                         toret.attr('wlxml-class', currentTag.attr('class').replace(/\./g, '-'));
                     toret.append(currentTag.contents());
@@ -33,6 +35,8 @@ if(typeof module !== 'undefined' && module.exports) {
                 tagName = tagName.toLowerCase();
                 toret.find(tagName).replaceWith(function() {
                     var currentTag = $(this);
+                    if(currentTag.attr('wlxml-tag'))
+                        return;
                     var toret = $('<span></span>').attr('wlxml-tag', tagName);
                     if(currentTag.attr('class'))
                         toret.attr('wlxml-class', currentTag.attr('class').replace(/\./g, '-'));
