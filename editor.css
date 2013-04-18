@@ -86,14 +86,16 @@ body {
     margin-bottom: 0px;
 }
 
+.rng-visualEditor-sidebarContentItem {
+    font-size: 11px;
+    line-height:13px;
+}
 
 #rng-visualEditor-meta table {
     margin-bottom:10px;
 }
 
 #rng-visualEditor-meta table [contenteditable] {
-    font-size: 11px;
-    line-height:13px;
     cursor: pointer;
 }
 
