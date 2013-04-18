@@ -3,6 +3,7 @@ rng.modules.visualEditor = function(sandbox) {
 
     var view = {
         node: $(sandbox.getTemplate('main')()),
+        currentNode: null,
         setup: function() {
             var view = this;
 
@@ -89,6 +90,7 @@ rng.modules.visualEditor = function(sandbox) {
         _markSelected: function(node) {
             this.node.find('.rng-current').removeClass('rng-current');
             node.addClass('rng-current');
+            this.currentNode = node;
             mediator.nodeSelected(node);
         },
         markFirstSelected: function() {
@@ -118,6 +120,13 @@ rng.modules.visualEditor = function(sandbox) {
                 view.selectTab(target.attr('data-content-id'));
             });
             view.selectTab('rng-visualEditor-edit');
+            
+            view.node.on('change', '.rng-visualEditor-editPaneNodeForm select', function(e) {
+                var target = $(e.target);
+                var attr = target.attr('id').split('-')[2].split('editPane')[1].substr(0,3) === 'Tag' ? 'tag' : 'class';
+                mediator.getCurrentNode().attr('wlxml-'+attr, target.val());
+                isDirty = true;
+            });
         },
         selectTab: function(id) {
            this.node.find('.rng-visualEditor-sidebarContentItem').hide();
@@ -136,6 +145,9 @@ rng.modules.visualEditor = function(sandbox) {
     sideBarView.setup();
     
     var mediator = {
+        getCurrentNode: function() {
+            return view.currentNode;
+        },
         nodeSelected: function(node) {
             sideBarView.updateEditPane(node);
         }
