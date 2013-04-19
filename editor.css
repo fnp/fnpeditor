@@ -68,6 +68,7 @@ body {
 
 }
 
+#rng-visualEditor-sidebar,
 #rng-visualEditor-sidebar p,
 #rng-visualEditor-sidebar td,
 #rng-visualEditor-sidebar label,
@@ -109,13 +110,28 @@ body {
     margin-bottom: 0px;
 }
 
-.rng-visualEditor-editPaneNodeForm  label {
+.rng-visualEditor-editPaneNodeForm  label ,
+.rng-visualEditor-editPaneSelectionForm  label
+{
     width: 50px;
     display: inline-block;
 }
 
-.rng-visualEditor-editPaneNodeForm  select {
+.rng-visualEditor-editPaneNodeForm  select,
+.rng-visualEditor-editPaneSelectionForm  select
+ {
     width: 100px;
+}
+
+
+
+.rng-visualEditor-sidebarContentItem fieldset {
+    margin-bottom: 10px;
+}
+
+.rng-visualEditor-sidebarContentItem  legend {
+    font-size:11px;
+    height:30px;
 }
 
 #rng-visualEditor-meta table {

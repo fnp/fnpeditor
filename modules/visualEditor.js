@@ -127,6 +127,26 @@ rng.modules.visualEditor = function(sandbox) {
                 mediator.getCurrentNode().attr('wlxml-'+attr, target.val());
                 isDirty = true;
             });
+            
+            view.node.on('change', '.rng-visualEditor-editPaneSelectionForm select', function(e) {
+                var target = $(e.target);
+                var selection = window.getSelection();
+                if(selection.anchorNode.isSameNode(selection.focusNode) && selection.anchorNode.nodeType === Node.TEXT_NODE) {                   
+                    var startOffset = selection.anchorOffset;
+                    var endOffset = selection.focusOffset;
+                    if(startOffset > endOffset) {
+                        var tmp = startOffset;
+                        startOffset = endOffset;
+                        endOffset = tmp;
+                    }
+                    var node = selection.anchorNode;
+                    var prefix = node.data.substr(0, startOffset);
+                    var suffix = node.data.substr(endOffset);
+                    var core = node.data.substr(startOffset, endOffset - startOffset);
+                    $(node).replaceWith(prefix + '<span wlxml-tag="' + target.val() + '">' + core + '</span>' + suffix);                   
+                    isDirty = true;
+                }
+            });
         },
         selectTab: function(id) {
            this.node.find('.rng-visualEditor-sidebarContentItem').hide();
