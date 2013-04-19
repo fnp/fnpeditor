@@ -93,7 +93,7 @@ rng.modules.visualEditor = function(sandbox) {
             this.currentNode = node;
             mediator.nodeSelected(node);
         },
-        markFirstSelected: function() {
+        selectFirstNode: function() {
             var firstNodeWithText = this.node.find('[wlxml-tag]').filter(function() {
                 return $(this).clone().children().remove().end().text().trim() !== '';
             }).first();
@@ -218,7 +218,7 @@ rng.modules.visualEditor = function(sandbox) {
         onShowed: function() {
             if(!wasShownAlready) {
                 wasShownAlready = true;
-                view.markFirstSelected();
+                view.selectFirstNode();
             }
         }
     
