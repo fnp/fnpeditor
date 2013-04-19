@@ -11,7 +11,6 @@ if(typeof module !== 'undefined' && module.exports) {
             var inner = $(xml).clone();
             var toret = $('<div></div>');
             toret.append(inner);
-            toret.find('metadata').remove();
             
             var toBlock = ['div', 'document', 'section', 'header'];
             var toInline = ['aside', 'span'];
@@ -79,12 +78,13 @@ if(typeof module !== 'undefined' && module.exports) {
                 return toret;
             });
             
-            var meta = $('<metadata>');
+            var meta = $('<metadata></metadata>\n');
             _.each(_.keys(documentDescription.metadata), function(key) {
-                meta.append($('<dc:'+key+'>' + documentDescription.metadata[key] + '</dc:'+key+'>'));
+                meta.append('\n\t<dc:'+key+'>' + documentDescription.metadata[key] + '</dc:'+key+'>');
             });
+            meta.append('\n');
             
-            toret.find('document').prepend(meta);
+            toret.find('metadata').replaceWith(meta);
             
             return toret.html();
             

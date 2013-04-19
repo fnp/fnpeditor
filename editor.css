@@ -204,6 +204,10 @@ body {
     font-style: italic;
 }
 
+[wlxml-tag=document]  metadata {
+    display:none;
+}
+
 .rng-hover {
     border-color: red;
     border-style:solid;
