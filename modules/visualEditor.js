@@ -107,8 +107,13 @@ rng.modules.visualEditor = function(sandbox) {
             var firstNodeWithText = this.node.find('[wlxml-tag]').filter(function() {
                 return $(this).clone().children().remove().end().text().trim() !== '';
             }).first();
+            var node;
             if(firstNodeWithText.length)
-                this.selectNode($(firstNodeWithText[0]));
+                node = $(firstNodeWithText[0])
+            else {
+                node = this.node.find('[wlxml-class|="p"]')
+            }
+            this.selectNode(node);
         },
         _addMetaRow: function(key, value) {
             var newRow = $(sandbox.getTemplate('metaItem')({key: key || '', value: value || ''}));

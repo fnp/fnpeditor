@@ -3,6 +3,23 @@ rng.modules.data = function(sandbox) {
     var doc = sandbox.getBootstrappedData().document;
     var document_id = sandbox.getBootstrappedData().document_id;
 
+    
+    if(doc === '') {
+        doc = '<document>\n\
+    <section\n\
+        xmlns="http://nowoczesnapolska.org.pl/sst#"\n\
+        xmlns:xlink="http://www.w3.org/1999/xlink"\n\
+        xmlns:dc="http://purl.org/dc/elements/1.1/"\n\
+        xmlns:dcterms="http://purl.org/dc/terms/"\n\
+    >\n\
+        <metadata>\n\
+        </metadata>\n\
+        <div class="p"></div>\n\
+    </section>\n\
+</document>';
+    }
+    
+    
     function readCookie(name) {
         var nameEQ = escape(name) + "=";
         var ca = document.cookie.split(';');
