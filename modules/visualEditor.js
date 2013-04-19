@@ -31,6 +31,18 @@ rng.modules.visualEditor = function(sandbox) {
                 view._markSelected(anchor);
             });
             
+            this.node.on('keydown', '#rng-visualEditor-contentWrapper', function(e) {
+                if(e.which === 13) { 
+                    e.preventDefault();
+                    var anchor = $(window.getSelection().anchorNode);
+                    if(anchor[0].nodeType === Node.TEXT_NODE)
+                        anchor = anchor.parent();
+                    var newNode = anchor.clone().empty();
+                    anchor.after(newNode);
+                    view.selectNode(newNode);
+                }
+            });
+            
             
             var metaTable = this.metaTable = this.node.find('#rng-visualEditor-meta table');
             

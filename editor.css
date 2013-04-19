@@ -177,6 +177,11 @@ body {
     min-height:20px;
 }
 
+span[wlxml-tag] {
+    display:inline-block;
+    min-width: 10px;
+}
+
 [wlxml-tag=header] {
     font-size: 13px;
     font-weight: bold;
