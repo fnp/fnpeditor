@@ -54,7 +54,7 @@ rng.modules.data = function(sandbox) {
         saveDocument: function() {
             $.ajax({
                 method: 'post',
-                url: '/editor/' + document_id,
+                url: '/' + gettext('editor') + '/' + document_id,
                 data: JSON.stringify({document:doc})
             });
         }
