@@ -143,7 +143,11 @@ rng.modules.visualEditor = function(sandbox) {
                     var prefix = node.data.substr(0, startOffset);
                     var suffix = node.data.substr(endOffset);
                     var core = node.data.substr(startOffset, endOffset - startOffset);
-                    $(node).replaceWith(prefix + '<span wlxml-tag="' + target.val() + '">' + core + '</span>' + suffix);                   
+                    var newNode = $('<span wlxml-tag="' + target.val() + '">' + core + '</span>');
+                    $(node).replaceWith(newNode);
+                    newNode.before(prefix);
+                    newNode.after(suffix);
+                    mediator.nodeCreated(newNode);
                     isDirty = true;
                 }
             });
@@ -167,6 +171,18 @@ rng.modules.visualEditor = function(sandbox) {
     var mediator = {
         getCurrentNode: function() {
             return view.currentNode;
+        },
+        nodeCreated: function(node) {
+            view._markSelected(node);
+
+            var range = document.createRange();
+            range.selectNodeContents(node[0]);
+            range.collapse(false);
+
+            var selection = document.getSelection();
+            selection.removeAllRanges()
+            selection.addRange(range);
+            
         },
         nodeSelected: function(node) {
             sideBarView.updateEditPane(node);
