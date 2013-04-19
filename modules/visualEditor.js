@@ -93,12 +93,22 @@ rng.modules.visualEditor = function(sandbox) {
             this.currentNode = node;
             mediator.nodeSelected(node);
         },
+        selectNode: function(node) {
+            view._markSelected(node);
+            var range = document.createRange();
+            range.selectNodeContents(node[0]);
+            range.collapse(false);
+
+            var selection = document.getSelection();
+            selection.removeAllRanges()
+            selection.addRange(range);
+        },
         selectFirstNode: function() {
             var firstNodeWithText = this.node.find('[wlxml-tag]').filter(function() {
                 return $(this).clone().children().remove().end().text().trim() !== '';
             }).first();
             if(firstNodeWithText.length)
-                $(firstNodeWithText[0]).click().focus();
+                this.selectNode($(firstNodeWithText[0]));
         },
         _addMetaRow: function(key, value) {
             var newRow = $(sandbox.getTemplate('metaItem')({key: key || '', value: value || ''}));
@@ -173,15 +183,7 @@ rng.modules.visualEditor = function(sandbox) {
             return view.currentNode;
         },
         nodeCreated: function(node) {
-            view._markSelected(node);
-
-            var range = document.createRange();
-            range.selectNodeContents(node[0]);
-            range.collapse(false);
-
-            var selection = document.getSelection();
-            selection.removeAllRanges()
-            selection.addRange(range);
+            view.selectNode(node);
             
         },
         nodeSelected: function(node) {
