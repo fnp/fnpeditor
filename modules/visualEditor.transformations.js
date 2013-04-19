@@ -23,8 +23,11 @@ if(typeof module !== 'undefined' && module.exports) {
                     if(currentTag.attr('wlxml-tag'))
                         return;
                     var toret = $('<div></div>').attr('wlxml-tag', tagName);
-                    if(currentTag.attr('class'))
-                        toret.attr('wlxml-class', currentTag.attr('class').replace(/\./g, '-'));
+                    for(var i = 0; i < this.attributes.length; i++) {
+                        var attr = this.attributes.item(i);
+                        var value = attr.name === 'class' ? attr.value.replace(/\./g, '-') : attr.value;
+                        toret.attr('wlxml-' + attr.name, value)
+                    }
                     toret.append(currentTag.contents());
                     return toret;
                 });
@@ -37,8 +40,11 @@ if(typeof module !== 'undefined' && module.exports) {
                     if(currentTag.attr('wlxml-tag'))
                         return;
                     var toret = $('<span></span>').attr('wlxml-tag', tagName);
-                    if(currentTag.attr('class'))
-                        toret.attr('wlxml-class', currentTag.attr('class').replace(/\./g, '-'));
+                    for(var i = 0; i < this.attributes.length; i++) {
+                        var attr = this.attributes.item(i);
+                        var value = attr.name === 'class' ? attr.value.replace(/\./g, '-') : attr.value;
+                        toret.attr('wlxml-' + attr.name, value)
+                    }
                     toret.append(currentTag.contents());
                     return toret;
                 });
@@ -72,8 +78,19 @@ if(typeof module !== 'undefined' && module.exports) {
                 var div = $(this);
                 var tagName = div.attr('wlxml-tag');
                 var toret = $('<'+tagName+'>');
-                if(div.attr('wlxml-class'))
-                    toret.attr('class', div.attr('wlxml-class').replace(/-/g, '.'))
+                                   
+                for(var i = 0; i < this.attributes.length; i++) {
+                    var attr = this.attributes.item(i);
+                    var split = attr.name.split('-')
+                    console.log(split);
+                    if(split[0] !== 'wlxml' || (split.length > 1 && split[1] === 'tag')) 
+                        continue;
+                    var wlxmlName = split.splice(1).join('-');
+                    var value = wlxmlName === 'class' ? attr.value.replace(/-/g, '.') : attr.value;
+                    console.log(name + ': ' + value);
+                    toret.attr(wlxmlName, value);
+                }
+                    
                 toret.append(div.contents());
                 return toret;
             });
