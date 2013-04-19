@@ -131,7 +131,7 @@ rng.modules.visualEditor = function(sandbox) {
             view.node.on('change', '.rng-visualEditor-editPaneSelectionForm select', function(e) {
                 var target = $(e.target);
                 var selection = window.getSelection();
-                if(selection.anchorNode.isSameNode(selection.focusNode) && selection.anchorNode.nodeType === Node.TEXT_NODE) {                   
+                if(selection.anchorNode === selection.focusNode && selection.anchorNode.nodeType === Node.TEXT_NODE) {
                     var startOffset = selection.anchorOffset;
                     var endOffset = selection.focusOffset;
                     if(startOffset > endOffset) {
