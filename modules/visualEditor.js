@@ -92,6 +92,8 @@ rng.modules.visualEditor = function(sandbox) {
             });
             var config = { attributes: true, childList: true, characterData: true, subtree: true };
             observer.observe(this.node.find('#rng-visualEditor-contentWrapper')[0], config);
+            
+            this.gridToggled = false;
         },
         getMetaData: function() {
             var toret = {};
@@ -140,10 +142,12 @@ rng.modules.visualEditor = function(sandbox) {
                 this.selectNode(node);
         },
         highlightNode: function(node) {
-            node.addClass('rng-hover');
+            if(!this.gridToggled)
+                node.addClass('rng-hover');
         },
         dimNode: function(node) {
-            node.removeClass('rng-hover');
+            if(!this.gridToggled)
+                node.removeClass('rng-hover');
         },
         highlightNodeById: function(id) {
             var node = this.node.find('#'+id);
@@ -171,6 +175,10 @@ rng.modules.visualEditor = function(sandbox) {
             var newRow = $(sandbox.getTemplate('metaItem')({key: key || '', value: value || ''}));
             newRow.appendTo(this.metaTable);
             return newRow;
+        },
+        toggleGrid: function(toggle) {
+            this.node.find('[wlxml-tag]').toggleClass('rng-hover', toggle);
+            this.gridToggled = toggle;
         }
     };
     
@@ -267,8 +275,24 @@ rng.modules.visualEditor = function(sandbox) {
         }
     }
     
+    var toolbarView = {
+        node: view.node.find('#rng-visualEditor-toolbar'),
+        setup: function() {
+            var view = this;
+            
+            view.node.find('button').click(function(e) {
+                var btn = $(e.currentTarget);
+                if(btn.attr('data-btn-type') === 'toggle') {
+                    btn.toggleClass('active')
+                    mediator.toolbarButtonToggled(btn.attr('data-btn'), btn.hasClass('active'));
+                }
+            });
+        }
+    }
+    
     view.setup();
     sideBarView.setup();
+    toolbarView.setup();
     
     var mediator = {
         getCurrentNode: function() {
@@ -290,6 +314,10 @@ rng.modules.visualEditor = function(sandbox) {
         nodeDimmedById: function(id) {
             view.dimNodeById(id);
         },
+        toolbarButtonToggled: function(btn, toggle) {
+            if(btn === 'grid')
+                view.toggleGrid(toggle);
+        },
         nodeHovered: function(node) {
             view.highlightNode(node);
             sideBarView.highlightNode(node.attr('id'));
@@ -298,6 +326,7 @@ rng.modules.visualEditor = function(sandbox) {
             view.dimNode(node);
             sideBarView.dimNode(node.attr('id'));
         }
+        
     }
     
     var isDirty = false;
