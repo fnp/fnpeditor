@@ -15,40 +15,29 @@ if(typeof module !== 'undefined' && module.exports) {
             var toBlock = ['div', 'document', 'section', 'header'];
             var toInline = ['aside', 'span'];
             
-            toBlock.forEach(function(tagName) {
-                tagName = tagName.toLowerCase();
-                console.log('running ' + tagName);
-                toret.find(tagName).replaceWith(function() {
-                    var currentTag = $(this);
-                    if(currentTag.attr('wlxml-tag'))
-                        return;
-                    var toret = $('<div></div>').attr('wlxml-tag', tagName);
-                    for(var i = 0; i < this.attributes.length; i++) {
-                        var attr = this.attributes.item(i);
-                        var value = attr.name === 'class' ? attr.value.replace(/\./g, '-') : attr.value;
-                        toret.attr('wlxml-' + attr.name, value)
-                    }
-                    toret.append(currentTag.contents());
-                    return toret;
+            var transform = function(tags, replacingTagName) {
+                tags.forEach(function(tagName) {
+                    tagName = tagName.toLowerCase();
+                    console.log('running ' + tagName);
+                    toret.find(tagName).replaceWith(function() {
+                        var currentTag = $(this);
+                        if(currentTag.attr('wlxml-tag'))
+                            return;
+                        var toret = $('<' + replacingTagName + '>').attr('wlxml-tag', tagName);
+                        for(var i = 0; i < this.attributes.length; i++) {
+                            var attr = this.attributes.item(i);
+                            var value = attr.name === 'class' ? attr.value.replace(/\./g, '-') : attr.value;
+                            toret.attr('wlxml-' + attr.name, value)
+                        }
+                        toret.append(currentTag.contents());
+                        return toret;
+                    });
                 });
-            });
+            }
             
-            toInline.forEach(function(tagName) {
-                tagName = tagName.toLowerCase();
-                toret.find(tagName).replaceWith(function() {
-                    var currentTag = $(this);
-                    if(currentTag.attr('wlxml-tag'))
-                        return;
-                    var toret = $('<span></span>').attr('wlxml-tag', tagName);
-                    for(var i = 0; i < this.attributes.length; i++) {
-                        var attr = this.attributes.item(i);
-                        var value = attr.name === 'class' ? attr.value.replace(/\./g, '-') : attr.value;
-                        toret.attr('wlxml-' + attr.name, value)
-                    }
-                    toret.append(currentTag.contents());
-                    return toret;
-                });
-            });
+            transform(toBlock, 'div');
+            transform(toInline, 'span');
+
             return toret.children();
         },
         getMetaData: function(xml) {
