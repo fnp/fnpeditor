@@ -15,8 +15,8 @@ rng.modules.visualEditor = function(sandbox) {
                 isDirty = true;
             });
 
-            this.node.on('mouseover', '[wlxml-tag]', function(e) { $(e.target).addClass('rng-hover')});
-            this.node.on('mouseout', '[wlxml-tag]', function(e) { $(e.target).removeClass('rng-hover')});
+            this.node.on('mouseover', '[wlxml-tag]', function(e) { view.highlightNode($(e.target));});
+            this.node.on('mouseout', '[wlxml-tag]', function(e) { view.dimNode($(e.target));});
             this.node.on('click', '[wlxml-tag]', function(e) {
                 console.log('clicked node type: '+e.target.nodeType);
                 view._markSelected($(e.target));
@@ -139,6 +139,24 @@ rng.modules.visualEditor = function(sandbox) {
             if(node)
                 this.selectNode(node);
         },
+        highlightNode: function(node) {
+            node.addClass('rng-hover');
+            mediator.nodeHighlighted(node);
+        },
+        dimNode: function(node) {
+            node.removeClass('rng-hover');
+            mediator.nodeDimmed(node);
+        },
+        highlightNodeById: function(id) {
+            var node = this.node.find('#'+id);
+            if(node)
+                this.highlightNode(node);
+        },
+        dimNodeById: function(id) {
+            var node = this.node.find('#'+id);
+            if(node)
+                this.dimNode(node);
+        },
         selectFirstNode: function() {
             var firstNodeWithText = this.node.find('[wlxml-tag]').filter(function() {
                 return $(this).clone().children().remove().end().text().trim() !== '';
@@ -205,7 +223,17 @@ rng.modules.visualEditor = function(sandbox) {
             
             view.node.on('click', '.rng-visualEditor-editPaneSurrouding a', function(e) {
                 var target = $(e.target);
+                mediator.nodeDimmedById(target.attr('data-id'));
                 mediator.nodeSelectedById(target.attr('data-id'));
+            });
+            
+            view.node.on('mouseenter', '.rng-visualEditor-editPaneSurrouding a', function(e) {
+                var target = $(e.target);
+                mediator.nodeHighlightedById(target.attr('data-id')); 
+            });
+            view.node.on('mouseleave', '.rng-visualEditor-editPaneSurrouding a', function(e) {
+                var target = $(e.target);
+                mediator.nodeDimmedById(target.attr('data-id')); 
             });
         },
         selectTab: function(id) {
@@ -230,6 +258,14 @@ rng.modules.visualEditor = function(sandbox) {
             });
             var naviTemplate = sandbox.getTemplate('editPaneNavigation')({parent: parent, children: children});
             pane.find('.rng-visualEditor-editPaneSurrouding > div').html($(naviTemplate));
+        },
+        highlightNode: function(id) {
+            var pane = this.node.find('#rng-visualEditor-edit');
+            pane.find('a[data-id="'+id+'"]').addClass('rng-hover');
+        },
+        dimNode: function(id) {
+            var pane = this.node.find('#rng-visualEditor-edit');
+            pane.find('a[data-id="' +id+'"]').removeClass('rng-hover');
         }
     }
     
@@ -249,6 +285,18 @@ rng.modules.visualEditor = function(sandbox) {
         },
         nodeSelectedById: function(id) {
             view.selectNodeById(id);
+        },
+        nodeHighlightedById: function(id) {
+            view.highlightNodeById(id);
+        },
+        nodeDimmedById: function(id) {
+            view.dimNodeById(id);
+        },
+        nodeHighlighted: function(node) {
+            sideBarView.highlightNode(node.attr('id'));
+        },
+        nodeDimmed: function(node) {
+            sideBarView.dimNode(node.attr('id'));
         }
     }
     
