@@ -191,7 +191,7 @@ body {
 
 #rng-visualEditor-editPaneNavigation table tr td ul {
     list-style-type: none;
-    margin-left:0px;
+    margin: 0;
 }
 #rng-sourceEditor-editor {
     width: 940px;
