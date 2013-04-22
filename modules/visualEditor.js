@@ -15,8 +15,8 @@ rng.modules.visualEditor = function(sandbox) {
                 isDirty = true;
             });
 
-            this.node.on('mouseover', '[wlxml-tag]', function(e) { view.highlightNode($(e.target));});
-            this.node.on('mouseout', '[wlxml-tag]', function(e) { view.dimNode($(e.target));});
+            this.node.on('mouseover', '[wlxml-tag]', function(e) { mediator.nodeHovered($(e.target));});
+            this.node.on('mouseout', '[wlxml-tag]', function(e) { mediator.nodeBlured($(e.target));});
             this.node.on('click', '[wlxml-tag]', function(e) {
                 console.log('clicked node type: '+e.target.nodeType);
                 view._markSelected($(e.target));
@@ -141,11 +141,9 @@ rng.modules.visualEditor = function(sandbox) {
         },
         highlightNode: function(node) {
             node.addClass('rng-hover');
-            mediator.nodeHighlighted(node);
         },
         dimNode: function(node) {
             node.removeClass('rng-hover');
-            mediator.nodeDimmed(node);
         },
         highlightNodeById: function(id) {
             var node = this.node.find('#'+id);
@@ -292,10 +290,12 @@ rng.modules.visualEditor = function(sandbox) {
         nodeDimmedById: function(id) {
             view.dimNodeById(id);
         },
-        nodeHighlighted: function(node) {
+        nodeHovered: function(node) {
+            view.highlightNode(node);
             sideBarView.highlightNode(node.attr('id'));
         },
-        nodeDimmed: function(node) {
+        nodeBlured: function(node) {
+            view.dimNode(node);
             sideBarView.dimNode(node.attr('id'));
         }
     }
