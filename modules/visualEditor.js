@@ -261,7 +261,7 @@ rng.modules.visualEditor = function(sandbox) {
                 id: node.parent().attr('id')
             }
             var children = [];
-            node.children().each(function() {
+            node.children('[wlxml-tag]').each(function() {
                 var child = $(this);
                 children.push({repr: child.attr('wlxml-tag') + ' / ' + (child.attr('wlxml-class') || '[[no class]]'), id: child.attr('id')});
             });
