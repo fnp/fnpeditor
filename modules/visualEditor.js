@@ -38,6 +38,7 @@ rng.modules.visualEditor = function(sandbox) {
                     if(anchor[0].nodeType === Node.TEXT_NODE)
                         anchor = anchor.parent();
                     var newNode = anchor.clone().empty();
+                    newNode.attr('id', '');
                     anchor.after(newNode);
                     view.selectNode(newNode);
                 }
@@ -72,7 +73,25 @@ rng.modules.visualEditor = function(sandbox) {
                 }
                 
             });
-
+            
+            
+            var observer = new MutationObserver(function(mutations) {
+              mutations.forEach(function(mutation) {
+                if(mutation.addedNodes.length > 0) {
+                    console.log(mutation.addedNodes);
+                }
+                _.each(mutation.addedNodes, function(node) {
+                    node = $(node);
+                    node.parent().find('[wlxml-tag]').each(function() {
+                        tag = $(this);
+                        if(!tag.attr('id'))
+                            tag.attr('id', 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);}));
+                    });
+                });
+              });    
+            });
+            var config = { attributes: true, childList: true, characterData: true, subtree: true };
+            observer.observe(this.node.find('#rng-visualEditor-contentWrapper')[0], config);
         },
         getMetaData: function() {
             var toret = {};
@@ -114,6 +133,11 @@ rng.modules.visualEditor = function(sandbox) {
             var selection = document.getSelection();
             selection.removeAllRanges()
             selection.addRange(range);
+        },
+        selectNodeById: function(id) {
+            var node = this.node.find('#'+id);
+            if(node)
+                this.selectNode(node);
         },
         selectFirstNode: function() {
             var firstNodeWithText = this.node.find('[wlxml-tag]').filter(function() {
@@ -178,6 +202,11 @@ rng.modules.visualEditor = function(sandbox) {
                     isDirty = true;
                 }
             });
+            
+            view.node.on('click', '.rng-visualEditor-editPaneSurrouding a', function(e) {
+                var target = $(e.target);
+                mediator.nodeSelectedById(target.attr('data-id'));
+            });
         },
         selectTab: function(id) {
            this.node.find('.rng-visualEditor-sidebarContentItem').hide();
@@ -189,6 +218,18 @@ rng.modules.visualEditor = function(sandbox) {
         updateEditPane: function(node) {
             var pane = this.node.find('#rng-visualEditor-edit');
             pane.html( $(sandbox.getTemplate('editPane')({tag: node.attr('wlxml-tag'), klass: node.attr('wlxml-class')})));
+            
+            var parent = {
+                repr: node.parent().attr('wlxml-tag') + ' / ' + (node.parent().attr('wlxml-class') || '[[no class]]'),
+                id: node.parent().attr('id')
+            }
+            var children = [];
+            node.children().each(function() {
+                var child = $(this);
+                children.push({repr: child.attr('wlxml-tag') + ' / ' + (child.attr('wlxml-class') || '[[no class]]'), id: child.attr('id')});
+            });
+            var naviTemplate = sandbox.getTemplate('editPaneNavigation')({parent: parent, children: children});
+            pane.find('.rng-visualEditor-editPaneSurrouding > div').html($(naviTemplate));
         }
     }
     
@@ -205,6 +246,9 @@ rng.modules.visualEditor = function(sandbox) {
         },
         nodeSelected: function(node) {
             sideBarView.updateEditPane(node);
+        },
+        nodeSelectedById: function(id) {
+            view.selectNodeById(id);
         }
     }
     
