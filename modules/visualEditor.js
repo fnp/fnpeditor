@@ -179,6 +179,9 @@ rng.modules.visualEditor = function(sandbox) {
         toggleGrid: function(toggle) {
             this.node.find('[wlxml-tag]').toggleClass('rng-hover', toggle);
             this.gridToggled = toggle;
+        },
+        toggleTags: function(toggle) {
+        
         }
     };
     
@@ -317,6 +320,8 @@ rng.modules.visualEditor = function(sandbox) {
         toolbarButtonToggled: function(btn, toggle) {
             if(btn === 'grid')
                 view.toggleGrid(toggle);
+            if(btn === 'tags')
+                view.toggleTags(toggle);
         },
         nodeHovered: function(node) {
             view.highlightNode(node);
