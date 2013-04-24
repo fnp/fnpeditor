@@ -71,9 +71,6 @@ rng.modules.visualEditor = function(sandbox) {
             
             var observer = new MutationObserver(function(mutations) {
               mutations.forEach(function(mutation) {
-                if(mutation.addedNodes.length > 0) {
-                    console.log(mutation.addedNodes);
-                }
                 _.each(mutation.addedNodes, function(node) {
                     node = $(node);
                     node.parent().find('[wlxml-tag]').each(function() {
