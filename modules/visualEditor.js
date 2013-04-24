@@ -37,6 +37,11 @@ rng.modules.visualEditor = function(sandbox) {
                     var anchor = $(window.getSelection().anchorNode);
                     if(anchor[0].nodeType === Node.TEXT_NODE)
                         anchor = anchor.parent();
+                    if(anchor.text() === '') {
+                        var todel = anchor;
+                        anchor = anchor.parent();
+                        todel.remove();
+                    }
                     var newNode = anchor.clone().empty();
                     newNode.attr('id', '');
                     anchor.after(newNode);
