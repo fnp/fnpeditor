@@ -256,12 +256,7 @@ rng.modules.visualEditor = function(sandbox) {
                 mediator.getCurrentNode().attr('wlxml-'+attr, target.val());
                 isDirty = true;
             });
-            
-            view.node.on('change', '.rng-visualEditor-editPaneSelectionForm select', function(e) {
-                var target = $(e.target);
-                mediator.wrapWithNodeRequest(target.val(), null);
-            });
-            
+                       
             view.node.on('click', '.rng-visualEditor-editPaneSurrouding a', function(e) {
                 var target = $(e.target);
                 mediator.nodeDimmedById(target.attr('data-id'));
