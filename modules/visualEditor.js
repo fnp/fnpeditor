@@ -121,6 +121,7 @@ rng.modules.visualEditor = function(sandbox) {
             return this.node.find('#rng-visualEditor-content').html();
         }, 
         _markSelected: function(node) {
+            this.dimNode(node);
             this.node.find('.rng-current').removeClass('rng-current');
             node.addClass('rng-current');
             this.currentNode = node;
@@ -142,12 +143,20 @@ rng.modules.visualEditor = function(sandbox) {
                 this.selectNode(node);
         },
         highlightNode: function(node) {
-            if(!this.gridToggled)
+            if(!this.gridToggled) {
                 node.addClass('rng-hover');
+                var label = node.attr('wlxml-tag');
+                if(node.attr('wlxml-class'))
+                    label += ' / ' + node.attr('wlxml-class');
+                var tag = $('<div>').addClass('rng-visualEditor-nodeHoverTag').text(label);
+                node.append(tag);
+            }
         },
         dimNode: function(node) {
-            if(!this.gridToggled)
+            if(!this.gridToggled) {
                 node.removeClass('rng-hover');
+                node.find('.rng-visualEditor-nodeHoverTag').remove();
+            }
         },
         highlightNodeById: function(id) {
             var node = this.node.find('#'+id);

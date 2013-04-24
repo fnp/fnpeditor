@@ -19,6 +19,20 @@ body {
     list-style-type: none;
 }
 
+.rng-visualEditor-nodeHoverTag {
+    position:absolute;
+    width:100px;
+    height:20px;
+    top:-20px;
+    background: #bd362f;
+    color: white;
+    font-size:9px;
+    font-weight: normal;
+    font-style: normal;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    padding: 0 5px;
+}
+
 #rng-visualEditor-contentWrapper {
     border-color: #ddd;
     border-style: solid;
@@ -209,6 +223,7 @@ body {
     border-style:solid;
     border-width:1px;
     min-height:20px;
+    position:relative;
 }
 
 span[wlxml-tag] {
