@@ -34,18 +34,7 @@ rng.modules.visualEditor = function(sandbox) {
             this.node.on('keydown', '#rng-visualEditor-contentWrapper', function(e) {
                 if(e.which === 13) { 
                     e.preventDefault();
-                    var anchor = $(window.getSelection().anchorNode);
-                    if(anchor[0].nodeType === Node.TEXT_NODE)
-                        anchor = anchor.parent();
-                    if(anchor.text() === '') {
-                        var todel = anchor;
-                        anchor = anchor.parent();
-                        todel.remove();
-                    }
-                    var newNode = anchor.clone().empty();
-                    newNode.attr('id', '');
-                    anchor.after(newNode);
-                    view.selectNode(newNode);
+                    view.insertNewNode(null, null);
                 }
             });
             
@@ -100,6 +89,54 @@ rng.modules.visualEditor = function(sandbox) {
             
             this.gridToggled = false;
         },
+        _createNode: function(wlxmlTag, wlxmlClass) {
+            var toBlock = ['div', 'document', 'section', 'header'];
+            var htmlTag = _.contains(toBlock, wlxmlTag) ? 'div' : 'span';
+            var toret = $('<' + htmlTag + '>');
+            toret.attr('wlxml-tag', wlxmlTag);
+            if(wlxmlClass)
+                toret.attr('wlxml-class', wlxmlClass);
+            return toret;
+        },
+        insertNewNode: function(wlxmlTag, wlxmlClass) {
+            //TODO: Insert inline
+            var anchor = $(window.getSelection().anchorNode);
+            if(anchor[0].nodeType === Node.TEXT_NODE)
+                anchor = anchor.parent();
+            if(anchor.text() === '') {
+                var todel = anchor;
+                anchor = anchor.parent();
+                todel.remove();
+            }
+            var newNode = this._createNode(wlxmlTag || anchor.attr('wlxml-tag'), wlxmlClass || anchor.attr('wlxml-class'));
+            anchor.after(newNode);
+            mediator.nodeCreated(newNode);
+            isDirty = true;
+        },
+        wrapSelectionWithNewNode: function(wlxmlTag, wlxmlClass) {
+            
+            var selection = window.getSelection();
+            if(selection.anchorNode === selection.focusNode && selection.anchorNode.nodeType === Node.TEXT_NODE) {
+                var startOffset = selection.anchorOffset;
+                var endOffset = selection.focusOffset;
+                if(startOffset > endOffset) {
+                    var tmp = startOffset;
+                    startOffset = endOffset;
+                    endOffset = tmp;
+                }
+                var node = selection.anchorNode;
+                var prefix = node.data.substr(0, startOffset);
+                var suffix = node.data.substr(endOffset);
+                var core = node.data.substr(startOffset, endOffset - startOffset);
+                var newNode = this._createNode(wlxmlTag, wlxmlClass);
+                newNode.text(core);
+                $(node).replaceWith(newNode);
+                newNode.before(prefix);
+                newNode.after(suffix);
+                mediator.nodeCreated(newNode);
+                isDirty = true;
+            }
+        },
         getMetaData: function() {
             var toret = {};
             this.metaTable.find('tr').each(function() {
@@ -127,8 +164,11 @@ rng.modules.visualEditor = function(sandbox) {
         }, 
         _markSelected: function(node) {
             this.dimNode(node);
+            
             this.node.find('.rng-current').removeClass('rng-current');
+            
             node.addClass('rng-current');
+
             this.currentNode = node;
             mediator.nodeSelected(node);
         },
@@ -222,26 +262,7 @@ rng.modules.visualEditor = function(sandbox) {
             
             view.node.on('change', '.rng-visualEditor-editPaneSelectionForm select', function(e) {
                 var target = $(e.target);
-                var selection = window.getSelection();
-                if(selection.anchorNode === selection.focusNode && selection.anchorNode.nodeType === Node.TEXT_NODE) {
-                    var startOffset = selection.anchorOffset;
-                    var endOffset = selection.focusOffset;
-                    if(startOffset > endOffset) {
-                        var tmp = startOffset;
-                        startOffset = endOffset;
-                        endOffset = tmp;
-                    }
-                    var node = selection.anchorNode;
-                    var prefix = node.data.substr(0, startOffset);
-                    var suffix = node.data.substr(endOffset);
-                    var core = node.data.substr(startOffset, endOffset - startOffset);
-                    var newNode = $('<span wlxml-tag="' + target.val() + '">' + core + '</span>');
-                    $(node).replaceWith(newNode);
-                    newNode.before(prefix);
-                    newNode.after(suffix);
-                    mediator.nodeCreated(newNode);
-                    isDirty = true;
-                }
+                mediator.wrapWithNodeRequest(target.val(), null);
             });
             
             view.node.on('click', '.rng-visualEditor-editPaneSurrouding a', function(e) {
@@ -303,7 +324,13 @@ rng.modules.visualEditor = function(sandbox) {
                     btn.toggleClass('active')
                     mediator.toolbarButtonToggled(btn.attr('data-btn'), btn.hasClass('active'));
                 }
+                if(btn.attr('data-btn-type') === 'cmd') {
+                    mediator.toolbarButtonCmd(btn.attr('data-btn'));
+                }
             });
+        },
+        getOption: function(option) {
+            return this.node.find('.rng-visualEditor-toolbarOption[data-option=' + option +']').val();
         }
     }
     
@@ -317,7 +344,6 @@ rng.modules.visualEditor = function(sandbox) {
         },
         nodeCreated: function(node) {
             view.selectNode(node);
-            
         },
         nodeSelected: function(node) {
             sideBarView.updateEditPane(node);
@@ -337,6 +363,17 @@ rng.modules.visualEditor = function(sandbox) {
             if(btn === 'tags')
                 view.toggleTags(toggle);
         },
+        toolbarButtonCmd: function(btn) {
+            if(btn === 'new-node') {
+                if(window.getSelection().isCollapsed)
+                    view.insertNewNode(toolbarView.getOption('newTag-tag'), toolbarView.getOption('newTag-class'));
+                else {
+                    this.wrapWithNodeRequest(toolbarView.getOption('newTag-tag'), toolbarView.getOption('newTag-class'));
+                }
+                    
+                    
+            }
+        },
         nodeHovered: function(node) {
             view.highlightNode(node);
             sideBarView.highlightNode(node.attr('id'));
@@ -344,6 +381,9 @@ rng.modules.visualEditor = function(sandbox) {
         nodeBlured: function(node) {
             view.dimNode(node);
             sideBarView.dimNode(node.attr('id'));
+        },
+        wrapWithNodeRequest: function(wlxmlTag, wlxmlClass) {
+            view.wrapSelectionWithNewNode(wlxmlTag, wlxmlClass);
         }
         
     }
