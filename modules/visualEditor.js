@@ -283,10 +283,10 @@ rng.modules.visualEditor = function(sandbox) {
             var pane = this.node.find('#rng-visualEditor-edit');
             pane.html( $(sandbox.getTemplate('editPane')({tag: node.attr('wlxml-tag'), klass: node.attr('wlxml-class')})));
             
-            var parent = {
+            var parent = node.parent('[wlxml-tag]').length ? {
                 repr: node.parent().attr('wlxml-tag') + ' / ' + (node.parent().attr('wlxml-class') || '[[no class]]'),
                 id: node.parent().attr('id')
-            }
+            } : undefined;
             var children = [];
             node.children('[wlxml-tag]').each(function() {
                 var child = $(this);
