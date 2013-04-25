@@ -70,6 +70,14 @@ rng.modules.rng = function(sandbox) {
         documentChanged: function(document, reason) {
             var slug = (reason === 'visual_edit' ? 'source' : 'visual');
             sandbox.getModule(slug+'Editor').setDocument(document);
+        },
+        savingStarted: function() {
+            sandbox.getModule('skelton').deactivateCommand('save');
+            sandbox.getModule('skelton').showMessage(gettext('Saving...'));
+        },
+        savingEnded: function(status) {
+            sandbox.getModule('skelton').activateCommand('save');
+            sandbox.getModule('skelton').clearMessage();
         }
     }
     

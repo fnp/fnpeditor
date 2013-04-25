@@ -52,10 +52,13 @@ rng.modules.data = function(sandbox) {
             sandbox.publish('documentChanged', doc, reason);
         },
         saveDocument: function() {
+            sandbox.publish('savingStarted');
             $.ajax({
                 method: 'post',
                 url: '/' + gettext('editor') + '/' + document_id,
-                data: JSON.stringify({document:doc})
+                data: JSON.stringify({document:doc}),
+                success: function() {sandbox.publish('savingEnded', 'success');},
+                error: function() {sandbox.publish('savingEnded', 'error');}
             });
         }
         

@@ -2,7 +2,7 @@ rng.modules.skelton = function(sandbox) {
     
     var view = $(sandbox.getTemplate('main')());
     
-    view.find('#rng-skelton-menu a').click(function(e) {
+    view.find('#rng-skelton-menu button').click(function(e) {
         e.preventDefault();
         sandbox.publish('cmd.' + $(e.target).attr('data-cmd'));
     });
@@ -14,6 +14,18 @@ rng.modules.skelton = function(sandbox) {
         },
         setMainView: function(mainView) {
             view.find('#rng-skelton-mainView').html(mainView);
+        },
+        showMessage: function(message) {
+            view.find('#rng-skelton-messages').html('<span>'+message+'</span>').show();
+        },
+        clearMessage: function() {
+            view.find('#rng-skelton-messages').empty().hide();
+        },
+        deactivateCommand: function(cmd) {
+            view.find('[data-cmd='+cmd+']').addClass('disabled');
+        },
+        activateCommand: function(cmd) {
+            view.find('[data-cmd='+cmd+']').removeClass('disabled');
         }
     }
 };
