@@ -12,7 +12,7 @@ if(typeof module !== 'undefined' && module.exports) {
             var toret = $('<div></div>');
             toret.append(inner);
             
-            var toBlock = ['div', 'document', 'section', 'header'];
+            var toBlock = ['div', 'section', 'header'];
             var toInline = ['aside', 'span'];
             
             var transform = function(tags, replacingTagName) {

@@ -320,7 +320,7 @@ span[wlxml-tag] {
     font-style: italic;
 }
 
-[wlxml-tag=document]  metadata {
+[wlxml-tag]  metadata {
     display:none;
 }
 
