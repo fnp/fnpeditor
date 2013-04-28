@@ -326,9 +326,42 @@ rng.modules.visualEditor = function(sandbox) {
         }
     }
     
+    var statusBarView = {
+        node: view.node.find('#rng-visualEditor-statusbar'),
+        setup: function() {
+            var view = this;
+            view.node.on('mouseenter', 'a', function(e) {
+                var target = $(e.target);
+                mediator.nodeHighlightedById(target.attr('data-id')); 
+            });
+            view.node.on('mouseleave', 'a', function(e) {
+                var target = $(e.target);
+                mediator.nodeDimmedById(target.attr('data-id')); 
+            });
+            view.node.on('click', 'a', function(e) {
+                e.preventDefault();
+                mediator.nodeSelectedById($(e.target).attr('data-id'));
+            });
+        },
+        
+        showNode: function(node) {
+            this.node.empty();
+            this.node.html(sandbox.getTemplate('statusBarNodeDisplay')({node: node, parents: node.parents('[wlxml-tag]')}));
+            //node.parents('[wlxml-tag]')
+        },
+        
+        highlightNode: function(id) {
+            this.node.find('a[data-id="'+id+'"]').addClass('rng-hover');
+        },
+        dimNode: function(id) {
+            this.node.find('a[data-id="' +id+'"]').removeClass('rng-hover');
+        }
+    }
+    
     view.setup();
     sideBarView.setup();
     toolbarView.setup();
+    statusBarView.setup();
     
     var mediator = {
         getCurrentNode: function() {
@@ -339,6 +372,7 @@ rng.modules.visualEditor = function(sandbox) {
         },
         nodeSelected: function(node) {
             sideBarView.updateEditPane(node);
+            statusBarView.showNode(node);
         },
         nodeSelectedById: function(id) {
             view.selectNodeById(id);
@@ -369,10 +403,12 @@ rng.modules.visualEditor = function(sandbox) {
         nodeHovered: function(node) {
             view.highlightNode(node);
             sideBarView.highlightNode(node.attr('id'));
+            statusBarView.highlightNode(node.attr('id'));
         },
         nodeBlured: function(node) {
             view.dimNode(node);
             sideBarView.dimNode(node.attr('id'));
+            statusBarView.dimNode(node.attr('id'));
         },
         wrapWithNodeRequest: function(wlxmlTag, wlxmlClass) {
             view.wrapSelectionWithNewNode(wlxmlTag, wlxmlClass);
