@@ -5,8 +5,7 @@ rng.modules.data = function(sandbox) {
 
     
     if(doc === '') {
-        doc = '<document>\n\
-    <section\n\
+        doc = '<section\n\
         xmlns="http://nowoczesnapolska.org.pl/sst#"\n\
         xmlns:xlink="http://www.w3.org/1999/xlink"\n\
         xmlns:dc="http://purl.org/dc/elements/1.1/"\n\
@@ -15,8 +14,7 @@ rng.modules.data = function(sandbox) {
         <metadata>\n\
         </metadata>\n\
         <div class="p"></div>\n\
-    </section>\n\
-</document>';
+    </section>';
     }
     
     
