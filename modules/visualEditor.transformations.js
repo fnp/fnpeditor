@@ -24,6 +24,7 @@ if(typeof module !== 'undefined' && module.exports) {
                         if(currentTag.attr('wlxml-tag'))
                             return;
                         var toret = $('<' + replacingTagName + '>').attr('wlxml-tag', tagName);
+                        toret.attr('id', 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);}));
                         for(var i = 0; i < this.attributes.length; i++) {
                             var attr = this.attributes.item(i);
                             var value = attr.name === 'class' ? attr.value.replace(/\./g, '-') : attr.value;
