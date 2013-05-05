@@ -106,6 +106,12 @@ rng.modules.visualEditor = function(sandbox) {
                 anchor = anchor.parent();
                 todel.remove();
             }
+            if(anchorOffset > 0 && anchorOffset < anchor.text().length) {
+                if(wlxmlTag === null && wlxmlClass === null) {
+                    return this.splitWithNewNode(anchor);
+                }
+                return this.wrapSelectionWithNewNode(wlxmlTag, wlxmlClass);
+            }
             var newNode = this._createNode(wlxmlTag || anchor.attr('wlxml-tag'), wlxmlClass || anchor.attr('wlxml-class'));
             if(anchorOffset === 0)
                 anchor.before(newNode)
@@ -115,7 +121,6 @@ rng.modules.visualEditor = function(sandbox) {
             isDirty = true;
         },
         wrapSelectionWithNewNode: function(wlxmlTag, wlxmlClass) {
-            
             var selection = window.getSelection();
             if(selection.anchorNode === selection.focusNode && selection.anchorNode.nodeType === Node.TEXT_NODE) {
                 var startOffset = selection.anchorOffset;
@@ -130,10 +135,35 @@ rng.modules.visualEditor = function(sandbox) {
                 var suffix = node.data.substr(endOffset);
                 var core = node.data.substr(startOffset, endOffset - startOffset);
                 var newNode = this._createNode(wlxmlTag, wlxmlClass);
-                newNode.text(core);
+                newNode.text(core || 'test');
                 $(node).replaceWith(newNode);
                 newNode.before(prefix);
                 newNode.after(suffix);
+                mediator.nodeCreated(newNode);
+                isDirty = true;
+            }
+        },
+        splitWithNewNode: function(node) {
+            var selection = window.getSelection();
+            if(selection.anchorNode === selection.focusNode && selection.anchorNode.nodeType === Node.TEXT_NODE) {
+                var startOffset = selection.anchorOffset;
+                var endOffset = selection.focusOffset;
+                if(startOffset > endOffset) {
+                    var tmp = startOffset;
+                    startOffset = endOffset;
+                    endOffset = tmp;
+                }
+                var anchor = selection.anchorNode;
+                var prefix = anchor.data.substr(0, startOffset);
+                var suffix = anchor.data.substr(endOffset);
+                var prefixNode = this._createNode(node.attr('wlxml-tag'), node.attr('wlxml-class'));
+                var newNode = this._createNode(node.attr('wlxml-tag'), node.attr('wlxml-class'));
+                var suffixNode = this._createNode(node.attr('wlxml-tag'), node.attr('wlxml-class'));
+                prefixNode.text(prefix);
+                suffixNode.text(suffix);
+                node.replaceWith(newNode);
+                newNode.before(prefixNode);
+                newNode.after(suffixNode);
                 mediator.nodeCreated(newNode);
                 isDirty = true;
             }
