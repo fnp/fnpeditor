@@ -98,6 +98,7 @@ rng.modules.visualEditor = function(sandbox) {
         insertNewNode: function(wlxmlTag, wlxmlClass) {
             //TODO: Insert inline
             var anchor = $(window.getSelection().anchorNode);
+            var anchorOffset = window.getSelection().anchorOffset;
             if(anchor[0].nodeType === Node.TEXT_NODE)
                 anchor = anchor.parent();
             if(anchor.text() === '') {
@@ -106,7 +107,10 @@ rng.modules.visualEditor = function(sandbox) {
                 todel.remove();
             }
             var newNode = this._createNode(wlxmlTag || anchor.attr('wlxml-tag'), wlxmlClass || anchor.attr('wlxml-class'));
-            anchor.after(newNode);
+            if(anchorOffset === 0)
+                anchor.before(newNode)
+            else
+                anchor.after(newNode);
             mediator.nodeCreated(newNode);
             isDirty = true;
         },
