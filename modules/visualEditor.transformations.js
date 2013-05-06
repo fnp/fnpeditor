@@ -93,8 +93,8 @@ if(typeof module !== 'undefined' && module.exports) {
             
             toret.find('metadata').replaceWith(meta);
             
-            return toret.html();
             
+            return vkbeautify.xml(toret.html());
         }
     }
 
