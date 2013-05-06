@@ -353,7 +353,7 @@ rng.modules.visualEditor = function(sandbox) {
                     mediator.toolbarButtonToggled(btn.attr('data-btn'), btn.hasClass('active'));
                 }
                 if(btn.attr('data-btn-type') === 'cmd') {
-                    mediator.toolbarButtonCmd(btn.attr('data-btn'));
+                    mediator.toolbarButtonCmd(btn.attr('data-btn'), btn.attr('data-meta'));
                 }
             });
         },
@@ -425,12 +425,19 @@ rng.modules.visualEditor = function(sandbox) {
             if(btn === 'tags')
                 view.toggleTags(toggle);
         },
-        toolbarButtonCmd: function(btn) {
+        toolbarButtonCmd: function(btn, meta) {
             if(btn === 'new-node') {
+                var wlxmlTag = toolbarView.getOption('newTag-tag');
+                var wlxmlClass = toolbarView.getOption('newTag-class');
+                if(meta) {
+                    var split = meta.split('/');
+                    wlxmlTag = split[0];
+                    wlxmlClass = split[1];
+                }
                 if(window.getSelection().isCollapsed)
-                    view.insertNewNode(toolbarView.getOption('newTag-tag'), toolbarView.getOption('newTag-class'));
+                    view.insertNewNode(wlxmlTag, wlxmlClass);
                 else {
-                    this.wrapWithNodeRequest(toolbarView.getOption('newTag-tag'), toolbarView.getOption('newTag-class'));
+                    this.wrapWithNodeRequest(wlxmlTag, wlxmlClass);
                 }
                     
                     
