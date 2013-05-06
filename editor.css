@@ -278,6 +278,7 @@ appearance: button;
     border-width:1px;
     min-height:20px;
     position:relative;
+    text-indent: 0;
 }
 
 span[wlxml-tag] {
