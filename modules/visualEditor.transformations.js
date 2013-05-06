@@ -91,7 +91,16 @@ if(typeof module !== 'undefined' && module.exports) {
             });
             meta.append('\n');
             
-            toret.find('metadata').replaceWith(meta);
+            var metadata = toret.find('metadata');
+            if(metadata.length === 0) {
+                var section = toret.find('section');
+                section = section.length ? $(section[0]) : null;
+                if(section) {
+                    section.prepend(meta)
+                }
+            } else {
+                metadata.replaceWith(meta);
+            }
             
             
             return vkbeautify.xml(toret.html());
