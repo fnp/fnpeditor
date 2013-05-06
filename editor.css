@@ -19,6 +19,10 @@ body {
     float: right;
 }
 
+#rng-skelton-menu li {
+    display: inline;
+}
+
 #rng-skelton-messages {
     position: absolute;
     top: -22px;
@@ -290,6 +294,10 @@ span[wlxml-tag] {
 [wlxml-tag=section] {
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+[wlxml-tag=section] [wlxml-tag=section] {
+    margin-left:10px;
 }
 
 [wlxml-class|="cite"] {
