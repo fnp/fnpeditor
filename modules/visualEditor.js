@@ -315,16 +315,18 @@ rng.modules.visualEditor = function(sandbox) {
         },
         updateEditPane: function(node) {
             var pane = this.node.find('#rng-visualEditor-edit');
+            var parentClass = node.parent().attr('wlxml-class');
             pane.html( $(sandbox.getTemplate('editPane')({tag: node.attr('wlxml-tag'), klass: node.attr('wlxml-class')})));
             
             var parent = node.parent('[wlxml-tag]').length ? {
-                repr: node.parent().attr('wlxml-tag') + ' / ' + (node.parent().attr('wlxml-class') || '[[no class]]'),
+                repr: node.parent().attr('wlxml-tag') + (parentClass ? ' / ' + parentClass : ''),
                 id: node.parent().attr('id')
             } : undefined;
             var children = [];
             node.children('[wlxml-tag]').each(function() {
                 var child = $(this);
-                children.push({repr: child.attr('wlxml-tag') + ' / ' + (child.attr('wlxml-class') || '[[no class]]'), id: child.attr('id')});
+                var childClass = child.attr('wlxml-class');
+                children.push({repr: child.attr('wlxml-tag') + (childClass ? ' / ' + childClass : ''), id: child.attr('id')});
             });
             var naviTemplate = sandbox.getTemplate('editPaneNavigation')({parent: parent, children: children});
             pane.find('.rng-visualEditor-editPaneSurrouding > div').html($(naviTemplate));
