@@ -1,4 +1,6 @@
-rng.modules.sourceEditor = function(sandbox) {
+define(function() {
+
+return function(sandbox) {
 
     var view = $(sandbox.getTemplate('main')());
     var isDirty = false;
@@ -37,3 +39,5 @@ rng.modules.sourceEditor = function(sandbox) {
     
     }
 };
+
+});

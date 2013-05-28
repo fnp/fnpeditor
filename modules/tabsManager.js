@@ -1,4 +1,6 @@
-rng.modules.tabsManager = function(sandbox) {
+define(function() {
+
+return function(sandbox) {
 
     var $ = sandbox.$;
     
@@ -55,3 +57,5 @@ rng.modules.tabsManager = function(sandbox) {
     }
 
 };
+
+});

@@ -1,4 +1,6 @@
-rng.modules.skelton = function(sandbox) {
+define(function() {
+
+return function(sandbox) {
     
     var view = $(sandbox.getTemplate('main')());
     
@@ -29,3 +31,5 @@ rng.modules.skelton = function(sandbox) {
         }
     }
 };
+
+});

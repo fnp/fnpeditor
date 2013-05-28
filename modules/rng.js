@@ -1,4 +1,6 @@
-rng.modules.rng = function(sandbox) {
+define(function() {
+
+return function(sandbox) {
 
     function addTab(title, slug, view) {
         sandbox.getModule('tabsManager').addTab(title, slug, view);
@@ -95,3 +97,5 @@ rng.modules.rng = function(sandbox) {
         }
     }
 };
+
+});

@@ -1,7 +1,9 @@
-var Runner = function($, _, app) {
+define(['jquery-1.9.1.min', 'underscore-min'], function($, _) {
+
+var Runner = function(app, modules) {
 
     function getModuleInstance(moduleName) {
-        var module = moduleInstances[moduleName] = (moduleInstances[moduleName] || app.modules[moduleName](new Sandbox(moduleName)));
+        var module = moduleInstances[moduleName] = (moduleInstances[moduleName] || modules[moduleName](new Sandbox(moduleName)));
         return module;
     }
 
@@ -10,7 +12,7 @@ var Runner = function($, _, app) {
         moduleInstances = {},
         eventListeners = [];
         
-    _.each(_.keys(app.modules || {}), function(moduleName) {
+    _.each(_.keys(modules || {}), function(moduleName) {
         if(_.contains(app.permissions[moduleName] || [], 'handleEvents')) {
             eventListeners.push(moduleName)
         }
@@ -66,4 +68,10 @@ var Runner = function($, _, app) {
             getModuleInstance(moduleName).start();
         });
     }
-};
+}
+
+return {
+    Runner: Runner
+}
+
+});

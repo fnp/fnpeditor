@@ -1,5 +1,6 @@
-rng.modules.visualEditor = function(sandbox) {
-    var transformations = rng.modules.visualEditor.transformations;
+define(['./visualEditor.transformations'], function(transformations) {
+
+return function(sandbox) {
 
     var view = {
         node: $(sandbox.getTemplate('main')()),
@@ -494,3 +495,5 @@ rng.modules.visualEditor = function(sandbox) {
     
     }
 };
+
+});

@@ -1,8 +1,4 @@
-if(typeof module !== 'undefined' && module.exports) {
-    var $ = require('jquery');
-}
-
-(function($) {
+define(['jquery-1.9.1.min'], function($) {
 
     var transformations = {};
 
@@ -107,11 +103,6 @@ if(typeof module !== 'undefined' && module.exports) {
         }
     }
 
+    return transformations;
 
-    if(typeof module !== 'undefined' && module.exports) {
-        module.exports = transformations;
-    } else {
-        rng.modules.visualEditor.transformations = transformations;
-    }
-
-})($);
+});

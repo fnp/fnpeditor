@@ -1,4 +1,6 @@
-rng.modules.data = function(sandbox) {
+define(function() {
+
+return function(sandbox) {
 
     var doc = sandbox.getBootstrappedData().document;
     var document_id = sandbox.getBootstrappedData().document_id;
@@ -61,5 +63,6 @@ rng.modules.data = function(sandbox) {
         }
         
     }
-
 };
+
+});
