@@ -1,4 +1,4 @@
-define(['jquery-1.9.1.min', 'underscore-min'], function($, _) {
+define(['libs/jquery-1.9.1.min', 'libs/underscore-min'], function($, _) {
 
 var Runner = function(app, modules) {
 
