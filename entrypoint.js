@@ -19,7 +19,7 @@
     
     requirejs([
         'libs/jquery-1.9.1.min',
-        'runner',
+        'fnpjs/runner',
         'rng',
         './modules',
         'libs/bootstrap/js/bootstrap.min'
