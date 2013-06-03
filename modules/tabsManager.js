@@ -1,61 +1,33 @@
-define(function() {
+define(['views/tabs/tabs'], function(tabsView) {
 
 return function(sandbox) {
-
-    var $ = sandbox.$;
     
-    var view = $(sandbox.getTemplate('main')());
-    var currentSlug;
-    var tabContent = {};
-    
-    function selectTab(slug) {
-        var tabBar = view.find('#rng-tabsManager-tabBar');
-        
-        var prevActive = tabBar.find('li.active');
-        var prevSlug;
-        if(prevActive.length)
-            prevSlug = prevActive.find('a').attr('href').substr(1);
-        
-        if(prevSlug == slug)
-            return;
-        if(prevSlug)
-            sandbox.publish('leaving', prevSlug);
-        
-        tabBar.find('li').removeClass('active');
-        tabBar.find('a[href=#' + slug + ']').parent().addClass('active');
-        
-        if(prevSlug)
-            tabContent[prevSlug].detach();
-        tabContent[slug].appendTo(view.find('#rng-tabsManager-content'));
-        currentSlug = slug;
+    var view = new tabsView.View();
+    view.on('leaving', function(slug) {
+        sandbox.publish('leaving', slug);
+    });
+    view.on('tabSelected', function(slug) {
         sandbox.publish('showed', slug);
-    }
-       
-    
-    view.on('click', '#rng-tabsManager-tabBar li a', function(e) {
-        selectTab($(e.target).attr('href').substr(1));
     });
     
     return {
         start: function() {
+            view.render();
             sandbox.publish('ready');
         },
         
         getView: function() {
-            return view;
+            return view.$el;
         },
         
         addTab: function(title, slug, contentView) {
-            tabContent[slug] = contentView;
-            view.find('#rng-tabsManager-tabBar').append(sandbox.getTemplate('tabHandle')({title: title, slug: slug}));
-            if(_.values(tabContent).length === 1)
-                selectTab(slug);
+            view.addTab(title, slug, contentView);
+                
         },
         getCurrentSlug: function() {
-            return currentSlug;
+            return view.selectedTab;
         }
     }
-
 };
 
 });

@@ -278,6 +278,7 @@ return function(sandbox) {
             var view = this;
             this.node.find('#rng-visualEditor-sidebarButtons a').click(function(e) {
                 e.preventDefault();
+                e.stopPropagation();
                 var target = $(e.currentTarget);
                 if(!target.attr('data-content-id'))
                     return;

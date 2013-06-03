@@ -12,6 +12,10 @@
             },
             'libs/bootstrap/js/bootstrap.min': {
                 deps: ['libs/jquery-1.9.1.min']
+            },
+            'libs/backbone-min': {
+                exports: 'Backbone',
+                deps: ['libs/jquery-1.9.1.min', 'libs/underscore-min']
             }
         }
 
