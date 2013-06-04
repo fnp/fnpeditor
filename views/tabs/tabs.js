@@ -10,10 +10,11 @@ define([
         className: 'rng-view-tabs',
         
         events: {
-            'click ul a': '_onTabTitleClicked' 
+            'click ul a, i': '_onTabTitleClicked'
         },
         
-        initialize: function() {
+        initialize: function(options) {
+            this.options = options || {};
             this.template = _.template(mainTemplate),
             this.handleTemplate = _.template(handleTemplate);
             this.contents = {};
@@ -26,13 +27,21 @@ define([
                 tabBar: this.$('.rng-view-tabs-tabBar'),
                 content: this.$('.rng-view-tabs-content')
             }
+            
+            if(this.options.stacked) {
+                this.nodes.tabBar.addClass('nav-stacked nav-pills');
+            }
         },
         
         addTab: function(title, slug, content) {
             if(this.contents[slug])
                 return false;
             this.contents[slug] = content;
-            this.nodes.tabBar.append(this.handleTemplate({title:title, slug: slug}));
+            
+            var text = (typeof title === 'string') ? title : (title.text || '');
+            var icon = title.icon || null;
+            
+            this.nodes.tabBar.append(this.handleTemplate({text: text, icon: icon, slug: slug}));
             if(!this.selectedTab)
                 this.selectTab(slug);
         },
@@ -56,7 +65,10 @@ define([
         
         _onTabTitleClicked: function(e) {
             e.preventDefault();
-            var slug = $(e.target).attr('href').substr(1);
+            var target = $(e.target);
+            if(target.is('i'))
+                target = target.parent();
+            var slug = target.attr('href').substr(1);
             this.selectTab(slug);
         }
     });
