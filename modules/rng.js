@@ -1,14 +1,15 @@
 define(function() {
 
 return function(sandbox) {
-
+    'use strict';
+    
     function addTab(title, slug, view) {
         sandbox.getModule('tabsManager').addTab(title, slug, view);
     }
     
     /* Events handling */
     
-    eventHandlers = {};
+    var eventHandlers = {};
     
     eventHandlers.skelton = {
         ready: function() {
