@@ -31,6 +31,7 @@ define([
             if(this.options.stacked) {
                 this.nodes.tabBar.addClass('nav-stacked nav-pills');
             }
+            return this;
         },
         
         addTab: function(title, slug, content) {
@@ -59,6 +60,10 @@ define([
                 this.selectedTab = slug;
                 this.trigger('tabSelected', slug);
             }
+        },
+        
+        getAsView: function() {
+            return this.$el;
         },
         
         /* Events */

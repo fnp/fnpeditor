@@ -8,7 +8,6 @@ define(function(require) {
         rng: require('modules/rng'),
         skelton: require('modules/skelton'),
         sourceEditor: require('modules/sourceEditor'),
-        tabsManager: require('modules/tabsManager'),
         visualEditor: require('modules/visualEditor'),
         
         documentCanvas: require('modules/documentCanvas/documentCanvas'),

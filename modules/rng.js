@@ -1,10 +1,12 @@
-define(function() {
+define(['views/tabs/tabs'], function(tabs) {
 
 return function(sandbox) {
     'use strict';
     
+    var mainTabs = (new tabs.View()).render();
+    
     function addTab(title, slug, view) {
-        sandbox.getModule('tabsManager').addTab(title, slug, view);
+        mainTabs.addTab(title, slug, view);
     }
     
     /* Events handling */
@@ -13,44 +15,17 @@ return function(sandbox) {
     
     eventHandlers.skelton = {
         ready: function() {
-            sandbox.getModule('tabsManager').start();
-        },
-        'cmd.save': function() {
-            var editorSlugs = ['visual', 'source'];
-            var slug = sandbox.getModule('tabsManager').getCurrentSlug();
-            if(_.contains(editorSlugs, slug)) {
-                var editor = sandbox.getModule(slug+'Editor');
-                if(editor.isDirty()) {
-                    sandbox.getModule('data').commitDocument(editor.getDocument(), slug + '_edit');
-                    editor.setDirty(false);
-                }
-            }
-            sandbox.getModule('data').saveDocument();
-        }
-    };
-    
-    eventHandlers.tabsManager = {
-        ready: function() {
-            sandbox.getModule('skelton').setMainView(sandbox.getModule('tabsManager').getView());
+            sandbox.getModule('skelton').setMainView(mainTabs.getAsView());
+            
             _.each(['visualEditor', 'sourceEditor', 'rng2'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
         },
-        leaving: function(slug) {
-            if(slug === 'source' || slug === 'visual') {
-                var editor = sandbox.getModule(slug+'Editor');
-                if(editor.isDirty()) {
-                    sandbox.getModule('data').commitDocument(editor.getDocument(), slug + '_edit');
-                    editor.setDirty(false);
-                }
-            }
-        },
-        showed: function(slug) {
-            if(slug === 'visual')
-                sandbox.getModule('visualEditor').onShowed();
+        'cmd.save': function() {
+            //todo
         }
     };
-    
+     
     eventHandlers.sourceEditor = {
         ready: function() {
             addTab(gettext('Source'), 'source',  sandbox.getModule('sourceEditor').getView());
