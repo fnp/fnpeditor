@@ -1,7 +1,7 @@
 define([
 'fnpjs/layout',
 'views/tabs/tabs',
-'libs/text!./rng/mainLayout.html'
+'libs/text!./mainLayout.html'
 ], function(layout, tabs, mainLayoutTemplate) {
 
 return function(sandbox) {

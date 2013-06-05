@@ -5,7 +5,7 @@ define(function(require) {
     */
     return {
         data: require('modules/data'),
-        rng: require('modules/rng'),
+        rng: require('modules/rng/rng'),
         mainBar: require('modules/mainBar/mainBar'),
         indicator: require('modules/indicator/indicator'),
         
