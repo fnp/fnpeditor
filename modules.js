@@ -10,5 +10,12 @@ define(function(require) {
         sourceEditor: require('modules/sourceEditor'),
         tabsManager: require('modules/tabsManager'),
         visualEditor: require('modules/visualEditor'),
+        
+        documentCanvas: require('modules/documentCanvas/documentCanvas'),
+        nodePane: require('modules/nodePane/nodePane'),
+        metadataEditor: require('modules/metadataEditor/metadataEditor'),
+        nodeFamilyTree: require('modules/nodeFamilyTree/nodeFamilyTree'),
+        
+        rng2: require('modules/rng2/rng2')
     }
 });

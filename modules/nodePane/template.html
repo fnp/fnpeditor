@@ -1,0 +1,23 @@
+<div class="rng-module-nodePane">
+    <fieldset>
+        <legend>Current node</legend>
+        <div>
+            <label>Tag</label>
+            <select class="rng-module-nodePane-tagSelect">
+                <% var options = ['', 'section', 'header', 'div', 'span', 'aside']; %>
+                <% options.forEach(function(option) { %>
+                    <option value="<%= option %>" <% if(option === '') { %>selected<% } %>><%= option %></option>
+                <% }); %>
+            </select>
+        </div>
+        <div>
+            <label>Klasa</label>
+            <select  class="rng-module-nodePane-classSelect">
+                <% var options = ['', 'author', 'title', 'cite', 'cite.code', 'cite.code.xml', 'list', 'list.items', 'item', 'uri', 'p', 'footnote', 'todo', 'emp', 'emph.tech'] %>
+                <% options.forEach(function(option) { %>
+                    <option value="<%= option.replace(/\./g, '-') %>" <% if(option === '') { %>selected<% } %>><%= option %></option>
+                <% }); %>
+            </select>
+        </div>
+    </fieldset>
+</div>

@@ -1,0 +1,19 @@
+<div id="rng-module-nodeFamilyTree">
+    <table class="table table-bordered">
+        <tr>
+            <td>powyżej</td>
+            <td><% if(parent) { %><a href="#" class="rng-module-nodeFamilyTree-parent" data-id="<%= parent.id %>"><%= parent.repr %></a><% } else { %>-<% } %></td>
+        </tr>
+        <tr>
+            <td rowspan="0">poniżej</td>
+            <td>
+                <ul>
+                <% if(!children || children.length === 0) { %>-<% } else { %>
+                    <% children.forEach(function(child) { %>
+                        <li><a href="#" data-id="<%= child.id %>"><%= child.repr %></a></li>
+                    <% }); %>
+                <% } %>
+                </ul>
+            </td>
+        </tr>
+</div>

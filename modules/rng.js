@@ -32,7 +32,7 @@ return function(sandbox) {
     eventHandlers.tabsManager = {
         ready: function() {
             sandbox.getModule('skelton').setMainView(sandbox.getModule('tabsManager').getView());
-            _.each(['visualEditor', 'sourceEditor'], function(moduleName) {
+            _.each(['visualEditor', 'sourceEditor', 'rng2'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
         },
@@ -84,6 +84,12 @@ return function(sandbox) {
         }
     }
     
+    eventHandlers.rng2 = {
+        ready: function() {
+           addTab('rng2 test', 'rng2test', sandbox.getModule('rng2').getView());
+           
+        }
+    }
     
     /* api */
     
@@ -92,7 +98,9 @@ return function(sandbox) {
             sandbox.getModule('data').start();
         },
         handleEvent: function(moduleName, eventName, args) {
-            if(eventHandlers[moduleName] && eventHandlers[moduleName][eventName]) {
+            if('')
+                wysiwigHandler.handleEvent(moduleName, eventName, args);
+            else if(eventHandlers[moduleName] && eventHandlers[moduleName][eventName]) {
                 eventHandlers[moduleName][eventName].apply(eventHandlers, args);
             }
         }
