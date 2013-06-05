@@ -60,6 +60,12 @@ return function(sandbox) {
                 success: function() {sandbox.publish('savingEnded', 'success');},
                 error: function() {sandbox.publish('savingEnded', 'error');}
             });
+        },
+        fakeSave: function() {
+            sandbox.publish('savingStarted');
+            window.setTimeout(function() {
+                sandbox.publish('savingEnded', 'success')
+            }, 2000);
         }
         
     }

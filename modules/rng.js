@@ -1,9 +1,15 @@
-define(['views/tabs/tabs'], function(tabs) {
+define([
+'fnpjs/layout',
+'views/tabs/tabs',
+'libs/text!./rng/mainLayout.html'
+], function(layout, tabs, mainLayoutTemplate) {
 
 return function(sandbox) {
     'use strict';
     
     var mainTabs = (new tabs.View()).render();
+    var mainLayout = new layout.Layout(mainLayoutTemplate);
+    sandbox.getDOM().append(mainLayout.getAsView());
     
     function addTab(title, slug, view) {
         mainTabs.addTab(title, slug, view);
@@ -12,19 +18,6 @@ return function(sandbox) {
     /* Events handling */
     
     var eventHandlers = {};
-    
-    eventHandlers.skelton = {
-        ready: function() {
-            sandbox.getModule('skelton').setMainView(mainTabs.getAsView());
-            
-            _.each(['visualEditor', 'sourceEditor', 'rng2'], function(moduleName) {
-                sandbox.getModule(moduleName).start();
-            });
-        },
-        'cmd.save': function() {
-            //todo
-        }
-    };
      
     eventHandlers.sourceEditor = {
         ready: function() {
@@ -43,19 +36,23 @@ return function(sandbox) {
     
     eventHandlers.data = {
         ready: function() {
-            sandbox.getModule('skelton').start();
+            mainLayout.setView('mainView', mainTabs.getAsView());
+            
+            _.each(['visualEditor', 'sourceEditor', 'rng2', 'mainBar', 'indicator'], function(moduleName) {
+                sandbox.getModule(moduleName).start();
+            });
         },
         documentChanged: function(document, reason) {
             var slug = (reason === 'visual_edit' ? 'source' : 'visual');
             sandbox.getModule(slug+'Editor').setDocument(document);
         },
         savingStarted: function() {
-            sandbox.getModule('skelton').deactivateCommand('save');
-            sandbox.getModule('skelton').showMessage(gettext('Saving...'));
+            sandbox.getModule('mainBar').setCommandEnabled('save', false);
+            sandbox.getModule('indicator').showMessage(gettext('Saving...'));
         },
         savingEnded: function(status) {
-            sandbox.getModule('skelton').activateCommand('save');
-            sandbox.getModule('skelton').clearMessage();
+            sandbox.getModule('mainBar').setCommandEnabled('save', true);
+            sandbox.getModule('indicator').clearMessage();
         }
     }
     
@@ -63,6 +60,21 @@ return function(sandbox) {
         ready: function() {
            addTab('rng2 test', 'rng2test', sandbox.getModule('rng2').getView());
            
+        }
+    }
+    
+    eventHandlers.mainBar = {
+        ready: function() {
+            mainLayout.setView('topPanel', sandbox.getModule('mainBar').getView());
+        },
+        'cmd.save': function() {
+            sandbox.getModule('data').fakeSave();
+        }
+    }
+    
+    eventHandlers.indicator = {
+        ready: function() {
+            mainLayout.setView('messages', sandbox.getModule('indicator').getView());
         }
     }
     

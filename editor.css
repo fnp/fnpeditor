@@ -11,36 +11,6 @@ body {
     display: none;
 }
 
-#rng-skelton {
-    position: relative;
-}
-
-#rng-skelton-menu {
-    float: right;
-}
-
-#rng-skelton-menu li {
-    display: inline;
-}
-
-#rng-skelton-messages {
-    position: absolute;
-    top: -22px;
-    width:100%;
-    text-align:center;
-}
-
-#rng-skelton-messages span {
-    font-weight: bold;
-    background: #f9edbe;
-    padding: 2px 5px;
-    border: solid 1px #f6e39c;
-}
-
-#rng-skelton-menu ul {
-    list-style-type: none;
-}
-
 .rng-visualEditor-nodeHoverTag {
     position:absolute;
     height:20px;

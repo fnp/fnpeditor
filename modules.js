@@ -6,7 +6,9 @@ define(function(require) {
     return {
         data: require('modules/data'),
         rng: require('modules/rng'),
-        skelton: require('modules/skelton'),
+        mainBar: require('modules/mainBar/mainBar'),
+        indicator: require('modules/indicator/indicator'),
+        
         sourceEditor: require('modules/sourceEditor'),
         visualEditor: require('modules/visualEditor'),
         
