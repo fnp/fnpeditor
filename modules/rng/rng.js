@@ -1,14 +1,18 @@
 define([
 'fnpjs/layout',
+'fnpjs/vbox',
 'views/tabs/tabs',
-'libs/text!./mainLayout.html'
-], function(layout, tabs, mainLayoutTemplate) {
+'libs/text!./mainLayout.html',
+'libs/text!./editingLayout.html',
+], function(layout, vbox, tabs, mainLayoutTemplate, editingLayoutTemplate) {
 
 return function(sandbox) {
     'use strict';
     
     var mainTabs = (new tabs.View()).render();
     var mainLayout = new layout.Layout(mainLayoutTemplate);
+    var editingLayout = new layout.Layout(editingLayoutTemplate);
+    
     sandbox.getDOM().append(mainLayout.getAsView());
     
     function addTab(title, slug, view) {
@@ -38,7 +42,7 @@ return function(sandbox) {
         ready: function() {
             mainLayout.setView('mainView', mainTabs.getAsView());
             
-            _.each(['visualEditor', 'sourceEditor', 'rng2', 'mainBar', 'indicator'], function(moduleName) {
+            _.each(['visualEditor', 'sourceEditor', 'documentCanvas', 'nodePane', 'metadataEditor', 'nodeFamilyTree', 'mainBar', 'indicator'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
         },
@@ -75,6 +79,71 @@ return function(sandbox) {
     eventHandlers.indicator = {
         ready: function() {
             mainLayout.setView('messages', sandbox.getModule('indicator').getView());
+        }
+    };
+    
+    
+    var sidebar = (new tabs.View({stacked: true})).render();
+    var box = new vbox.VBox();
+    editingLayout.setView('rightColumn', sidebar.getAsView());
+    addTab('rng2 test', 'rng2test', editingLayout.getAsView());
+    
+    eventHandlers.documentCanvas = {
+        ready: function() {
+            sandbox.getModule('documentCanvas').setDocument(sandbox.getModule('data').getDocument());
+            editingLayout.setView('leftColumn', sandbox.getModule('documentCanvas').getView());
+        },
+        
+        nodeSelected: function(node) {
+            sandbox.getModule('nodePane').setNode(node);
+            sandbox.getModule('nodeFamilyTree').setNode(node);
+        },
+        
+        contentChanged: function() {
+        
+        },
+        
+        nodeHovered: function(node) {
+            
+        },
+        
+        nodeBlured: function(node) {
+        
+        }
+    };
+
+    eventHandlers.nodePane = {
+        ready: function() {
+            //sidebar.addTab({icon: 'pencil'}, 'nodePane', sandbox.getModule('nodePane').getView());
+            box.appendView(sandbox.getModule('nodePane').getView());
+            sidebar.addTab({icon: 'pencil'}, 'edit', box.getAsView());
+        },
+        
+        nodeChanged: function(attr, value) {
+            sandbox.getModule('documentCanvas').modifyCurrentNode(attr, value);
+        }
+    };
+    
+    eventHandlers.metadataEditor = {
+        ready: function() {
+            sandbox.getModule('metadataEditor').setMetadata(sandbox.getModule('data').getDocument());
+            sidebar.addTab({icon: 'info-sign'}, 'metadataEditor', sandbox.getModule('metadataEditor').getView());
+        }
+    };
+    
+    eventHandlers.nodeFamilyTree = {
+        ready: function() {
+            //sidebar.addTab({icon: 'home'}, 'family', sandbox.getModule('nodeFamilyTree').getView());
+            box.appendView(sandbox.getModule('nodeFamilyTree').getView());
+        },
+        nodeEntered: function(id) {
+            sandbox.getModule('documentCanvas').highlightNode(id);
+        },
+        nodeLeft: function(id) {
+            sandbox.getModule('documentCanvas').dimNode(id);
+        },
+        nodeSelected: function(id) {
+            sandbox.getModule('documentCanvas').selectNode(id);
         }
     }
     

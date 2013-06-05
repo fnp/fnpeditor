@@ -17,6 +17,5 @@ define(function(require) {
         metadataEditor: require('modules/metadataEditor/metadataEditor'),
         nodeFamilyTree: require('modules/nodeFamilyTree/nodeFamilyTree'),
         
-        rng2: require('modules/rng2/rng2')
     }
 });
