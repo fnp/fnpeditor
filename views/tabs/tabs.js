@@ -29,7 +29,7 @@ define([
             }
             
             if(this.options.stacked) {
-                this.nodes.tabBar.addClass('nav-stacked nav-pills');
+                this.nodes.tabBar.addClass('nav-stacked nav-pills').removeClass('nav-tabs');
             }
             return this;
         },
