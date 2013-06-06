@@ -248,8 +248,16 @@ return function(sandbox) {
         },
         selectNode: function(id) {
             view.selectNodeById(id);
+        },
+        toggleGrid: function(toggle) {
+            view.toggleGrid(toggle);
+        },
+        insertNewNode: function(wlxmlTag, wlxmlClass) {
+            view.insertNewNode(wlxmlTag, wlxmlClass);
+        },
+        wrapSelectionWithNewNode: function(wlxmlTag, wlxmlClass) {
+            view.wrapSelectionWithNewNode(wlxmlTag, wlxmlClass);
         }
-        
     }
     
 };

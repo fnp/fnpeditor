@@ -54,7 +54,7 @@ return function(sandbox) {
         ready: function() {
             views.mainLayout.setView('mainView', views.mainTabs.getAsView());
             
-            _.each(['visualEditor', 'sourceEditor', 'documentCanvas', 'nodePane', 'metadataEditor', 'nodeFamilyTree', 'mainBar', 'indicator'], function(moduleName) {
+            _.each(['visualEditor', 'sourceEditor', 'documentCanvas', 'documentToolbar', 'nodePane', 'metadataEditor', 'nodeFamilyTree', 'mainBar', 'indicator'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
         },
@@ -149,6 +149,22 @@ return function(sandbox) {
         },
         nodeSelected: function(id) {
             sandbox.getModule('documentCanvas').selectNode(id);
+        }
+    };
+    
+    eventHandlers.documentToolbar = {
+        ready: function() {
+            views.visualEditing.setView('toolbar', sandbox.getModule('documentToolbar').getView());
+        },
+        toggleGrid: function(toggle) {
+            sandbox.getModule('documentCanvas').toggleGrid(toggle);
+        },
+        newNodeRequested: function(wlxmlTag, wlxmlClass) {
+            if(window.getSelection().isCollapsed) {
+                sandbox.getModule('documentCanvas').insertNewNode(wlxmlTag, wlxmlClass);
+            } else {
+                sandbox.getModule('documentCanvas').wrapSelectionWithNewNode(wlxmlTag, wlxmlClass);
+            }
         }
     }
     

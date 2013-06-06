@@ -13,6 +13,7 @@ define(function(require) {
         visualEditor: require('modules/visualEditor'),
         
         documentCanvas: require('modules/documentCanvas/documentCanvas'),
+        documentToolbar: require('modules/documentToolbar/documentToolbar'),
         nodePane: require('modules/nodePane/nodePane'),
         metadataEditor: require('modules/metadataEditor/metadataEditor'),
         nodeFamilyTree: require('modules/nodeFamilyTree/nodeFamilyTree'),
