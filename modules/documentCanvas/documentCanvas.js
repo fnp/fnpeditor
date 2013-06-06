@@ -182,7 +182,7 @@ return function(sandbox) {
         },
         highlightNode: function(node) {
             if(!this.gridToggled) {
-                node.addClass('rng-hover');
+                node.addClass('rng-common-hoveredNode');
                 var label = node.attr('wlxml-tag');
                 if(node.attr('wlxml-class'))
                     label += ' / ' + node.attr('wlxml-class');
@@ -192,7 +192,7 @@ return function(sandbox) {
         },
         dimNode: function(node) {
             if(!this.gridToggled) {
-                node.removeClass('rng-hover');
+                node.removeClass('rng-common-hoveredNode');
                 node.find('.rng-module-documentCanvas-hoveredNodeTag').remove();
             }
         },
@@ -219,7 +219,7 @@ return function(sandbox) {
             this.selectNode(node);
         },
         toggleGrid: function(toggle) {
-            this.node.find('[wlxml-tag]').toggleClass('rng-hover', toggle);
+            this.node.find('[wlxml-tag]').toggleClass('rng-common-hoveredNode', toggle);
             this.gridToggled = toggle;
         }
     };
