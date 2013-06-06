@@ -92,7 +92,7 @@ return function(sandbox) {
                 anchor.before(newNode)
             else
                 anchor.after(newNode);
-            mediator.nodeCreated(newNode);
+            this.selectNode(newNode);
             //isDirty = true;
             sandbox.publish('contentChanged');
         },
@@ -115,7 +115,8 @@ return function(sandbox) {
                 $(node).replaceWith(newNode);
                 newNode.before(prefix);
                 newNode.after(suffix);
-                mediator.nodeCreated(newNode);
+                
+                this.selectNode(newNode);
                 //isDirty = true;
                 sandbox.publish('contentChanged');
             }
@@ -141,7 +142,8 @@ return function(sandbox) {
                 node.replaceWith(newNode);
                 newNode.before(prefixNode);
                 newNode.after(suffixNode);
-                mediator.nodeCreated(newNode);
+                
+                this.selectNode(newNode);
                 //isDirty = true;
                 sandbox.publish('contentChanged');
             }
