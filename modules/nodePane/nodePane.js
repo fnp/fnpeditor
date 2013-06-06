@@ -11,7 +11,7 @@ return function(sandbox) {
     
     view.on('change', 'select', function(e) {
         var target = $(e.target);
-        var attr = target.attr('class').split('-')[2].split('nodePane')[1].substr(0,3) === 'Tag' ? 'tag' : 'class';
+        var attr = target.attr('class').split('-')[3] === 'tagSelect' ? 'tag' : 'class';
         sandbox.publish('nodeChanged', attr, target.val());
     });
     
