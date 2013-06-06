@@ -113,11 +113,16 @@ return function(sandbox) {
         },
         
         nodeHovered: function(node) {
+            sandbox.getModule('documentCanvas').highlightNode(node.attr('id'));
             sandbox.getModule('nodeFamilyTree').highlightNode(node.attr('id'));
+            sandbox.getModule('nodeBreadCrumbs').highlightNode(node.attr('id'));
+            
         },
         
         nodeBlured: function(node) {
+            sandbox.getModule('documentCanvas').dimNode(node.attr('id'));
             sandbox.getModule('nodeFamilyTree').dimNode(node.attr('id'));
+            sandbox.getModule('nodeBreadCrumbs').dimNode(node.attr('id'));
         }
     };
 

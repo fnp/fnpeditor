@@ -44,7 +44,9 @@ return function(sandbox) {
     return {
         start: function() { sandbox.publish('ready'); },
         getView: function() { return view.dom; },
-        setNode: function(node) { view.setNode(node); }
+        setNode: function(node) { view.setNode(node); },
+        highlightNode: function(id) { view.highlightNode(id); },
+        dimNode: function(id) { view.dimNode(id); }
     }
 }
 
