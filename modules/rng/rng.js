@@ -4,20 +4,32 @@ define([
 'views/tabs/tabs',
 'libs/text!./mainLayout.html',
 'libs/text!./editingLayout.html',
-], function(layout, vbox, tabs, mainLayoutTemplate, editingLayoutTemplate) {
+], function(layout, vbox, tabs, mainLayoutTemplate, visualEditingLayoutTemplate) {
 
 return function(sandbox) {
     'use strict';
     
-    var mainTabs = (new tabs.View()).render();
-    var mainLayout = new layout.Layout(mainLayoutTemplate);
-    var editingLayout = new layout.Layout(editingLayoutTemplate);
-    
-    sandbox.getDOM().append(mainLayout.getAsView());
-    
-    function addTab(title, slug, view) {
-        mainTabs.addTab(title, slug, view);
+    function addMainTab(title, slug, view) {
+        views.mainTabs.addTab(title, slug, view);
     }
+    
+    var views = {
+        mainLayout: new layout.Layout(mainLayoutTemplate),
+        mainTabs: (new tabs.View()).render(),
+        visualEditing: new layout.Layout(visualEditingLayoutTemplate),
+        visualEditingSidebar: (new tabs.View({stacked: true})).render(),
+        currentNodePaneLayout: new vbox.VBox()
+    }
+    
+    views.visualEditing.setView('rightColumn', views.visualEditingSidebar.getAsView());
+    addMainTab('rng2 test', 'rng2test', views.visualEditing.getAsView());
+    
+    sandbox.getDOM().append(views.mainLayout.getAsView());
+    
+    views.visualEditingSidebar.addTab({icon: 'pencil'}, 'edit', views.currentNodePaneLayout.getAsView());
+    
+    
+
     
     /* Events handling */
     
@@ -25,7 +37,7 @@ return function(sandbox) {
      
     eventHandlers.sourceEditor = {
         ready: function() {
-            addTab(gettext('Source'), 'source',  sandbox.getModule('sourceEditor').getView());
+            addMainTab(gettext('Source'), 'source',  sandbox.getModule('sourceEditor').getView());
             sandbox.getModule('sourceEditor').setDocument(sandbox.getModule('data').getDocument());
         }
     };
@@ -33,14 +45,14 @@ return function(sandbox) {
     eventHandlers.visualEditor = {
         ready: function() {
             sandbox.getModule('visualEditor').setDocument(sandbox.getModule('data').getDocument());
-            addTab(gettext('Visual'), 'visual', sandbox.getModule('visualEditor').getView());
+            addMainTab(gettext('Visual'), 'visual', sandbox.getModule('visualEditor').getView());
             
         }
     };
     
     eventHandlers.data = {
         ready: function() {
-            mainLayout.setView('mainView', mainTabs.getAsView());
+            views.mainLayout.setView('mainView', views.mainTabs.getAsView());
             
             _.each(['visualEditor', 'sourceEditor', 'documentCanvas', 'nodePane', 'metadataEditor', 'nodeFamilyTree', 'mainBar', 'indicator'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
@@ -62,14 +74,14 @@ return function(sandbox) {
     
     eventHandlers.rng2 = {
         ready: function() {
-           addTab('rng2 test', 'rng2test', sandbox.getModule('rng2').getView());
+           addMainTab('rng2 test', 'rng2test', sandbox.getModule('rng2').getView());
            
         }
     }
     
     eventHandlers.mainBar = {
         ready: function() {
-            mainLayout.setView('topPanel', sandbox.getModule('mainBar').getView());
+            views.mainLayout.setView('topPanel', sandbox.getModule('mainBar').getView());
         },
         'cmd.save': function() {
             sandbox.getModule('data').fakeSave();
@@ -78,20 +90,16 @@ return function(sandbox) {
     
     eventHandlers.indicator = {
         ready: function() {
-            mainLayout.setView('messages', sandbox.getModule('indicator').getView());
+            views.mainLayout.setView('messages', sandbox.getModule('indicator').getView());
         }
     };
     
-    
-    var sidebar = (new tabs.View({stacked: true})).render();
-    var box = new vbox.VBox();
-    editingLayout.setView('rightColumn', sidebar.getAsView());
-    addTab('rng2 test', 'rng2test', editingLayout.getAsView());
+
     
     eventHandlers.documentCanvas = {
         ready: function() {
             sandbox.getModule('documentCanvas').setDocument(sandbox.getModule('data').getDocument());
-            editingLayout.setView('leftColumn', sandbox.getModule('documentCanvas').getView());
+            views.visualEditing.setView('leftColumn', sandbox.getModule('documentCanvas').getView());
         },
         
         nodeSelected: function(node) {
@@ -114,9 +122,7 @@ return function(sandbox) {
 
     eventHandlers.nodePane = {
         ready: function() {
-            //sidebar.addTab({icon: 'pencil'}, 'nodePane', sandbox.getModule('nodePane').getView());
-            box.appendView(sandbox.getModule('nodePane').getView());
-            sidebar.addTab({icon: 'pencil'}, 'edit', box.getAsView());
+            views.currentNodePaneLayout.appendView(sandbox.getModule('nodePane').getView());
         },
         
         nodeChanged: function(attr, value) {
@@ -127,14 +133,13 @@ return function(sandbox) {
     eventHandlers.metadataEditor = {
         ready: function() {
             sandbox.getModule('metadataEditor').setMetadata(sandbox.getModule('data').getDocument());
-            sidebar.addTab({icon: 'info-sign'}, 'metadataEditor', sandbox.getModule('metadataEditor').getView());
+            views.visualEditingSidebar.addTab({icon: 'info-sign'}, 'metadataEditor', sandbox.getModule('metadataEditor').getView());
         }
     };
     
     eventHandlers.nodeFamilyTree = {
         ready: function() {
-            //sidebar.addTab({icon: 'home'}, 'family', sandbox.getModule('nodeFamilyTree').getView());
-            box.appendView(sandbox.getModule('nodeFamilyTree').getView());
+            views.currentNodePaneLayout.appendView(sandbox.getModule('nodeFamilyTree').getView());
         },
         nodeEntered: function(id) {
             sandbox.getModule('documentCanvas').highlightNode(id);
