@@ -10,7 +10,6 @@ define(function(require) {
         indicator: require('modules/indicator/indicator'),
         
         sourceEditor: require('modules/sourceEditor/sourceEditor'),
-        visualEditor: require('modules/visualEditor'),
         
         documentCanvas: require('modules/documentCanvas/documentCanvas'),
         documentToolbar: require('modules/documentToolbar/documentToolbar'),

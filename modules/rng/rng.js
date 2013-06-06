@@ -22,7 +22,7 @@ return function(sandbox) {
     }
     
     views.visualEditing.setView('rightColumn', views.visualEditingSidebar.getAsView());
-    addMainTab('rng2 test', 'rng2test', views.visualEditing.getAsView());
+    addMainTab('Edytor', 'editor', views.visualEditing.getAsView());
     
     sandbox.getDOM().append(views.mainLayout.getAsView());
     
@@ -42,19 +42,11 @@ return function(sandbox) {
         }
     };
     
-    eventHandlers.visualEditor = {
-        ready: function() {
-            sandbox.getModule('visualEditor').setDocument(sandbox.getModule('data').getDocument());
-            addMainTab(gettext('Visual'), 'visual', sandbox.getModule('visualEditor').getView());
-            
-        }
-    };
-    
     eventHandlers.data = {
         ready: function() {
             views.mainLayout.setView('mainView', views.mainTabs.getAsView());
             
-            _.each(['visualEditor', 'sourceEditor', 'documentCanvas', 'documentToolbar', 'nodePane', 'metadataEditor', 'nodeFamilyTree', 'nodeBreadCrumbs', 'mainBar', 'indicator'], function(moduleName) {
+            _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'nodePane', 'metadataEditor', 'nodeFamilyTree', 'nodeBreadCrumbs', 'mainBar', 'indicator'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
         },
