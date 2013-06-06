@@ -57,10 +57,10 @@ return function(sandbox) {
             return view.dom;
         },
         highlightNode: function(id) {
-            view.dom.find('a[data-id="'+id+'"]').addClass('rng-hover');
+            view.dom.find('a[data-id="'+id+'"]').addClass('rng-common-hoveredNode');
         },
         dimNode: function(id) {
-            view.dom.find('a[data-id="'+id+'"]').removeClass('rng-hover');
+            view.dom.find('a[data-id="'+id+'"]').removeClass('rng-common-hoveredNode');
         }
     };
 };

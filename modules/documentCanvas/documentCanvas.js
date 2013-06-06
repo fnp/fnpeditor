@@ -157,9 +157,9 @@ return function(sandbox) {
         _markSelected: function(node) {
             this.dimNode(node);
             
-            this.node.find('.rng-current').removeClass('rng-current');
+            this.node.find('.rng-module-documentCanvas-currentNode').removeClass('rng-module-documentCanvas-currentNode');
             
-            node.addClass('rng-current');
+            node.addClass('rng-module-documentCanvas-currentNode');
 
             this.currentNode = node;
             sandbox.publish('nodeSelected', node);
