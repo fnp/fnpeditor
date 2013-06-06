@@ -17,6 +17,7 @@ define(function(require) {
         nodePane: require('modules/nodePane/nodePane'),
         metadataEditor: require('modules/metadataEditor/metadataEditor'),
         nodeFamilyTree: require('modules/nodeFamilyTree/nodeFamilyTree'),
+        nodeBreadCrumbs: require('modules/nodeBreadCrumbs/nodeBreadCrumbs'),
         
     }
 });

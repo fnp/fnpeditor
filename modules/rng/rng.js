@@ -54,7 +54,7 @@ return function(sandbox) {
         ready: function() {
             views.mainLayout.setView('mainView', views.mainTabs.getAsView());
             
-            _.each(['visualEditor', 'sourceEditor', 'documentCanvas', 'documentToolbar', 'nodePane', 'metadataEditor', 'nodeFamilyTree', 'mainBar', 'indicator'], function(moduleName) {
+            _.each(['visualEditor', 'sourceEditor', 'documentCanvas', 'documentToolbar', 'nodePane', 'metadataEditor', 'nodeFamilyTree', 'nodeBreadCrumbs', 'mainBar', 'indicator'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
         },
@@ -105,6 +105,7 @@ return function(sandbox) {
         nodeSelected: function(node) {
             sandbox.getModule('nodePane').setNode(node);
             sandbox.getModule('nodeFamilyTree').setNode(node);
+            sandbox.getModule('nodeBreadCrumbs').setNode(node);
         },
         
         contentChanged: function() {
@@ -166,6 +167,21 @@ return function(sandbox) {
                 sandbox.getModule('documentCanvas').wrapSelectionWithNewNode(wlxmlTag, wlxmlClass);
             }
         }
+    };
+    
+    eventHandlers.nodeBreadCrumbs = {
+        ready: function() {
+            views.visualEditing.setView('statusBar', sandbox.getModule('nodeBreadCrumbs').getView());
+        },
+        nodeHighlighted: function(id) {
+            sandbox.getModule('documentCanvas').highlightNode(id);
+        },
+        nodeDimmed: function(id) {
+            sandbox.getModule('documentCanvas').dimNode(id);
+        },
+        nodeSelected: function(id) {
+            sandbox.getModule('documentCanvas').selectNode(id);
+        }        
     }
     
     /* api */
