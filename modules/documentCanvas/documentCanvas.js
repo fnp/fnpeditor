@@ -186,14 +186,14 @@ return function(sandbox) {
                 var label = node.attr('wlxml-tag');
                 if(node.attr('wlxml-class'))
                     label += ' / ' + node.attr('wlxml-class');
-                var tag = $('<div>').addClass('rng-visualEditor-nodeHoverTag').text(label);
+                var tag = $('<div>').addClass('rng-module-documentCanvas-hoveredNodeTag').text(label);
                 node.append(tag);
             }
         },
         dimNode: function(node) {
             if(!this.gridToggled) {
                 node.removeClass('rng-hover');
-                node.find('.rng-visualEditor-nodeHoverTag').remove();
+                node.find('.rng-module-documentCanvas-hoveredNodeTag').remove();
             }
         },
         highlightNodeById: function(id) {
