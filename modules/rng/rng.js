@@ -112,11 +112,11 @@ return function(sandbox) {
         },
         
         nodeHovered: function(node) {
-            
+            sandbox.getModule('nodeFamilyTree').highlightNode(node.attr('id'));
         },
         
         nodeBlured: function(node) {
-        
+            sandbox.getModule('nodeFamilyTree').dimNode(node.attr('id'));
         }
     };
 

@@ -55,6 +55,12 @@ return function(sandbox) {
         },
         getView: function() {
             return view.dom;
+        },
+        highlightNode: function(id) {
+            view.dom.find('a[data-id="'+id+'"]').addClass('rng-hover');
+        },
+        dimNode: function(id) {
+            view.dom.find('a[data-id="'+id+'"]').removeClass('rng-hover');
         }
     };
 };
