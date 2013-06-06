@@ -22,6 +22,7 @@ return function(sandbox) {
             });
             this.dom.on('click', 'a', function(e) {
                 e.preventDefault();
+                var target = $(e.target);
                 sandbox.publish('nodeSelected', target.attr('data-id'));
             });
         },
