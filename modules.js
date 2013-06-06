@@ -9,7 +9,7 @@ define(function(require) {
         mainBar: require('modules/mainBar/mainBar'),
         indicator: require('modules/indicator/indicator'),
         
-        sourceEditor: require('modules/sourceEditor'),
+        sourceEditor: require('modules/sourceEditor/sourceEditor'),
         visualEditor: require('modules/visualEditor'),
         
         documentCanvas: require('modules/documentCanvas/documentCanvas'),
