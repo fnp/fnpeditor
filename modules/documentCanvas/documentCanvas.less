@@ -1,0 +1,23 @@
+#rng-module-documentCanvas-contentWrapper {
+    border-color: #ddd;
+    border-style: solid;
+    border-width: 1px;
+    float:left;
+    width: 600px;
+    height: 450px;
+    overflow-y: scroll;
+    padding: 5px 10px;
+    
+    &::-webkit-scrollbar {
+        .rng-mixin-scrollbar;
+    }
+    &::-webkit-scrollbar-track {
+        .rng-mixin-scrollbar-track;
+    }
+    &::-webkit-scrollbar-thumb {
+        .rng-mixin-scrollbar-thumb;
+    }
+    &::-webkit-scrollbar-thumb:window-inactive {
+        .rng-mixin-scrollbar-thumb-window-inactive;
+    }
+}
