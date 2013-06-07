@@ -64,13 +64,6 @@ return function(sandbox) {
         }
     }
     
-    eventHandlers.rng2 = {
-        ready: function() {
-           addMainTab('rng2 test', 'rng2test', sandbox.getModule('rng2').getView());
-           
-        }
-    }
-    
     eventHandlers.mainBar = {
         ready: function() {
             views.mainLayout.setView('topPanel', sandbox.getModule('mainBar').getView());
