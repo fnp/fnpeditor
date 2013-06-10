@@ -20,9 +20,16 @@ return function(sandbox) {
                 sandbox.publish('contentChanged');
             });
 
-            this.node.on('mouseover', '[wlxml-tag]', function(e) { sandbox.publish('nodeHovered', $(e.target)); });
-            this.node.on('mouseout', '[wlxml-tag]', function(e) { sandbox.publish('nodeBlured', $(e.target)); });
+            this.node.on('mouseover', '[wlxml-tag]', function(e) {
+                e.stopPropagation();
+                sandbox.publish('nodeHovered', $(e.target));
+            });
+            this.node.on('mouseout', '[wlxml-tag]', function(e) {
+                e.stopPropagation();
+                sandbox.publish('nodeBlured', $(e.target));
+            });
             this.node.on('click', '[wlxml-tag]', function(e) {
+                e.stopPropagation();
                 console.log('clicked node type: '+e.target.nodeType);
                 view._markSelected($(e.target));
             });
