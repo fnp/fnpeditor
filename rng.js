@@ -3,7 +3,6 @@ define({
     initModules: ['rng'],
     permissions: {
         'skelton': ['getDOM'],
-        'rng': ['getModule', 'handleEvents', 'getDOM'],
-        'rng2': ['getModule', 'handleEvents']
+        'rng': ['getModule', 'handleEvents', 'getDOM']
     }
 });
