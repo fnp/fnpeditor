@@ -31,6 +31,7 @@ return function(sandbox) {
         setNode: function(node) {
             console.log('familyTree sets node');
             var nodes = this.nodes = {};
+            this.currentNode = node;
             var parentNode = node.parent();
             var parent = undefined;
             
@@ -65,8 +66,9 @@ return function(sandbox) {
         start: function() {
             sandbox.publish('ready');
         },
-        setNode: function(node) {
-            view.setNode(node);
+        setNode: function(wlxmlNode) {
+            if(!wlxmlNode.is(view.currentNode))
+                view.setNode(wlxmlNode);
         },
         getView: function() {
             return view.dom;

@@ -29,6 +29,9 @@ var Node = function(domNode) {
                 list.push(new Node($(this)));
             });
             return $(list);
+        },
+        is: function(wlxmlNode) {
+            return wlxmlNode && (wlxmlNode.id === this.id);
         }
     }
 

@@ -25,6 +25,13 @@ return function(sandbox) {
                 if(!origin || moduleName != origin)
                     sandbox.getModule(moduleName).dimNode(wlxmlNode)
             });
+        },
+        selectNode: function(wlxmlNode, origin) {
+            sandbox.getModule('documentCanvas').selectNode(wlxmlNode);
+            sandbox.getModule('nodePane').setNode(wlxmlNode);
+            sandbox.getModule('nodeFamilyTree').setNode(wlxmlNode);
+            sandbox.getModule('nodeBreadCrumbs').setNode(wlxmlNode);
+            
         }
     }
     
@@ -101,10 +108,8 @@ return function(sandbox) {
             views.visualEditing.setView('leftColumn', sandbox.getModule('documentCanvas').getView());
         },
         
-        nodeSelected: function(node) {
-            sandbox.getModule('nodePane').setNode(node);
-            sandbox.getModule('nodeFamilyTree').setNode(node);
-            sandbox.getModule('nodeBreadCrumbs').setNode(node);
+        nodeSelected: function(wlxmlNode) {
+            commands.selectNode(wlxmlNode);
         },
         
         contentChanged: function() {
@@ -148,7 +153,7 @@ return function(sandbox) {
             commands.dimDocumentNode(wlxmlNode, 'nodeFamilyTree');
         },
         nodeSelected: function(wlxmlNode) {
-            sandbox.getModule('documentCanvas').selectNode(wlxmlNode);
+            commands.selectNode(wlxmlNode);
         }
     };
     
@@ -179,7 +184,7 @@ return function(sandbox) {
             commands.dimDocumentNode(wlxmlNode, 'nodeBreadCrumbs');
         },
         nodeSelected: function(wlxmlNode) {
-            sandbox.getModule('documentCanvas').selectNode(wlxmlNode);
+            commands.selectNode(wlxmlNode);
         }        
     }
     

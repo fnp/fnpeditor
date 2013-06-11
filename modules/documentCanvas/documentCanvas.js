@@ -245,7 +245,8 @@ return function(sandbox) {
             view.dimNode(wlxmlNode);
         },
         selectNode: function(wlxmlNode) {
-            view.selectNode(wlxmlNode, {moveCarret: true});
+            if(!wlxmlNode.is(view.currentNode))
+                view.selectNode(wlxmlNode, {moveCarret: true});
         },
         toggleGrid: function(toggle) {
             view.toggleGrid(toggle);

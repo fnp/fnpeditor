@@ -31,6 +31,7 @@ return function(sandbox) {
         setNode: function(node) {
             this.dom.empty();
             var nodes = this.nodes = {};
+            this.currentNode = node;
             this.nodes[node.id] = node;
             var parents = node.parents();
             parents.each(function() {
@@ -53,7 +54,11 @@ return function(sandbox) {
     return {
         start: function() { sandbox.publish('ready'); },
         getView: function() { return view.dom; },
-        setNode: function(node) { view.setNode(node); },
+        setNode: function(wlxmlNode) {
+            if(!wlxmlNode.is(view.currentNode)) {
+                view.setNode(wlxmlNode);
+            }
+        },
         highlightNode: function(id) { view.highlightNode(id); },
         dimNode: function(id) { view.dimNode(id); }
     }
