@@ -32,7 +32,7 @@ return function(sandbox) {
             this.node.on('click', '[wlxml-tag]', function(e) {
                 e.stopPropagation();
                 console.log('clicked node type: '+e.target.nodeType);
-                view._markSelected(new wlxmlNode.Node($(e.target)));
+                view.selectNode(new wlxmlNode.Node($(e.target)));
             });
 
             this.node.on('keyup', '#rng-module-documentCanvas-contentWrapper', function(e) {
@@ -41,7 +41,7 @@ return function(sandbox) {
                     anchor = anchor.parent();
                 if(!anchor.is('[wlxml-tag]'))
                     return;
-                view._markSelected(new wlxmlNode.Node(anchor));
+                view.selectNode(new wlxmlNode.Node(anchor));
             });
             
             this.node.on('keydown', '#rng-module-documentCanvas-contentWrapper', function(e) {
@@ -162,27 +162,25 @@ return function(sandbox) {
         getBody: function() {
             return this.node.find('#rng-module-documentCanvas-content').html();
         }, 
-        _markSelected: function(node) {
+        selectNode: function(node, options) {
+            options = options || {};
             this.dimNode(node);
             
-            
             this.node.find('.rng-module-documentCanvas-currentNode').removeClass('rng-module-documentCanvas-currentNode');
-            
             this.getNodeElement(node).addClass('rng-module-documentCanvas-currentNode');
-
             this.currentNode = node;
-            sandbox.publish('nodeSelected', node);
             
-        },
-        selectNode: function(node) {
-            view._markSelected(node);
-            var range = document.createRange();
-            range.selectNodeContents(this.getNodeElement(node)[0]);
-            range.collapse(false);
+            if(options.doFocus) {
+                var range = document.createRange();
+                range.selectNodeContents(this.getNodeElement(node)[0]);
+                range.collapse(false);
 
-            var selection = document.getSelection();
-            selection.removeAllRanges()
-            selection.addRange(range);
+                var selection = document.getSelection();
+                selection.removeAllRanges()
+                selection.addRange(range);
+            }
+            
+            sandbox.publish('nodeSelected', node);
         },
         highlightNode: function(node) {
             node = this.getNodeElement(node);
@@ -246,7 +244,7 @@ return function(sandbox) {
             view.dimNode(wlxmlNode);
         },
         selectNode: function(wlxmlNode) {
-            view.selectNode(wlxmlNode);
+            view.selectNode(wlxmlNode, {doFocus: true});
         },
         toggleGrid: function(toggle) {
             view.toggleGrid(toggle);
