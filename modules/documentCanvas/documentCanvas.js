@@ -162,42 +162,43 @@ return function(sandbox) {
         getBody: function() {
             return this.node.find('#rng-module-documentCanvas-content').html();
         }, 
-        selectNode: function(node, options) {
+        selectNode: function(wlxmlNode, options) {
             options = options || {};
-            this.dimNode(node);
+            var nodeElement = this.getNodeElement(wlxmlNode)
+            
+            this.dimNode(wlxmlNode);
             
             this.node.find('.rng-module-documentCanvas-currentNode').removeClass('rng-module-documentCanvas-currentNode');
-            this.getNodeElement(node).addClass('rng-module-documentCanvas-currentNode');
-            this.currentNode = node;
-            
-            if(options.doFocus) {
+            nodeElement.addClass('rng-module-documentCanvas-currentNode');
+             
+            if(options.moveCarret) {
                 var range = document.createRange();
-                range.selectNodeContents(this.getNodeElement(node)[0]);
+                range.selectNodeContents(nodeElement[0]);
                 range.collapse(false);
-
                 var selection = document.getSelection();
                 selection.removeAllRanges()
                 selection.addRange(range);
             }
             
-            sandbox.publish('nodeSelected', node);
+            this.currentNode = wlxmlNode;
+            sandbox.publish('nodeSelected', wlxmlNode);
         },
-        highlightNode: function(node) {
-            node = this.getNodeElement(node);
+        highlightNode: function(wlxmlNode) {
+            var nodeElement = this.getNodeElement(wlxmlNode);
             if(!this.gridToggled) {
-                node.addClass('rng-common-hoveredNode');
-                var label = node.attr('wlxml-tag');
-                if(node.attr('wlxml-class'))
-                    label += ' / ' + node.attr('wlxml-class');
+                nodeElement.addClass('rng-common-hoveredNode');
+                var label = nodeElement.attr('wlxml-tag');
+                if(nodeElement.attr('wlxml-class'))
+                    label += ' / ' + nodeElement.attr('wlxml-class');
                 var tag = $('<div>').addClass('rng-module-documentCanvas-hoveredNodeTag').text(label);
-                node.append(tag);
+                nodeElement.append(tag);
             }
         },
-        dimNode: function(node) {
-            node = this.getNodeElement(node);
+        dimNode: function(wlxmlNode) {
+            var nodeElement = this.getNodeElement(wlxmlNode);
             if(!this.gridToggled) {
-                node.removeClass('rng-common-hoveredNode');
-                node.find('.rng-module-documentCanvas-hoveredNodeTag').remove();
+                nodeElement.removeClass('rng-common-hoveredNode');
+                nodeElement.find('.rng-module-documentCanvas-hoveredNodeTag').remove();
             }
         },
         selectFirstNode: function() {
@@ -244,7 +245,7 @@ return function(sandbox) {
             view.dimNode(wlxmlNode);
         },
         selectNode: function(wlxmlNode) {
-            view.selectNode(wlxmlNode, {doFocus: true});
+            view.selectNode(wlxmlNode, {moveCarret: true});
         },
         toggleGrid: function(toggle) {
             view.toggleGrid(toggle);
