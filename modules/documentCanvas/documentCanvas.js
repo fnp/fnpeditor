@@ -32,7 +32,7 @@ return function(sandbox) {
             this.node.on('click', '[wlxml-tag]', function(e) {
                 e.stopPropagation();
                 console.log('clicked node type: '+e.target.nodeType);
-                view._markSelected($(e.target));
+                view._markSelected(new wlxmlNode.Node($(e.target)));
             });
 
             this.node.on('keyup', '#rng-module-documentCanvas-contentWrapper', function(e) {
@@ -41,7 +41,7 @@ return function(sandbox) {
                     anchor = anchor.parent();
                 if(!anchor.is('[wlxml-tag]'))
                     return;
-                view._markSelected(anchor);
+                view._markSelected(new wlxmlNode.Node(anchor));
             });
             
             this.node.on('keydown', '#rng-module-documentCanvas-contentWrapper', function(e) {
@@ -165,19 +165,19 @@ return function(sandbox) {
         _markSelected: function(node) {
             this.dimNode(node);
             
+            
             this.node.find('.rng-module-documentCanvas-currentNode').removeClass('rng-module-documentCanvas-currentNode');
             
-            node.addClass('rng-module-documentCanvas-currentNode');
+            this.getNodeElement(node).addClass('rng-module-documentCanvas-currentNode');
 
             this.currentNode = node;
-            sandbox.publish('nodeSelected', new wlxmlNode.Node(node));
+            sandbox.publish('nodeSelected', node);
             
         },
         selectNode: function(node) {
-            node = this.getNodeElement(node);
             view._markSelected(node);
             var range = document.createRange();
-            range.selectNodeContents(node[0]);
+            range.selectNodeContents(this.getNodeElement(node)[0]);
             range.collapse(false);
 
             var selection = document.getSelection();
