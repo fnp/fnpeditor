@@ -12,31 +12,39 @@ return function(sandbox) {
     var view = {
         dom: $('<div>' + template({node:null, parents: null}) + '</div>'),
         setup: function() {
+            var view = this;
             this.dom.on('mouseenter', 'a', function(e) {
                 var target = $(e.target);
-                sandbox.publish('nodeHighlighted', target.attr('data-id'));
+                sandbox.publish('nodeHighlighted', view.nodes[target.attr('data-id')]);
             });
             this.dom.on('mouseleave', 'a', function(e) {
                 var target = $(e.target);
-                sandbox.publish('nodeDimmed', target.attr('data-id'));
+                sandbox.publish('nodeDimmed', view.nodes[target.attr('data-id')]);
             });
             this.dom.on('click', 'a', function(e) {
                 e.preventDefault();
                 var target = $(e.target);
-                sandbox.publish('nodeSelected', target.attr('data-id'));
+                sandbox.publish('nodeSelected', view.nodes[target.attr('data-id')]);
             });
         },
         
         setNode: function(node) {
             this.dom.empty();
-            this.dom.html(template({node: node, parents: node.parents('[wlxml-tag]')}));
+            var nodes = this.nodes = {};
+            this.nodes[node.id] = node;
+            var parents = node.parents();
+            parents.each(function() {
+                var parent = this;
+                nodes[parent.id] = parent;
+            });
+            this.dom.html(template({node: node, parents: parents}));
         },
         
-        highlightNode: function(id) {
-            this.dom.find('a[data-id="'+id+'"]').addClass('rng-common-hoveredNode');
+        highlightNode: function(node) {
+            this.dom.find('a[data-id="'+node.id+'"]').addClass('rng-common-hoveredNode');
         },
-        dimNode: function(id) {
-            this.dom.find('a[data-id="' +id+'"]').removeClass('rng-common-hoveredNode');
+        dimNode: function(node) {
+            this.dom.find('a[data-id="'+node.id+'"]').removeClass('rng-common-hoveredNode');
         }
     }
     

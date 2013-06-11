@@ -13,6 +13,22 @@ return function(sandbox) {
         views.mainTabs.addTab(title, slug, view);
     }
     
+    var commands = {
+        highlightDocumentNode: function(wlxmlNode, origin) {
+            ['documentCanvas', 'nodeBreadCrumbs', 'nodeFamilyTree'].forEach(function(moduleName) {
+                if(!origin || moduleName != origin)
+                    sandbox.getModule(moduleName).highlightNode(wlxmlNode)
+            });
+        },
+        dimDocumentNode: function(wlxmlNode, origin) {
+            ['documentCanvas', 'nodeBreadCrumbs', 'nodeFamilyTree'].forEach(function(moduleName) {
+                if(!origin || moduleName != origin)
+                    sandbox.getModule(moduleName).dimNode(wlxmlNode)
+            });
+        }
+    }
+    
+
     var views = {
         mainLayout: new layout.Layout(mainLayoutTemplate),
         mainTabs: (new tabs.View()).render(),
@@ -27,8 +43,6 @@ return function(sandbox) {
     sandbox.getDOM().append(views.mainLayout.getAsView());
     
     views.visualEditingSidebar.addTab({icon: 'pencil'}, 'edit', views.currentNodePaneLayout.getAsView());
-    
-    
 
     
     /* Events handling */
@@ -97,17 +111,12 @@ return function(sandbox) {
         
         },
         
-        nodeHovered: function(node) {
-            sandbox.getModule('documentCanvas').highlightNode(node.attr('id'));
-            sandbox.getModule('nodeFamilyTree').highlightNode(node.attr('id'));
-            sandbox.getModule('nodeBreadCrumbs').highlightNode(node.attr('id'));
-            
+        nodeHovered: function(wlxmlNode) {
+            commands.highlightDocumentNode(wlxmlNode);
         },
         
-        nodeBlured: function(node) {
-            sandbox.getModule('documentCanvas').dimNode(node.attr('id'));
-            sandbox.getModule('nodeFamilyTree').dimNode(node.attr('id'));
-            sandbox.getModule('nodeBreadCrumbs').dimNode(node.attr('id'));
+        nodeBlured: function(wlxmlNode) {
+            commands.dimDocumentNode(wlxmlNode);
         }
     };
 
@@ -132,14 +141,14 @@ return function(sandbox) {
         ready: function() {
             views.currentNodePaneLayout.appendView(sandbox.getModule('nodeFamilyTree').getView());
         },
-        nodeEntered: function(id) {
-            sandbox.getModule('documentCanvas').highlightNode(id);
+        nodeEntered: function(wlxmlNode) {
+            commands.highlightDocumentNode(wlxmlNode, 'nodeFamilyTree');
         },
-        nodeLeft: function(id) {
-            sandbox.getModule('documentCanvas').dimNode(id);
+        nodeLeft: function(wlxmlNode) {
+            commands.dimDocumentNode(wlxmlNode, 'nodeFamilyTree');
         },
-        nodeSelected: function(id) {
-            sandbox.getModule('documentCanvas').selectNode(id);
+        nodeSelected: function(wlxmlNode) {
+            sandbox.getModule('documentCanvas').selectNode(wlxmlNode);
         }
     };
     
@@ -163,14 +172,14 @@ return function(sandbox) {
         ready: function() {
             views.visualEditing.setView('statusBar', sandbox.getModule('nodeBreadCrumbs').getView());
         },
-        nodeHighlighted: function(id) {
-            sandbox.getModule('documentCanvas').highlightNode(id);
+        nodeHighlighted: function(wlxmlNode) {
+            commands.highlightDocumentNode(wlxmlNode, 'nodeBreadCrumbs');
         },
-        nodeDimmed: function(id) {
-            sandbox.getModule('documentCanvas').dimNode(id);
+        nodeDimmed: function(wlxmlNode) {
+            commands.dimDocumentNode(wlxmlNode, 'nodeBreadCrumbs');
         },
-        nodeSelected: function(id) {
-            sandbox.getModule('documentCanvas').selectNode(id);
+        nodeSelected: function(wlxmlNode) {
+            sandbox.getModule('documentCanvas').selectNode(wlxmlNode);
         }        
     }
     

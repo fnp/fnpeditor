@@ -23,10 +23,8 @@ return function(sandbox) {
             return view;
         },
         setNode: function(node) {
-            var tag = node.attr('wlxml-tag');
-            var klass = node.attr('wlxml-class');
-            view.find('.rng-module-nodePane-tagSelect').val(tag);
-            view.find('.rng-module-nodePane-classSelect').val(klass);
+            view.find('.rng-module-nodePane-tagSelect').val(node.tag);
+            view.find('.rng-module-nodePane-classSelect').val(node.klass);
         }
     }
     

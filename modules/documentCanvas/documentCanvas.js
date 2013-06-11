@@ -3,7 +3,8 @@
 define([
 'libs/underscore-min',
 './transformations', 
-'libs/text!./template.html'], function(_, transformations, template) {
+'./wlxmlNode',
+'libs/text!./template.html'], function(_, transformations, wlxmlNode, template) {
 
 
 
@@ -22,11 +23,11 @@ return function(sandbox) {
 
             this.node.on('mouseover', '[wlxml-tag]', function(e) {
                 e.stopPropagation();
-                sandbox.publish('nodeHovered', $(e.target));
+                sandbox.publish('nodeHovered', new wlxmlNode.Node($(e.target)));
             });
             this.node.on('mouseout', '[wlxml-tag]', function(e) {
                 e.stopPropagation();
-                sandbox.publish('nodeBlured', $(e.target));
+                sandbox.publish('nodeBlured', new wlxmlNode.Node($(e.target)));
             });
             this.node.on('click', '[wlxml-tag]', function(e) {
                 e.stopPropagation();
@@ -169,10 +170,11 @@ return function(sandbox) {
             node.addClass('rng-module-documentCanvas-currentNode');
 
             this.currentNode = node;
-            sandbox.publish('nodeSelected', node);
+            sandbox.publish('nodeSelected', new wlxmlNode.Node(node));
             
         },
         selectNode: function(node) {
+            node = this.getNodeElement(node);
             view._markSelected(node);
             var range = document.createRange();
             range.selectNodeContents(node[0]);
@@ -182,12 +184,8 @@ return function(sandbox) {
             selection.removeAllRanges()
             selection.addRange(range);
         },
-        selectNodeById: function(id) {
-            var node = this.node.find('#'+id);
-            if(node)
-                this.selectNode(node);
-        },
         highlightNode: function(node) {
+            node = this.getNodeElement(node);
             if(!this.gridToggled) {
                 node.addClass('rng-common-hoveredNode');
                 var label = node.attr('wlxml-tag');
@@ -198,20 +196,11 @@ return function(sandbox) {
             }
         },
         dimNode: function(node) {
+            node = this.getNodeElement(node);
             if(!this.gridToggled) {
                 node.removeClass('rng-common-hoveredNode');
                 node.find('.rng-module-documentCanvas-hoveredNodeTag').remove();
             }
-        },
-        highlightNodeById: function(id) {
-            var node = this.node.find('#'+id);
-            if(node)
-                this.highlightNode(node);
-        },
-        dimNodeById: function(id) {
-            var node = this.node.find('#'+id);
-            if(node)
-                this.dimNode(node);
         },
         selectFirstNode: function() {
             var firstNodeWithText = this.node.find('[wlxml-tag]').filter(function() {
@@ -223,11 +212,14 @@ return function(sandbox) {
             else {
                 node = this.node.find('[wlxml-class|="p"]')
             }
-            this.selectNode(node);
+            this.selectNode(new wlxmlNode.Node(node));
         },
         toggleGrid: function(toggle) {
             this.node.find('[wlxml-tag]').toggleClass('rng-common-hoveredNode', toggle);
             this.gridToggled = toggle;
+        },
+        getNodeElement: function(wlxmlNode) {
+            return this.node.find('#'+wlxmlNode.id);
         }
     };
     
@@ -247,14 +239,14 @@ return function(sandbox) {
             if(view.currentNode)
                 view.currentNode.attr('wlxml-'+attr, value);
         },
-        highlightNode: function(id) {
-            view.highlightNodeById(id);
+        highlightNode: function(wlxmlNode) {
+            view.highlightNode(wlxmlNode);
         },
-        dimNode: function(id) {
-            view.dimNodeById(id);
+        dimNode: function(wlxmlNode) {
+            view.dimNode(wlxmlNode);
         },
-        selectNode: function(id) {
-            view.selectNodeById(id);
+        selectNode: function(wlxmlNode) {
+            view.selectNode(wlxmlNode);
         },
         toggleGrid: function(toggle) {
             view.toggleGrid(toggle);
