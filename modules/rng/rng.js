@@ -13,11 +13,34 @@ return function(sandbox) {
         views.mainTabs.addTab(title, slug, view);
     }
     
+    function tabIsDirty(slug) {
+        if(slug === 'editor' && (dirty.documentCanvas || dirty.metadataEditor))
+            return true;
+        if(slug === 'sourceEditor' && dirty.sourceEditor)
+            return true;
+        return false;
+    }
+    
     var dirty = {
         sourceEditor: false,
         documentCanvas: false,
         metadataEditor: false,
     };
+    
+    var synchronizeTab = function(slug) {
+        if(tabIsDirty(slug)) {
+            if(slug === 'sourceEditor') {
+                sandbox.getModule('data').commitDocument(sandbox.getModule('sourceEditor').getDocument(), 'source_edit');
+            }
+            if(slug === 'editor') {
+                var doc = dirty.documentCanvas ? sandbox.getModule('documentCanvas').getDocument() : sandbox.getModule('data').getDocument();
+                if(dirty.metadataEditor) {
+                    doc = sandbox.getModule('metadataEditor').attachMetadata(doc);
+                }
+                sandbox.getModule('data').commitDocument(doc, 'edit');
+            }
+        }
+    }
     
     var commands = {
         highlightDocumentNode: function(wlxmlNode, origin) {
@@ -59,17 +82,7 @@ return function(sandbox) {
 
     views.mainTabs.on('tabSelected', function(event) {
         if(event.prevSlug) {
-            if(event.prevSlug === 'sourceEditor' && dirty.sourceEditor) {
-                sandbox.getModule('data').commitDocument(sandbox.getModule('sourceEditor').getDocument(), 'source_edit');
-            }
-            if(event.prevSlug === 'editor' && (dirty.documentCanvas || dirty.metadataEditor)) {
-                var doc = dirty.documentCanvas ? sandbox.getModule('documentCanvas').getDocument() : sandbox.getModule('data').getDocument();
-                if(dirty.metadataEditor) {
-                    doc = sandbox.getModule('metadataEditor').attachMetadata(doc);
-                }
-                sandbox.getModule('data').commitDocument(doc, 'edit');
-            }
-            
+            synchronizeTab(event.prevSlug);
         }
     });
     
@@ -124,7 +137,8 @@ return function(sandbox) {
             views.mainLayout.setView('topPanel', sandbox.getModule('mainBar').getView());
         },
         'cmd.save': function() {
-            sandbox.getModule('data').fakeSave();
+            synchronizeTab(views.mainTabs.getCurrentSlug());
+            sandbox.getModule('data').saveDocument();
         }
     }
     

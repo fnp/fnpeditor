@@ -239,8 +239,8 @@ return function(sandbox) {
         },
         modifyCurrentNode: function(attr, value) {
             if(view.currentNode) {
-                view.currentNode.attr('wlxml-'+attr, value);
-                sandbox.publish('contentEdited');
+                view.getNodeElement(view.currentNode).attr('wlxml-'+attr, value);
+                sandbox.publish('contentChanged');
             }
         },
         highlightNode: function(wlxmlNode) {

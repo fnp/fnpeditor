@@ -67,6 +67,10 @@ define([
             return this.$el;
         },
         
+        getCurrentSlug: function() {
+            return this.selectedTab;
+        },
+        
         /* Events */
         
         _onTabTitleClicked: function(e) {
