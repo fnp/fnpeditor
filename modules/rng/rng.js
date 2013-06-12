@@ -14,14 +14,6 @@ return function(sandbox) {
         views.mainTabs.addTab(title, slug, view);
     }
     
-    function tabIsDirty(slug) {
-        if(slug === 'editor' && (dirty.documentCanvas || dirty.metadataEditor))
-            return true;
-        if(slug === 'sourceEditor' && dirty.sourceEditor)
-            return true;
-        return false;
-    }
-    
     var dirty = {
         sourceEditor: false,
         documentCanvas: false,
@@ -29,6 +21,14 @@ return function(sandbox) {
     };
     
     var synchronizeTab = function(slug) {
+        function tabIsDirty(slug) {
+            if(slug === 'editor' && (dirty.documentCanvas || dirty.metadataEditor))
+                return true;
+            if(slug === 'sourceEditor' && dirty.sourceEditor)
+                return true;
+            return false;
+        }
+    
         if(tabIsDirty(slug)) {
             if(slug === 'sourceEditor') {
                 sandbox.getModule('data').commitDocument(sandbox.getModule('sourceEditor').getDocument(), 'source_edit');
