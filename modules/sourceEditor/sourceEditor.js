@@ -3,17 +3,16 @@ define(function() {
 return function(sandbox) {
 
     var view = $(sandbox.getTemplate('main')());
-    var isDirty = false;
     
     var editor = ace.edit(view.find('#rng-sourceEditor-editor')[0]);
     editor.setTheme("ace/theme/chrome");
     editor.getSession().setMode("ace/mode/xml");
     $('textarea', view).on('keyup', function() {
-        isDirty = true;
+        sandbox.publish('xmlChanged');
     });
     
     editor.getSession().on('change', function() {
-        isDirty = true;
+        sandbox.publish('xmlChanged');
     })
     return {
         start: function() {
@@ -25,18 +24,11 @@ return function(sandbox) {
         setDocument: function(document) {
             editor.setValue(document);
             editor.gotoLine(0)
-            isDirty = false;
+            sandbox.publish('documentSet');
         },
         getDocument: function() {
             return editor.getValue();
-        },
-        isDirty: function() {
-            return isDirty;
-        },
-        setDirty: function(dirty) {
-            isDirty = dirty;
         }
-    
     }
 };
 

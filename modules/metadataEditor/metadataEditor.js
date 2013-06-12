@@ -14,17 +14,18 @@ return function(sandbox) {
     var view = {
         node: $(_.template(mainTemplate)()),
         setup: function() {
+            var view = this;
             var metaTable = this.metaTable = this.node.find('table');
             
             this.node.find('.rng-module-metadataEditor-addBtn').click(function() {
                 var newRow = view._addMetaRow('', '');
                 $(newRow.find('td div')[0]).focus();
-                //isDirty = true;
+                sandbox.publish('metadataChanged', view.getMetadata());
             });
             
             this.metaTable.on('click', '.rng-visualEditor-metaRemoveBtn', function(e) {
                 $(e.target).closest('tr').remove();
-                //isDirty = true;
+                sandbox.publish('metadataChanged', view.getMetadata());
             });
             
             this.metaTable.on('keydown', '[contenteditable]', function(e) {
@@ -40,10 +41,16 @@ return function(sandbox) {
                     }
                     e.preventDefault();
                 }
-                
             });
+            
+            
+            var onKeyUp = function(e) {
+                if(e.which !== 13)
+                    sandbox.publish('metadataChanged', view.getMetadata());
+            }
+            this.metaTable.on('keyup', '[contenteditable]', _.throttle(onKeyUp, 500));
         },
-        getMetaData: function() {
+        getMetadata: function() {
             var toret = {};
             this.node.find('tr').each(function() {
                 var tr = $(this);
@@ -74,14 +81,32 @@ return function(sandbox) {
         start: function() {
             sandbox.publish('ready');
         },
-        setMetadata: function(xml) {
+        setDocument: function(xml) {
             view.setMetadata(transformations.getMetadata(xml));
+            sandbox.publish('metadataSet');
         },
         getMetadata: function() {
-            return view.getMetadata();
+            return transformations.getXML(view.getMetadata());
         },
         getView: function() {
             return view.node;
+        },
+        attachMetadata: function(document) {
+            var toret = $('<div>');
+            toret.append($(document));
+            var meta = $('<metadata></metadata>\n').append(transformations.getXML(view.getMetadata()));
+            
+            var metadata = toret.find('metadata');
+            if(metadata.length === 0) {
+                var section = toret.find('section');
+                section = section.length ? $(section[0]) : null;
+                if(section) {
+                    section.prepend(meta)
+                }
+            } else {
+                metadata.replaceWith(meta);
+            }
+            return toret.html();
         }
         
     };

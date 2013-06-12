@@ -232,11 +232,16 @@ return function(sandbox) {
             var transformed = transformations.fromXML.getDocumentDescription(xml);
             view.setBody(transformed.HTMLTree);
             view.selectFirstNode();
-            //isDirty = false;
+            sandbox.publish('documentSet');
+        },
+        getDocument: function() {
+            return transformations.toXML.getXML(view.getBody());
         },
         modifyCurrentNode: function(attr, value) {
-            if(view.currentNode)
+            if(view.currentNode) {
                 view.currentNode.attr('wlxml-'+attr, value);
+                sandbox.publish('contentEdited');
+            }
         },
         highlightNode: function(wlxmlNode) {
             view.highlightNode(wlxmlNode);

@@ -57,8 +57,9 @@ define([
                 this.nodes.tabBar.find('.active').removeClass('active');
                 this.nodes.tabBar.find('a[href="#'+slug+'"]').parent().addClass('active');
                 
+                var prevSlug = this.selectedTab;
                 this.selectedTab = slug;
-                this.trigger('tabSelected', slug);
+                this.trigger('tabSelected', {slug: slug, prevSlug: prevSlug});
             }
         },
         

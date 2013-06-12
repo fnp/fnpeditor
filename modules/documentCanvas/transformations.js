@@ -54,9 +54,9 @@ define(['libs/jquery-1.9.1.min'], function($) {
     }
 
     transformations.toXML = {
-        getXML: function(documentDescription) {
+        getXML: function(body) {
             
-            var inner = $(documentDescription.HTMLTree);
+            var inner = $(body);
             var toret = $('<div></div>');
             toret.append(inner);
             
@@ -80,25 +80,7 @@ define(['libs/jquery-1.9.1.min'], function($) {
                 toret.append(div.contents());
                 return toret;
             });
-            
-            var meta = $('<metadata></metadata>\n');
-            _.each(_.keys(documentDescription.metadata), function(key) {
-                meta.append('\n\t<dc:'+key+'>' + documentDescription.metadata[key] + '</dc:'+key+'>');
-            });
-            meta.append('\n');
-            
-            var metadata = toret.find('metadata');
-            if(metadata.length === 0) {
-                var section = toret.find('section');
-                section = section.length ? $(section[0]) : null;
-                if(section) {
-                    section.prepend(meta)
-                }
-            } else {
-                metadata.replaceWith(meta);
-            }
-            
-            
+
             return vkbeautify.xml(toret.html());
         }
     }
