@@ -1,5 +1,7 @@
 define(function() {
 
+'use strict';
+
 return function(sandbox) {
 
     var doc = sandbox.getBootstrappedData().document;

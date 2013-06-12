@@ -5,9 +5,11 @@ define([
 
 ], function(templateSrc, $, _) {
 
+'use strict';
+
 return function(sandbox) {
     
-    view = $(_.template(templateSrc)());
+    var view = $(_.template(templateSrc)());
     
     view.on('change', 'select', function(e) {
         var target = $(e.target);

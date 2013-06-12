@@ -3,6 +3,9 @@ define(function(require) {
        Each module must be required explicitly by apropriate 'require' function call
        in order for requirejs optimizer to work.
     */
+    
+    'use strict';
+    
     return {
         data: require('modules/data'),
         rng: require('modules/rng/rng'),

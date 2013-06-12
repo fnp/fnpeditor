@@ -1,5 +1,7 @@
 define(function() {
 
+'use strict';
+
 return function(sandbox) {
 
     var view = $(sandbox.getTemplate('main')());

@@ -1,5 +1,6 @@
 (function() {
-
+    'use strict';
+    
     requirejs.config({
         baseUrl: '/static/editor',
         

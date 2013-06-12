@@ -6,8 +6,9 @@ define([
 'libs/text!./editingLayout.html',
 ], function(layout, vbox, tabs, mainLayoutTemplate, visualEditingLayoutTemplate) {
 
+'use strict';
+
 return function(sandbox) {
-    'use strict';
     
     function addMainTab(title, slug, view) {
         views.mainTabs.addTab(title, slug, view);
