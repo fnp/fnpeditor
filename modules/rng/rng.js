@@ -132,7 +132,7 @@ return function(sandbox) {
             sandbox.getModule('indicator').clearMessage();
         },
         historyItemAdded: function(item) {
-            sandbox.getModule('documentHistory').addHistory([item]);
+            sandbox.getModule('documentHistory').addHistory([item], {animate: true});
         }
     }
     

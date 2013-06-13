@@ -15,11 +15,14 @@ return function(sandbox) {
     }
     var itemViews = [];
         
-    var addHistoryItem = function(item) {
+    var addHistoryItem = function(item, options) {
         historyItems.add(item);
         var view = new itemView(item);
         itemViews.push(view);
         domNodes.itemList.prepend(view.dom);
+        if(options.animate) {
+            view.dom.hide().slideDown();
+        }
     }
     
     var toggleItemViews = function(toggle) {
@@ -81,9 +84,9 @@ return function(sandbox) {
     
     return {
         start: function() { sandbox.publish('ready'); },
-        addHistory: function(history) {
+        addHistory: function(history, options) {
             history.forEach(function(historyItem) {
-                addHistoryItem(historyItem);
+                addHistoryItem(historyItem, options || {});
             });
         },
         getView: function() {
