@@ -32,30 +32,52 @@ return function(sandbox) {
         });
     }
     
+    var toggleButton = function(btn, toggle) {
+        dom.find('button.'+btn).toggleClass('disabled', !toggle);
+    }
+    
     var historyItems = {
         _itemsById: {},
         _selected: [],
         select: function(item) {
             if(this._selected.length < 2) {
                 this._selected.push(item.version);
-                if(this._selected.length === 2)
-                    toggleItemViews(false);
+                this._updateUI();
                 return true;
             }
             return false;
         },
         unselect: function(item) {
             this._selected = _.without(this._selected, item.version);
-            if(this._selected.length < 2)
-                toggleItemViews(true);
+            this._updateUI();
         },
         add: function(item) {
             this._itemsById[item.version] = item;
         },
         selected: function(item) {
             return _.contains(this._selected, item.version);
+        },
+        _updateUI: function() {
+            var len = this._selected.length;
+            if(len === 0) {
+                toggleButton('compare', false);
+                toggleButton('show2', false);
+                toggleButton('restore', false);
+            }
+            if(len === 1) {
+                toggleButton('compare', false);
+                toggleButton('show2', true);
+                toggleButton('restore', true);
+            }
+            if(len === 2) {
+                toggleItemViews(false);
+                toggleButton('compare', true);
+                toggleButton('show2', false);
+                toggleButton('restore', false);
+            }
         }
     };
+    historyItems._updateUI();
     
     var itemView = function(item) {
         this.item = item;
