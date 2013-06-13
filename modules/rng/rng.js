@@ -132,7 +132,7 @@ return function(sandbox) {
         },
         savingEnded: function(status) {
             sandbox.getModule('mainBar').setCommandEnabled('save', true);
-            sandbox.getModule('indicator').clearMessage();
+            sandbox.getModule('indicator').clearMessage({message:'Dokument zapisany'});
         },
         historyItemAdded: function(item) {
             sandbox.getModule('documentHistory').addHistory([item], {animate: true});

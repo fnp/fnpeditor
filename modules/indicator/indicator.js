@@ -21,8 +21,11 @@ return function(sandbox) {
         showMessage: function(msg) {
             view.dom.html('<span>' + msg + '</span>').show();
         },
-        clearMessage: function() {
+        clearMessage: function(report) {
             view.dom.empty();
+            if(report && report.message) {
+                view.dom.html('<span class="success">' + report.message + '</span>').show().fadeOut(4000);
+            }
         }
         
     }
