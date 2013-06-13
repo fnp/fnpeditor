@@ -7,7 +7,7 @@ define(function(require) {
     'use strict';
     
     return {
-        data: require('modules/data'),
+        data: require('modules/data/data'),
         rng: require('modules/rng/rng'),
         mainBar: require('modules/mainBar/mainBar'),
         indicator: require('modules/indicator/indicator'),

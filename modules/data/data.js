@@ -1,4 +1,4 @@
-define(['./data/saveDialog'], function(saveDialog) {
+define(['./saveDialog'], function(saveDialog) {
 
 'use strict';
 
