@@ -74,6 +74,8 @@ return function(sandbox) {
                 toggleButton('compare', true);
                 toggleButton('show2', false);
                 toggleButton('restore', false);
+            } else {
+                toggleItemViews(true);
             }
         }
     };
