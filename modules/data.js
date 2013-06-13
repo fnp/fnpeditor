@@ -6,6 +6,7 @@ return function(sandbox) {
 
     var doc = sandbox.getBootstrappedData().document;
     var document_id = sandbox.getBootstrappedData().document_id;
+    var history = sandbox.getBootstrappedData().history;
 
     
     if(doc === '') {
@@ -62,7 +63,10 @@ return function(sandbox) {
                 success: function() {sandbox.publish('savingEnded', 'success');},
                 error: function() {sandbox.publish('savingEnded', 'error');}
             });
-        } 
+        },
+        getHistory: function() {
+            return history;
+        }
     }
 };
 

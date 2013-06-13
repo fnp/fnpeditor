@@ -21,5 +21,7 @@ define(function(require) {
         nodeFamilyTree: require('modules/nodeFamilyTree/nodeFamilyTree'),
         nodeBreadCrumbs: require('modules/nodeBreadCrumbs/nodeBreadCrumbs'),
         
+        documentHistory: require('modules/documentHistory/documentHistory')
+        
     }
 });

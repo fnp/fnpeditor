@@ -108,7 +108,7 @@ return function(sandbox) {
         ready: function() {
             views.mainLayout.setView('mainView', views.mainTabs.getAsView());
             
-            _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'nodePane', 'metadataEditor', 'nodeFamilyTree', 'nodeBreadCrumbs', 'mainBar', 'indicator'], function(moduleName) {
+            _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'nodePane', 'metadataEditor', 'nodeFamilyTree', 'nodeBreadCrumbs', 'mainBar', 'indicator', 'documentHistory'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
         },
@@ -244,6 +244,13 @@ return function(sandbox) {
         nodeSelected: function(wlxmlNode) {
             commands.selectNode(wlxmlNode);
         }        
+    }
+    
+    eventHandlers.documentHistory = {
+        ready: function() {
+            sandbox.getModule('documentHistory').setHistory(sandbox.getModule('data').getHistory());
+            addMainTab('Historia', 'history', sandbox.getModule('documentHistory').getView());
+        }
     }
     
     /* api */
