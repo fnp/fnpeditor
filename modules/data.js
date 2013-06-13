@@ -1,4 +1,4 @@
-define(function() {
+define(['./data/saveDialog'], function(saveDialog) {
 
 'use strict';
 
@@ -66,14 +66,29 @@ return function(sandbox) {
             sandbox.publish('documentChanged', doc, reason);
         },
         saveDocument: function() {
-            sandbox.publish('savingStarted');
-            $.ajax({
-                method: 'post',
-                url: '/' + gettext('editor') + '/' + document_id,
-                data: JSON.stringify({document:doc}),
-                success: function() {sandbox.publish('savingEnded', 'success'); reloadHistory();},
-                error: function() {sandbox.publish('savingEnded', 'error');}
+
+            var dialog = saveDialog.create();
+            dialog.on('save', function(event) {
+                sandbox.publish('savingStarted');
+                dialog.toggleButtons(false);
+                $.ajax({
+                    method: 'post',
+                    url: '/' + gettext('editor') + '/' + document_id,
+                    data: JSON.stringify({document:doc, description: event.data.description}),
+                    success: function() {
+                        event.success();
+                        sandbox.publish('savingEnded', 'success');
+                        reloadHistory();
+                    },
+                    error: function() {event.error(); sandbox.publish('savingEnded', 'error');}
+                });
+                console.log('save');
             });
+            dialog.on('cancel', function() {
+            });
+            dialog.show();
+            
+
         },
         getHistory: function() {
             return history;
