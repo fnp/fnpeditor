@@ -30,16 +30,19 @@ return function(sandbox) {
         }
     
         if(tabIsDirty(slug)) {
+            var reason, doc;
             if(slug === 'sourceEditor') {
-                sandbox.getModule('data').commitDocument(sandbox.getModule('sourceEditor').getDocument(), 'source_edit');
+                doc = sandbox.getModule('sourceEditor').getDocument();
+                reason = 'source_edit';
             }
             if(slug === 'editor') {
                 var doc = dirty.documentCanvas ? sandbox.getModule('documentCanvas').getDocument() : sandbox.getModule('data').getDocument();
                 if(dirty.metadataEditor) {
                     doc = sandbox.getModule('metadataEditor').attachMetadata(doc);
                 }
-                sandbox.getModule('data').commitDocument(doc, 'edit');
+                reason = 'edit';
             }
+            sandbox.getModule('data').commitDocument(doc, reason);
         }
     }
     
