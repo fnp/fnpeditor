@@ -41,6 +41,7 @@ define([
         },
         toggleButtons: function(toggle) {
             this.$('.btn, button').toggleClass('disabled', !toggle);
+            this.$('textarea').attr('disabled', !toggle);
             this.actionsDisabled = !toggle;
         }
     });
