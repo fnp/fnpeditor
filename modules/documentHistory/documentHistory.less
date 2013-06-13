@@ -1,18 +1,30 @@
-.rng-module-documentHistory-item {
+.rng-module-documentHistory {
     
-    margin: 0 0 15px 0;
-
-    .version {
-        float: left;
-        width: 30px;
-        font-weight: bold;
+    .item {
+        padding: 5px 5px;
+        margin: 0 0 15px 0;
+        cursor: pointer;
+        
+        .version {
+            float: left;
+            width: 30px;
+            font-weight: bold;
+        }
+        
+        .date, .author, .description {
+            margin: 5px 10px 0 40px;
+        }
+        
+        .description {
+            font-size: .9em;
+        }
     }
     
-    .date, .author, .description {
-        margin: 5px 10px 0 40px;
+    .item.highlighted {
+        background: #ffec63;
     }
     
-    .description {
-        font-size: .9em;
+    .item.disabled {
+        cursor: default;
     }
 }

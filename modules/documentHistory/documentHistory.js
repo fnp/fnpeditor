@@ -27,16 +27,17 @@ return function(sandbox) {
     
     var toggleItemViews = function(toggle) {
         itemViews.forEach(function(view) {
-            view.toggle(toggle);
+            if(!historyItems.selected(view.item))
+                view.toggle(toggle);
         });
     }
     
     var historyItems = {
         _itemsById: {},
         _selected: [],
-        select: function(id) {
+        select: function(item) {
             if(this._selected.length < 2) {
-                this._selected.push(id);
+                this._selected.push(item.version);
                 if(this._selected.length === 2)
                     toggleItemViews(false);
                 return true;
@@ -44,40 +45,40 @@ return function(sandbox) {
             return false;
         },
         unselect: function(item) {
-            this._selected = _.without(this._selected, id);
+            this._selected = _.without(this._selected, item.version);
             if(this._selected.length < 2)
                 toggleItemViews(true);
         },
         add: function(item) {
-            this._itemsById[item.id] = item;
+            this._itemsById[item.version] = item;
         },
         selected: function(item) {
-            return _.contains(_selected, item.id);
+            return _.contains(this._selected, item.version);
         }
     };
     
     var itemView = function(item) {
         this.item = item;
         this.dom = $(this.template(item));
-        this.dom.on('click', this.onItemClicked);
+        this.dom.on('click', _.bind(this.onItemClicked, this));
     };
     itemView.prototype.template = _.template(itemTemplateSrc);
     itemView.prototype.onItemClicked = function() {
-        if(historyItems.selected(item)) {
-            historyItems.unselect(item);
+        if(historyItems.selected(this.item)) {
+            historyItems.unselect(this.item);
             this.dimItem();
-        } else if(historyItems.select(item)) {
+        } else if(historyItems.select(this.item)) {
             this.highlightItem();
         }            
     };
     itemView.prototype.highlightItem = function() {
-        
+        this.dom.addClass('highlighted');
     };
     itemView.prototype.dimItem = function() {
-    
+        this.dom.removeClass('highlighted');
     };
     itemView.prototype.toggle = function(toggle) {
-    
+        this.dom.toggleClass('disabled', !toggle);
     };
 
     
