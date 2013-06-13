@@ -19,7 +19,7 @@ return function(sandbox) {
         historyItems.add(item);
         var view = new itemView(item);
         itemViews.push(view);
-        domNodes.itemList.append(view.dom);
+        domNodes.itemList.prepend(view.dom);
     }
     
     var toggleItemViews = function(toggle) {
@@ -81,7 +81,7 @@ return function(sandbox) {
     
     return {
         start: function() { sandbox.publish('ready'); },
-        setHistory: function(history) {
+        addHistory: function(history) {
             history.forEach(function(historyItem) {
                 addHistoryItem(historyItem);
             });

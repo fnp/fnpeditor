@@ -130,6 +130,9 @@ return function(sandbox) {
         savingEnded: function(status) {
             sandbox.getModule('mainBar').setCommandEnabled('save', true);
             sandbox.getModule('indicator').clearMessage();
+        },
+        historyItemAdded: function(item) {
+            sandbox.getModule('documentHistory').addHistory([item]);
         }
     }
     
@@ -248,7 +251,7 @@ return function(sandbox) {
     
     eventHandlers.documentHistory = {
         ready: function() {
-            sandbox.getModule('documentHistory').setHistory(sandbox.getModule('data').getHistory());
+            sandbox.getModule('documentHistory').addHistory(sandbox.getModule('data').getHistory());
             addMainTab('Historia', 'history', sandbox.getModule('documentHistory').getView());
         }
     }

@@ -43,6 +43,17 @@ return function(sandbox) {
         }
     });
     
+    var reloadHistory = function() {
+        $.ajax({
+            method: 'get',
+            url: '/' + gettext('editor') + '/' + document_id + '/history',
+            success: function(data) {
+                history = data; 
+                sandbox.publish('historyItemAdded', data.slice(-1)[0]);
+            },
+        });
+    }
+    
     return {
         start: function() {
             sandbox.publish('ready');
@@ -60,7 +71,7 @@ return function(sandbox) {
                 method: 'post',
                 url: '/' + gettext('editor') + '/' + document_id,
                 data: JSON.stringify({document:doc}),
-                success: function() {sandbox.publish('savingEnded', 'success');},
+                success: function() {sandbox.publish('savingEnded', 'success'); reloadHistory();},
                 error: function() {sandbox.publish('savingEnded', 'error');}
             });
         },
