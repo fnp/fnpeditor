@@ -35,6 +35,7 @@ return function(sandbox) {
             if(slug === 'sourceEditor') {
                 doc = sandbox.getModule('sourceEditor').getDocument();
                 reason = 'source_edit';
+                dirty.sourceEditor = false;
             }
             if(slug === 'editor') {
                 var doc = dirty.documentCanvas ? sandbox.getModule('documentCanvas').getDocument() : sandbox.getModule('data').getDocument();
@@ -42,6 +43,7 @@ return function(sandbox) {
                     doc = sandbox.getModule('metadataEditor').attachMetadata(doc);
                 }
                 reason = 'edit';
+                dirty.documentCanvas = dirty.metadataEditor = false;
             }
             sandbox.getModule('data').commitDocument(doc, reason);
         }
