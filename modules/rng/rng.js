@@ -4,7 +4,8 @@ define([
 'views/tabs/tabs',
 'libs/text!./mainLayout.html',
 'libs/text!./editingLayout.html',
-], function(layout, vbox, tabs, mainLayoutTemplate, visualEditingLayoutTemplate) {
+'libs/text!./diffLayout.html',
+], function(layout, vbox, tabs, mainLayoutTemplate, visualEditingLayoutTemplate, diffLayoutTemplate) {
 
 'use strict';
 
@@ -74,11 +75,14 @@ return function(sandbox) {
         mainTabs: (new tabs.View()).render(),
         visualEditing: new layout.Layout(visualEditingLayoutTemplate),
         visualEditingSidebar: (new tabs.View({stacked: true})).render(),
-        currentNodePaneLayout: new vbox.VBox()
+        currentNodePaneLayout: new vbox.VBox(),
+        diffLayout: new layout.Layout(diffLayoutTemplate)
     }
     
     views.visualEditing.setView('rightColumn', views.visualEditingSidebar.getAsView());
     addMainTab('Edytor', 'editor', views.visualEditing.getAsView());
+    
+    addMainTab('Historia', 'history', views.diffLayout.getAsView());
     
     sandbox.getDOM().append(views.mainLayout.getAsView());
     
@@ -111,7 +115,7 @@ return function(sandbox) {
         ready: function() {
             views.mainLayout.setView('mainView', views.mainTabs.getAsView());
             
-            _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'nodePane', 'metadataEditor', 'nodeFamilyTree', 'nodeBreadCrumbs', 'mainBar', 'indicator', 'documentHistory'], function(moduleName) {
+            _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'nodePane', 'metadataEditor', 'nodeFamilyTree', 'nodeBreadCrumbs', 'mainBar', 'indicator', 'documentHistory', 'diffViewer'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
         },
@@ -136,6 +140,9 @@ return function(sandbox) {
         },
         historyItemAdded: function(item) {
             sandbox.getModule('documentHistory').addHistory([item], {animate: true});
+        },
+        diffFetched: function(diff) {
+            sandbox.getModule('diffViewer').setDiff(diff);
         }
     }
     
@@ -255,7 +262,16 @@ return function(sandbox) {
     eventHandlers.documentHistory = {
         ready: function() {
             sandbox.getModule('documentHistory').addHistory(sandbox.getModule('data').getHistory());
-            addMainTab('Historia', 'history', sandbox.getModule('documentHistory').getView());
+            views.diffLayout.setView('left', sandbox.getModule('documentHistory').getView());
+        },
+        compare: function(ver1, ver2) {
+            sandbox.getModule('data').fetchDiff(ver1, ver2);
+        }
+    }
+    
+    eventHandlers.diffViewer = {
+        ready: function() {
+            views.diffLayout.setView('right', sandbox.getModule('diffViewer').getView());
         }
     }
     

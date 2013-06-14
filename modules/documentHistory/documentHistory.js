@@ -14,6 +14,12 @@ return function(sandbox) {
         itemList: dom.find('.rng-module-documentHistory-itemsList'),
     }
     var itemViews = [];
+    
+    
+    dom.find('.btn.compare').click(function(e) {
+        var selected = historyItems.getSelected();
+        sandbox.publish('compare', selected[0], selected[1]);
+    });
         
     var addHistoryItem = function(item, options) {
         historyItems.add(item);
@@ -27,7 +33,7 @@ return function(sandbox) {
     
     var toggleItemViews = function(toggle) {
         itemViews.forEach(function(view) {
-            if(!historyItems.selected(view.item))
+            if(!historyItems.isSelected(view.item))
                 view.toggle(toggle);
         });
     }
@@ -54,8 +60,11 @@ return function(sandbox) {
         add: function(item) {
             this._itemsById[item.version] = item;
         },
-        selected: function(item) {
+        isSelected: function(item) {
             return _.contains(this._selected, item.version);
+        },
+        getSelected: function() {
+            return this._selected;
         },
         _updateUI: function() {
             var len = this._selected.length;
@@ -88,7 +97,7 @@ return function(sandbox) {
     };
     itemView.prototype.template = _.template(itemTemplateSrc);
     itemView.prototype.onItemClicked = function() {
-        if(historyItems.selected(this.item)) {
+        if(historyItems.isSelected(this.item)) {
             historyItems.unselect(this.item);
             this.dimItem();
         } else if(historyItems.select(this.item)) {

@@ -92,6 +92,16 @@ return function(sandbox) {
         },
         getHistory: function() {
             return history;
+        },
+        fetchDiff: function(ver1, ver2) {
+            $.ajax({
+                method: 'get',
+                url: '/' + gettext('editor') + '/' + document_id + '/diff',
+                data: {from: ver1, to: ver2},
+                success: function(data) {
+                    sandbox.publish('diffFetched', {table: data, ver1: ver1, ver2: ver2})
+                },
+            });
         }
     }
 };

@@ -31,6 +31,10 @@ define([
             if(this.options.stacked) {
                 this.nodes.tabBar.addClass('nav-stacked nav-pills').removeClass('nav-tabs');
             }
+            if(this.options.position === 'right') {
+                this.$el.addClass('tabs-right');
+                this.nodes.content.addClass('tab-content');
+            }
             return this;
         },
         
