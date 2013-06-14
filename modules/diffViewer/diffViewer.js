@@ -27,7 +27,9 @@ return function(sandbox) {
         setDiff: function(diff) {
             var diffView = new DiffView();
             diffView.setTable(diff.table);
-            tabsView.addTab(diff.ver1 + '->' + diff.ver2, diff.ver1 + '-' + diff.ver2, diffView.dom);
+            var slug = diff.ver1 + '-' + diff.ver2;
+            tabsView.addTab(diff.ver1 + '->' + diff.ver2, slug, diffView.dom);
+            tabsView.selectTab(slug);
         }
     };
 };
