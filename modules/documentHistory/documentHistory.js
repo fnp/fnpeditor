@@ -30,6 +30,10 @@ return function(sandbox) {
         });
         dialog.show();
     });
+    
+    dom.find('.btn.display').click(function(e) {
+        sandbox.publish('displayVersion', {version: historyItems.getSelected()[0]});
+    });
         
     var addHistoryItem = function(item, options) {
         historyItems.add(item);
@@ -80,18 +84,18 @@ return function(sandbox) {
             var len = this._selected.length;
             if(len === 0) {
                 toggleButton('compare', false);
-                toggleButton('show2', false);
+                toggleButton('display', false);
                 toggleButton('restore', false);
             }
             if(len === 1) {
                 toggleButton('compare', false);
-                toggleButton('show2', true);
+                toggleButton('display', true);
                 toggleButton('restore', true);
             }
             if(len === 2) {
                 toggleItemViews(false);
                 toggleButton('compare', true);
-                toggleButton('show2', false);
+                toggleButton('display', false);
                 toggleButton('restore', false);
             } else {
                 toggleItemViews(true);

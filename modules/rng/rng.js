@@ -285,6 +285,9 @@ return function(sandbox) {
         },
         restoreVersion: function(event) {
             sandbox.getModule('data').restoreVersion(event);
+        },
+        displayVersion: function(event) {
+            window.open('/' + gettext('editor') + '/' + sandbox.getModule('data').getDocumentId() + '?version=' + event.version, _.uniqueId());
         }
     }
     

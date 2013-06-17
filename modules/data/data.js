@@ -118,6 +118,9 @@ return function(sandbox) {
                     },
                 }); 
             }
+        },
+        getDocumentId: function() {
+            return document_id;
         }
     }
 };
