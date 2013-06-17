@@ -2,8 +2,8 @@
     position: fixed;
     top: 5px;
     bottom: 5px;
-    left: 60px;
-    right: 60px;
+    left: 80px;
+    right: 80px;
     
     [fnpjs-place="messages"] {
         position: absolute;
@@ -23,17 +23,18 @@
         right:0;
         bottom:0; 
         
-        .rng-view-tabs {
+        > .rng-view-tabs {
             position: relative;
             height: 100%;
+
+            > .rng-view-tabs-content {
+                position: absolute;
+                top: 45px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+            }    
         }
         
-        .rng-view-tabs-content {
-            position: absolute;
-            top: 45px;
-            left: 0;
-            right: 0;
-            bottom: 0;
-        }
     }
 }
