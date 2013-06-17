@@ -158,12 +158,14 @@ return function(sandbox) {
         documentReverted: function(event) {
             commands.resetDocument(event.document, 'revert');
             sandbox.getModule('mainBar').setCommandEnabled('save', true);
-            sandbox.getModule('indicator').clearMessage({message:'Wersja ' + event.version + ' przywrócona'});
+            sandbox.getModule('indicator').clearMessage({message:'Wersja ' + event.reverted_version + ' przywrócona'});
+            sandbox.getModule('mainBar').setVersion(event.current_version);
         }
     }
     
     eventHandlers.mainBar = {
         ready: function() {
+            sandbox.getModule('mainBar').setVersion(sandbox.getModule('data').getDocumentVersion());
             views.mainLayout.setView('topPanel', sandbox.getModule('mainBar').getView());
         },
         'cmd.save': function() {

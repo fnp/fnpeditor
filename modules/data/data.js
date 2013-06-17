@@ -6,6 +6,7 @@ return function(sandbox) {
 
     var doc = sandbox.getBootstrappedData().document;
     var document_id = sandbox.getBootstrappedData().document_id;
+    var document_version = sandbox.getBootstrappedData().version
     var history = sandbox.getBootstrappedData().history;
 
     
@@ -113,14 +114,18 @@ return function(sandbox) {
                     data: JSON.stringify(options),
                     success: function(data) {
                         doc = data.document;
+                        document_version = data.version;
                         reloadHistory();
-                        sandbox.publish('documentReverted', {document: data.document, version: data.version});
+                        sandbox.publish('documentReverted', data);
                     },
                 }); 
             }
         },
         getDocumentId: function() {
             return document_id;
+        },
+        getDocumentVersion: function() {
+            return document_version;
         }
     }
 };

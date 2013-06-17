@@ -18,6 +18,9 @@ return function(sandbox) {
         getView: function() {return view;},
         setCommandEnabled: function(cmd, enabled) {
             view.find('[data-cmd='+cmd+']').toggleClass('disabled', !enabled);
+        },
+        setVersion: function(version) {
+            view.find('.version').text(version);
         }
     }
 
