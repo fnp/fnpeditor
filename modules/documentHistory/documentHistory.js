@@ -1,9 +1,10 @@
 define([
 'libs/jquery-1.9.1.min',
 'libs/underscore-min',
+'./restoreDialog',
 'libs/text!./templates/main.html',
 'libs/text!./templates/item.html'
-], function($, _, mainTemplateSrc, itemTemplateSrc) {
+], function($, _, restoreDialog, mainTemplateSrc, itemTemplateSrc) {
 
 'use strict';
     
@@ -19,6 +20,15 @@ return function(sandbox) {
     dom.find('.btn.compare').click(function(e) {
         var selected = historyItems.getSelected();
         sandbox.publish('compare', selected[0], selected[1]);
+    });
+    
+    dom.find('.btn.restore').click(function(e) {
+        var dialog = restoreDialog.create();
+        dialog.on('restore', function(event) {
+            sandbox.publish('restoreVersion', {version: historyItems.getSelected()[0], description: event.data.description});
+            event.success();
+        });
+        dialog.show();
     });
         
     var addHistoryItem = function(item, options) {

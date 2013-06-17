@@ -102,6 +102,22 @@ return function(sandbox) {
                     sandbox.publish('diffFetched', {table: data, ver1: ver1, ver2: ver2})
                 },
             });
+        },
+        restoreVersion: function(options) {
+            if(options.version && options.description) {
+                sandbox.publish('restoringStarted', {version: options.version});
+                $.ajax({
+                    method: 'post',
+                    dataType: 'json',
+                    url: '/' + gettext('editor') + '/' + document_id + '/revert',
+                    data: JSON.stringify(options),
+                    success: function(data) {
+                        doc = data.document;
+                        reloadHistory();
+                        sandbox.publish('documentReverted', {document: data.document, version: data.version});
+                    },
+                }); 
+            }
         }
     }
 };

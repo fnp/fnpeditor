@@ -68,6 +68,19 @@ return function(sandbox) {
             sandbox.getModule('nodeFamilyTree').setNode(wlxmlNode);
             sandbox.getModule('nodeBreadCrumbs').setNode(wlxmlNode);
             
+        },
+        resetDocument: function(document, reason) {
+            var modules = [];
+            if(reason === 'source_edit')
+                modules = ['documentCanvas', 'metadataEditor'];
+            else if (reason === 'edit')
+                modules = ['sourceEditor'];
+            else if (reason === 'revert')
+                modules = ['documentCanvas', 'metadataEditor', 'sourceEditor'];
+                
+            modules.forEach(function(moduleName) {
+                sandbox.getModule(moduleName).setDocument(document);
+            });
         }
     }
     
@@ -122,15 +135,7 @@ return function(sandbox) {
             });
         },
         documentChanged: function(document, reason) {
-            var modules = [];
-            if(reason === 'source_edit')
-                modules = ['documentCanvas', 'metadataEditor'];
-            else if (reason === 'edit')
-                modules = ['sourceEditor'];
-                
-            modules.forEach(function(moduleName) {
-                sandbox.getModule(moduleName).setDocument(document);
-            });
+            commands.resetDocument(document, reason);
         },
         savingStarted: function() {
             sandbox.getModule('mainBar').setCommandEnabled('save', false);
@@ -140,11 +145,20 @@ return function(sandbox) {
             sandbox.getModule('mainBar').setCommandEnabled('save', true);
             sandbox.getModule('indicator').clearMessage({message:'Dokument zapisany'});
         },
+        restoringStarted: function(event) {
+            sandbox.getModule('mainBar').setCommandEnabled('save', false);
+            sandbox.getModule('indicator').showMessage(gettext('Restoring version ' + event.version + '...'));
+        },
         historyItemAdded: function(item) {
             sandbox.getModule('documentHistory').addHistory([item], {animate: true});
         },
         diffFetched: function(diff) {
             sandbox.getModule('diffViewer').setDiff(diff);
+        },
+        documentReverted: function(event) {
+            commands.resetDocument(event.document, 'revert');
+            sandbox.getModule('mainBar').setCommandEnabled('save', true);
+            sandbox.getModule('indicator').clearMessage({message:'Wersja ' + event.version + ' przywrócona'});
         }
     }
     
@@ -268,6 +282,9 @@ return function(sandbox) {
         },
         compare: function(ver1, ver2) {
             sandbox.getModule('data').fetchDiff(ver1, ver2);
+        },
+        restoreVersion: function(event) {
+            sandbox.getModule('data').restoreVersion(event);
         }
     }
     
