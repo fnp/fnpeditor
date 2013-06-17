@@ -1,5 +1,9 @@
 #rng-module-rng-mainLayout {
-    position: relative;
+    position: fixed;
+    top: 5px;
+    bottom: 5px;
+    left: 60px;
+    right: 60px;
     
     [fnpjs-place="messages"] {
         position: absolute;
@@ -10,5 +14,26 @@
     
     [fnpjs-place="topPanel"] {
         float: right;
+    }
+    
+    [fnpjs-place="mainView"] {
+        position: absolute;
+        top: 32px;
+        left:0;
+        right:0;
+        bottom:0; 
+        
+        .rng-view-tabs {
+            position: relative;
+            height: 100%;
+        }
+        
+        .rng-view-tabs-content {
+            position: absolute;
+            top: 45px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
     }
 }

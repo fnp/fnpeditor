@@ -1,13 +1,13 @@
 .rng-module-rng2-left {
-    float: left;
-    width: 600px;
+    /*float: left;
+    width: 600px;*/
 }
 
 .rng-module-rng2-right {
-    float: right;
+    /*float: right;
     position: relative;
     width: 258px;
-    margin-left: 50px;
+    margin-left: 50px;*/
 
     border-width: 1px 1px 1px 1px;
     border-style: solid;
@@ -54,4 +54,35 @@
 .rng-module-rng2-statusBar {
     margin: 10px 5px;
     font-size:0.9em;
+}
+
+.fnp-module-rng-editingLayout {
+
+    [fnpjs-place="statusBar"] {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 30px;
+        
+    }
+    
+    [fnpjs-place="leftColumn"], [fnpjs-place="rightColumn"] {
+        position: absolute;
+        top: 30px; //
+        bottom: 50px; //
+    }
+    
+    [fnpjs-place="leftColumn"] {
+        left:0;
+        right: 450px;
+    }
+    
+    [fnpjs-place="rightColumn"] {
+        right: 20px;
+        left: 830px;
+        
+    }
+
+
 }
