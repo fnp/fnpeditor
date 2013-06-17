@@ -14,14 +14,17 @@
     
     [fnpjs-place="topPanel"] {
         float: right;
+        position: relative;
+        z-index: 2;
     }
     
     [fnpjs-place="mainView"] {
         position: absolute;
-        top: 32px;
+        top: 0;
         left:0;
         right:0;
-        bottom:0; 
+        bottom:0;
+        z-index: 1;
         
         > .rng-view-tabs {
             position: relative;
