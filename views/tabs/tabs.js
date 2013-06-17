@@ -39,14 +39,16 @@ define([
         },
         
         addTab: function(title, slug, content) {
-            if(this.contents[slug])
-                return false;
+            if(this.contents[slug]) {
+                this.contents[slug].detach();
+            }
             this.contents[slug] = content;
             
             var text = (typeof title === 'string') ? title : (title.text || '');
             var icon = title.icon || null;
             
-            this.nodes.tabBar.append(this.handleTemplate({text: text, icon: icon, slug: slug}));
+            if(!this.tabExists(slug))
+                this.nodes.tabBar.append(this.handleTemplate({text: text, icon: icon, slug: slug}));
             if(!this.selectedTab)
                 this.selectTab(slug);
         },
@@ -73,6 +75,10 @@ define([
         
         getCurrentSlug: function() {
             return this.selectedTab;
+        },
+        
+        tabExists: function(slug) {
+            return this.nodes.tabBar.find('a[href="#'+ slug + '"]').length > 0;
         },
         
         /* Events */
