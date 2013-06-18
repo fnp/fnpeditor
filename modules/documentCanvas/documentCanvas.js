@@ -57,7 +57,7 @@ return function(sandbox) {
                     view.shownAlready = true;
                     view.selectFirstNode();
                 } else if(view.currentNode) {
-                    view.moveCarretToNode(view.getNodeElement(view.currentNode));
+                    view.movecaretToNode(view.getNodeElement(view.currentNode));
                 }
             };
                       
@@ -95,7 +95,7 @@ return function(sandbox) {
                 anchor.before(newNode)
             else
                 anchor.after(newNode);
-            this.selectNode(new wlxmlNode.Node(newNode), {moveCarret: true});
+            this.selectNode(new wlxmlNode.Node(newNode), {movecaret: true});
             //isDirty = true;
             sandbox.publish('contentChanged');
         },
@@ -119,7 +119,7 @@ return function(sandbox) {
                 newNode.before(prefix);
                 newNode.after(suffix);
                 
-                this.selectNode(new wlxmlNode.Node(newNode), {moveCarret: true});
+                this.selectNode(new wlxmlNode.Node(newNode), {movecaret: true});
                 //isDirty = true;
                 sandbox.publish('contentChanged');
             }
@@ -146,7 +146,7 @@ return function(sandbox) {
                 newNode.before(prefixNode);
                 newNode.after(suffixNode);
                 
-                this.selectNode(new wlxmlNode.Node(newNode), {moveCarret: true});
+                this.selectNode(new wlxmlNode.Node(newNode), {movecaret: true});
                 //isDirty = true;
                 sandbox.publish('contentChanged');
             }
@@ -166,8 +166,8 @@ return function(sandbox) {
             this.node.find('.rng-module-documentCanvas-currentNode').removeClass('rng-module-documentCanvas-currentNode');
             nodeElement.addClass('rng-module-documentCanvas-currentNode');
              
-            if(options.moveCarret) {
-                this.moveCarretToNode(nodeElement);
+            if(options.movecaret) {
+                this.movecaretToNode(nodeElement);
             }
             
             this.currentNode = wlxmlNode;
@@ -201,7 +201,7 @@ return function(sandbox) {
             else {
                 node = this.node.find('[wlxml-class|="p"]')
             }
-            this.selectNode(new wlxmlNode.Node(node), {moveCarret: true});
+            this.selectNode(new wlxmlNode.Node(node), {movecaret: true});
         },
         toggleGrid: function(toggle) {
             this.node.find('[wlxml-tag]').toggleClass('rng-common-hoveredNode', toggle);
@@ -210,7 +210,7 @@ return function(sandbox) {
         getNodeElement: function(wlxmlNode) {
             return this.node.find('#'+wlxmlNode.id);
         },
-        moveCarretToNode: function(nodeElement) {
+        movecaretToNode: function(nodeElement) {
             var range = document.createRange();
             range.selectNodeContents(nodeElement[0]);
             range.collapse(false);
@@ -225,7 +225,9 @@ return function(sandbox) {
     /* public api */
     return {
         start: function() { sandbox.publish('ready'); },
-        getView: function() { return view.node; },
+        getView: function() { 
+            return view.node;
+        },
         setDocument: function(xml) {
             var transformed = transformations.fromXML.getDocumentDescription(xml);
             view.setBody(transformed.HTMLTree);
@@ -248,7 +250,7 @@ return function(sandbox) {
         },
         selectNode: function(wlxmlNode) {
             if(!wlxmlNode.is(view.currentNode))
-                view.selectNode(wlxmlNode, {moveCarret: true});
+                view.selectNode(wlxmlNode, {movecaret: true});
         },
         toggleGrid: function(toggle) {
             view.toggleGrid(toggle);
