@@ -14,6 +14,7 @@ return function(sandbox) {
         node: $(_.template(template)()),
         currentNode: null,
         shownAlready: false,
+        scrollbarPosition: 0,
         setup: function() {
             var view = this;
 
@@ -58,8 +59,12 @@ return function(sandbox) {
                     view.selectFirstNode();
                 } else if(view.currentNode) {
                     view.movecaretToNode(view.getNodeElement(view.currentNode));
+                    view.node.find('#rng-module-documentCanvas-contentWrapper').scrollTop(view.scrollbarPosition);
                 }
             };
+            this.node.onHide = function() {
+                view.scrollbarPosition = view.node.find('#rng-module-documentCanvas-contentWrapper').scrollTop();
+            }
                       
             this.gridToggled = false;
         },
