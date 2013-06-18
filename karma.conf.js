@@ -5,9 +5,11 @@ files = [
   MOCHA_ADAPTER,
   /*REQUIRE,
   REQUIRE_ADAPTER*/
-  'tests/mocha.conf.js',
+  
   'libs/chai.js',
   'libsjquery-1.9.1.min.js',
+  
+  'tests/conf.js',
   'modules/documentCanvas/tests/tests_transform.js'
   
 ];

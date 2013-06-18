@@ -1,7 +1,7 @@
 suite('Transform', function() {
 
     test('test1', function() {
-        chai.assert.ok(true);
+        assert.ok(true);
     });
 
 });
