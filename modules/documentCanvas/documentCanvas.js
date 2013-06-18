@@ -84,7 +84,7 @@ return function(sandbox) {
                 anchor.before(newNode)
             else
                 anchor.after(newNode);
-            this.selectNode(newNode);
+            this.selectNode(new wlxmlNode.Node(newNode), {moveCarret: true});
             //isDirty = true;
             sandbox.publish('contentChanged');
         },
@@ -108,7 +108,7 @@ return function(sandbox) {
                 newNode.before(prefix);
                 newNode.after(suffix);
                 
-                this.selectNode(newNode);
+                this.selectNode(new wlxmlNode.Node(newNode), {moveCarret: true});
                 //isDirty = true;
                 sandbox.publish('contentChanged');
             }
@@ -135,7 +135,7 @@ return function(sandbox) {
                 newNode.before(prefixNode);
                 newNode.after(suffixNode);
                 
-                this.selectNode(newNode);
+                this.selectNode(new wlxmlNode.Node(newNode), {moveCarret: true});
                 //isDirty = true;
                 sandbox.publish('contentChanged');
             }
