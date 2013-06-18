@@ -3,15 +3,18 @@ basePath = '';
 files = [
   MOCHA,
   MOCHA_ADAPTER,
-  /*REQUIRE,
-  REQUIRE_ADAPTER*/
+  REQUIRE,
+  REQUIRE_ADAPTER,
   
-  'libs/chai.js',
-  'libs/jquery-1.9.1.min.js',
-  
-  'tests/conf.js',
-  'modules/documentCanvas/tests/tests_transform.js'
-  
+  {pattern: 'libs/*.js', included: false},
+  {pattern: 'fnpjs/**/*.js', included: false},
+  {pattern: 'modules/**/*.js', included: false},
+  {pattern: 'views/**/*.js', included: false},
+  {pattern: 'fnpjs/**/*.html', included: false},
+  {pattern: 'modules/**/*.html', included: false},
+  {pattern: 'views/**/*.html', included: false},
+
+  'tests/main.js',
 ];
 
 reporters = ['progress'];
