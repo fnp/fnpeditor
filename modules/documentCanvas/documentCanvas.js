@@ -13,6 +13,7 @@ return function(sandbox) {
     var view = {
         node: $(_.template(template)()),
         currentNode: null,
+        shownAlready: false,
         setup: function() {
             var view = this;
 
@@ -50,6 +51,14 @@ return function(sandbox) {
                     view.insertNewNode(null, null);
                 }
             });
+                      
+            this.node.onShow = function() {
+                if(!view.shownAlready) {
+                    view.shownAlready = true;
+                    view.selectFirstNode();
+                }
+            };
+                      
             this.gridToggled = false;
         },
         _createNode: function(wlxmlTag, wlxmlClass) {
@@ -195,7 +204,7 @@ return function(sandbox) {
             else {
                 node = this.node.find('[wlxml-class|="p"]')
             }
-            this.selectNode(new wlxmlNode.Node(node));
+            this.selectNode(new wlxmlNode.Node(node), {moveCarret: true});
         },
         toggleGrid: function(toggle) {
             this.node.find('[wlxml-tag]').toggleClass('rng-common-hoveredNode', toggle);
@@ -215,7 +224,6 @@ return function(sandbox) {
         setDocument: function(xml) {
             var transformed = transformations.fromXML.getDocumentDescription(xml);
             view.setBody(transformed.HTMLTree);
-            view.selectFirstNode();
             sandbox.publish('documentSet');
         },
         getDocument: function() {

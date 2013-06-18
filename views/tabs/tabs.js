@@ -60,6 +60,9 @@ define([
                 if(this.selectedTab)
                     this.contents[this.selectedTab].detach();
                 this.nodes.content.append(this.contents[slug]);
+                if(this.contents[slug].onShow) {
+                    this.contents[slug].onShow();
+                }
                 this.nodes.tabBar.find('.active').removeClass('active');
                 this.nodes.tabBar.find('a[href="#'+slug+'"]').parent().addClass('active');
                 
