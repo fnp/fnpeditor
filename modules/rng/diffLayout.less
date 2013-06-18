@@ -7,14 +7,6 @@
     [fnpjs-place=right] {
         left: 320px;
         right: 0;
-
-    }
-    
-    [fnpjs-place=left], [fnpjs-place=right] {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        
         overflow-y: scroll;
         padding-right: 0;
         &::-webkit-scrollbar {
@@ -29,6 +21,14 @@
         &::-webkit-scrollbar-thumb:window-inactive {
             .rng-mixin-scrollbar-thumb-window-inactive;
         }
+    }
+    
+    [fnpjs-place=left], [fnpjs-place=right] {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        
+
     }
 
 }
