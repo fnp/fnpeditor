@@ -56,6 +56,8 @@ return function(sandbox) {
                 if(!view.shownAlready) {
                     view.shownAlready = true;
                     view.selectFirstNode();
+                } else if(view.currentNode) {
+                    view.moveCarretToNode(view.getNodeElement(view.currentNode));
                 }
             };
                       
@@ -165,12 +167,7 @@ return function(sandbox) {
             nodeElement.addClass('rng-module-documentCanvas-currentNode');
              
             if(options.moveCarret) {
-                var range = document.createRange();
-                range.selectNodeContents(nodeElement[0]);
-                range.collapse(false);
-                var selection = document.getSelection();
-                selection.removeAllRanges()
-                selection.addRange(range);
+                this.moveCarretToNode(nodeElement);
             }
             
             this.currentNode = wlxmlNode;
@@ -212,6 +209,14 @@ return function(sandbox) {
         },
         getNodeElement: function(wlxmlNode) {
             return this.node.find('#'+wlxmlNode.id);
+        },
+        moveCarretToNode: function(nodeElement) {
+            var range = document.createRange();
+            range.selectNodeContents(nodeElement[0]);
+            range.collapse(false);
+            var selection = document.getSelection();
+            selection.removeAllRanges()
+            selection.addRange(range);
         }
     };
     
