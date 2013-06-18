@@ -1,5 +1,3 @@
-mocha.setup('tdd');
-
 suite('Transform', function() {
 
     test('test1', function() {
