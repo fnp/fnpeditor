@@ -5,6 +5,27 @@
         padding: 4px 6px;
     }
     
+    .tab-content {
+        position: absolute;
+        top:0;
+        bottom:0;
+        left:0;
+        right:60px;
+        overflow-y: scroll;
+        &::-webkit-scrollbar {
+            .rng-mixin-scrollbar;
+        }
+        &::-webkit-scrollbar-track {
+            .rng-mixin-scrollbar-track;
+        }
+        &::-webkit-scrollbar-thumb {
+            .rng-mixin-scrollbar-thumb;
+        }
+        &::-webkit-scrollbar-thumb:window-inactive {
+            .rng-mixin-scrollbar-thumb-window-inactive;
+        }
+    }
+    
     .diff_table {
         border-width: 1px;
         border-style: solid;
