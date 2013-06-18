@@ -50,23 +50,6 @@ return function(sandbox) {
                     view.insertNewNode(null, null);
                 }
             });
-            
-            
-            var observer = new MutationObserver(function(mutations) {
-              mutations.forEach(function(mutation) {
-                _.each(mutation.addedNodes, function(node) {
-                    node = $(node);
-                    node.parent().find('[wlxml-tag]').each(function() {
-                        var tag = $(this);
-                        if(!tag.attr('id'))
-                            tag.attr('id', 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);}));
-                    });
-                });
-              });    
-            });
-            var config = { attributes: true, childList: true, characterData: true, subtree: true };
-            observer.observe(this.node.find('#rng-module-documentCanvas-contentWrapper')[0], config);
-            
             this.gridToggled = false;
         },
         _createNode: function(wlxmlTag, wlxmlClass) {
@@ -76,6 +59,7 @@ return function(sandbox) {
             toret.attr('wlxml-tag', wlxmlTag);
             if(wlxmlClass)
                 toret.attr('wlxml-class', wlxmlClass);
+            toret.attr('id', 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);}));
             return toret;
         },
         insertNewNode: function(wlxmlTag, wlxmlClass) {
