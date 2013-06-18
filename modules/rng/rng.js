@@ -147,7 +147,7 @@ return function(sandbox) {
         },
         restoringStarted: function(event) {
             sandbox.getModule('mainBar').setCommandEnabled('save', false);
-            sandbox.getModule('indicator').showMessage(gettext('Restoring version ' + event.version + '...'));
+            sandbox.getModule('indicator').showMessage(gettext('Restoring version ') + event.version + '...');
         },
         historyItemAdded: function(item) {
             sandbox.getModule('documentHistory').addHistory([item], {animate: true});
