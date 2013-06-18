@@ -20,6 +20,7 @@ define([
             this.setElement(this.template());
             this.$el.modal({backdrop: 'static'});
             this.$el.modal('show');
+            this.$('textarea').focus();
 
         },
         onSave: function(e) {
