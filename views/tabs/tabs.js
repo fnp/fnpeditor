@@ -57,8 +57,12 @@ define([
             if(slug !== this.selectedTab && this.contents[slug]) {
                 this.trigger('leaving', this.selectedTab);
                 
-                if(this.selectedTab)
-                    this.contents[this.selectedTab].detach();
+                if(this.selectedTab) {
+                    var toDetach = this.contents[this.selectedTab];
+                    if(toDetach.onHide)
+                        toDetach.onHide();
+                    toDetach.detach();
+                }
                 this.nodes.content.append(this.contents[slug]);
                 if(this.contents[slug].onShow) {
                     this.contents[slug].onShow();

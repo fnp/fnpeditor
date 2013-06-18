@@ -12,6 +12,12 @@ define(['libs/jquery-1.9.1.min', 'libs/underscore-min'], function($ ,_) {
                     view.onShow();
             });
         };
+        this.dom.onHide = function() {
+            _.values(layout.views).forEach(function(view) {
+                if(view.onHide)
+                    view.onHide();
+            });
+        };
         
     };
     
