@@ -51,6 +51,15 @@ return function(sandbox) {
                     e.preventDefault();
                     view.insertNewNode(null, null);
                 }
+                if(e.which === 8) {
+                    var anchor = window.getSelection().anchorNode;
+                    var len = anchor.length;
+                    console.log(len);
+                    if(len === 1) {
+                        e.preventDefault();
+                        $(anchor).parent().text('');
+                    }
+                }
             });
                       
             this.node.onShow = function() {
