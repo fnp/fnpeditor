@@ -128,7 +128,7 @@ Manager.prototype.selectFirstNode = function() {
 Manager.prototype.movecaretToNode = function(nodeElement) {
     var range = document.createRange();
     range.selectNodeContents(nodeElement[0]);
-    range.collapse(false);
+    range.collapse(true);
     var selection = document.getSelection();
     selection.removeAllRanges()
     selection.addRange(range);
