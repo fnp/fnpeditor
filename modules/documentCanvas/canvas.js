@@ -70,38 +70,38 @@ Canvas.prototype.insertNode = function(options) {
 Canvas.prototype.splitNode = function(options) {
     options = _.extend({textNodeIdx: 0}, options);
     
-    var element = $(this.content.find('#' + options.node.id).get(0));
+    var nodeToSplit = $(this.content.find('#' + options.node.id).get(0));
     
-    var elementContents = element.contents();
-    if(elementContents.length === 0 || 
-       elementContents.length - 1 < options.textNodeIdx || 
-       elementContents.get(options.textNodeIdx).nodeType != 3)
+    var nodeContents = nodeToSplit.contents();
+    if(nodeContents.length === 0 || 
+       nodeContents.length - 1 < options.textNodeIdx || 
+       nodeContents.get(options.textNodeIdx).nodeType != 3)
         return false;
     
-    var textElement = elementContents.get(options.textNodeIdx);
+    var textNode = $(nodeContents.get(options.textNodeIdx));
 
     var succeedingNodes = [];
     var passed = false;
-    elementContents.each(function() {
+    nodeContents.each(function() {
         var node = this;
         if(passed)
             succeedingNodes.push(node);
-        if(node.isSameNode(textElement))
+        if(node.isSameNode(textNode.get(0)))
             passed = true;
     });
     
-    var prefix = textElement.data.substr(0, options.offset);
-    var suffix = textElement.data.substr(options.offset);
+    var prefix = textNode.text().substr(0, options.offset);
+    var suffix = textNode.text().substr(options.offset);
     
-    var $textElement = $(textElement);
-    $textElement.before(prefix);
-    $textElement.remove();
-    var newNode = this._createNode(element.attr('wlxml-tag'), element.attr('wlxml-class'));
+    textNode.before(prefix);
+    textNode.remove();
+    
+    var newNode = this._createNode(nodeToSplit.attr('wlxml-tag'), nodeToSplit.attr('wlxml-class'));
     newNode.append(suffix);
     succeedingNodes.forEach(function(node) {
         newNode.append(node)
     });
-    element.after(newNode);
+    nodeToSplit.after(newNode);
 }
 
 Canvas.prototype.createList = function(options) {
