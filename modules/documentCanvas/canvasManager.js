@@ -72,20 +72,20 @@ var Manager = function(canvas, sandbox) {
 };
     
 Manager.prototype.selectNode = function(wlxmlNode, options) {
-        options = options || {};
-        var nodeElement = this.getNodeElement(wlxmlNode)
-        
-        this.dimNode(wlxmlNode);
-        
-        this.canvas.dom.find('.rng-module-documentCanvas-currentNode').removeClass('rng-module-documentCanvas-currentNode');
-        nodeElement.addClass('rng-module-documentCanvas-currentNode');
-         
-        if(options.movecaret) {
-            this.movecaretToNode(nodeElement);
-        }
-        
-        this.currentNode = wlxmlNode;
-        this.sandbox.publish('nodeSelected', wlxmlNode);
+    options = options || {};
+    var nodeElement = this.getNodeElement(wlxmlNode)
+    
+    this.dimNode(wlxmlNode);
+    
+    this.canvas.dom.find('.rng-module-documentCanvas-currentNode').removeClass('rng-module-documentCanvas-currentNode');
+    nodeElement.addClass('rng-module-documentCanvas-currentNode');
+    
+    if(options.movecaret) {
+        this.movecaretToNode(nodeElement);
+    }
+    
+    this.currentNode = wlxmlNode;
+    this.sandbox.publish('nodeSelected', wlxmlNode);
 };
 
 Manager.prototype.getNodeElement = function(wlxmlNode) {
