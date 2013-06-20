@@ -64,3 +64,38 @@ span[wlxml-tag] {
 [wlxml-tag]  metadata {
     display:none;
 }
+
+[wlxml-class="list-items"] {
+
+    counter-reset: myitem;
+
+    > [wlxml-class="item"] {
+        counter-increment: myitem;
+        display: list-item;
+        margin-left: 10px;
+        padding-left: 5px;
+        
+        &:before {
+            content: counter(myitem) '. ';
+            margin-right:10px;
+            padding-right:10px;
+        }
+    }
+}
+
+[wlxml-class="table"] {
+
+    display: table;
+    border: 1px solid black;
+
+    [wlxml-class="row"] {
+        display: table-row;
+        border: 1px solid black;
+    }
+    [wlxml-class="cell"] {
+        display: table-cell;
+        border: 1px solid black;
+        padding: 5px;
+    }
+
+}
