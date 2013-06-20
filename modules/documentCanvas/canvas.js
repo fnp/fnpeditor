@@ -9,13 +9,14 @@ define([
 'use strict';
 
 var Canvas = function(xml) {
-    this.xml = xml;
     this.dom = $(template);
-    
-    this.content = this.dom.find('#rng-module-documentCanvas-content')
-    
-    
-    this.content.html(transformations.fromXML.getHTMLTree(xml));
+    this.content = this.dom.find('#rng-module-documentCanvas-content');
+    this.setXML(xml);
+}
+
+Canvas.prototype.setXML = function(xml) {
+    this.xml = xml;
+    this.content.html(transformations.fromXML.getHTMLTree(xml));  
 }
 
 Canvas.prototype.toXML = function() {
