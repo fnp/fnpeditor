@@ -68,22 +68,40 @@ Canvas.prototype.insertNode = function(options) {
 }
 
 Canvas.prototype.splitNode = function(options) {
+    options = _.extend({textNodeIdx: 0}, options);
+    
     var element = $(this.content.find('#' + options.node.id).get(0));
     
     var elementContents = element.contents();
-    if(elementContents.length !== 1 || elementContents.get(0).nodeType != 3)
+    if(elementContents.length === 0 || 
+       elementContents.length - 1 < options.textNodeIdx || 
+       elementContents.get(options.textNodeIdx).nodeType != 3)
         return false;
-    var textElement = elementContents.get(0);
+    
+    var textElement = elementContents.get(options.textNodeIdx);
+
+    var succeedingNodes = [];
+    var passed = false;
+    elementContents.each(function() {
+        var node = this;
+        if(passed)
+            succeedingNodes.push(node);
+        if(node.isSameNode(textElement))
+            passed = true;
+    });
     
     var prefix = textElement.data.substr(0, options.offset);
     var suffix = textElement.data.substr(options.offset);
-    var prefixNode = this._createNode(element.attr('wlxml-tag'), element.attr('wlxml-class'));
-    var suffixNode = this._createNode(element.attr('wlxml-tag'), element.attr('wlxml-class'));
-    prefixNode.text(prefix);
-    suffixNode.text(suffix);
-    element.before(prefixNode);
-    element.after(suffixNode);
-    element.remove();
+    
+    var $textElement = $(textElement);
+    $textElement.before(prefix);
+    $textElement.remove();
+    var newNode = this._createNode(element.attr('wlxml-tag'), element.attr('wlxml-class'));
+    newNode.append(suffix);
+    succeedingNodes.forEach(function(node) {
+        newNode.append(node)
+    });
+    element.after(newNode);
 }
 
 Canvas.prototype.createList = function(options) {

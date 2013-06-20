@@ -81,6 +81,18 @@ define([
             );
         });
         
+        test('split node with subnodes', function() {
+            var c = new canvas.Canvas('<section><header class="some.class">Fancy and nice <span>header</span> 1</header></section>');
+            var header = c.getNode({tag: 'header'})[0];
+            c.splitNode({node: header, textNodeIdx: 0, offset: 5});
+            assert.xmlEqual(c.toXML(), '\
+                <section> \
+                    <header class="some.class">Fancy</header>\
+                    <header class="some.class"> and nice <span>header</span> 1</header>\
+                </section>'
+            );
+        });
+        
         test('list', function() {
             var c = new canvas.Canvas('<section><div>Alice</div>has<div>a cat</div></section>');
             var div1 = c.getNode({tag:'div'})[0];
