@@ -6,6 +6,7 @@ files = [
   REQUIRE,
   REQUIRE_ADAPTER,
   
+  'vkbeautify.js',
   {pattern: 'libs/*.js', included: false},
   {pattern: 'fnpjs/**/*.js', included: false},
   {pattern: 'modules/**/*.js', included: false},

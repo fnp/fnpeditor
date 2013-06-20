@@ -9,7 +9,22 @@
     require({
       baseUrl: '/base/',
       deps: tests,
-      callback: window.__karma__.start
+      callback: window.__karma__.start,
+        shim: {
+            'libs/jquery-1.9.1.min': {
+                exports: '$',
+            },
+            'libs/underscore-min': {
+                exports: '_'
+            },
+            'libs/bootstrap/js/bootstrap.min': {
+                deps: ['libs/jquery-1.9.1.min']
+            },
+            'libs/backbone-min': {
+                exports: 'Backbone',
+                deps: ['libs/jquery-1.9.1.min', 'libs/underscore-min']
+            }
+        }
     });
 
 })();
