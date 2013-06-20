@@ -91,14 +91,17 @@ return function(sandbox) {
             //TODO: Insert inline
             var anchor = $(window.getSelection().anchorNode);
             var anchorOffset = window.getSelection().anchorOffset;
-            if(anchor[0].nodeType === Node.TEXT_NODE)
+            var textLen;
+            if(anchor[0].nodeType === Node.TEXT_NODE) {
+                textLen = anchor.text().length;
                 anchor = anchor.parent();
+            }
             if(anchor.text() === '') {
                 var todel = anchor;
                 anchor = anchor.parent();
                 todel.remove();
             }
-            if(anchorOffset > 0 && anchorOffset < anchor.text().length) {
+            if(anchorOffset > 0 && anchorOffset < textLen) {
                 if(wlxmlTag === null && wlxmlClass === null) {
                     return this.splitWithNewNode(anchor);
                 }
