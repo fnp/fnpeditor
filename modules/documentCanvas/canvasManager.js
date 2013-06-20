@@ -44,7 +44,7 @@ var Manager = function(canvas, sandbox) {
     canvas.dom.on('keydown', '#rng-module-documentCanvas-contentWrapper', function(e) {
         if(e.which === 13) { 
             e.preventDefault();
-            //view.insertNewNode(null, null);
+            manager.insertNewNode(null, null);
         }
         if(e.which === 8) {
             var anchor = window.getSelection().anchorNode;
@@ -137,6 +137,24 @@ Manager.prototype.movecaretToNode = function(nodeElement) {
 Manager.prototype.toggleGrid =  function(toggle) {
     this.canvas.dom.find('[wlxml-tag]').toggleClass('rng-common-hoveredNode', toggle);
     this.gridToggled = toggle;
+};
+
+Manager.prototype.insertNewNode = function(wlxmlTag, wlxmlClass) {
+    //TODO: Insert inline
+    var anchor = $(window.getSelection().anchorNode);
+    var anchorOffset = window.getSelection().anchorOffset;
+    
+    var parent = anchor.parent();
+    var idx = parent.contents().index(anchor);
+    
+    if(anchorOffset < anchor.text().length) {
+        var newNode = this.canvas.splitNode({node: {id: parent.attr('id')}, textNodeIdx: idx, offset: anchorOffset});
+        this.selectNode(new wlxmlNode.Node(newNode), {movecaret: true});
+    }
+
+    
+    
+    this.sandbox.publish('contentChanged');
 };
 
 return Manager;

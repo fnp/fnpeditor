@@ -103,6 +103,7 @@ Canvas.prototype.splitNode = function(options) {
         newNode.append(node)
     });
     nodeToSplit.after(newNode);
+    return newNode;
 }
 
 Canvas.prototype.createList = function(options) {
