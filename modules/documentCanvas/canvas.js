@@ -36,6 +36,14 @@ Canvas.prototype.getNode = function(desc) {
     return toret;
 }
 
+Canvas.prototype.getPreviousNode = function(options) {
+    var element = $(this.content.find('#' + options.node.id).get(0));
+    var prev = element.prev()
+    if(prev.length === 0)
+        prev = element.parent();
+    return new wlxmlNode.Node(prev);
+}
+
 Canvas.prototype._createNode = function(wlxmlTag, wlxmlClass) {
             var toBlock = ['div', 'document', 'section', 'header'];
             var htmlTag = _.contains(toBlock, wlxmlTag) ? 'div' : 'span';
@@ -49,8 +57,11 @@ Canvas.prototype._createNode = function(wlxmlTag, wlxmlClass) {
 
 Canvas.prototype.insertNode = function(options) {
     var element = $(this.content.find('#' + options.context.id).get(0));
-    if(options.place == 'after')
-        element[options.place](this._createNode(options.tag, options.klass));
+    if(options.place == 'after') {
+        var node = this._createNode(options.tag, options.klass);
+        element[options.place](node);
+        return node;
+    }
     else if(options.place == 'wrapText') {
         var elementContents = element.contents();
         if(elementContents.length !== 1 || elementContents.get(0).nodeType != 3)

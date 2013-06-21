@@ -54,6 +54,20 @@ define([
             assert.equal(header.tag, 'header');
             assert.equal(header.klass, 'some-class');
         });
+        
+        test('getting previous node', function() {
+            var c = new canvas.Canvas('<section><div class="some.class">Div 1</div><div class="some.other.class">Div 2</div></section>');
+            var secondDiv = c.getNode({tag: 'div'})[1];
+            var firstDiv = c.getPreviousNode({node: secondDiv});
+            assert.equal(firstDiv.klass, 'some-class');
+        })
+        
+        test('pervious node of node without "previous siblings" is its parent', function() {
+            var c = new canvas.Canvas('<section><div class="some.class">Div 1</div></section>');
+            var div = c.getNode({tag: 'div'})[0];
+            var section = c.getPreviousNode({node: div});
+            assert.equal(section.tag, 'section');
+        })
     
         test('inserting after', function() {
             var c = new canvas.Canvas('<section><header>Header 1</header></section>');
@@ -119,7 +133,7 @@ define([
                         <div class="list.item">a cat</div>\
                     </div>\
                 </section>');
-            
+
         });
     });
 
