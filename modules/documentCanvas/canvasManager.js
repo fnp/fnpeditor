@@ -5,6 +5,19 @@ define([
 
 'use strict';
 
+var getCursorPosition = function() {
+    var selection = window.getSelection();
+    var anchorNode = $(selection.anchorNode);
+    var parent = anchorNode.parent();
+    return {
+        textNode: anchorNode,
+        textNodeOffset: selection.anchorOffset,
+        textNodeIndex: parent.contents().index(anchorNode),
+        parentNode: parent,
+        isAtEnd: selection.anchorOffset === anchorNode.text().length
+    }
+};
+
 var Manager = function(canvas, sandbox) {
     this.canvas = canvas;
     this.sandbox = sandbox;
@@ -34,6 +47,7 @@ var Manager = function(canvas, sandbox) {
 
     canvas.dom.on('keyup', '#rng-module-documentCanvas-contentWrapper', function(e) {
         var anchor = $(window.getSelection().anchorNode);
+        
         if(anchor[0].nodeType === Node.TEXT_NODE)
             anchor = anchor.parent();
         if(!anchor.is('[wlxml-tag]'))
@@ -43,17 +57,10 @@ var Manager = function(canvas, sandbox) {
     
     canvas.dom.on('keydown', '#rng-module-documentCanvas-contentWrapper', function(e) {
         if(e.which === 13) { 
-            e.preventDefault();
-            manager.insertNewNode(null, null);
+            manager.onEnterKey(e);
         }
         if(e.which === 8) {
-            var anchor = window.getSelection().anchorNode;
-            var len = anchor.length;
-            console.log(len);
-            if(len === 1) {
-                e.preventDefault();
-                $(anchor).parent().text('');
-            }
+            manager.onBackspaceKey(e);
         }
     });
               
@@ -81,7 +88,7 @@ Manager.prototype.selectNode = function(wlxmlNode, options) {
     nodeElement.addClass('rng-module-documentCanvas-currentNode');
     
     if(options.movecaret) {
-        this.movecaretToNode(nodeElement);
+        this.movecaretToNode(nodeElement, options.movecaret);
     }
     
     this.currentNode = wlxmlNode;
@@ -125,10 +132,14 @@ Manager.prototype.selectFirstNode = function() {
     this.selectNode(new wlxmlNode.Node(node), {movecaret: true});
 };
 
-Manager.prototype.movecaretToNode = function(nodeElement) {
+Manager.prototype.movecaretToNode = function(nodeElement, where) {
     var range = document.createRange();
     range.selectNodeContents(nodeElement[0]);
-    range.collapse(true);
+    
+    var collapseArg = true;
+    if(where === 'end')
+        collapseArg = false;
+    range.collapse(collapseArg);
     var selection = document.getSelection();
     selection.removeAllRanges()
     selection.addRange(range);
@@ -139,23 +150,38 @@ Manager.prototype.toggleGrid =  function(toggle) {
     this.gridToggled = toggle;
 };
 
-Manager.prototype.insertNewNode = function(wlxmlTag, wlxmlClass) {
-    //TODO: Insert inline
-    var anchor = $(window.getSelection().anchorNode);
-    var anchorOffset = window.getSelection().anchorOffset;
-    
-    var parent = anchor.parent();
-    var idx = parent.contents().index(anchor);
-    
-    if(anchorOffset < anchor.text().length) {
-        var newNode = this.canvas.splitNode({node: {id: parent.attr('id')}, textNodeIdx: idx, offset: anchorOffset});
-        this.selectNode(new wlxmlNode.Node(newNode), {movecaret: true});
+Manager.prototype.onEnterKey = function(e) {
+    e.preventDefault();
+    var pos = getCursorPosition();
+    var insertedNode;
+    if(pos.isAtEnd) {
+        insertedNode = this.canvas.insertNode({place: 'after', context: {id: pos.parentNode.attr('id')}, tag: pos.parentNode.attr('wlxml-tag'), klass: pos.parentNode.attr('wlxml-class')});
+    } else {
+        insertedNode = this.canvas.splitNode({node: {id: pos.parentNode.attr('id')}, textNodeIdx: pos.textNodeIndex, offset: pos.textNodeOffset});
     }
-
-    
-    
+    if(insertedNode.length)
+        this.selectNode(new wlxmlNode.Node(insertedNode), {movecaret: true});
     this.sandbox.publish('contentChanged');
 };
+
+Manager.prototype.onBackspaceKey = function(e) {
+    var pos = getCursorPosition();
+    var len = pos.textNode.text().length;
+    if(len === 1) {
+        // Prevent deleting node by browser after last character removed;
+        e.preventDefault();
+        pos.parentNode.text('');
+    }
+    if(len === 0) {
+        e.preventDefault();
+        var toRemove = new wlxmlNode.Node(pos.textNode);
+        var prevNode = this.canvas.getPreviousNode({node:toRemove});
+        this.canvas.removeNode({node: toRemove}); // jesli nie ma tekstu, to anchor nie jest tex nodem
+        this.selectNode(prevNode, {movecaret: 'end'});
+    }
+}
+
+
 
 return Manager;
     
