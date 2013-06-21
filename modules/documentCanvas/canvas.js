@@ -106,6 +106,12 @@ Canvas.prototype.splitNode = function(options) {
     return newNode;
 }
 
+Canvas.prototype.removeNode = function(options) {
+    var toRemove = $(this.content.find('#' + options.node.id).get(0));
+    toRemove.remove();
+
+}
+
 Canvas.prototype.createList = function(options) {
     var element1 = $(this.content.find('#' + options.start.id).get(0));
     var element2 = $(this.content.find('#' + options.end.id).get(0));

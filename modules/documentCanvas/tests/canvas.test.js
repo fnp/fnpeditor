@@ -93,6 +93,17 @@ define([
             );
         });
         
+        test('remove node', function() {
+            var c = new canvas.Canvas('<section><header class="some.class">Fancy and nice <span>header</span> 1</header></section>');
+            var span = c.getNode({tag: 'span'})[0];
+            var siblings = c.removeNode({node:span});
+            assert.xmlEqual(c.toXML(), '\
+                <section>\
+                    <header class="some.class">Fancy and nice  1</header>\
+                </section>'
+            );
+        });
+        
         test('list', function() {
             var c = new canvas.Canvas('<section><div>Alice</div>has<div>a cat</div></section>');
             var div1 = c.getNode({tag:'div'})[0];
