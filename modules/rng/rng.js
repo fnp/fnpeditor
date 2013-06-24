@@ -259,6 +259,9 @@ return function(sandbox) {
             } else {
                 sandbox.getModule('documentCanvas').wrapSelectionWithNewNode(wlxmlTag, wlxmlClass);
             }
+        },
+        command: function(cmd, meta) {
+            sandbox.getModule('documentCanvas').command(cmd, meta);
         }
     };
     

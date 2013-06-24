@@ -40,8 +40,9 @@ return function(sandbox) {
                             //this.wrapWithNodeRequest(wlxmlTag, wlxmlClass);
                         }
                         sandbox.publish('newNodeRequested', wlxmlTag, wlxmlClass);
+                    } else {
+                        sandbox.publish('command', btn.attr('data-btn'), btn.attr('data-meta'));
                     }
-                    //sandbox.publish('command', btn.attr('data-btn'), btn.attr('data-meta'));
                 }
             });
         },

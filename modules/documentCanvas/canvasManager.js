@@ -14,6 +14,7 @@ var getCursorPosition = function() {
         textNodeOffset: selection.anchorOffset,
         textNodeIndex: parent.contents().index(anchorNode),
         parentNode: parent,
+        focusNode: $(selection.focusNode).parent(),
         isAtEnd: selection.anchorOffset === anchorNode.text().length
     }
 };
@@ -181,6 +182,26 @@ Manager.prototype.onBackspaceKey = function(e) {
     }
 }
 
+Manager.prototype.command = function(command, meta) {
+    var pos = getCursorPosition();
+    
+    if(command === 'createList') {
+        var node = new wlxmlNode.Node(pos.parentNode);
+        if(window.getSelection().getRangeAt().collapsed && this.canvas.insideList({pointer: node})) {
+            this.canvas.removeList({pointer: node});
+            this.selectNode(node, {movecaret: 'end'});
+            this.sandbox.publish('contentChanged');
+        }
+        else {
+            if(!this.canvas.insideList({pointer: node})) {
+                this.canvas.createList({start: new wlxmlNode.Node(pos.parentNode), end: new wlxmlNode.Node(pos.focusNode)});
+                this.selectNode(new wlxmlNode.Node(pos.parentNode), {movecaret: 'end'});
+                this.sandbox.publish('contentChanged');
+            }
+        }
+    }
+
+}
 
 
 return Manager;

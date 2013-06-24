@@ -37,6 +37,20 @@ define(['libs/jquery-1.9.1.min'], function($) {
             transform(toBlock, 'div');
             transform(toInline, 'span');
 
+            toret.find(":not(iframe)").addBack().contents().filter(function() {
+                return this.nodeType == 3} ).each(function() {
+                    var n = $(this); 
+                    var hasText = /\S/g.test(n.text());
+                    if(!hasText) {
+                        n.remove();
+                        return;
+                    }
+                    var startSpace = /\s/g.test(n.text().substr(0,1));
+                    var endSpace = /\s/g.test(n.text().substr(-1)) && n.text().length > 1;
+                    var trimmed = $.trim(n.text());
+                    n.get(0).data = (startSpace ? ' ' : '') + trimmed + (endSpace ? ' ' : '');
+            });
+            
             return toret.children();
         },
         getMetaData: function(xml) {

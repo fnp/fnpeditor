@@ -52,6 +52,9 @@ return function(sandbox) {
         },
         wrapSelectionWithNewNode: function(wlxmlTag, wlxmlClass) {
             manager.wrapSelectionWithNewNode(wlxmlTag, wlxmlClass);
+        },
+        command: function(command, meta) {
+            manager.command(command, meta);
         }
     }
     

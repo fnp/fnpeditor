@@ -175,6 +175,16 @@ Canvas.prototype.removeList = function(options) {
     
 }
 
+Canvas.prototype.insideList = function(options) {
+    if(options.pointer) {
+        if(options.pointer.klass === 'list-items' || options.pointer.klass === 'item')
+            return true;
+        var pointerElement = $(this.content.find('#' + options.pointer.id));
+        return pointerElement.parents('list-items').length > 0;
+    }
+    return false;
+}
+
 
 return {Canvas: Canvas, Node: Node};
 
