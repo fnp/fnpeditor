@@ -76,6 +76,7 @@ Canvas.prototype.insertNode = function(options) {
         $(textElement).replaceWith(newNode);
         newNode.before(prefix);
         newNode.after(suffix);
+        return newNode;
     }
 }
 

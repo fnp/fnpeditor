@@ -254,11 +254,7 @@ return function(sandbox) {
             sandbox.getModule('documentCanvas').toggleGrid(toggle);
         },
         newNodeRequested: function(wlxmlTag, wlxmlClass) {
-            if(window.getSelection().isCollapsed) {
                 sandbox.getModule('documentCanvas').insertNewNode(wlxmlTag, wlxmlClass);
-            } else {
-                sandbox.getModule('documentCanvas').wrapSelectionWithNewNode(wlxmlTag, wlxmlClass);
-            }
         },
         command: function(cmd, meta) {
             sandbox.getModule('documentCanvas').command(cmd, meta);

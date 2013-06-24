@@ -50,9 +50,6 @@ return function(sandbox) {
         insertNewNode: function(wlxmlTag, wlxmlClass) {
             manager.insertNewNode(wlxmlTag, wlxmlClass);
         },
-        wrapSelectionWithNewNode: function(wlxmlTag, wlxmlClass) {
-            manager.wrapSelectionWithNewNode(wlxmlTag, wlxmlClass);
-        },
         command: function(command, meta) {
             manager.command(command, meta);
         }

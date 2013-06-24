@@ -96,6 +96,27 @@ Manager.prototype.selectNode = function(wlxmlNode, options) {
     this.sandbox.publish('nodeSelected', wlxmlNode);
 };
 
+Manager.prototype.insertNewNode = function(wlxmlTag, wlxmlClass) {
+    var selection = window.getSelection();
+
+    if(selection.getRangeAt(0).collapsed) {
+    
+    } else {
+        var offsetStart = selection.anchorOffset;
+        var offsetEnd = selection.focusOffset;
+        if(offsetStart > offsetEnd) {
+            var tmp = offsetStart;
+            offsetStart = offsetEnd;
+            offsetEnd = tmp;
+        }
+        var node = new wlxmlNode.Node($(selection.anchorNode).parent());
+        var newNode = this.canvas.insertNode({place: 'wrapText', context: node, tag: wlxmlTag, klass: wlxmlClass, offsetStart: offsetStart, offsetEnd: offsetEnd});
+        this.selectNode(new wlxmlNode.Node(newNode), {movecaret: 'end'});
+    }
+    
+    
+}
+
 Manager.prototype.getNodeElement = function(wlxmlNode) {
     return this.canvas.dom.find('#'+wlxmlNode.id);
 };
