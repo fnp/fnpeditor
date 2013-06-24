@@ -147,14 +147,14 @@ Canvas.prototype.createList = function(options) {
             else {
                 $node = $(node);
             }
-            $node.attr('wlxml-class', 'list.item');
+            $node.attr('wlxml-class', 'item');
             nodesToWrap.push($node);
         }
         if(node.isSameNode(element2.get(0)))
             return;
     });
     
-    var list = this._createNode('div', 'list');
+    var list = this._createNode('div', 'list-items');
     element1.before(list);
     
     nodesToWrap.forEach(function(node) {

@@ -118,8 +118,8 @@ define([
             );
         });
         
-        test('list', function() {
-            var c = new canvas.Canvas('<section><div>Alice</div>has<div>a cat</div></section>');
+        test('create list from existing nodes', function() {
+            var c = new canvas.Canvas('<section><div>Alice</div>has<div>a cat</div><div>some text</div></section>');
             var div1 = c.getNode({tag:'div'})[0];
             var div2 = c.getNode({tag:'div'})[1];
             
@@ -127,11 +127,12 @@ define([
             
             assert.xmlEqual(c.toXML(), '\
                 <section>\
-                    <div class="list">\
-                        <div class="list.item">Alice</div>\
-                        <div class="list.item">has</div>\
-                        <div class="list.item">a cat</div>\
+                    <div class="list.items">\
+                        <div class="item">Alice</div>\
+                        <div class="item">has</div>\
+                        <div class="item">a cat</div>\
                     </div>\
+                    <div>some text</div>\
                 </section>');
 
         });
