@@ -33,12 +33,6 @@ return function(sandbox) {
                             wlxmlTag = split[0];
                             wlxmlClass = split[1];
                         }
-                        if(window.getSelection().isCollapsed) {
-                            //view.insertNewNode(wlxmlTag, wlxmlClass);
-                        }
-                        else {
-                            //this.wrapWithNodeRequest(wlxmlTag, wlxmlClass);
-                        }
                         sandbox.publish('newNodeRequested', wlxmlTag, wlxmlClass);
                     } else {
                         sandbox.publish('command', btn.attr('data-btn'), btn.attr('data-meta'));
