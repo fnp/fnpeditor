@@ -15,8 +15,8 @@ var Canvas = function(xml) {
 }
 
 Canvas.prototype.setXML = function(xml) {
-    this.xml = xml;
-    this.content.html(transformations.fromXML.getHTMLTree(xml));  
+    this.xml = $.trim(xml);
+    this.content.html(transformations.fromXML.getHTMLTree(this.xml));  
 }
 
 Canvas.prototype.toXML = function() {
@@ -161,8 +161,17 @@ Canvas.prototype.createList = function(options) {
         node.remove();
         list.append(node);
     });
+}
+
+Canvas.prototype.removeList = function(options) {
+    var pointerElement = $(this.content.find('#' + options.pointer.id));
+    var listElement = options.pointer.klass === 'list-items' ? pointerElement : 
+        pointerElement.parent('[wlxml-class="list-items"][wlxml-tag]');
     
-    
+    listElement.find('[wlxml-class=item]').each(function() {
+        $(this).attr('wlxml-class', '');
+    });;
+    listElement.children().unwrap();
     
 }
 

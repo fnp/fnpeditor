@@ -76,7 +76,8 @@ define(['libs/jquery-1.9.1.min'], function($) {
                     var wlxmlName = split.splice(1).join('-');
                     var value = wlxmlName === 'class' ? attr.value.replace(/-/g, '.') : attr.value;
                     console.log(name + ': ' + value);
-                    toret.attr(wlxmlName, value);
+                    if(value.length && value.length > 0)
+                        toret.attr(wlxmlName, value);
                 }
                     
                 toret.append(div.contents());

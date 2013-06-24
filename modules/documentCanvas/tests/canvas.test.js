@@ -136,6 +136,28 @@ define([
                 </section>');
 
         });
+        
+        test('remove list', function() {
+            var xml = '\
+                <section>\
+                    <div class="list.items">\
+                        <div class="item">Alice</div>\
+                        <div class="item">has</div>\
+                        <div class="item">a cat</div>\
+                    </div>\
+                    <div>some text</div>\
+                </section>';
+           var c = new canvas.Canvas(xml);
+           var item = c.getNode({klass: 'item'})[1];
+           c.removeList({pointer: item});
+           assert.xmlEqual(c.toXML(), '\
+                <section>\
+                    <div>Alice</div>\
+                    <div>has</div>\
+                    <div>a cat</div>\
+                    <div>some text</div>\
+                </section>');
+        });
     });
 
 });
