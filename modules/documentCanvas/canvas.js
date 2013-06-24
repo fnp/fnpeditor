@@ -151,7 +151,7 @@ Canvas.prototype.createList = function(options) {
             nodesToWrap.push($node);
         }
         if(node.isSameNode(element2.get(0)))
-            return;
+            return false;
     });
     
     var list = this._createNode('div', 'list-items');
