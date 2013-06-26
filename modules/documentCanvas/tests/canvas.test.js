@@ -137,6 +137,25 @@ define([
 
         });
         
+        test('create list from existing nodes reverse', function() {
+            var c = new canvas.Canvas('<section><div>Alice</div>has<div>a cat</div><div>some text</div></section>');
+            var div1 = c.getNode({tag:'div'})[0];
+            var div2 = c.getNode({tag:'div'})[1];
+            
+            c.createList({start: div2, end: div1});
+            
+            assert.xmlEqual(c.toXML(), '\
+                <section>\
+                    <div class="list.items">\
+                        <div class="item">Alice</div>\
+                        <div class="item">has</div>\
+                        <div class="item">a cat</div>\
+                    </div>\
+                    <div>some text</div>\
+                </section>');
+
+        });
+        
         test('remove list', function() {
             var xml = '\
                 <section>\

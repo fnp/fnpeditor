@@ -131,6 +131,14 @@ Canvas.prototype.createList = function(options) {
         return false;
         
     var parent = element1.parent();
+    
+    if(parent.contents().index(element1) > parent.contents().index(element2)) {
+        var tmp = element1;
+        element1 = element2;
+        element2 = tmp;
+    }
+        
+    
     var nodesToWrap = [];
     
     var place = 'before';
