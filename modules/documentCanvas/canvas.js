@@ -2,88 +2,79 @@ define([
 'libs/jquery-1.9.1.min',
 'libs/underscore-min',
 'modules/documentCanvas/transformations',
-'modules/documentCanvas/wlxmlNode',
+'modules/documentCanvas/canvasNode',
 'libs/text!./template.html'
-], function($, _, transformations, wlxmlNode, template) {
+], function($, _, transformations, canvasNode, template) {
 
 'use strict';
 
-var Canvas = function(xml) {
+var Canvas = function(html) {
     this.dom = $(template);
     this.content = this.dom.find('#rng-module-documentCanvas-content');
-    this.setXML(xml);
-}
+    if(html) {
+        this.content.html(html);
+    }
+};
 
-Canvas.prototype.setXML = function(xml) {
-    this.xml = $.trim(xml);
-    this.content.html(transformations.fromXML.getHTMLTree(this.xml));  
-}
+Canvas.prototype.getContent = function() {
+    return this.content.contents();
+};
 
-Canvas.prototype.toXML = function() {
-    return transformations.toXML.getXML(this.content.html());
-}
-
-Canvas.prototype.getNode = function(desc) {
+Canvas.prototype.findNodes = function(desc) {
     var selector = '';
-    if(desc.klass)
-        selector += '[wlxml-class=' + desc.klass + ']';
-    if(desc.tag)
-        selector += '[wlxml-tag=' + desc.tag + ']';
+    if(typeof desc === 'string') {
+        selector = desc;
+    }
+    else {
+        if(desc.klass)
+            selector += '[wlxml-class=' + desc.klass + ']';
+        if(desc.tag)
+            selector += '[wlxml-tag=' + desc.tag + ']';
+    }
     var toret = [];
     this.content.find(selector).each(function() {
-        toret.push(new wlxmlNode.Node($(this)));
+        toret.push(canvasNode.create($(this)));
     });
     return toret;
-}
+};
 
-Canvas.prototype.getPreviousNode = function(options) {
-    var element = $(this.content.find('#' + options.node.id).get(0));
-    var prev = element.prev()
-    if(prev.length === 0)
-        prev = element.parent();
-    return new wlxmlNode.Node(prev);
-}
-
-Canvas.prototype._createNode = function(wlxmlTag, wlxmlClass) {
-            var toBlock = ['div', 'document', 'section', 'header'];
-            var htmlTag = _.contains(toBlock, wlxmlTag) ? 'div' : 'span';
-            var toret = $('<' + htmlTag + '>');
-            toret.attr('wlxml-tag', wlxmlTag);
-            if(wlxmlClass)
-                toret.attr('wlxml-class', wlxmlClass);
-            toret.attr('id', 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);}));
-            return toret;
-        };
-
-Canvas.prototype.insertNode = function(options) {
-    var element = $(this.content.find('#' + options.context.id).get(0));
-    if(options.place == 'after') {
-        var node = this._createNode(options.tag, options.klass);
-        element[options.place](node);
-        return node;
+Canvas.prototype.nodeAppend = function(options) {
+    var element; // = $(this.content.find('#' + options.context.id).get(0));
+    if(options.to === 'root') {
+        element = this.content;
+    } else {
+        element = $(this.content.find('#' + options.to.getId()).get(0));
     }
-    else if(options.place == 'wrapText') {
-        var elementContents = element.contents();
-        if(elementContents.length !== 1 || elementContents.get(0).nodeType != 3)
-            return false;
-        var textElement = elementContents.get(0);
+    element.append(options.node.dom);
+};
 
-        var prefix = textElement.data.substr(0, options.offsetStart);
-        var suffix = textElement.data.substr(options.offsetEnd);
-        var core = textElement.data.substr(options.offsetStart, options.offsetEnd - options.offsetStart);
-        var newNode = this._createNode(options.tag, options.klass);
-        newNode.text(core);
-        $(textElement).replaceWith(newNode);
-        newNode.before(prefix);
-        newNode.after(suffix);
-        return newNode;
-    }
-}
+Canvas.prototype.nodeInsertAfter = function(options) {
+    var element = $(this.content.find('#' + options.after.getId()).get(0));
+    element.after(options.node.dom);
+};
 
-Canvas.prototype.splitNode = function(options) {
+Canvas.prototype.nodeWrap = function(options) {
+    var element = $(this.content.find('#' + options.inside.getId()).get(0));
+
+    var elementContents = element.contents();
+    if(elementContents.length !== 1 || elementContents.get(0).nodeType != 3)
+        return false;
+    var textElement = elementContents.get(0);
+
+    var prefix = textElement.data.substr(0, options.offsetStart);
+    var suffix = textElement.data.substr(options.offsetEnd);
+    var core = textElement.data.substr(options.offsetStart, options.offsetEnd - options.offsetStart);
+    options._with.setContent(core);
+
+    $(textElement).replaceWith(options._with.dom);
+    options._with.dom.before(prefix);
+    options._with.dom.after(suffix);
+};
+
+Canvas.prototype.nodeSplit = function(options) {
     options = _.extend({textNodeIdx: 0}, options);
     
-    var nodeToSplit = $(this.content.find('#' + options.node.id).get(0));
+    var nodeToSplit = $(this.content.find('#' + options.node.getId()).get(0));
     
     var nodeContents = nodeToSplit.contents();
     if(nodeContents.length === 0 || 
@@ -103,30 +94,29 @@ Canvas.prototype.splitNode = function(options) {
             passed = true;
     });
     
-    var prefix = textNode.text().substr(0, options.offset);
-    var suffix = textNode.text().substr(options.offset);
+    var prefix = $.trim(textNode.text().substr(0, options.offset));
+    var suffix = $.trim(textNode.text().substr(options.offset));
     
     textNode.before(prefix);
     textNode.remove();
     
-    var newNode = this._createNode(nodeToSplit.attr('wlxml-tag'), nodeToSplit.attr('wlxml-class'));
-    newNode.append(suffix);
+    var newNode = canvasNode.create({tag: nodeToSplit.attr('wlxml-tag'), klass: nodeToSplit.attr('wlxml-class')});
+    newNode.dom.append(suffix);
     succeedingNodes.forEach(function(node) {
-        newNode.append(node)
+        newNode.dom.append(node)
     });
-    nodeToSplit.after(newNode);
+    nodeToSplit.after(newNode.dom);
     return newNode;
-}
+};
 
-Canvas.prototype.removeNode = function(options) {
-    var toRemove = $(this.content.find('#' + options.node.id).get(0));
+Canvas.prototype.nodeRemove = function(options) {
+    var toRemove = $(this.content.find('#' + options.node.getId()).get(0));
     toRemove.remove();
+};
 
-}
-
-Canvas.prototype.createList = function(options) {
-    var element1 = $(this.content.find('#' + options.start.id).get(0));
-    var element2 = $(this.content.find('#' + options.end.id).get(0));
+Canvas.prototype.listCreate = function(options) {
+    var element1 = $(this.content.find('#' + options.start.getId()).get(0));
+    var element2 = $(this.content.find('#' + options.end.getId()).get(0));
     if(!element1.parent().get(0).isSameNode(element2.parent().get(0)))
         return false;
         
@@ -137,7 +127,6 @@ Canvas.prototype.createList = function(options) {
         element1 = element2;
         element2 = tmp;
     }
-        
     
     var nodesToWrap = [];
     
@@ -150,7 +139,7 @@ Canvas.prototype.createList = function(options) {
         if(place === 'inside') {
             var $node;
             if(node.nodeType === 3) {
-                $node = canvas._createNode('div').text(node.data);
+                $node = canvasNode.create({tag: 'div', content: $.trim(node.data)}).dom; //canvas._createNode('div').text(node.data);
                 $(node).remove();
             }
             else {
@@ -163,38 +152,47 @@ Canvas.prototype.createList = function(options) {
             return false;
     });
     
-    var list = this._createNode('div', 'list-items');
+    var list = canvasNode.create({tag: 'div', klass: 'list-items'}).dom; //this._createNode('div', 'list-items');
     element1.before(list);
     
     nodesToWrap.forEach(function(node) {
         node.remove();
         list.append(node);
     });
-}
+};
 
-Canvas.prototype.removeList = function(options) {
-    var pointerElement = $(this.content.find('#' + options.pointer.id));
-    var listElement = options.pointer.klass === 'list-items' ? pointerElement : 
+Canvas.prototype.listRemove = function(options) {
+    var pointerElement = $(this.content.find('#' + options.pointer.getId()));
+    var listElement = options.pointer.getClass() === 'list-items' ? pointerElement : 
         pointerElement.parent('[wlxml-class="list-items"][wlxml-tag]');
     
     listElement.find('[wlxml-class=item]').each(function() {
-        $(this).attr('wlxml-class', '');
-    });;
+        $(this).removeAttr('wlxml-class');
+    });
     listElement.children().unwrap();
-    
-}
+};
 
-Canvas.prototype.insideList = function(options) {
+Canvas.prototype.getPrecedingNode = function(options) {
+    var element = $(this.content.find('#' + options.node.getId()).get(0));
+    var prev = element.prev()
+    if(prev.length === 0)
+        prev = element.parent();
+    return canvasNode.create(prev);
+};
+
+Canvas.prototype.nodeInsideList = function(options) {
     if(options.pointer) {
-        if(options.pointer.klass === 'list-items' || options.pointer.klass === 'item')
+        if(options.pointer.getClass() === 'list-items' || options.pointer.getClass() === 'item')
             return true;
-        var pointerElement = $(this.content.find('#' + options.pointer.id));
-        return pointerElement.parents('list-items').length > 0;
+        var pointerElement = $(this.content.find('#' + options.pointer.getId()));
+        return pointerElement.parents('list-items, item').length > 0;
     }
     return false;
-}
+};
 
 
-return {Canvas: Canvas, Node: Node};
+return {
+    create: function(desc) { return new Canvas(desc); }
+};
 
 });

@@ -2,181 +2,177 @@ define([
 'libs/jquery-1.9.1.min',
 'libs/chai', 
 './utils.js',
-'modules/documentCanvas/canvas'
-], function($, chai, utils, canvas) {
+'modules/documentCanvas/canvas',
+'modules/documentCanvas/canvasNode'
+], function($, chai, utils, canvas, canvasNode) {
 
     'use strict';
 
     var assert = chai.assert;
+    var assertDomEqual = utils.assertDomEqual;
     
-    assert.xmlEqual = function(lhsText, rhsText) {
-        var cleanLhs = utils.cleanUp(lhsText);
-        var cleanRhs = utils.cleanUp(rhsText);
-        
-        var lhs = $(cleanLhs);
-        var rhs = $(cleanRhs);
-        
-        this.equal(lhs.length, 1);
-        this.equal(rhs.length, 1);
-        
-        lhs = lhs.get(0);
-        rhs = rhs.get(0);
-        
-        var test = lhs.isEqualNode(rhs);
-        if(!test) {
-            console.log(cleanLhs);
-            console.log(cleanRhs);    
-        }
-        return this.ok(test, 'xmls are equal');
-    };
     
-    var retrievingTest = function(title, xml) {
-        test(title, function() {
-            var c = new canvas.Canvas(xml);
-            assert.xmlEqual(c.toXML(), xml);    
+    suite('Quering nodes', function() {
+        test('getting preceding node', function() {
+            var c = canvas.create('<div wlxml-tag="section"><div wlxml-tag="p">a</div><div wlxml-tag="p">b</div></div>');
+            var secondP = c.findNodes({tag: 'p'})[1];
+            var firstP = c.getPrecedingNode({node: secondP});
+            assert.equal(firstP.getContent(), 'a');
         });
-    };
-    
-    suite('Basic document retrieving', function() {
-        test('empty document', function() {
-            var c = new canvas.Canvas('');
-            assert.equal(c.toXML(), '');
+        
+       test('pervious node of node without "previous siblings" is its parent', function() {
+            var c = canvas.create('<div wlxml-tag="section"><div wlxml-tag="p">a</div></div>');
+            var paragraph = c.findNodes({tag: 'p'})[0];
+            assert.equal(c.getPrecedingNode({node: paragraph}).getTag(), 'section');
         });
-        retrievingTest('empty tag', '<section></section>');
-        retrievingTest('tag with content', '<section>Some text</section>');
-        retrievingTest('tag with class', '<section class="some.class"></section>');
+    
     });
     
-    suite('Nodes', function() {
-        test('getting nodes via selector', function() {
-            var c = new canvas.Canvas('<section><header class="some.class">Header 1</header></section>');
-            var header = c.getNode({tag: 'header'})[0];
-            assert.equal(header.tag, 'header');
-            assert.equal(header.klass, 'some-class');
+    
+    suite('Inserting nodes', function() {
+        test('append node to root', function() {
+            var c = canvas.create();
+            var node = canvasNode.create({tag: 'header', klass: 'some-class'});
+            c.nodeAppend({node: node, to: 'root'});
+            assertDomEqual(c.getContent(), '<div wlxml-tag="header" wlxml-class="some-class">');
+        }); 
+        
+        test('append node to another node', function() {
+            var c = canvas.create('<div wlxml-tag="section"></div>');
+            var node = canvasNode.create({tag: 'header', klass: 'some-class'});
+            var to = c.findNodes('div')[0];
+            c.nodeAppend({node: node, to: to});
+            assertDomEqual(c.getContent(), '<div wlxml-tag="section"><div wlxml-tag="header" wlxml-class="some-class"></div></div>');
         });
         
-        test('getting previous node', function() {
-            var c = new canvas.Canvas('<section><div class="some.class">Div 1</div><div class="some.other.class">Div 2</div></section>');
-            var secondDiv = c.getNode({tag: 'div'})[1];
-            var firstDiv = c.getPreviousNode({node: secondDiv});
-            assert.equal(firstDiv.klass, 'some-class');
-        })
-        
-        test('pervious node of node without "previous siblings" is its parent', function() {
-            var c = new canvas.Canvas('<section><div class="some.class">Div 1</div></section>');
-            var div = c.getNode({tag: 'div'})[0];
-            var section = c.getPreviousNode({node: div});
-            assert.equal(section.tag, 'section');
-        })
-    
-        test('inserting after', function() {
-            var c = new canvas.Canvas('<section><header>Header 1</header></section>');
-            var header = c.getNode({tag: 'header'})[0];
-            c.insertNode({place: 'after', context: header, tag: 'div', klass: 'some.class'});
-            assert.xmlEqual(c.toXML(), '<section><header>Header 1</header><div class="some.class"></div></section>');
+        test('insert node after another node', function() {
+            var c = canvas.create('<div wlxml-tag="section"></div>');
+            var node = canvasNode.create({tag: 'header', klass: 'some-class'});
+            var after = c.findNodes('div')[0];
+            c.nodeInsertAfter({node: node, after: after});
+            assertDomEqual(c.getContent(), '<div wlxml-tag="section"></div><div wlxml-tag="header" wlxml-class="some-class"></div>');        
         });
         
         test('wrap text in node', function() {
-            var c = new canvas.Canvas('<section><header>Header 1</header></section>');
-            var header = c.getNode({tag: 'header'})[0];
-            c.insertNode({place: 'wrapText', context: header, tag: 'span', klass: 'url', offsetStart: 1, offsetEnd: 6});
-            assert.xmlEqual(c.toXML(), '<section><header>H<span class="url">eader</span> 1</header></section>');
+            var c = canvas.create('<div wlxml-tag="section"><div wlxml-tag="header">Header 1</div></div>');
+            var header = c.findNodes({tag: 'header'})[0];
+            var wrapper = canvasNode.create({tag: 'aside'});
+            c.nodeWrap({inside: header, _with: wrapper, offsetStart: 1, offsetEnd: 6})
+            assertDomEqual(c.getContent(), '<div wlxml-tag="section"><div wlxml-tag="header">H<span wlxml-tag="aside">eader</span> 1</div></div>');
         });
         
         test('split node', function() {
-            var c = new canvas.Canvas('<section><header class="some.class">Header 1</header></section>');
-            var header = c.getNode({tag: 'header'})[0];
-            c.splitNode({node: header, offset: 4});
-            assert.xmlEqual(c.toXML(), '\
-                <section> \
-                    <header class="some.class">Head</header>\
-                    <header class="some.class">er 1</header>\
-                </section>'
-            );
+            var c = canvas.create('<div wlxml-tag="section"><div wlxml-tag="header">Header 1</div></div>');
+            var header = c.findNodes({tag: 'header'})[0];
+            var newNode = c.nodeSplit({node: header, offset: 4});
+            assertDomEqual(c.getContent(), utils.cleanUp('\
+                <div wlxml-tag="section">\
+                    <div wlxml-tag="header">Head</div>\
+                    <div wlxml-tag="header">er 1</div>\
+                </div>'));
+            assert.ok(newNode.isSame(c.findNodes({tag: 'header'})[1]));
+        });
+        
+        test('split root node', function() {
+            var c = canvas.create('<div wlxml-tag="header">cat</div>');
+            var header = c.findNodes({tag: 'header'})[0];
+            var newNode = c.nodeSplit({node: header, offset: 1});
+            assertDomEqual(c.getContent(), utils.cleanUp('\
+                    <div wlxml-tag="header">c</div>\
+                    <div wlxml-tag="header">at</div>'));
+            assert.ok(newNode.isSame(c.findNodes({tag: 'header'})[1]));
         });
         
         test('split node with subnodes', function() {
-            var c = new canvas.Canvas('<section><header class="some.class">Fancy and nice <span>header</span> 1</header></section>');
-            var header = c.getNode({tag: 'header'})[0];
-            c.splitNode({node: header, textNodeIdx: 0, offset: 5});
-            assert.xmlEqual(c.toXML(), '\
-                <section> \
-                    <header class="some.class">Fancy</header>\
-                    <header class="some.class"> and nice <span>header</span> 1</header>\
-                </section>'
-            );
+            var c = canvas.create(utils.cleanUp('\
+                <div wlxml-tag="section">\
+                    <div wlxml-tag="header">Fancy and nice<span wlxml-tag="aside">header</span> 1</div>\
+                 </div>'));
+            var header = c.findNodes({tag: 'header'})[0];
+            var newNode = c.nodeSplit({node: header, offset: 5});
+            assertDomEqual(c.getContent(), utils.cleanUp('\
+                <div wlxml-tag="section">\
+                    <div wlxml-tag="header">Fancy</div>\
+                    <div wlxml-tag="header">and nice<span wlxml-tag="aside">header</span> 1</div>\
+                </div>'));
         });
         
         test('remove node', function() {
-            var c = new canvas.Canvas('<section><header class="some.class">Fancy and nice <span>header</span> 1</header></section>');
-            var span = c.getNode({tag: 'span'})[0];
-            var siblings = c.removeNode({node:span});
-            assert.xmlEqual(c.toXML(), '\
-                <section>\
-                    <header class="some.class">Fancy and nice  1</header>\
-                </section>'
-            );
-        });
-        
-        test('create list from existing nodes', function() {
-            var c = new canvas.Canvas('<section><div>Alice</div>has<div>a cat</div><div>some text</div></section>');
-            var div1 = c.getNode({tag:'div'})[0];
-            var div2 = c.getNode({tag:'div'})[1];
-            
-            c.createList({start: div1, end: div2});
-            
-            assert.xmlEqual(c.toXML(), '\
-                <section>\
-                    <div class="list.items">\
-                        <div class="item">Alice</div>\
-                        <div class="item">has</div>\
-                        <div class="item">a cat</div>\
-                    </div>\
-                    <div>some text</div>\
-                </section>');
-
-        });
-        
-        test('create list from existing nodes reverse', function() {
-            var c = new canvas.Canvas('<section><div>Alice</div>has<div>a cat</div><div>some text</div></section>');
-            var div1 = c.getNode({tag:'div'})[0];
-            var div2 = c.getNode({tag:'div'})[1];
-            
-            c.createList({start: div2, end: div1});
-            
-            assert.xmlEqual(c.toXML(), '\
-                <section>\
-                    <div class="list.items">\
-                        <div class="item">Alice</div>\
-                        <div class="item">has</div>\
-                        <div class="item">a cat</div>\
-                    </div>\
-                    <div>some text</div>\
-                </section>');
-
-        });
-        
-        test('remove list', function() {
-            var xml = '\
-                <section>\
-                    <div class="list.items">\
-                        <div class="item">Alice</div>\
-                        <div class="item">has</div>\
-                        <div class="item">a cat</div>\
-                    </div>\
-                    <div>some text</div>\
-                </section>';
-           var c = new canvas.Canvas(xml);
-           var item = c.getNode({klass: 'item'})[1];
-           c.removeList({pointer: item});
-           assert.xmlEqual(c.toXML(), '\
-                <section>\
-                    <div>Alice</div>\
-                    <div>has</div>\
-                    <div>a cat</div>\
-                    <div>some text</div>\
-                </section>');
+            var c = canvas.create('<div wlxml-tag="section"><span wlxml-tag="span">some text</span></div>');
+            var span = c.findNodes({tag: 'span'})[0];
+            c.nodeRemove({node: span});
+            assertDomEqual(c.getContent(), '<div wlxml-tag="section"></div>');
         });
     });
-
+    
+    
+    suite('Lists', function() {
+        test('create from existing nodes', function() {
+            var c = canvas.create(utils.cleanUp('\
+                <div wlxml-tag="section">\
+                    <div wlxml-tag="div">alice</div>\
+                    has\
+                    <div wlxml-tag="div">a</div>\
+                    <div wlxml-tag="div">cat</div>\
+                    <div wlxml-tag="div">or not</div>\
+                </div>'
+            ));
+            
+            var div_alice = c.findNodes({tag: 'div'})[0];
+            var div_cat = c.findNodes({tag:'div'})[2];
+            
+            c.listCreate({start: div_alice, end: div_cat});
+            
+            assertDomEqual(c.getContent(), utils.cleanUp('\
+                <div wlxml-tag="section">\
+                    <div wlxml-tag="div" wlxml-class="list-items">\
+                        <div wlxml-tag="div" wlxml-class="item">alice</div>\
+                        <div wlxml-tag="div" wlxml-class="item">has</div>\
+                        <div wlxml-tag="div" wlxml-class="item">a</div>\
+                        <div wlxml-tag="div" wlxml-class="item">cat</div>\
+                    </div>\
+                    <div wlxml-tag="div">or not</div>\
+                </div>'));
+        });
+        
+        test('create from existing nodes - start/end order doesn\'t matter', function() {
+            var html = utils.cleanUp('\
+                    <div wlxml-tag="div">alice</div>\
+                    <div wlxml-tag="div">cat</div>');
+            var expected = utils.cleanUp('\
+                    <div wlxml-tag="div" wlxml-class="list-items">\
+                        <div wlxml-tag="div" wlxml-class="item">alice</div>\
+                        <div wlxml-tag="div" wlxml-class="item">cat</div>\
+                    </div>');
+                    
+            var c = canvas.create(html);
+            var div_alice = c.findNodes({tag: 'div'})[0];
+            var div_cat = c.findNodes({tag:'div'})[1];
+            c.listCreate({start: div_cat, end: div_alice});
+            assertDomEqual(c.getContent(), expected);
+            
+            c = canvas.create(html);
+            div_alice = c.findNodes({tag: 'div'})[0];
+            div_cat = c.findNodes({tag:'div'})[1];
+            c.listCreate({start: div_alice, end: div_cat});
+            assertDomEqual(c.getContent(), expected);
+        });
+        
+        test('remove', function() {
+            var c = canvas.create(utils.cleanUp('\
+                <div wlxml-tag="section">\
+                    <div wlxml-tag="div" wlxml-class="list-items">\
+                        <div wlxml-tag="div" wlxml-class="item">alice</div>\
+                        <div wlxml-tag="div" wlxml-class="item">cat</div>\
+                    </div>\
+                </div>'));
+            var item = c.findNodes({klass: 'item'})[1];
+            c.listRemove({pointer: item});
+            assertDomEqual(c.getContent(), utils.cleanUp('\
+                <div wlxml-tag="section">\
+                    <div wlxml-tag="div">alice</div>\
+                    <div wlxml-tag="div">cat</div>\
+                </div>'));
+        });
+    });
 });
