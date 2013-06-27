@@ -174,5 +174,17 @@ define([
                     <div wlxml-tag="div">cat</div>\
                 </div>'));
         });
+        
+        test('checking if node is inside a list', function() {
+            var c = canvas.create(utils.cleanUp('\
+                <div wlxml-tag="section">\
+                    <div wlxml-tag="div" wlxml-class="list-items-enum">\
+                        <div wlxml-tag="div" wlxml-class="item">alice</div>\
+                        <div wlxml-tag="div" wlxml-class="item">cat</div>\
+                    </div>\
+                </div>'));
+            var item = c.findNodes({klass: 'item'})[1];
+            assert.ok(c.nodeInsideList({node: item}));
+        });
     });
 });
