@@ -186,7 +186,7 @@ Manager.prototype.onEnterKey = function(e) {
 
     if(pos.isAtEnd) {
         newNode = canvasNode.create({tag: pos.parentNode.attr('wlxml-tag'), klass: pos.parentNode.attr('wlxml-class')});
-        this.canvas.nodeInsertAfter({node: newNode, after: canvas.getNodeById(pos.parentNode.attr('id'))});
+        this.canvas.nodeInsertAfter({node: newNode, after: this.canvas.getNodeById(pos.parentNode.attr('id'))});
     } else {
         newNode = this.canvas.nodeSplit({node: contextNode, textNodeIdx: pos.textNodeIndex, offset: pos.textNodeOffset});
     }
