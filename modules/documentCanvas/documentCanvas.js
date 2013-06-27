@@ -25,7 +25,7 @@ return function(sandbox) {
             sandbox.publish('documentSet');
         },
         getDocument: function() {
-            return canvas.toXML();
+            return transformations.toXML.getXML(canvas.getContent())
         },
         modifyCurrentNode: function(attr, value) {
             if(manager.currentNode) {

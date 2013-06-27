@@ -159,6 +159,8 @@ Manager.prototype.selectFirstNode = function() {
 };
 
 Manager.prototype.movecaretToNode = function(nodeElement, where) {
+    if(!nodeElement.length)
+        return;
     var range = document.createRange();
     range.selectNodeContents(nodeElement[0]);
     
