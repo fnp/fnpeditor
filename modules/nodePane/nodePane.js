@@ -24,9 +24,9 @@ return function(sandbox) {
         getView: function() {
             return view;
         },
-        setNode: function(node) {
-            view.find('.rng-module-nodePane-tagSelect').val(node.tag);
-            view.find('.rng-module-nodePane-classSelect').val(node.klass);
+        setNode: function(canvasNode) {
+            view.find('.rng-module-nodePane-tagSelect').val(canvasNode.getTag());
+            view.find('.rng-module-nodePane-classSelect').val(canvasNode.getClass());
         }
     }
     

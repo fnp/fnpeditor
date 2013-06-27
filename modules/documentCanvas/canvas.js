@@ -11,6 +11,10 @@ define([
 var Canvas = function(html) {
     this.dom = $(template);
     this.content = this.dom.find('#rng-module-documentCanvas-content');
+    this.setHTML(html);
+};
+
+Canvas.prototype.setHTML = function(html) {
     if(html) {
         this.content.html(html);
     }
@@ -37,6 +41,10 @@ Canvas.prototype.findNodes = function(desc) {
     });
     return toret;
 };
+
+Canvas.prototype.getNodeById = function(id) {
+    return canvasNode.create($(this.content.find('#' +id)));
+}
 
 Canvas.prototype.nodeAppend = function(options) {
     var element; // = $(this.content.find('#' + options.context.id).get(0));
@@ -181,10 +189,10 @@ Canvas.prototype.getPrecedingNode = function(options) {
 };
 
 Canvas.prototype.nodeInsideList = function(options) {
-    if(options.pointer) {
-        if(options.pointer.getClass() === 'list-items' || options.pointer.getClass() === 'item')
+    if(options.node) {
+        if(options.node.getClass() === 'list-items' || options.node.getClass() === 'item')
             return true;
-        var pointerElement = $(this.content.find('#' + options.pointer.getId()));
+        var pointerElement = $(this.content.find('#' + options.node.getId()));
         return pointerElement.parents('list-items, item').length > 0;
     }
     return false;

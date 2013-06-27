@@ -50,23 +50,23 @@ return function(sandbox) {
     }
     
     var commands = {
-        highlightDocumentNode: function(wlxmlNode, origin) {
+        highlightDocumentNode: function(canvasNode, origin) {
             ['documentCanvas', 'nodeBreadCrumbs', 'nodeFamilyTree'].forEach(function(moduleName) {
                 if(!origin || moduleName != origin)
-                    sandbox.getModule(moduleName).highlightNode(wlxmlNode)
+                    sandbox.getModule(moduleName).highlightNode(canvasNode)
             });
         },
-        dimDocumentNode: function(wlxmlNode, origin) {
+        dimDocumentNode: function(canvasNode, origin) {
             ['documentCanvas', 'nodeBreadCrumbs', 'nodeFamilyTree'].forEach(function(moduleName) {
                 if(!origin || moduleName != origin)
-                    sandbox.getModule(moduleName).dimNode(wlxmlNode)
+                    sandbox.getModule(moduleName).dimNode(canvasNode)
             });
         },
-        selectNode: function(wlxmlNode, origin) {
-            sandbox.getModule('documentCanvas').selectNode(wlxmlNode);
-            sandbox.getModule('nodePane').setNode(wlxmlNode);
-            sandbox.getModule('nodeFamilyTree').setNode(wlxmlNode);
-            sandbox.getModule('nodeBreadCrumbs').setNode(wlxmlNode);
+        selectNode: function(canvasNode, origin) {
+            sandbox.getModule('documentCanvas').selectNode(canvasNode);
+            sandbox.getModule('nodePane').setNode(canvasNode);
+            sandbox.getModule('nodeFamilyTree').setNode(canvasNode);
+            sandbox.getModule('nodeBreadCrumbs').setNode(canvasNode);
             
         },
         resetDocument: function(document, reason) {
@@ -191,20 +191,20 @@ return function(sandbox) {
             dirty.documentCanvas = false;
         },
         
-        nodeSelected: function(wlxmlNode) {
-            commands.selectNode(wlxmlNode);
+        nodeSelected: function(canvasNode) {
+            commands.selectNode(canvasNode);
         },
         
         contentChanged: function() {
             dirty.documentCanvas = true;
         },
         
-        nodeHovered: function(wlxmlNode) {
-            commands.highlightDocumentNode(wlxmlNode);
+        nodeHovered: function(canvasNode) {
+            commands.highlightDocumentNode(canvasNode);
         },
         
-        nodeBlured: function(wlxmlNode) {
-            commands.dimDocumentNode(wlxmlNode);
+        nodeBlured: function(canvasNode) {
+            commands.dimDocumentNode(canvasNode);
         }
     };
 
@@ -235,14 +235,14 @@ return function(sandbox) {
         ready: function() {
             views.currentNodePaneLayout.appendView(sandbox.getModule('nodeFamilyTree').getView());
         },
-        nodeEntered: function(wlxmlNode) {
-            commands.highlightDocumentNode(wlxmlNode, 'nodeFamilyTree');
+        nodeEntered: function(canvasNode) {
+            commands.highlightDocumentNode(canvasNode, 'nodeFamilyTree');
         },
-        nodeLeft: function(wlxmlNode) {
-            commands.dimDocumentNode(wlxmlNode, 'nodeFamilyTree');
+        nodeLeft: function(canvasNode) {
+            commands.dimDocumentNode(canvasNode, 'nodeFamilyTree');
         },
-        nodeSelected: function(wlxmlNode) {
-            commands.selectNode(wlxmlNode);
+        nodeSelected: function(canvasNode) {
+            commands.selectNode(canvasNode);
         }
     };
     
@@ -265,14 +265,14 @@ return function(sandbox) {
         ready: function() {
             views.visualEditing.setView('statusBar', sandbox.getModule('nodeBreadCrumbs').getView());
         },
-        nodeHighlighted: function(wlxmlNode) {
-            commands.highlightDocumentNode(wlxmlNode, 'nodeBreadCrumbs');
+        nodeHighlighted: function(canvasNode) {
+            commands.highlightDocumentNode(canvasNode, 'nodeBreadCrumbs');
         },
-        nodeDimmed: function(wlxmlNode) {
-            commands.dimDocumentNode(wlxmlNode, 'nodeBreadCrumbs');
+        nodeDimmed: function(canvasNode) {
+            commands.dimDocumentNode(canvasNode, 'nodeBreadCrumbs');
         },
-        nodeSelected: function(wlxmlNode) {
-            commands.selectNode(wlxmlNode);
+        nodeSelected: function(canvasNode) {
+            commands.selectNode(canvasNode);
         }        
     }
     

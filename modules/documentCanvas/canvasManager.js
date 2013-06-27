@@ -1,7 +1,7 @@
 define([
 'libs/jquery-1.9.1.min',
-'./wlxmlNode'
-], function($, wlxmlNode) {
+'./canvasNode'
+], function($, canvasNode) {
 
 'use strict';
 
@@ -34,16 +34,16 @@ var Manager = function(canvas, sandbox) {
 
     canvas.dom.on('mouseover', '[wlxml-tag]', function(e) {
         e.stopPropagation();
-        manager.sandbox.publish('nodeHovered', new wlxmlNode.Node($(e.target)));
+        manager.sandbox.publish('nodeHovered', canvasNode.create($(e.target)));
     });
     canvas.dom.on('mouseout', '[wlxml-tag]', function(e) {
         e.stopPropagation();
-        manager.sandbox.publish('nodeBlured', new wlxmlNode.Node($(e.target)));
+        manager.sandbox.publish('nodeBlured', canvasNode.create($(e.target)));
     });
     canvas.dom.on('click', '[wlxml-tag]', function(e) {
         e.stopPropagation();
         console.log('clicked node type: '+e.target.nodeType);
-        manager.selectNode(new wlxmlNode.Node($(e.target)));
+        manager.selectNode(canvasNode.create($(e.target)));
     });
 
     canvas.dom.on('keyup', '#rng-module-documentCanvas-contentWrapper', function(e) {
@@ -53,7 +53,7 @@ var Manager = function(canvas, sandbox) {
             anchor = anchor.parent();
         if(!anchor.is('[wlxml-tag]'))
             return;
-        manager.selectNode(new wlxmlNode.Node(anchor));
+        manager.selectNode(canvasNode.create(anchor));
     });
     
     canvas.dom.on('keydown', '#rng-module-documentCanvas-contentWrapper', function(e) {
@@ -79,11 +79,11 @@ var Manager = function(canvas, sandbox) {
     }
 };
     
-Manager.prototype.selectNode = function(wlxmlNode, options) {
+Manager.prototype.selectNode = function(cnode, options) {
     options = options || {};
-    var nodeElement = this.getNodeElement(wlxmlNode)
+    var nodeElement = this.getNodeElement(cnode)
     
-    this.dimNode(wlxmlNode);
+    this.dimNode(cnode);
     
     this.canvas.dom.find('.rng-module-documentCanvas-currentNode').removeClass('rng-module-documentCanvas-currentNode');
     nodeElement.addClass('rng-module-documentCanvas-currentNode');
@@ -92,8 +92,8 @@ Manager.prototype.selectNode = function(wlxmlNode, options) {
         this.movecaretToNode(nodeElement, options.movecaret);
     }
     
-    this.currentNode = wlxmlNode;
-    this.sandbox.publish('nodeSelected', wlxmlNode);
+    this.currentNode = cnode;
+    this.sandbox.publish('nodeSelected', cnode);
 };
 
 Manager.prototype.insertNewNode = function(wlxmlTag, wlxmlClass) {
@@ -109,20 +109,24 @@ Manager.prototype.insertNewNode = function(wlxmlTag, wlxmlClass) {
             offsetStart = offsetEnd;
             offsetEnd = tmp;
         }
-        var node = new wlxmlNode.Node($(selection.anchorNode).parent());
-        var newNode = this.canvas.insertNode({place: 'wrapText', context: node, tag: wlxmlTag, klass: wlxmlClass, offsetStart: offsetStart, offsetEnd: offsetEnd});
-        this.selectNode(new wlxmlNode.Node(newNode), {movecaret: 'end'});
+        var wrapper = canvasNode.create({tag: wlxmlTag, klass: wlxmlClass});
+        this.canvas.nodeWrap({inside: canvasNode.create($(selection.anchorNode).parent()),
+                              _with: wrapper,
+                              offsetStart: offsetStart,
+                              offsetEnd: offsetEnd
+                            });
+        this.selectNode(wrapper, {movecaret: 'end'});
     }
     
     
 }
 
-Manager.prototype.getNodeElement = function(wlxmlNode) {
-    return this.canvas.dom.find('#'+wlxmlNode.id);
+Manager.prototype.getNodeElement = function(cnode) {
+    return this.canvas.dom.find('#'+cnode.getId());
 };
 
-Manager.prototype.highlightNode = function(wlxmlNode) {
-    var nodeElement = this.getNodeElement(wlxmlNode);
+Manager.prototype.highlightNode = function(cnode) {
+    var nodeElement = this.getNodeElement(cnode);
     if(!this.gridToggled) {
         nodeElement.addClass('rng-common-hoveredNode');
         var label = nodeElement.attr('wlxml-tag');
@@ -133,8 +137,8 @@ Manager.prototype.highlightNode = function(wlxmlNode) {
     }
 };
 
-Manager.prototype.dimNode = function(wlxmlNode) {
-    var nodeElement = this.getNodeElement(wlxmlNode);
+Manager.prototype.dimNode = function(cnode) {
+    var nodeElement = this.getNodeElement(cnode);
     if(!this.gridToggled) {
         nodeElement.removeClass('rng-common-hoveredNode');
         nodeElement.find('.rng-module-documentCanvas-hoveredNodeTag').remove();
@@ -151,7 +155,7 @@ Manager.prototype.selectFirstNode = function() {
     else {
         node = this.canvas.dom.find('[wlxml-class|="p"]')
     }
-    this.selectNode(new wlxmlNode.Node(node), {movecaret: true});
+    this.selectNode(canvasNode.create(node), {movecaret: true});
 };
 
 Manager.prototype.movecaretToNode = function(nodeElement, where) {
@@ -175,14 +179,17 @@ Manager.prototype.toggleGrid =  function(toggle) {
 Manager.prototype.onEnterKey = function(e) {
     e.preventDefault();
     var pos = getCursorPosition();
-    var insertedNode;
+    var contextNode = this.canvas.getNodeById(pos.parentNode.attr('id'));
+    var newNode;
+
     if(pos.isAtEnd) {
-        insertedNode = this.canvas.insertNode({place: 'after', context: {id: pos.parentNode.attr('id')}, tag: pos.parentNode.attr('wlxml-tag'), klass: pos.parentNode.attr('wlxml-class')});
+        newNode = canvasNode.create({tag: pos.parentNode.attr('wlxml-tag'), klass: pos.parentNode.attr('wlxml-class')});
+        this.canvas.nodeInsertAfter({node: newNode, after: canvas.getNodeById(pos.parentNode.attr('id'))});
     } else {
-        insertedNode = this.canvas.splitNode({node: {id: pos.parentNode.attr('id')}, textNodeIdx: pos.textNodeIndex, offset: pos.textNodeOffset});
+        newNode = this.canvas.nodeSplit({node: contextNode, textNodeIdx: pos.textNodeIndex, offset: pos.textNodeOffset});
     }
-    if(insertedNode.length)
-        this.selectNode(new wlxmlNode.Node(insertedNode), {movecaret: true});
+    if(newNode)
+        this.selectNode(newNode, {movecaret: true});
     this.sandbox.publish('contentChanged');
 };
 
@@ -196,9 +203,9 @@ Manager.prototype.onBackspaceKey = function(e) {
     }
     if(len === 0) {
         e.preventDefault();
-        var toRemove = new wlxmlNode.Node(pos.textNode);
-        var prevNode = this.canvas.getPreviousNode({node:toRemove});
-        this.canvas.removeNode({node: toRemove}); // jesli nie ma tekstu, to anchor nie jest tex nodem
+        var toRemove = canvasNode.create(pos.textNode);
+        var prevNode = this.canvas.getPrecedingNode({node:toRemove});
+        this.canvas.nodeRemove({node: toRemove}); // jesli nie ma tekstu, to anchor nie jest tex nodem
         this.selectNode(prevNode, {movecaret: 'end'});
     }
 }
@@ -207,16 +214,16 @@ Manager.prototype.command = function(command, meta) {
     var pos = getCursorPosition();
     
     if(command === 'createList') {
-        var node = new wlxmlNode.Node(pos.parentNode);
-        if(window.getSelection().getRangeAt().collapsed && this.canvas.insideList({pointer: node})) {
-            this.canvas.removeList({pointer: node});
+        var node = canvasNode.create(pos.parentNode);
+        if(window.getSelection().getRangeAt().collapsed && this.canvas.nodeInsideList({node: node})) {
+            this.canvas.listRemove({pointer: node});
             this.selectNode(node, {movecaret: 'end'});
             this.sandbox.publish('contentChanged');
         }
         else {
-            if(!this.canvas.insideList({pointer: node})) {
-                this.canvas.createList({start: new wlxmlNode.Node(pos.parentNode), end: new wlxmlNode.Node(pos.focusNode)});
-                this.selectNode(new wlxmlNode.Node(pos.parentNode), {movecaret: 'end'});
+            if(!this.canvas.nodeInsideList({node: node})) {
+                this.canvas.listCreate({start: node, end: canvasNode.create(pos.focusNode)});
+                this.selectNode(node, {movecaret: 'end'});
                 this.sandbox.publish('contentChanged');
             }
         }

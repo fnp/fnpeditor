@@ -37,26 +37,26 @@ return function(sandbox) {
             
             if(parentNode) {
                 parent = {
-                    repr: parentNode.tag + (parentNode.klass ? ' / ' + parentNode.klass : ''),
-                    id: parentNode.id
+                    repr: parentNode.getTag() + (parentNode.getClass() ? ' / ' + parentNode.getClass() : ''),
+                    id: parentNode.getId()
                 };
-                this.nodes[parentNode.id] = parentNode;
+                this.nodes[parentNode.getId()] = parentNode;
             }
         
             var children = [];
             node.children().each(function() {
                 var child = this;
-                children.push({repr: child.tag + (child.klass ? ' / ' + child.klass : ''), id: child.id});
-                nodes[child.id] = child;
+                children.push({repr: child.getTag() + (child.getClass() ? ' / ' + child.getClass() : ''), id: child.getId()});
+                nodes[child.getId()] = child;
             });
             this.dom.empty();
             this.dom.append($(template({parent: parent, children: children})));
         },
-        highlightNode: function(wlxmlNode) {
-            this.dom.find('a[data-id="'+wlxmlNode.id+'"]').addClass('rng-common-hoveredNode');
+        highlightNode: function(canvasNode) {
+            this.dom.find('a[data-id="'+canvasNode.getId()+'"]').addClass('rng-common-hoveredNode');
         },
-        dimNode: function(wlxmlNode) {
-            this.dom.find('a[data-id="'+wlxmlNode.id+'"]').removeClass('rng-common-hoveredNode');
+        dimNode: function(canvasNode) {
+            this.dom.find('a[data-id="'+canvasNode.getId()+'"]').removeClass('rng-common-hoveredNode');
         }
     }
     
@@ -66,18 +66,18 @@ return function(sandbox) {
         start: function() {
             sandbox.publish('ready');
         },
-        setNode: function(wlxmlNode) {
-            if(!wlxmlNode.is(view.currentNode))
-                view.setNode(wlxmlNode);
+        setNode: function(canvasNode) {
+            if(!canvasNode.isSame(view.currentNode))
+                view.setNode(canvasNode);
         },
         getView: function() {
             return view.dom;
         },
-        highlightNode: function(wlxmlNode) {
-            view.highlightNode(wlxmlNode);
+        highlightNode: function(canvasNode) {
+            view.highlightNode(canvasNode);
         },
-        dimNode: function(wlxmlNode) {
-            view.dimNode(wlxmlNode);
+        dimNode: function(canvasNode) {
+            view.dimNode(canvasNode);
         }
     };
 };

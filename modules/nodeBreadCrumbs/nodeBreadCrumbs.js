@@ -32,11 +32,11 @@ return function(sandbox) {
             this.dom.empty();
             var nodes = this.nodes = {};
             this.currentNode = node;
-            this.nodes[node.id] = node;
+            this.nodes[node.getId()] = node;
             var parents = node.parents();
             parents.each(function() {
                 var parent = this;
-                nodes[parent.id] = parent;
+                nodes[parent.getId()] = parent;
             });
             this.dom.html(template({node: node, parents: parents}));
         },
@@ -54,9 +54,9 @@ return function(sandbox) {
     return {
         start: function() { sandbox.publish('ready'); },
         getView: function() { return view.dom; },
-        setNode: function(wlxmlNode) {
-            if(!wlxmlNode.is(view.currentNode)) {
-                view.setNode(wlxmlNode);
+        setNode: function(canvasNode) {
+            if(!canvasNode.isSame(view.currentNode)) {
+                view.setNode(canvasNode);
             }
         },
         highlightNode: function(id) { view.highlightNode(id); },

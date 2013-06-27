@@ -2,6 +2,9 @@ define(['libs/jquery-1.9.1.min'], function($) {
 
 'use strict';
 
+
+var tagSelector = '[wlxml-tag]';
+
 var CanvasNode = function(desc) {
     if(desc instanceof $) {
         this.dom = desc;
@@ -42,8 +45,33 @@ CanvasNode.prototype.setContent = function(content) {
 }
 
 CanvasNode.prototype.isSame = function(other) {
-    return this.dom.get(0).isSameNode(other.dom.get(0));
+    return (other instanceof CanvasNode) && this.dom.get(0).isSameNode(other.dom.get(0));
 }
+
+CanvasNode.prototype.children = function() {
+    var list = [];
+    this.dom.children(tagSelector).each(function() {
+        list.push(new CanvasNode($(this)));
+    });
+    return $(list);
+};
+
+
+CanvasNode.prototype.parent = function() {
+    var node = this.dom.parent(tagSelector);
+    if(node.length)
+        return new CanvasNode(node);
+    return null;
+};
+
+CanvasNode.prototype.parents = function() {
+    var list = [];
+    this.dom.parents(tagSelector).each(function() {
+        list.push(new CanvasNode($(this)));
+    });
+    return $(list);
+};
+
 
 return {
     create: function(desc) {

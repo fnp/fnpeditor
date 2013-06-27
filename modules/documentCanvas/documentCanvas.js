@@ -3,16 +3,15 @@
 define([
 'libs/underscore-min',
 './transformations', 
-'./wlxmlNode',
 './canvas',
 './canvasManager',
-'libs/text!./template.html'], function(_, transformations, wlxmlNode, Canvas, CanvasManager, template) {
+'libs/text!./template.html'], function(_, transformations, Canvas, CanvasManager, template) {
 
 'use strict';
 
 return function(sandbox) {
 
-    var canvas = new Canvas.Canvas();
+    var canvas = Canvas.create();
     var manager = new CanvasManager(canvas, sandbox);
 
     /* public api */
@@ -22,7 +21,7 @@ return function(sandbox) {
             return canvas.dom;
         },
         setDocument: function(xml) {
-            canvas.setXML(xml);
+            canvas.setHTML(transformations.fromXML.getHTMLTree(xml));
             sandbox.publish('documentSet');
         },
         getDocument: function() {
@@ -34,15 +33,15 @@ return function(sandbox) {
                 sandbox.publish('contentChanged');
             }
         },
-        highlightNode: function(wlxmlNode) {
-            manager.highlightNode(wlxmlNode);
+        highlightNode: function(canvasNode) {
+            manager.highlightNode(canvasNode);
         },
-        dimNode: function(wlxmlNode) {
-            manager.dimNode(wlxmlNode);
+        dimNode: function(canvasNode) {
+            manager.dimNode(canvasNode);
         },
-        selectNode: function(wlxmlNode) {
-            if(!wlxmlNode.is(manager.currentNode))
-                manager.selectNode(wlxmlNode, {movecaret: true});
+        selectNode: function(canvasNode) {
+            if(!canvasNode.isSame(manager.currentNode))
+                manager.selectNode(canvasNode, {movecaret: true});
         },
         toggleGrid: function(toggle) {
             manager.toggleGrid(toggle);
