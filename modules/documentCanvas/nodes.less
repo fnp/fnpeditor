@@ -67,11 +67,20 @@ span[wlxml-tag] {
 
 [wlxml-class="list-items"] {
 
+    > [wlxml-class="item"] {
+        display: list-item;
+        margin-left: 10px;
+        padding-left: 5px;
+    }
+}
+
+
+[wlxml-class="list-items-enum"] {
+
     counter-reset: myitem;
 
     > [wlxml-class="item"] {
         counter-increment: myitem;
-        display: list-item;
         margin-left: 10px;
         padding-left: 5px;
         

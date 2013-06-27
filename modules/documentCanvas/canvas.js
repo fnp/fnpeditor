@@ -160,7 +160,7 @@ Canvas.prototype.listCreate = function(options) {
             return false;
     });
     
-    var list = canvasNode.create({tag: 'div', klass: 'list-items'}).dom; //this._createNode('div', 'list-items');
+    var list = canvasNode.create({tag: 'div', klass: 'list-items' + (options.type === 'enum' ? '-enum' : '')}).dom; //this._createNode('div', 'list-items');
     element1.before(list);
     
     nodesToWrap.forEach(function(node) {
@@ -190,7 +190,7 @@ Canvas.prototype.getPrecedingNode = function(options) {
 
 Canvas.prototype.nodeInsideList = function(options) {
     if(options.node) {
-        if(options.node.getClass() === 'list-items' || options.node.getClass() === 'item')
+        if(options.node.isOfClass('list-items') || options.node.isOfClass('item'))
             return true;
         var pointerElement = $(this.content.find('#' + options.node.getId()));
         return pointerElement.parents('[wlxml-class=list-items], [wlxml-class=item]').length > 0;

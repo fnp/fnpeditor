@@ -222,7 +222,7 @@ Manager.prototype.command = function(command, meta) {
         }
         else {
             if(!this.canvas.nodeInsideList({node: node})) {
-                this.canvas.listCreate({start: node, end: canvasNode.create(pos.focusNode)});
+                this.canvas.listCreate({start: node, end: canvasNode.create(pos.focusNode), type: meta});
                 this.selectNode(node, {movecaret: 'end'});
                 this.sandbox.publish('contentChanged');
             }

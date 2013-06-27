@@ -73,6 +73,10 @@ CanvasNode.prototype.parents = function() {
 };
 
 
+CanvasNode.prototype.isOfClass = function(klass) {
+    return this.getClass() && this.getClass().substr(0, klass.length) === klass;
+}
+
 return {
     create: function(desc) {
         return new CanvasNode(desc);

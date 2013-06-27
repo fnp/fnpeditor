@@ -33,6 +33,21 @@ suite('Create canvas node', function() {
     });
 });
 
+suite('class information', function() {
+    test('class of', function() {
+        var node = canvasNode.create({tag: 'header', klass: 'a-b-c'});
+        assert.ok(node.isOfClass('a'), 'first level');
+        assert.ok(node.isOfClass('a-b'), 'second level');
+        assert.ok(node.isOfClass('a-b-c'), 'third level');
+        assert.notOk(node.isOfClass('b-c'));
+        
+        var node2 = canvasNode.create({tag: 'header'});
+        assert.notOk(node2.isOfClass('b'));
+
+    });
+
+});
+
 suite('comparing nodes', function() {
     test('isSame', function() {
         var html = '<div wlxml-class="some-class" wlxml-tag="some-tag">';
