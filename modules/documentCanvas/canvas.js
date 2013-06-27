@@ -172,7 +172,7 @@ Canvas.prototype.listCreate = function(options) {
 Canvas.prototype.listRemove = function(options) {
     var pointerElement = $(this.content.find('#' + options.pointer.getId()));
     var listElement = options.pointer.getClass() === 'list-items' ? pointerElement : 
-        pointerElement.parent('[wlxml-class="list-items"][wlxml-tag]');
+        pointerElement.parents('[wlxml-class|="list-items"][wlxml-tag]');
     
     listElement.find('[wlxml-class=item]').each(function() {
         $(this).removeAttr('wlxml-class');
