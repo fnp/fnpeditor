@@ -193,7 +193,7 @@ Canvas.prototype.nodeInsideList = function(options) {
         if(options.node.getClass() === 'list-items' || options.node.getClass() === 'item')
             return true;
         var pointerElement = $(this.content.find('#' + options.node.getId()));
-        return pointerElement.parents('list-items, item').length > 0;
+        return pointerElement.parents('[wlxml-class=list-items], [wlxml-class=item]').length > 0;
     }
     return false;
 };

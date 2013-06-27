@@ -179,12 +179,12 @@ define([
             var c = canvas.create(utils.cleanUp('\
                 <div wlxml-tag="section">\
                     <div wlxml-tag="div" wlxml-class="list-items-enum">\
-                        <div wlxml-tag="div" wlxml-class="item">alice</div>\
+                        <div wlxml-tag="div" wlxml-class="item">alice <span wlxml-tag="span"></span</div>\
                         <div wlxml-tag="div" wlxml-class="item">cat</div>\
                     </div>\
                 </div>'));
-            var item = c.findNodes({klass: 'item'})[1];
-            assert.ok(c.nodeInsideList({node: item}));
+            assert.ok(c.nodeInsideList({node: c.findNodes({klass: 'item'})[1]}), 'item is inside a list');
+            assert.ok(c.nodeInsideList({node: c.findNodes({tag: 'span'})[0]}), 'things nested in item are inside a list');
         });
     });
 });
