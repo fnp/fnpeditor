@@ -223,11 +223,11 @@ Manager.prototype.command = function(command, meta) {
             this.sandbox.publish('contentChanged');
         }
         else {
-            if(!this.canvas.nodeInsideList({node: node})) {
+            //if(!this.canvas.nodeInsideList({node: node})) {
                 this.canvas.listCreate({start: node, end: canvasNode.create(pos.focusNode), type: meta});
                 this.selectNode(node, {movecaret: 'end'});
                 this.sandbox.publish('contentChanged');
-            }
+            //}
         }
     }
 

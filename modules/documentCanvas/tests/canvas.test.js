@@ -186,5 +186,64 @@ define([
             assert.ok(c.nodeInsideList({node: c.findNodes({klass: 'item'})[1]}), 'item is inside a list');
             assert.ok(c.nodeInsideList({node: c.findNodes({tag: 'span'})[0]}), 'things nested in item are inside a list');
         });
+        
+        test('moving items to nested list', function() {
+            var listHTML = utils.cleanUp('\
+                    <div wlxml-tag="div" wlxml-class="list-items">\
+                        <div wlxml-tag="div" wlxml-class="item">alice</div>\
+                        <div wlxml-tag="div" wlxml-class="item">cat</div>\
+                        <div wlxml-tag="div" wlxml-class="item">dog</div>\
+                        <div wlxml-tag="div" wlxml-class="item">bee</div>\
+                    </div>');
+            var c = canvas.create(listHTML);
+            var items = c.findNodes({klass: 'item'});
+            var cat_item = items[1];
+            var dog_item = items[2];
+            
+            c.listCreate({start: cat_item, end: dog_item});
+            
+            assertDomEqual(c.getContent(), utils.cleanUp('\
+                    <div wlxml-tag="div" wlxml-class="list-items">\
+                        <div wlxml-tag="div" wlxml-class="item">alice</div>\
+                        <div wlxml-tag="div" wlxml-class="item">\
+                            <div wlxml-tag="div" wlxml-class="list-items">\
+                                <div wlxml-tag="div" wlxml-class="item">cat</div>\
+                                <div wlxml-tag="div" wlxml-class="item">dog</div>\
+                            </div>\
+                        </div>\
+                        <div wlxml-tag="div" wlxml-class="item">bee</div>\
+                    </div>'
+            ));
+        });
+        
+        test('removing nested list', function() {
+            var nestedList = utils.cleanUp('\
+                    <div wlxml-tag="div" wlxml-class="list-items">\
+                        <div wlxml-tag="div" wlxml-class="item">alice</div>\
+                        <div wlxml-tag="div" wlxml-class="item">\
+                            <div wlxml-tag="div" wlxml-class="list-items">\
+                                <div wlxml-tag="div" wlxml-class="item">cat</div>\
+                                <div wlxml-tag="div" wlxml-class="item">dog</div>\
+                            </div>\
+                        </div>\
+                        <div wlxml-tag="div" wlxml-class="item">bee</div>\
+                    </div>');
+                    
+            var c = canvas.create(nestedList);
+            var dog_item = c.findNodes('[wlxml-class=list-items] [wlxml-class=list-items] > div')[1];
+            assert.equal(dog_item.getContent(), 'dog');
+            
+            c.listRemove({pointer: dog_item});
+            
+            assertDomEqual(c.getContent(), utils.cleanUp('\
+                    <div wlxml-tag="div" wlxml-class="list-items">\
+                        <div wlxml-tag="div" wlxml-class="item">alice</div>\
+                        <div wlxml-tag="div" wlxml-class="item">cat</div>\
+                        <div wlxml-tag="div" wlxml-class="item">dog</div>\
+                        <div wlxml-tag="div" wlxml-class="item">bee</div>\
+                    </div>'));
+            
+            
+        });
     });
 });

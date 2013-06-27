@@ -161,7 +161,19 @@ Canvas.prototype.listCreate = function(options) {
     });
     
     var list = canvasNode.create({tag: 'div', klass: 'list-items' + (options.type === 'enum' ? '-enum' : '')}).dom; //this._createNode('div', 'list-items');
-    element1.before(list);
+    
+    var parentNode = options.start.parent();
+    
+    var toret;
+    if(parentNode && parentNode.isOfClass('list-items')) {
+        list.wrap('<div wlxml-tag="div" wlxml-class="item">');
+        toret = list.parent();
+    } else {
+        toret = list;
+    }
+        
+    
+    element1.before(toret);
     
     nodesToWrap.forEach(function(node) {
         node.remove();
@@ -174,9 +186,19 @@ Canvas.prototype.listRemove = function(options) {
     var listElement = options.pointer.getClass() === 'list-items' ? pointerElement : 
         pointerElement.parents('[wlxml-class|="list-items"][wlxml-tag]');
     
-    listElement.find('[wlxml-class=item]').each(function() {
-        $(this).removeAttr('wlxml-class');
-    });
+    var nested = false;
+    if(listElement.length > 1) {
+        listElement = $(listElement[0]);
+        nested = true;
+    }
+    
+    if(nested) {
+        listElement.unwrap();
+    } else {
+        listElement.find('[wlxml-class=item]').each(function() {
+            $(this).removeAttr('wlxml-class');
+        });
+    }
     listElement.children().unwrap();
 };
 
