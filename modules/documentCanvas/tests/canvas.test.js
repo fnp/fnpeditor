@@ -205,7 +205,7 @@ define([
             assertDomEqual(c.getContent(), utils.cleanUp('\
                     <div wlxml-tag="div" wlxml-class="list-items">\
                         <div wlxml-tag="div" wlxml-class="item">alice</div>\
-                        <div wlxml-tag="div" wlxml-class="item">\
+                        <div wlxml-tag="div" wlxml-class="item" class="canvas-silent-item">\
                             <div wlxml-tag="div" wlxml-class="list-items">\
                                 <div wlxml-tag="div" wlxml-class="item">cat</div>\
                                 <div wlxml-tag="div" wlxml-class="item">dog</div>\

@@ -166,7 +166,7 @@ Canvas.prototype.listCreate = function(options) {
     
     var toret;
     if(parentNode && parentNode.isOfClass('list-items')) {
-        list.wrap('<div wlxml-tag="div" wlxml-class="item">');
+        list.wrap('<div wlxml-tag="div" wlxml-class="item" class="canvas-silent-item">');
         toret = list.parent();
     } else {
         toret = list;
