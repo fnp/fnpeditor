@@ -217,7 +217,7 @@ Manager.prototype.command = function(command, meta) {
     
     if(command === 'createList') {
         var node = canvasNode.create(pos.parentNode);
-        if(window.getSelection().getRangeAt().collapsed && this.canvas.nodeInsideList({node: node})) {
+        if(window.getSelection().getRangeAt(0).collapsed && this.canvas.nodeInsideList({node: node})) {
             this.canvas.listRemove({pointer: node});
             this.selectNode(node, {movecaret: 'end'});
             this.sandbox.publish('contentChanged');
