@@ -62,12 +62,16 @@ Canvas.prototype.nodeInsertAfter = function(options) {
 };
 
 Canvas.prototype.nodeWrap = function(options) {
+    options = _.extend({textNodeIdx: 0}, options);
+
     var element = $(this.content.find('#' + options.inside.getId()).get(0));
 
     var elementContents = element.contents();
-    if(elementContents.length !== 1 || elementContents.get(0).nodeType != 3)
+    if(elementContents.length === 0 || 
+       elementContents.length - 1 < options.textNodeIdx || 
+       elementContents.get(options.textNodeIdx).nodeType != 3)
         return false;
-    var textElement = elementContents.get(0);
+    var textElement = elementContents.get(options.textNodeIdx);
 
     var prefix = textElement.data.substr(0, options.offsetStart);
     var suffix = textElement.data.substr(options.offsetEnd);

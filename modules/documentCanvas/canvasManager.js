@@ -110,10 +110,12 @@ Manager.prototype.insertNewNode = function(wlxmlTag, wlxmlClass) {
             offsetEnd = tmp;
         }
         var wrapper = canvasNode.create({tag: wlxmlTag, klass: wlxmlClass});
-        this.canvas.nodeWrap({inside: canvasNode.create($(selection.anchorNode).parent()),
+        var parent = $(selection.anchorNode).parent();
+        this.canvas.nodeWrap({inside: canvasNode.create(parent),
                               _with: wrapper,
                               offsetStart: offsetStart,
-                              offsetEnd: offsetEnd
+                              offsetEnd: offsetEnd,
+                              textNodeIdx: parent.contents().index($(selection.anchorNode))
                             });
         this.selectNode(wrapper, {movecaret: 'end'});
     }
