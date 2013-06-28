@@ -102,22 +102,27 @@ Manager.prototype.insertNewNode = function(wlxmlTag, wlxmlClass) {
     if(selection.getRangeAt(0).collapsed) {
     
     } else {
+        var textNodeIdx;
+        var parent = $(selection.anchorNode).parent();
         var offsetStart = selection.anchorOffset;
         var offsetEnd = selection.focusOffset;
-        if(offsetStart > offsetEnd) {
-            var tmp = offsetStart;
-            offsetStart = offsetEnd;
-            offsetEnd = tmp;
-        }
         
+        if(selection.anchorNode === selection.focusNode) {
+            if(offsetStart > offsetEnd) {
+                var tmp = offsetStart;
+                offsetStart = offsetEnd;
+                offsetEnd = tmp;
+            }
+            textNodeIdx = parent.contents().index($(selection.anchorNode));
+        } else {
+            if(parent.contents().index($(selection.anchorNode)) > parent.contents().index($(selection.focusNode))) {
+                offsetStart = selection.focusOffset;
+                offsetEnd = selection.anchorOffset;
+            }
+            textNodeIdx = [parent.contents().index($(selection.anchorNode)), parent.contents().index($(selection.focusNode))];
+        }
         
         var wrapper = canvasNode.create({tag: wlxmlTag, klass: wlxmlClass});
-        var parent = $(selection.anchorNode).parent();
-        
-        var textNodeIdx = parent.contents().index($(selection.anchorNode));
-        if(selection.anchorNode != selection.focusNode) {
-            textNodeIdx = [textNodeIdx, parent.contents().index($(selection.focusNode))];
-        }
         this.canvas.nodeWrap({inside: canvasNode.create(parent),
                               _with: wrapper,
                               offsetStart: offsetStart,
