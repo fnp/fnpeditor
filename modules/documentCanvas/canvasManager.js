@@ -97,15 +97,17 @@ Manager.prototype.selectNode = function(cnode, options) {
 };
 
 Manager.prototype.insertNewNode = function(wlxmlTag, wlxmlClass) {
-    var selection = window.getSelection();
-
-    if(selection.getRangeAt(0).collapsed) {
-    
-    } else {
-        var textNodeIdx;
-        var parent = $(selection.anchorNode).parent();
-        var offsetStart = selection.anchorOffset;
-        var offsetEnd = selection.focusOffset;
+    var selection = window.getSelection(),
+        $anchorNode = $(selection.anchorNode),
+        $focusNode = $(selection.focusNode);
+        
+        
+    if(!selection.isCollapsed && $anchorNode.parent()[0] === $focusNode.parent()[0]) {
+        var textNodeIdx,
+            parent = $anchorNode.parent(),
+            parentContents = parent.contents(),
+            offsetStart = selection.anchorOffset,
+            offsetEnd = selection.focusOffset;
         
         if(selection.anchorNode === selection.focusNode) {
             if(offsetStart > offsetEnd) {
@@ -113,13 +115,13 @@ Manager.prototype.insertNewNode = function(wlxmlTag, wlxmlClass) {
                 offsetStart = offsetEnd;
                 offsetEnd = tmp;
             }
-            textNodeIdx = parent.contents().index($(selection.anchorNode));
+            textNodeIdx = parentContents.index($anchorNode);
         } else {
-            if(parent.contents().index($(selection.anchorNode)) > parent.contents().index($(selection.focusNode))) {
+            if(parentContents.index($anchorNode) > parentContents.index($focusNode)) {
                 offsetStart = selection.focusOffset;
                 offsetEnd = selection.anchorOffset;
             }
-            textNodeIdx = [parent.contents().index($(selection.anchorNode)), parent.contents().index($(selection.focusNode))];
+            textNodeIdx = [parentContents.index($anchorNode), parentContents.index($focusNode)];
         }
         
         var wrapper = canvasNode.create({tag: wlxmlTag, klass: wlxmlClass});
