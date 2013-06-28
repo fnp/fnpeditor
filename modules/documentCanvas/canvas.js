@@ -98,7 +98,7 @@ Canvas.prototype.nodeSplit = function(options) {
         var node = this;
         if(passed)
             succeedingNodes.push(node);
-        if(node.isSameNode(textNode.get(0)))
+        if(node === textNode.get(0))
             passed = true;
     });
     
@@ -125,7 +125,7 @@ Canvas.prototype.nodeRemove = function(options) {
 Canvas.prototype.listCreate = function(options) {
     var element1 = $(this.content.find('#' + options.start.getId()).get(0));
     var element2 = $(this.content.find('#' + options.end.getId()).get(0));
-    if(!element1.parent().get(0).isSameNode(element2.parent().get(0)))
+    if(!element1.parent().get(0) === element2.parent().get(0))
         return false;
         
     var parent = element1.parent();
@@ -142,7 +142,7 @@ Canvas.prototype.listCreate = function(options) {
     var canvas = this;
     parent.contents().each(function() {
         var node = this;
-        if(node.isSameNode(element1.get(0)))
+        if(node === element1.get(0))
             place = 'inside';
         if(place === 'inside') {
             var $node;
@@ -156,7 +156,7 @@ Canvas.prototype.listCreate = function(options) {
             $node.attr('wlxml-class', 'item');
             nodesToWrap.push($node);
         }
-        if(node.isSameNode(element2.get(0)))
+        if(node === element2.get(0))
             return false;
     });
     

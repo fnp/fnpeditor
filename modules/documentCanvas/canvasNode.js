@@ -45,7 +45,7 @@ CanvasNode.prototype.setContent = function(content) {
 }
 
 CanvasNode.prototype.isSame = function(other) {
-    return (other instanceof CanvasNode) && this.dom.get(0).isSameNode(other.dom.get(0));
+    return (other instanceof CanvasNode) && this.dom.get(0) === other.dom.get(0);
 }
 
 CanvasNode.prototype.children = function() {
