@@ -61,7 +61,10 @@ Canvas.prototype.nodeInsertAfter = function(options) {
     element.after(options.node.dom);
 };
 
-Canvas.prototype.nodeWrap2 = function(options) {
+Canvas.prototype.nodeWrap = function(options) {
+    options = _.extend({textNodeIdx: 0}, options);
+    if(typeof options.textNodeIdx === 'number')
+        options.textNodeIdx = [options.textNodeIdx];
     var container = $(this.content.find('#' + options.inside.getId()).get(0));
     
     var containerContent = container.contents();
@@ -69,44 +72,31 @@ Canvas.prototype.nodeWrap2 = function(options) {
     var idx2 = Math.max.apply(Math, options.textNodeIdx);
     var textNode1 = $(containerContent.get(idx1));
     var textNode2 = $(containerContent.get(idx2));
-    
+    var sameNode = textNode1.get(0) === textNode2.get(0);
     textNode1.after(options._with.dom);
     textNode1.detach();
-    textNode2.detach();
+    if(!sameNode)
+        textNode2.detach();
     
+    var prefixOutside = textNode1.text().substr(0, options.offsetStart);
+    var prefixInside = textNode1.text().substr(options.offsetStart)
+    var suffixInside = textNode2.text().substr(0, options.offsetEnd)
+    var suffixOutside = textNode2.text().substr(options.offsetEnd);
+    var core;
+    if(sameNode)
+        core = textNode1.text().substr(options.offsetStart, options.offsetEnd - options.offsetStart);
     
-    options._with.dom.before(textNode1.text().substr(0, options.offsetStart));
-    options._with.dom.append(textNode1.text().substr(options.offsetStart));
-    for(var i = idx1 + 1; i < idx2; i++) {
-        options._with.dom.append(containerContent[i]);
+    options._with.dom.before(prefixOutside);
+    if(sameNode) {
+        options._with.setContent(core);
+    } else {
+        options._with.dom.append(prefixInside);
+        for(var i = idx1 + 1; i < idx2; i++) {
+            options._with.dom.append(containerContent[i]);
+        }
+        options._with.dom.append(suffixInside);
     }
-    options._with.dom.append(textNode2.text().substr(0, options.offsetEnd));
-    options._with.dom.after(textNode2.text().substr(options.offsetEnd));
-};
-
-Canvas.prototype.nodeWrap = function(options) {
-    options = _.extend({textNodeIdx: 0}, options);
-    
-    if(options.textNodeIdx instanceof Array)
-        return this.nodeWrap2(options);
-
-    var element = $(this.content.find('#' + options.inside.getId()).get(0));
-    
-    var elementContents = element.contents();
-    if(elementContents.length === 0 || 
-       elementContents.length - 1 < options.textNodeIdx || 
-       elementContents.get(options.textNodeIdx).nodeType != 3)
-        return false;
-    var textElement = elementContents.get(options.textNodeIdx);
-
-    var prefix = textElement.data.substr(0, options.offsetStart);
-    var suffix = textElement.data.substr(options.offsetEnd);
-    var core = textElement.data.substr(options.offsetStart, options.offsetEnd - options.offsetStart);
-    options._with.setContent(core);
-
-    $(textElement).replaceWith(options._with.dom);
-    options._with.dom.before(prefix);
-    options._with.dom.after(suffix);
+    options._with.dom.after(suffixOutside);
 };
 
 Canvas.prototype.nodeSplit = function(options) {
