@@ -65,31 +65,29 @@ Canvas.prototype.nodeWrap = function(options) {
     options = _.extend({textNodeIdx: 0}, options);
     if(typeof options.textNodeIdx === 'number')
         options.textNodeIdx = [options.textNodeIdx];
-    var container = $(this.content.find('#' + options.inside.getId()).get(0));
     
-    var containerContent = container.contents();
-    var idx1 = Math.min.apply(Math, options.textNodeIdx);
-    var idx2 = Math.max.apply(Math, options.textNodeIdx);
-    var textNode1 = $(containerContent.get(idx1));
-    var textNode2 = $(containerContent.get(idx2));
-    var sameNode = textNode1.get(0) === textNode2.get(0);
+    var container = $(this.content.find('#' + options.inside.getId()).get(0)),
+        containerContent = container.contents(),
+        idx1 = Math.min.apply(Math, options.textNodeIdx),
+        idx2 = Math.max.apply(Math, options.textNodeIdx),
+        textNode1 = $(containerContent.get(idx1)),
+        textNode2 = $(containerContent.get(idx2)),
+        sameNode = textNode1.get(0) === textNode2.get(0),
+        prefixOutside = textNode1.text().substr(0, options.offsetStart),
+        prefixInside = textNode1.text().substr(options.offsetStart),
+        suffixInside = textNode2.text().substr(0, options.offsetEnd),
+        suffixOutside = textNode2.text().substr(options.offsetEnd)
+    ;
+    
     textNode1.after(options._with.dom);
     textNode1.detach();
-    if(!sameNode)
-        textNode2.detach();
-    
-    var prefixOutside = textNode1.text().substr(0, options.offsetStart);
-    var prefixInside = textNode1.text().substr(options.offsetStart)
-    var suffixInside = textNode2.text().substr(0, options.offsetEnd)
-    var suffixOutside = textNode2.text().substr(options.offsetEnd);
-    var core;
-    if(sameNode)
-        core = textNode1.text().substr(options.offsetStart, options.offsetEnd - options.offsetStart);
     
     options._with.dom.before(prefixOutside);
     if(sameNode) {
+        var core = textNode1.text().substr(options.offsetStart, options.offsetEnd - options.offsetStart);
         options._with.setContent(core);
     } else {
+        textNode2.detach();
         options._with.dom.append(prefixInside);
         for(var i = idx1 + 1; i < idx2; i++) {
             options._with.dom.append(containerContent[i]);
