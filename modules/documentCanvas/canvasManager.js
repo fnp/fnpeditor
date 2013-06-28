@@ -109,13 +109,20 @@ Manager.prototype.insertNewNode = function(wlxmlTag, wlxmlClass) {
             offsetStart = offsetEnd;
             offsetEnd = tmp;
         }
+        
+        
         var wrapper = canvasNode.create({tag: wlxmlTag, klass: wlxmlClass});
         var parent = $(selection.anchorNode).parent();
+        
+        var textNodeIdx = parent.contents().index($(selection.anchorNode));
+        if(selection.anchorNode != selection.focusNode) {
+            textNodeIdx = [textNodeIdx, parent.contents().index($(selection.focusNode))];
+        }
         this.canvas.nodeWrap({inside: canvasNode.create(parent),
                               _with: wrapper,
                               offsetStart: offsetStart,
                               offsetEnd: offsetEnd,
-                              textNodeIdx: parent.contents().index($(selection.anchorNode))
+                              textNodeIdx: textNodeIdx
                             });
         this.selectNode(wrapper, {movecaret: 'end'});
     }

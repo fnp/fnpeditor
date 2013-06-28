@@ -61,11 +61,37 @@ Canvas.prototype.nodeInsertAfter = function(options) {
     element.after(options.node.dom);
 };
 
+Canvas.prototype.nodeWrap2 = function(options) {
+    var container = $(this.content.find('#' + options.inside.getId()).get(0));
+    
+    var containerContent = container.contents();
+    var idx1 = Math.min.apply(Math, options.textNodeIdx);
+    var idx2 = Math.max.apply(Math, options.textNodeIdx);
+    var textNode1 = $(containerContent.get(idx1));
+    var textNode2 = $(containerContent.get(idx2));
+    
+    textNode1.after(options._with.dom);
+    textNode1.detach();
+    textNode2.detach();
+    
+    
+    options._with.dom.before(textNode1.text().substr(0, options.offsetStart));
+    options._with.dom.append(textNode1.text().substr(options.offsetStart));
+    for(var i = idx1 + 1; i < idx2; i++) {
+        options._with.dom.append(containerContent[i]);
+    }
+    options._with.dom.append(textNode2.text().substr(0, options.offsetEnd));
+    options._with.dom.after(textNode2.text().substr(options.offsetEnd));
+};
+
 Canvas.prototype.nodeWrap = function(options) {
     options = _.extend({textNodeIdx: 0}, options);
+    
+    if(options.textNodeIdx instanceof Array)
+        return this.nodeWrap2(options);
 
     var element = $(this.content.find('#' + options.inside.getId()).get(0));
-
+    
     var elementContents = element.contents();
     if(elementContents.length === 0 || 
        elementContents.length - 1 < options.textNodeIdx || 

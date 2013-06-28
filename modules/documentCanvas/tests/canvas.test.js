@@ -69,6 +69,14 @@ define([
             assertDomEqual(c.getContent(), '<div wlxml-tag="header">Alice <span wlxml-tag="span">has a</span> <span wlxml-tag="aside">cat</span></div>');
         });
         
+        test('wrap text with nodes inside', function() {
+            var c = canvas.create('<div wlxml-tag="header">Alice has a <span wlxml-tag="span">small</span> cat</div>');
+            var header = c.findNodes({tag: 'header'})[0];
+            var wrapper = canvasNode.create({tag: 'aside'});
+            c.nodeWrap({inside: header, _with: wrapper, offsetStart: 6, offsetEnd: 4, textNodeIdx: [0,2]})
+            assertDomEqual(c.getContent(), '<div wlxml-tag="header">Alice <span wlxml-tag="aside">has a <span wlxml-tag="span">small</span> cat</span></div>');            
+        });
+        
         test('split node', function() {
             var c = canvas.create('<div wlxml-tag="section"><div wlxml-tag="header">Header 1</div></div>');
             var header = c.findNodes({tag: 'header'})[0];
