@@ -72,7 +72,7 @@ define(['libs/jquery-1.9.1.min'], function($) {
     transformations.toXML = {
         getXML: function(body) {
             
-            var inner = $(body);
+            var inner = body.clone();
             var toret = $('<div></div>');
             toret.append(inner);
             
