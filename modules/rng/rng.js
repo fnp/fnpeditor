@@ -38,7 +38,7 @@ return function(sandbox) {
                 dirty.sourceEditor = false;
             }
             if(slug === 'editor') {
-                var doc = dirty.documentCanvas ? sandbox.getModule('documentCanvas').getDocument() : sandbox.getModule('data').getDocument();
+                doc = dirty.documentCanvas ? sandbox.getModule('documentCanvas').getDocument() : sandbox.getModule('data').getDocument();
                 if(dirty.metadataEditor) {
                     doc = sandbox.getModule('metadataEditor').attachMetadata(doc);
                 }

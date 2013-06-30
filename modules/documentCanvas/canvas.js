@@ -143,7 +143,7 @@ Canvas.prototype.nodeRemove = function(options) {
 Canvas.prototype.listCreate = function(options) {
     var element1 = $(this.content.find('#' + options.start.getId()).get(0));
     var element2 = $(this.content.find('#' + options.end.getId()).get(0));
-    if(!element1.parent().get(0) === element2.parent().get(0))
+    if(element1.parent().get(0) !== element2.parent().get(0))
         return false;
         
     var parent = element1.parent();

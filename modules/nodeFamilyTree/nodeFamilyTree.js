@@ -33,7 +33,7 @@ return function(sandbox) {
             var nodes = this.nodes = {};
             this.currentNode = node;
             var parentNode = node.parent();
-            var parent = undefined;
+            var parent;
             
             if(parentNode) {
                 parent = {
