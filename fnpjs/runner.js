@@ -14,7 +14,7 @@ var Runner = function(app, modules) {
         
     _.each(_.keys(modules || {}), function(moduleName) {
         if(_.contains(app.permissions[moduleName] || [], 'handleEvents')) {
-            eventListeners.push(moduleName)
+            eventListeners.push(moduleName);
         }
     });
 
@@ -26,22 +26,22 @@ var Runner = function(app, modules) {
         
         this.getBootstrappedData = function() {
             return bootstrappedData[moduleName];
-        }
+        };
         
         this.getTemplate = function(templateName) {
             return _.template($('[data-template-name="' + moduleName + '.' + templateName + '"]').html().trim());
-        }
+        };
         
         this.publish = function(eventName) {
             console.log(moduleName + ': ' + eventName);
-            var eventArgs = Array.prototype.slice.call(arguments, 1)
+            var eventArgs = Array.prototype.slice.call(arguments, 1);
             _.each(eventListeners, function(listenerModuleName) {
                 var listener = moduleInstances[listenerModuleName];
                 if(listener) {
                     listener.handleEvent(moduleName, eventName, eventArgs);
                 }
             });
-        }
+        };
         
         var permissions = app.permissions[moduleName];
         
@@ -67,11 +67,11 @@ var Runner = function(app, modules) {
         app.initModules.forEach(function(moduleName) {
             getModuleInstance(moduleName).start();
         });
-    }
-}
+    };
+};
 
 return {
     Runner: Runner
-}
+};
 
 });

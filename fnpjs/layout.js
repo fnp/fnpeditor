@@ -30,7 +30,7 @@ define(['libs/jquery-1.9.1.min', 'libs/underscore-min'], function($ ,_) {
     };
     
     Layout.prototype.getAsView = function() {
-        return this.dom
+        return this.dom;
     };
     
     return {Layout: Layout};

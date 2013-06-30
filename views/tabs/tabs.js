@@ -26,7 +26,7 @@ define([
             this.nodes = {
                 tabBar: this.$('.rng-view-tabs-tabBar'),
                 content: this.$('.rng-view-tabs-content')
-            }
+            };
             
             if(this.options.stacked) {
                 this.nodes.tabBar.addClass('nav-stacked nav-pills').removeClass('nav-tabs');
@@ -103,7 +103,7 @@ define([
     
     return {
         View: View
-    }
+    };
     
 
 });
