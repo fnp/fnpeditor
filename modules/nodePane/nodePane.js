@@ -28,8 +28,8 @@ return function(sandbox) {
             view.find('.rng-module-nodePane-tagSelect').val(canvasNode.getTag());
             view.find('.rng-module-nodePane-classSelect').val(canvasNode.getClass());
         }
-    }
+    };
     
-}
+};
 
 });

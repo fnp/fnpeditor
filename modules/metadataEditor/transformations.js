@@ -8,7 +8,7 @@ define(['libs/jquery-1.9.1.min'], function($) {
             $(xml).find('metadata').children().each(function() {
                 var node = $(this);
                 toret[this.nodeName.split(':')[1].toLowerCase()] = node.text();
-            })
+            });
             return toret;
         },
         getXML: function(metadata) {
@@ -19,6 +19,6 @@ define(['libs/jquery-1.9.1.min'], function($) {
             meta.append('\n');
             return vkbeautify.xml(meta.html());
         }
-    }
+    };
 
 });

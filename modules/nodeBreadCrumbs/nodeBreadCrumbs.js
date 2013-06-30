@@ -47,7 +47,7 @@ return function(sandbox) {
         dimNode: function(node) {
             this.dom.find('a[data-id="'+node.id+'"]').removeClass('rng-common-hoveredNode');
         }
-    }
+    };
     
     view.setup();
     
@@ -61,7 +61,7 @@ return function(sandbox) {
         },
         highlightNode: function(id) { view.highlightNode(id); },
         dimNode: function(id) { view.dimNode(id); }
-    }
-}
+    };
+};
 
 });

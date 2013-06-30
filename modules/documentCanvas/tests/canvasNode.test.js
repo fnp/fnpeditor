@@ -14,7 +14,7 @@ var assertDomEqual = function(lhs, rhs) {
    rhs.attr('id', '');
    return assert.ok(lhs[0].isEqualNode(rhs[0]), 'nodes are equal');
 
-}
+};
 
 suite('Create canvas node', function() {  
     test('from description', function() {

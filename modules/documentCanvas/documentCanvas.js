@@ -25,7 +25,7 @@ return function(sandbox) {
             sandbox.publish('documentSet');
         },
         getDocument: function() {
-            return transformations.toXML.getXML(canvas.getContent())
+            return transformations.toXML.getXML(canvas.getContent());
         },
         modifyCurrentNode: function(attr, value) {
             if(manager.currentNode) {
@@ -52,7 +52,7 @@ return function(sandbox) {
         command: function(command, meta) {
             manager.command(command, meta);
         }
-    }
+    };
     
 };
 

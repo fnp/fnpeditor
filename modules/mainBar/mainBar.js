@@ -11,7 +11,7 @@ return function(sandbox) {
     view.find('button').click(function(e) {
         e.preventDefault();
         sandbox.publish('cmd.' + $(e.target).attr('data-cmd'));
-    })
+    });
 
     return {
         start: function() { sandbox.publish('ready'); },
@@ -22,7 +22,7 @@ return function(sandbox) {
         setVersion: function(version) {
             view.find('.version').text(version);
         }
-    }
+    };
 
 };
 

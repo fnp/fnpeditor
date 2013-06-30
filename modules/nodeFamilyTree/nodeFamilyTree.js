@@ -21,11 +21,11 @@ return function(sandbox) {
             
             this.dom.on('mouseenter', 'a', function(e) {
                 var target = $(e.target);
-                sandbox.publish('nodeEntered', view.nodes[target.attr('data-id')])
+                sandbox.publish('nodeEntered', view.nodes[target.attr('data-id')]);
             });
             this.dom.on('mouseleave', 'a', function(e) {
                 var target = $(e.target);
-                sandbox.publish('nodeLeft', view.nodes[target.attr('data-id')])
+                sandbox.publish('nodeLeft', view.nodes[target.attr('data-id')]);
             });
         },
         setNode: function(node) {
@@ -58,7 +58,7 @@ return function(sandbox) {
         dimNode: function(canvasNode) {
             this.dom.find('a[data-id="'+canvasNode.getId()+'"]').removeClass('rng-common-hoveredNode');
         }
-    }
+    };
     
     view.setup();
     

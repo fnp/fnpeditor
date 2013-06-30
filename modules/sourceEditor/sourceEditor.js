@@ -15,7 +15,7 @@ return function(sandbox) {
     
     editor.getSession().on('change', function() {
         sandbox.publish('xmlChanged');
-    })
+    });
     return {
         start: function() {
             sandbox.publish('ready');
@@ -25,13 +25,13 @@ return function(sandbox) {
         },
         setDocument: function(document) {
             editor.setValue(document);
-            editor.gotoLine(0)
+            editor.gotoLine(0);
             sandbox.publish('documentSet');
         },
         getDocument: function() {
             return editor.getValue();
         }
-    }
+    };
 };
 
 });

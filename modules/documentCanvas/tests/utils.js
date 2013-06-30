@@ -10,7 +10,7 @@ define(['libs/jquery-1.9.1.min', 'libs/chai'], function($, chai) {
                         rmws(this);
                     });
                 }
-            }
+            };
             
             xml = $($.trim(xml));
             xml.each(function() {
@@ -45,5 +45,5 @@ define(['libs/jquery-1.9.1.min', 'libs/chai'], function($, chai) {
             rhs.find('*').each(function() {$(this).attr('id', '');});
             return chai.assert.ok(lhs[0].isEqualNode(rhs[0]), 'nodes are equal');
         }
-    }
+    };
 });

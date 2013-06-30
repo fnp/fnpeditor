@@ -26,19 +26,19 @@ define(['libs/jquery-1.9.1.min'], function($) {
                         for(var i = 0; i < this.attributes.length; i++) {
                             var attr = this.attributes.item(i);
                             var value = attr.name === 'class' ? attr.value.replace(/\./g, '-') : attr.value;
-                            toret.attr('wlxml-' + attr.name, value)
+                            toret.attr('wlxml-' + attr.name, value);
                         }
                         toret.append(currentTag.contents());
                         return toret;
                     });
                 });
-            }
+            };
             
             transform(toBlock, 'div');
             transform(toInline, 'span');
 
             toret.find(":not(iframe)").addBack().contents().filter(function() {
-                return this.nodeType == 3} ).each(function() {
+                return this.nodeType == 3;} ).each(function() {
                     var n = $(this); 
                     var hasText = /\S/g.test(n.text());
                     if(!hasText) {
@@ -58,16 +58,16 @@ define(['libs/jquery-1.9.1.min'], function($) {
             $(xml).find('metadata').children().each(function() {
                 var node = $(this);
                 toret[this.nodeName.split(':')[1].toLowerCase()] = node.text();
-            })
+            });
             return toret;
         },
         getDocumentDescription: function(xml) {
             return {
                 HTMLTree: this.getHTMLTree(xml),
                 metadata: this.getMetaData(xml)
-            }
+            };
         }
-    }
+    };
 
     transformations.toXML = {
         getXML: function(body) {
@@ -83,7 +83,7 @@ define(['libs/jquery-1.9.1.min'], function($) {
                                    
                 for(var i = 0; i < this.attributes.length; i++) {
                     var attr = this.attributes.item(i);
-                    var split = attr.name.split('-')
+                    var split = attr.name.split('-');
                     console.log(split);
                     if(split[0] !== 'wlxml' || (split.length > 1 && split[1] === 'tag')) 
                         continue;
@@ -100,7 +100,7 @@ define(['libs/jquery-1.9.1.min'], function($) {
 
             return vkbeautify.xml(toret.html());
         }
-    }
+    };
 
     return transformations;
 

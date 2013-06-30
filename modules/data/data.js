@@ -6,7 +6,7 @@ return function(sandbox) {
 
     var doc = sandbox.getBootstrappedData().document;
     var document_id = sandbox.getBootstrappedData().document_id;
-    var document_version = sandbox.getBootstrappedData().version
+    var document_version = sandbox.getBootstrappedData().version;
     var history = sandbox.getBootstrappedData().history;
 
     
@@ -53,7 +53,7 @@ return function(sandbox) {
                 sandbox.publish('historyItemAdded', data.slice(-1)[0]);
             },
         });
-    }
+    };
     
     return {
         start: function() {
@@ -100,7 +100,7 @@ return function(sandbox) {
                 url: '/' + gettext('editor') + '/' + document_id + '/diff',
                 data: {from: ver1, to: ver2},
                 success: function(data) {
-                    sandbox.publish('diffFetched', {table: data, ver1: ver1, ver2: ver2})
+                    sandbox.publish('diffFetched', {table: data, ver1: ver1, ver2: ver2});
                 },
             });
         },
@@ -127,7 +127,7 @@ return function(sandbox) {
         getDocumentVersion: function() {
             return document_version;
         }
-    }
+    };
 };
 
 });

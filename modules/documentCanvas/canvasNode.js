@@ -26,27 +26,27 @@ var CanvasNode = function(desc) {
 
 CanvasNode.prototype.getTag = function() {
     return this.dom.attr('wlxml-tag');
-}
+};
 
 CanvasNode.prototype.getClass = function() {
     return this.dom.attr('wlxml-class');
-}
+};
 
 CanvasNode.prototype.getId = function() {
     return this.dom.attr('id');
-}
+};
 
 CanvasNode.prototype.getContent = function() {
     return this.dom.text();
-}
+};
 
 CanvasNode.prototype.setContent = function(content) {
     this.dom.text(content);
-}
+};
 
 CanvasNode.prototype.isSame = function(other) {
     return (other instanceof CanvasNode) && this.dom.get(0) === other.dom.get(0);
-}
+};
 
 CanvasNode.prototype.children = function() {
     var list = [];
@@ -75,14 +75,14 @@ CanvasNode.prototype.parents = function() {
 
 CanvasNode.prototype.isOfClass = function(klass) {
     return this.getClass() && this.getClass().substr(0, klass.length) === klass;
-}
+};
 
 return {
     create: function(desc) {
         return new CanvasNode(desc);
     }
 
-}
+};
     
 
 });

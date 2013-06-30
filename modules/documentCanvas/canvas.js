@@ -44,7 +44,7 @@ Canvas.prototype.findNodes = function(desc) {
 
 Canvas.prototype.getNodeById = function(id) {
     return canvasNode.create($(this.content.find('#' +id)));
-}
+};
 
 Canvas.prototype.nodeAppend = function(options) {
     var element; // = $(this.content.find('#' + options.context.id).get(0));
@@ -129,7 +129,7 @@ Canvas.prototype.nodeSplit = function(options) {
     var newNode = canvasNode.create({tag: nodeToSplit.attr('wlxml-tag'), klass: nodeToSplit.attr('wlxml-class')});
     newNode.dom.append(suffix);
     succeedingNodes.forEach(function(node) {
-        newNode.dom.append(node)
+        newNode.dom.append(node);
     });
     nodeToSplit.after(newNode.dom);
     return newNode;
@@ -222,7 +222,7 @@ Canvas.prototype.listRemove = function(options) {
 
 Canvas.prototype.getPrecedingNode = function(options) {
     var element = $(this.content.find('#' + options.node.getId()).get(0));
-    var prev = element.prev()
+    var prev = element.prev();
     if(prev.length === 0)
         prev = element.parent();
     return canvasNode.create(prev);

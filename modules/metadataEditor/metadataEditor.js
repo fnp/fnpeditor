@@ -35,7 +35,7 @@ return function(sandbox) {
                         metaTable.find('.rng-module-metadataEditor-metaItemValue').focus();
                     } else {
                         var input = $('<input>');
-                        input.appendTo('body').focus()
+                        input.appendTo('body').focus();
                         view.node.find('.rng-module-metadataEditor-addBtn').focus();
                         input.remove();
                     }
@@ -47,7 +47,7 @@ return function(sandbox) {
             var onKeyUp = function(e) {
                 if(e.which !== 13)
                     sandbox.publish('metadataChanged', view.getMetadata());
-            }
+            };
             this.metaTable.on('keyup', '[contenteditable]', _.throttle(onKeyUp, 500));
         },
         getMetadata: function() {
@@ -73,7 +73,7 @@ return function(sandbox) {
             newRow.appendTo(this.metaTable);
             return newRow;
         }
-    }
+    };
     
     view.setup();
     
@@ -101,7 +101,7 @@ return function(sandbox) {
                 var section = toret.find('section');
                 section = section.length ? $(section[0]) : null;
                 if(section) {
-                    section.prepend(meta)
+                    section.prepend(meta);
                 }
             } else {
                 metadata.replaceWith(meta);
@@ -110,6 +110,6 @@ return function(sandbox) {
         }
         
     };
-}
+};
 
 });

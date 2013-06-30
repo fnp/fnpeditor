@@ -13,7 +13,7 @@ return function(sandbox) {
     var dom = $(_.template(mainTemplateSrc)());
     var domNodes = {
         itemList: dom.find('.rng-module-documentHistory-itemsList'),
-    }
+    };
     var itemViews = [];
     
     
@@ -43,18 +43,18 @@ return function(sandbox) {
         if(options.animate) {
             view.dom.hide().slideDown();
         }
-    }
+    };
     
     var toggleItemViews = function(toggle) {
         itemViews.forEach(function(view) {
             if(!historyItems.isSelected(view.item))
                 view.toggle(toggle);
         });
-    }
+    };
     
     var toggleButton = function(btn, toggle) {
         dom.find('button.'+btn).toggleClass('disabled', !toggle);
-    }
+    };
     
     var historyItems = {
         _itemsById: {},
@@ -140,7 +140,7 @@ return function(sandbox) {
         getView: function() {
             return dom;
         }
-    }
-}
+    };
+};
 
 });

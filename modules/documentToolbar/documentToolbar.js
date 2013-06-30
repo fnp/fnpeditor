@@ -13,7 +13,7 @@ return function(sandbox) {
                 e.stopPropagation();
                 var btn = $(e.currentTarget);
                 if(btn.attr('data-btn-type') === 'toggle') {
-                    btn.toggleClass('active')
+                    btn.toggleClass('active');
                     var event;
                     var btnId = btn.attr('data-btn');
                     if(btnId === 'grid')
@@ -43,7 +43,7 @@ return function(sandbox) {
         getOption: function(option) {
             return this.node.find('.rng-module-documentToolbar-toolbarOption[data-option=' + option +']').val();
         }
-    }
+    };
     
     view.setup();
 
@@ -51,7 +51,7 @@ return function(sandbox) {
         start: function() { sandbox.publish('ready'); },
         getView: function() { return view.node; },
         getOption: function(option) { return view.getOption(option); }
-    }
-}
+    };
+};
 
 });

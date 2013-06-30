@@ -47,19 +47,19 @@ return function(sandbox) {
             }
             sandbox.getModule('data').commitDocument(doc, reason);
         }
-    }
+    };
     
     var commands = {
         highlightDocumentNode: function(canvasNode, origin) {
             ['documentCanvas', 'nodeBreadCrumbs', 'nodeFamilyTree'].forEach(function(moduleName) {
                 if(!origin || moduleName != origin)
-                    sandbox.getModule(moduleName).highlightNode(canvasNode)
+                    sandbox.getModule(moduleName).highlightNode(canvasNode);
             });
         },
         dimDocumentNode: function(canvasNode, origin) {
             ['documentCanvas', 'nodeBreadCrumbs', 'nodeFamilyTree'].forEach(function(moduleName) {
                 if(!origin || moduleName != origin)
-                    sandbox.getModule(moduleName).dimNode(canvasNode)
+                    sandbox.getModule(moduleName).dimNode(canvasNode);
             });
         },
         selectNode: function(canvasNode, origin) {
@@ -82,7 +82,7 @@ return function(sandbox) {
                 sandbox.getModule(moduleName).setDocument(document);
             });
         }
-    }
+    };
     
 
     var views = {
@@ -92,7 +92,7 @@ return function(sandbox) {
         visualEditingSidebar: (new tabs.View({stacked: true})).render(),
         currentNodePaneLayout: new vbox.VBox(),
         diffLayout: new layout.Layout(diffLayoutTemplate)
-    }
+    };
     
     views.visualEditing.setView('rightColumn', views.visualEditingSidebar.getAsView());
     addMainTab('Edytor', 'editor', views.visualEditing.getAsView());
@@ -161,7 +161,7 @@ return function(sandbox) {
             sandbox.getModule('indicator').clearMessage({message:'Wersja ' + event.reverted_version + ' przywrócona'});
             sandbox.getModule('mainBar').setVersion(event.current_version);
         }
-    }
+    };
     
     eventHandlers.mainBar = {
         ready: function() {
@@ -172,7 +172,7 @@ return function(sandbox) {
             synchronizeTab(views.mainTabs.getCurrentSlug());
             sandbox.getModule('data').saveDocument();
         }
-    }
+    };
     
     eventHandlers.indicator = {
         ready: function() {
@@ -274,7 +274,7 @@ return function(sandbox) {
         nodeSelected: function(canvasNode) {
             commands.selectNode(canvasNode);
         }        
-    }
+    };
     
     eventHandlers.documentHistory = {
         ready: function() {
@@ -290,13 +290,13 @@ return function(sandbox) {
         displayVersion: function(event) {
             window.open('/' + gettext('editor') + '/' + sandbox.getModule('data').getDocumentId() + '?version=' + event.version, _.uniqueId());
         }
-    }
+    };
     
     eventHandlers.diffViewer = {
         ready: function() {
             views.diffLayout.setView('right', sandbox.getModule('diffViewer').getView());
         }
-    }
+    };
     
     /* api */
     
@@ -311,7 +311,7 @@ return function(sandbox) {
                 eventHandlers[moduleName][eventName].apply(eventHandlers, args);
             }
         }
-    }
+    };
 };
 
 });

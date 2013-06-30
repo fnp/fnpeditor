@@ -30,7 +30,7 @@ define([
                 data: {description: view.$el.find('textarea').val()},
                 success: function() { view.actionsDisabled = false; view.close(); },
                 error: function() { view.actionsDisabled = false; view.close(); },
-            })
+            });
         },
         close: function(e) {
             if(e)
@@ -51,6 +51,6 @@ define([
         create: function() {
             return new DialogView();
         }
-    }
+    };
 
 });

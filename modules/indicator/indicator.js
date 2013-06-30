@@ -13,7 +13,7 @@ return function(sandbox) {
         setup: function() {
         
         }
-    }
+    };
 
     return {
         start: function() { sandbox.publish('ready'); },
@@ -28,8 +28,8 @@ return function(sandbox) {
             }
         }
         
-    }
+    };
 
-}
+};
 
 });

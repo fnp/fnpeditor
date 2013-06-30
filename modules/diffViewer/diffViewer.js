@@ -14,11 +14,12 @@ return function(sandbox) {
     dom.append(tabsView.getAsView());
     
     var DiffView = function() {
-        this.dom = $(diffTemplateSrc)
-    }
+        this.dom = $(diffTemplateSrc);
+    };
+    
     DiffView.prototype.setTable = function(table) {
         this.dom.append(table);
-    }
+    };
     
 
     return {

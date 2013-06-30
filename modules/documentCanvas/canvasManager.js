@@ -16,7 +16,7 @@ var getCursorPosition = function() {
         parentNode: parent,
         focusNode: $(selection.focusNode).parent(),
         isAtEnd: selection.anchorOffset === anchorNode.text().length
-    }
+    };
 };
 
 var Manager = function(canvas, sandbox) {
@@ -76,12 +76,12 @@ var Manager = function(canvas, sandbox) {
     };
     canvas.dom.onHide = function() {
        manager.scrollbarPosition = canvas.dom.find('#rng-module-documentCanvas-contentWrapper').scrollTop();
-    }
+    };
 };
     
 Manager.prototype.selectNode = function(cnode, options) {
     options = options || {};
-    var nodeElement = this.getNodeElement(cnode)
+    var nodeElement = this.getNodeElement(cnode);
     
     this.dimNode(cnode);
     
@@ -135,7 +135,7 @@ Manager.prototype.insertNewNode = function(wlxmlTag, wlxmlClass) {
     }
     
     
-}
+};
 
 Manager.prototype.getNodeElement = function(cnode) {
     return this.canvas.dom.find('#'+cnode.getId());
@@ -167,9 +167,9 @@ Manager.prototype.selectFirstNode = function() {
     }).first();
     var node;
     if(firstNodeWithText.length)
-        node = $(firstNodeWithText[0])
+        node = $(firstNodeWithText[0]);
     else {
-        node = this.canvas.dom.find('[wlxml-class|="p"]')
+        node = this.canvas.dom.find('[wlxml-class|="p"]');
     }
     this.selectNode(canvasNode.create(node), {movecaret: true});
 };
@@ -185,7 +185,7 @@ Manager.prototype.movecaretToNode = function(nodeElement, where) {
         collapseArg = false;
     range.collapse(collapseArg);
     var selection = document.getSelection();
-    selection.removeAllRanges()
+    selection.removeAllRanges();
     selection.addRange(range);
 };
 
@@ -226,7 +226,7 @@ Manager.prototype.onBackspaceKey = function(e) {
         this.canvas.nodeRemove({node: toRemove}); // jesli nie ma tekstu, to anchor nie jest tex nodem
         this.selectNode(prevNode, {movecaret: 'end'});
     }
-}
+};
 
 Manager.prototype.command = function(command, meta) {
     var pos = getCursorPosition();
@@ -247,7 +247,7 @@ Manager.prototype.command = function(command, meta) {
         }
     }
 
-}
+};
 
 
 return Manager;
