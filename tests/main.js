@@ -23,6 +23,14 @@
             'libs/backbone-min': {
                 exports: 'Backbone',
                 deps: ['libs/jquery-1.9.1.min', 'libs/underscore-min']
+            },
+            'libs/sinon-1.7.3': {
+                exports: 'sinon'
+            }
+        },
+        map: {
+            '*': {
+                'libs/sinon': 'libs/sinon-1.7.3'
             }
         }
     });
