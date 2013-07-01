@@ -9,13 +9,13 @@ define([
 
 var templates = {
     string: _.template(stringFieldTpl)
-}
+};
 
 var getAttrElement = function(attr) {
     var toret = $('<div>');   
     toret.append(templates.string({name: attr.name, value: attr.value}));
     return toret;
-}
+};
 
 var MetaWidget = Backbone.View.extend({
     events: {
@@ -25,7 +25,7 @@ var MetaWidget = Backbone.View.extend({
         var view = this;
         this.options.attrs.forEach(function(attr) {
             view.$el.append(getAttrElement(attr));
-        })
+        });
     },
     onMetaFieldChange: function(e) {
         var target = $(e.target);
@@ -38,6 +38,6 @@ return {
     create: function(options) {
         return new MetaWidget(options);
     }
-}
+};
 
 });

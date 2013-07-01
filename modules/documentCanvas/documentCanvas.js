@@ -36,6 +36,7 @@ return function(sandbox) {
                     manager.currentNode.setMetaAttr(attr, value);
                 }
                 sandbox.publish('contentChanged');
+                sandbox.publish('currentNodeChanged', manager.currentNode);
             }
         },
         highlightNode: function(canvasNode) {

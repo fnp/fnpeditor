@@ -78,7 +78,7 @@ suite('meta attributes', function() {
         var node = canvasNode.create({tag: 'tag', meta: {a:'1'}});
         node.setMetaAttr('a', '2');
         assert.equal(node.dom.attr('wlxml-meta-a'), '2');
-    })
-})
+    });
+});
 
 });

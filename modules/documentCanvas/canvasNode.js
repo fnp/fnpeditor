@@ -85,7 +85,7 @@ CanvasNode.prototype.isOfClass = function(klass) {
 
 CanvasNode.prototype.getMetaAttr = function(attr) {
     return this.dom.attr('wlxml-meta-'+attr);
-}
+};
 
 CanvasNode.prototype.getMetaAttrs = function() {
     var toret = [];
@@ -99,11 +99,11 @@ CanvasNode.prototype.getMetaAttrs = function() {
         }
     }
     return toret;
-}
+};
 
 CanvasNode.prototype.setMetaAttr = function(attr, value) {
     this.dom.attr('wlxml-meta-'+attr, value);
-}
+};
 
 return {
     create: function(desc) {
