@@ -24,7 +24,10 @@ module.exports = function(grunt) {
             },
         },
         jshint: {
-            all: ['Gruntfile.js', 'modules/**/*.js', 'views/**/*.js', 'fnpjs/**/*.js']
+            all: ['Gruntfile.js', 'modules/**/*.js', 'views/**/*.js', 'fnpjs/**/*.js'],
+            options: {
+                jshintrc: '.jshintrc'
+            }
         }
     });
 
