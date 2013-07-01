@@ -37,7 +37,7 @@ return function(sandbox) {
         
     var addHistoryItem = function(item, options) {
         historyItems.add(item);
-        var view = new itemView(item);
+        var view = new ItemView(item);
         itemViews.push(view);
         domNodes.itemList.prepend(view.dom);
         if(options.animate) {
@@ -104,13 +104,13 @@ return function(sandbox) {
     };
     historyItems._updateUI();
     
-    var itemView = function(item) {
+    var ItemView = function(item) {
         this.item = item;
         this.dom = $(this.template(item));
         this.dom.on('click', _.bind(this.onItemClicked, this));
     };
-    itemView.prototype.template = _.template(itemTemplateSrc);
-    itemView.prototype.onItemClicked = function() {
+    ItemView.prototype.template = _.template(itemTemplateSrc);
+    ItemView.prototype.onItemClicked = function() {
         if(historyItems.isSelected(this.item)) {
             historyItems.unselect(this.item);
             this.dimItem();
@@ -118,13 +118,13 @@ return function(sandbox) {
             this.highlightItem();
         }            
     };
-    itemView.prototype.highlightItem = function() {
+    ItemView.prototype.highlightItem = function() {
         this.dom.addClass('highlighted');
     };
-    itemView.prototype.dimItem = function() {
+    ItemView.prototype.dimItem = function() {
         this.dom.removeClass('highlighted');
     };
-    itemView.prototype.toggle = function(toggle) {
+    ItemView.prototype.toggle = function(toggle) {
         this.dom.toggleClass('disabled', !toggle);
     };
 
