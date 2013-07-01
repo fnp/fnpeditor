@@ -201,7 +201,7 @@ Canvas.prototype.listCreate = function(options) {
 
 Canvas.prototype.listRemove = function(options) {
     var pointerElement = $(this.content.find('#' + options.pointer.getId()));
-    var listElement = options.pointer.getClass() === 'list-items' ? pointerElement : 
+    var listElement = options.pointer.isOfClass('list-items') ? pointerElement : 
         pointerElement.parents('[wlxml-class|="list-items"][wlxml-tag]');
     
     var nested = false,
