@@ -29,7 +29,12 @@ return function(sandbox) {
         },
         modifyCurrentNode: function(attr, value) {
             if(manager.currentNode) {
-                manager.getNodeElement(manager.currentNode).attr('wlxml-'+attr, value);
+                if(_.contains(['tag', 'class'], attr)) {
+                    manager.getNodeElement(manager.currentNode).attr('wlxml-'+attr, value);
+                } else {
+                    // changing node meta attr
+                    manager.currentNode.setMetaAttr(attr, value);
+                }
                 sandbox.publish('contentChanged');
             }
         },

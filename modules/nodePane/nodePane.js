@@ -2,8 +2,8 @@ define([
 'libs/text!./template.html',
 'libs/jquery-1.9.1.min',
 'libs/underscore-min',
-
-], function(templateSrc, $, _) {
+'modules/nodePane/metaWidget/metaWidget'
+], function(templateSrc, $, _, metaWidget) {
 
 'use strict';
 
@@ -27,6 +27,12 @@ return function(sandbox) {
         setNode: function(canvasNode) {
             view.find('.rng-module-nodePane-tagSelect').val(canvasNode.getTag());
             view.find('.rng-module-nodePane-classSelect').val(canvasNode.getClass());
+
+            var widget = metaWidget.create({attrs:canvasNode.getMetaAttrs()});
+            widget.on('valueChanged', function(key, value) {
+                sandbox.publish('nodeChanged', key, value);
+            });
+            view.find('.metaFields').empty().append(widget.el);
         }
     };
     
