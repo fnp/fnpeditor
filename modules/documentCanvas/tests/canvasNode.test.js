@@ -18,17 +18,24 @@ var assertDomEqual = function(lhs, rhs) {
 
 suite('Create canvas node', function() {  
     test('from description', function() {
-        var node = canvasNode.create({tag: 'header', klass: 'some-class', content: 'some text content'});
+        var node = canvasNode.create({
+            tag: 'header',
+            klass: 'some-class',
+            content: 'some text content',
+            meta: {uri: 'some uri'}
+        });
         assert.equal(node.getTag(), 'header');
         assert.equal(node.getClass(), 'some-class');
         assert.equal(node.getContent(), 'some text content');
-        assertDomEqual($('<div wlxml-tag="header" wlxml-class="some-class">some text content</div>'), node.dom);
+        assert.equal(node.getMetaAttr('uri'), 'some uri');
+        assertDomEqual($('<div wlxml-tag="header" wlxml-class="some-class" wlxml-meta-uri="some uri">some text content</div>'), node.dom);
     });
     
     test('from dom object', function() {
-        var node = canvasNode.create($('<div wlxml-tag="header" wlxml-class="some-class" id="1">'));
+        var node = canvasNode.create($('<div wlxml-tag="header" wlxml-class="some-class" id="1" wlxml-meta-uri="some uri">'));
         assert.equal(node.getTag(), 'header');
         assert.equal(node.getClass(), 'some-class');
+        assert.equal(node.getMetaAttr('uri'), 'some uri');
         //assertDomEqual($('<div wlxml-tag="header" wlxml-class="some-class">'), node.dom);
     });
 });
@@ -58,5 +65,20 @@ suite('comparing nodes', function() {
     });
 });
 
+suite('meta attributes', function() {
+    test('get list of node\'s meta attributes', function() {
+        var node = canvasNode.create({tag: 'tag', klass: 'klass', meta: {a:1, b:2}});
+        var attrs = node.getMetaAttrs();
+        var expected = [{name: 'a', value: '1'}, {name:'b', value: '2'}];
+
+        assert.deepEqual(attrs.sort(), expected.sort());
+    });
+
+    test('set meta attribute', function() {
+        var node = canvasNode.create({tag: 'tag', meta: {a:'1'}});
+        node.setMetaAttr('a', '2');
+        assert.equal(node.dom.attr('wlxml-meta-a'), '2');
+    })
+})
 
 });

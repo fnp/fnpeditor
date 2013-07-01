@@ -1,4 +1,4 @@
-define(['libs/jquery-1.9.1.min'], function($) {
+define(['libs/jquery-1.9.1.min', 'libs/underscore-min'], function($, _) {
 
 'use strict';
 
@@ -20,6 +20,12 @@ var CanvasNode = function(desc) {
             this.dom.attr('wlxml-class', desc.klass);
         if(desc.content)
             this.dom.text(desc.content);
+        if(desc.meta) {
+            var c = this;
+            _.keys(desc.meta).forEach(function(key) {
+                c.dom.attr('wlxml-meta-'+key, desc.meta[key]);
+            });
+        }
         this.dom.attr('id', 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);}));
     }
 };
@@ -76,6 +82,28 @@ CanvasNode.prototype.parents = function() {
 CanvasNode.prototype.isOfClass = function(klass) {
     return this.getClass() && this.getClass().substr(0, klass.length) === klass;
 };
+
+CanvasNode.prototype.getMetaAttr = function(attr) {
+    return this.dom.attr('wlxml-meta-'+attr);
+}
+
+CanvasNode.prototype.getMetaAttrs = function() {
+    var toret = [];
+    var metaAttrPrefix = 'wlxml-meta-';
+
+    var attrs = this.dom.get(0).attributes;
+    for(var i = 0; i < attrs.length; i++) {
+        var attr = attrs[i];
+        if(attr.name.substr(0, metaAttrPrefix.length) === metaAttrPrefix) {
+            toret.push({name: attr.name.substr(metaAttrPrefix.length), value: attr.value});    
+        }
+    }
+    return toret;
+}
+
+CanvasNode.prototype.setMetaAttr = function(attr, value) {
+    this.dom.attr('wlxml-meta-'+attr, value);
+}
 
 return {
     create: function(desc) {
