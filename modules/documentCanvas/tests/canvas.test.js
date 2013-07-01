@@ -261,5 +261,37 @@ define([
             
             
         });
+
+        test('removing list containing nested list', function() {
+            var nestedList = utils.cleanUp('\
+                <div wlxml-tag="section">\
+                    <div wlxml-tag="div" wlxml-class="list-items">\
+                        <div wlxml-tag="div" wlxml-class="item">alice</div>\
+                        <div wlxml-tag="div" wlxml-class="item">\
+                            <div wlxml-tag="div" wlxml-class="list-items">\
+                                <div wlxml-tag="div" wlxml-class="item">cat</div>\
+                                <div wlxml-tag="div" wlxml-class="item">dog</div>\
+                            </div>\
+                        </div>\
+                        <div wlxml-tag="div" wlxml-class="item">bee</div>\
+                    </div>\
+                </div>');
+                    
+            var c = canvas.create(nestedList);
+            var alice_item = c.findNodes('[wlxml-class=list-items] > div')[0];
+            assert.equal(alice_item.getContent(), 'alice');
+            
+            c.listRemove({pointer: alice_item});
+            
+            assertDomEqual(c.getContent(), utils.cleanUp('\
+                    <div wlxml-tag="section">\
+                        <div wlxml-tag="div">alice</div>\
+                        <div wlxml-tag="div">cat</div>\
+                        <div wlxml-tag="div">dog</div>\
+                        <div wlxml-tag="div">bee</div>\
+                    </div>'));
+            
+            
+        });
     });
 });

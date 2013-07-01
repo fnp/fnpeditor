@@ -204,20 +204,33 @@ Canvas.prototype.listRemove = function(options) {
     var listElement = options.pointer.getClass() === 'list-items' ? pointerElement : 
         pointerElement.parents('[wlxml-class|="list-items"][wlxml-tag]');
     
-    var nested = false;
+    var nested = false,
+        nestedLists;
     if(listElement.length > 1) {
         listElement = $(listElement[0]);
         nested = true;
     }
     
     if(nested) {
+        // We are only moving one level up
         listElement.unwrap();
     } else {
+        // We are removing the whole list
+        nestedLists = listElement.find('[wlxml-class=item] > [wlxml-class|=list-items]');
+        nestedLists.unwrap();
         listElement.find('[wlxml-class=item]').each(function() {
             $(this).removeAttr('wlxml-class');
         });
     }
+
     listElement.children().unwrap();
+
+    var c = this;
+    if(nestedLists) {
+        nestedLists.each(function() {
+            c.listRemove({pointer: canvasNode.create($(this))});
+        });
+    }
 };
 
 Canvas.prototype.getPrecedingNode = function(options) {
