@@ -15,7 +15,7 @@ define([
         
         initialize: function(options) {
             this.options = options || {};
-            this.template = _.template(mainTemplate),
+            this.template = _.template(mainTemplate);
             this.handleTemplate = _.template(handleTemplate);
             this.contents = {};
             this.selectedTab = null;
