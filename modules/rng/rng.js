@@ -64,10 +64,12 @@ return function(sandbox) {
         },
         selectNode: function(canvasNode, origin) {
             sandbox.getModule('documentCanvas').selectNode(canvasNode);
+            this.updateNodesModules(canvasNode);           
+        },
+        updateNodesModules: function(canvasNode) {
             sandbox.getModule('nodePane').setNode(canvasNode);
             sandbox.getModule('nodeFamilyTree').setNode(canvasNode);
             sandbox.getModule('nodeBreadCrumbs').setNode(canvasNode);
-            
         },
         resetDocument: function(document, reason) {
             var modules = [];
@@ -199,6 +201,10 @@ return function(sandbox) {
             dirty.documentCanvas = true;
         },
         
+        currentNodeChanged: function(canvasNode) {
+            commands.updateNodesModules(canvasNode);
+        },
+
         nodeHovered: function(canvasNode) {
             commands.highlightDocumentNode(canvasNode);
         },

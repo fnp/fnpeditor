@@ -29,8 +29,11 @@ return function(sandbox) {
         },
         modifyCurrentNode: function(attr, value) {
             if(manager.currentNode) {
-                if(_.contains(['tag', 'class'], attr)) {
+                if(attr === 'tag') {
                     manager.getNodeElement(manager.currentNode).attr('wlxml-'+attr, value);
+                }
+                else if(attr === 'class') {
+                    manager.currentNode.setClass(value);
                 } else {
                     // changing node meta attr
                     manager.currentNode.setMetaAttr(attr, value);

@@ -81,4 +81,16 @@ suite('meta attributes', function() {
     });
 });
 
+suite('modifing node', function() {
+    test('changing class removes meta attributes', function() {
+        var node = canvasNode.create({tag: 'span', klass: 'uri', meta: {uri: 'http://some.uri.com'}});
+        
+        assert.equal(node.getMetaAttr('uri'), 'http://some.uri.com');
+
+        node.setClass('author');
+
+        assert.equal(node.getMetaAttr('uri'), undefined);
+    })
+})
+
 });

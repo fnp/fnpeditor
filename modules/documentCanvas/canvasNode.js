@@ -38,6 +38,16 @@ CanvasNode.prototype.getClass = function() {
     return this.dom.attr('wlxml-class');
 };
 
+CanvasNode.prototype.setClass = function(klass) {
+    if(klass != this.getClass()) {
+        this.dom.attr('wlxml-class', klass);
+        var c = this;
+        this.getMetaAttrs().forEach(function(attr) {
+            c.dom.removeAttr('wlxml-meta-' + attr.name);
+        });
+    }
+}
+
 CanvasNode.prototype.getId = function() {
     return this.dom.attr('id');
 };
