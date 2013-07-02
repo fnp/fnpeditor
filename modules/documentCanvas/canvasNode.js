@@ -50,7 +50,8 @@ CanvasNode.prototype.setClass = function(klass) {
     if(klass != this.getClass()) {
         var c = this;
         this.getMetaAttrs().forEach(function(attr) {
-            c.dom.removeAttr('wlxml-meta-' + attr.name);
+            if(!classAttributes.hasMetaAttr(klass, attr.name))
+                c.dom.removeAttr('wlxml-meta-' + attr.name);
         });
         this.dom.attr('wlxml-class', klass);
     }

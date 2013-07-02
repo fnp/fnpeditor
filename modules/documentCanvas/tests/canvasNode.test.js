@@ -96,6 +96,13 @@ suite('meta attributes', function() {
 
         assert.equal(node.getMetaAttr('uri'), undefined);
     });
+
+    test('changing class to another with the same attribute keeps the value', function() {
+        var node = canvasNode.create({tag: 'span', klass: 'uri', meta: {uri: 'http://some.uri.com'}});
+        assert.equal(node.getMetaAttr('uri'), 'http://some.uri.com');
+        node.setClass('uri-subclass');
+        assert.equal(node.getMetaAttr('uri'), 'http://some.uri.com');
+    });
 });
 
 });
