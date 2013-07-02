@@ -1,6 +1,12 @@
-define(['libs/jquery-1.9.1.min', 'libs/underscore-min'], function($, _) {
+define([
+'libs/jquery-1.9.1.min',
+'libs/underscore-min',
+'modules/documentCanvas/classAttributes'
+], function($, _, classAttributes) {
 
 'use strict';
+
+
 
 
 var tagSelector = '[wlxml-tag]';
@@ -22,7 +28,9 @@ var CanvasNode = function(desc) {
             this.dom.text(desc.content);
         if(desc.meta) {
             var c = this;
-            _.keys(desc.meta).forEach(function(key) {
+            _.keys(desc.meta)
+            .filter(function(key) {return classAttributes.hasMetaAttr(c.getClass(), key);})
+            .forEach(function(key) {
                 c.dom.attr('wlxml-meta-'+key, desc.meta[key]);
             });
         }
@@ -40,13 +48,13 @@ CanvasNode.prototype.getClass = function() {
 
 CanvasNode.prototype.setClass = function(klass) {
     if(klass != this.getClass()) {
-        this.dom.attr('wlxml-class', klass);
         var c = this;
         this.getMetaAttrs().forEach(function(attr) {
             c.dom.removeAttr('wlxml-meta-' + attr.name);
         });
+        this.dom.attr('wlxml-class', klass);
     }
-}
+};
 
 CanvasNode.prototype.getId = function() {
     return this.dom.attr('id');
@@ -101,13 +109,13 @@ CanvasNode.prototype.getMetaAttrs = function() {
     var toret = [];
     var metaAttrPrefix = 'wlxml-meta-';
 
-    var attrs = this.dom.get(0).attributes;
-    for(var i = 0; i < attrs.length; i++) {
-        var attr = attrs[i];
-        if(attr.name.substr(0, metaAttrPrefix.length) === metaAttrPrefix) {
-            toret.push({name: attr.name.substr(metaAttrPrefix.length), value: attr.value});    
-        }
-    }
+    var attrList = classAttributes.getMetaAttrsList(this.getClass());
+    var c = this;
+    attrList.all.forEach(function(attr) {
+        toret.push({name: attr.name, value: c.getMetaAttr(attr.name) || ''});  
+    });
+
+
     return toret;
 };
 

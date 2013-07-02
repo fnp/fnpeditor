@@ -20,15 +20,15 @@ suite('Create canvas node', function() {
     test('from description', function() {
         var node = canvasNode.create({
             tag: 'header',
-            klass: 'some-class',
+            klass: 'uri',
             content: 'some text content',
             meta: {uri: 'some uri'}
         });
         assert.equal(node.getTag(), 'header');
-        assert.equal(node.getClass(), 'some-class');
+        assert.equal(node.getClass(), 'uri');
         assert.equal(node.getContent(), 'some text content');
         assert.equal(node.getMetaAttr('uri'), 'some uri');
-        assertDomEqual($('<div wlxml-tag="header" wlxml-class="some-class" wlxml-meta-uri="some uri">some text content</div>'), node.dom);
+        assertDomEqual($('<div wlxml-tag="header" wlxml-class="uri" wlxml-meta-uri="some uri">some text content</div>'), node.dom);
     });
     
     test('from dom object', function() {
@@ -67,22 +67,27 @@ suite('comparing nodes', function() {
 
 suite('meta attributes', function() {
     test('get list of node\'s meta attributes', function() {
-        var node = canvasNode.create({tag: 'tag', klass: 'klass', meta: {a:1, b:2}});
+        var node = canvasNode.create({tag: 'span', klass: 'uri', meta: {uri:'http://some.uri.com'}});
         var attrs = node.getMetaAttrs();
-        var expected = [{name: 'a', value: '1'}, {name:'b', value: '2'}];
+        var expected = [{name: 'uri', value: 'http://some.uri.com'}];
 
         assert.deepEqual(attrs.sort(), expected.sort());
     });
 
-    test('set meta attribute', function() {
-        var node = canvasNode.create({tag: 'tag', meta: {a:'1'}});
-        node.setMetaAttr('a', '2');
-        assert.equal(node.dom.attr('wlxml-meta-a'), '2');
+    test('get list of node\'s meta attributes when attributes not set', function() {
+        var node = canvasNode.create({tag: 'span', klass: 'uri'});
+        var attrs = node.getMetaAttrs();
+        var expected = [{name: 'uri', value: ''}];
+        assert.deepEqual(attrs.sort(), expected.sort());
     });
-});
 
-suite('modifing node', function() {
-    test('changing class removes meta attributes', function() {
+    test('set meta attribute', function() {
+        var node = canvasNode.create({tag: 'tag', klass: 'uri', meta: {'uri': 'some uri'}});
+        node.setMetaAttr('uri', 'some uri 2');
+        assert.equal(node.dom.attr('wlxml-meta-uri'), 'some uri 2');
+    });
+
+    test('changing class changes meta attributes', function() {
         var node = canvasNode.create({tag: 'span', klass: 'uri', meta: {uri: 'http://some.uri.com'}});
         
         assert.equal(node.getMetaAttr('uri'), 'http://some.uri.com');
@@ -90,7 +95,7 @@ suite('modifing node', function() {
         node.setClass('author');
 
         assert.equal(node.getMetaAttr('uri'), undefined);
-    })
-})
+    });
+});
 
 });
