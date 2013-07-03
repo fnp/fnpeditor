@@ -35,5 +35,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-contrib-jshint');
 
-    grunt.registerTask('default', ['requirejs']);
+    grunt.registerTask('build', ['requirejs', 'less:production']);
+    grunt.registerTask('lint', ['jshint']);
+    grunt.registerTask('default', ['build']);
 };
