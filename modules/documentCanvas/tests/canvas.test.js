@@ -76,6 +76,35 @@ define([
             c.nodeWrap({inside: header, _with: wrapper, offsetStart: 6, offsetEnd: 4, textNodeIdx: [0,2]});
             assertDomEqual(c.getContent(), '<div wlxml-tag="header">Alice <span wlxml-tag="aside">has a <span wlxml-tag="span">small</span> cat</span></div>');            
         });
+
+        test('unwrap text', function() {
+            var c = canvas.create('<div wlxml-tag="div">Alice <span wlxml-tag="span">has</span> a cat</div>');
+            var span = c.findNodes({tag:'span'})[0];
+            c.nodeUnwrap({node: span});
+            assertDomEqual(c.getContent(), '<div wlxml-tag="div">Alice has a cat</div>');
+        });
+
+        test('unwrap text - first text node', function() {
+            var c = canvas.create('<div wlxml-tag="div"><span wlxml-tag="span">Alice</span> has a cat</div>');
+            var span = c.findNodes({tag:'span'})[0];
+            c.nodeUnwrap({node: span});
+            assertDomEqual(c.getContent(), '<div wlxml-tag="div">Alice has a cat</div>'); 
+        });
+
+        test('unwrap text - only text node', function() {
+            var c = canvas.create('<div wlxml-tag="div"><span wlxml-tag="span">Alice</span></div>');
+            var span = c.findNodes({tag:'span'})[0];
+            c.nodeUnwrap({node: span});
+            assertDomEqual(c.getContent(), '<div wlxml-tag="div">Alice</div>'); 
+        });
+
+
+        test('unwrap text - non text neighbours', function() {
+            var c = canvas.create('<div wlxml-tag="div"><div wlxml-tag"div">a</div><span wlxml-tag="span">Alice</span><div wlxml-tag"div">b</div></div>');
+            var span = c.findNodes({tag:'span'})[0];
+            c.nodeUnwrap({node: span});
+            assertDomEqual(c.getContent(), '<div wlxml-tag="div"><div wlxml-tag"div">a</div>Alice<div wlxml-tag"div">b</div></div>'); 
+        });
         
         test('split node', function() {
             var c = canvas.create('<div wlxml-tag="section"><div wlxml-tag="header">Header 1</div></div>');

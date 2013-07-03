@@ -97,6 +97,61 @@ Canvas.prototype.nodeWrap = function(options) {
     options._with.dom.after(suffixOutside);
 };
 
+Canvas.prototype.nodeUnwrap = function(options) {
+
+    var removeWithJoin = function(node) {
+        var contents = node.parent().contents(),
+            idx = contents.index(node),
+            prev = idx > 0 ? contents[idx-1] : null,
+            next = idx + 1 < contents.length ? contents[idx+1] : null;
+
+        if(prev && prev.nodeType === 3 && next && next.nodeType === 3) {
+            prev.data = prev.data + next.data;
+            $(next).remove();
+        }
+        node.remove();
+    };
+
+    var toUnwrap = $(this.content.find('#' + options.node.getId()).get(0));
+
+
+    var parent = toUnwrap.parent();
+    var parentContents = parent.contents();
+
+    if(toUnwrap.contents().length !== 1 || toUnwrap.contents()[0].nodeType !== 3)
+        return false;
+
+    var idx = parentContents.index(toUnwrap);
+
+    var combineWith,
+        action;
+
+    if(idx > 0 && parentContents[idx-1].nodeType === 3) {
+        combineWith = parentContents[idx-1];
+        action = 'append';
+    } else if(idx + 1 < parentContents.length && parentContents[idx+1].nodeType === 3) {
+        combineWith = parentContents[idx+1];
+        action = 'prepend';
+    }
+
+    if(combineWith) {
+        var text = 
+                (action === 'prepend' ? toUnwrap.text() : '') +
+                combineWith.data +
+                (action === 'append' ? toUnwrap.text() : '')
+        ;
+        combineWith.data = text;
+        removeWithJoin(toUnwrap);
+    } else {
+        if(parentContents.length === 1 || idx === 0) {
+            parent.append(toUnwrap.text());
+        } else {
+            toUnwrap.prev().after(toUnwrap.text());
+        }
+        toUnwrap.remove();
+    }
+};
+
 Canvas.prototype.nodeSplit = function(options) {
     options = _.extend({textNodeIdx: 0}, options);
     

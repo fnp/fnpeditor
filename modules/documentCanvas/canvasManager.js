@@ -245,6 +245,9 @@ Manager.prototype.command = function(command, meta) {
                 this.sandbox.publish('contentChanged');
             //}
         }
+    } else if(command === 'unwrap-node') {
+        this.canvas.nodeUnwrap({node: canvasNode.create(pos.parentNode)});
+        this.sandbox.publish('contentChanged');
     }
 
 };
