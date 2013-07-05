@@ -32,6 +32,9 @@ $.extend(DocumentElement.prototype, {
         });
         return toret;
     },
+    parent: function() {
+        return documentElementFromHTMLElement(this.$element.parent()[0]);
+    },
 
     sameNode: function(other) {
         return other && (typeof other === typeof this) && other.$element[0] === this.$element[0];

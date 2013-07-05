@@ -57,12 +57,28 @@ describe('Canvas', function() {
                 expect(children[0]).to.be.instanceOf(documentElement.DocumentNodeElement);
                 expect(children[1]).to.be.instanceOf(documentElement.DocumentNodeElement);
             });
+            
             it('reports text nodes', function() {
                 var c = canvas.fromXML('<section>Alice</section>'),
                     children = c.doc().children();
                 expect(children.length).to.equal(1);
                 expect(children[0]).to.be.instanceOf(documentElement.DocumentTextElement);
             });
+
+            describe('accessing parents', function() {
+                it('returns DocumentNodeElement representing parent in wlxml document as DocumentNodeElement parent', function() {
+                    var c = canvas.fromXML('<section><div></div></section>'),
+                        div = c.doc().children()[0];
+                    expect(div.parent().sameNode(c.doc())).to.be.true;
+                });
+                it('returns DocumentNodeElement representing parent in wlxml document as DocumentTextElement parent', function() {
+                    var c = canvas.fromXML('<section>Alice</section>'),
+                        text = c.doc().children()[0];
+                    expect(text.parent().sameNode(c.doc())).to.be.true;
+                });
+            });
+
+
             describe('free text handling', function() {
                     it('sees free text', function() {
                         var c = canvas.fromXML('<section>Alice <span>has</span> a cat</section>'),
