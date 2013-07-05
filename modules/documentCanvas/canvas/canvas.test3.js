@@ -38,6 +38,12 @@ describe('Canvas', function() {
                     children = c.doc().children();
                 expect(children.length).to.equal(1);
                 expect(children[0]).to.be.instanceOf(documentElement.DocumentNodeElement);
+
+                c = canvas.fromXML('<section><div></div><div></div></section>'),
+                    children = c.doc().children();
+                expect(children.length).to.equal(2);
+                expect(children[0]).to.be.instanceOf(documentElement.DocumentNodeElement);
+                expect(children[1]).to.be.instanceOf(documentElement.DocumentNodeElement);
             });
             it('reports text nodes', function() {
                 var c = canvas.fromXML('<section>Alice</section>'),

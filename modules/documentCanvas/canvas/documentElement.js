@@ -22,7 +22,7 @@ $.extend(DocumentElement.prototype, {
         var elementContent = this.$element.contents();
         elementContent.each(function(idx) {
             var element = documentElementFromHTMLElement(this);
-            if(idx === 0 && elementContent.length > 1 && elementContent[1].nodeType === Node.ELEMENT_NODE && $.trim($(this).text()) === '')
+            if(idx === 0 && elementContent.length > 1 && elementContent[1].nodeType === Node.ELEMENT_NODE && (element instanceof DocumentTextElement) && $.trim($(this).text()) === '')
                 return true;
             if(idx > 0 && element instanceof DocumentTextElement) {
                 if(toret[toret.length-1] instanceof DocumentNodeElement && $.trim($(this).text()) === '')
