@@ -21,7 +21,7 @@ describe('Canvas', function() {
         });
     });
 
-    describe('document api', function() {
+    describe('document representation api', function() {
         describe('document root element', function() {
             var c = canvas.fromXML('<section></section>');
             it('exists', function() {
@@ -32,14 +32,55 @@ describe('Canvas', function() {
             });
         });
 
-        it('a', function() {
-            var c = canvas.fromXML('<section><div></div></section>'),
-                children = c.doc().children();
-            expect(children.length).to.equal(3);
-            expect(children[0]).to.be.instanceOf(documentElement.DocumentTextElement);
-            expect(children[1]).to.be.instanceOf(documentElement.DocumentNodeElement);
-            expect(children[2]).to.be.instanceOf(documentElement.DocumentTextElement);
-        });
+        describe('traversing', function() {
+            it('reports element nodes', function() {
+                var c = canvas.fromXML('<section><div></div></section>'),
+                    children = c.doc().children();
+                expect(children.length).to.equal(1);
+                expect(children[0]).to.be.instanceOf(documentElement.DocumentNodeElement);
+            });
+            it('reports text nodes', function() {
+                var c = canvas.fromXML('<section>Alice</section>'),
+                    children = c.doc().children();
+                expect(children.length).to.equal(1);
+                expect(children[0]).to.be.instanceOf(documentElement.DocumentTextElement);
+            });
+            describe('free text handling', function() {
+                    it('sees free text', function() {
+                        var c = canvas.fromXML('<section>Alice <span>has</span> a cat</section>'),
+                            children = c.doc().children();
+                        expect(children.length).to.equal(3);
+                        expect(children[0]).to.be.instanceOf(documentElement.DocumentTextElement);
+                        expect(children[1]).to.be.instanceOf(documentElement.DocumentNodeElement);
+                        expect(children[2]).to.be.instanceOf(documentElement.DocumentTextElement);
+                    });
+            });
+            describe('white characters handling', function() {
+                it('says empty element node has no children', function() {
+                    var c = canvas.fromXML('<section></section>');
+                    expect(c.doc().children().length).to.equal(0);
+                });
+                it('says element node with one space has one DocumentTextElement', function() {
+                    var c = canvas.fromXML('<section> </section>');
+                    expect(c.doc().children().length).to.equal(1);
+                    expect(c.doc().children()[0]).to.be.instanceOf(documentElement.DocumentTextElement);
+                });
+                it('ignores white space surrounding block elements', function() {
+                    var c = canvas.fromXML('<section> <div></div> </section>');
+                        var children = c.doc().children();
+                        expect(children.length).to.equal(1);
+                        expect(children[0]).to.be.instanceOf(documentElement.DocumentNodeElement);
+                });
+                it('ignores white space between block elements', function() {
+                    var c = canvas.fromXML('<section><div></div> <div></div></section>');
+                        var children = c.doc().children();
+                        expect(children.length === 2);
+                        [0,1].forEach(function(idx) {
+                            expect(children[idx]).to.be.instanceOf(documentElement.DocumentNodeElement);
+                        });
+                });
+            });
+        })
 
     });
 });

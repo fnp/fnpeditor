@@ -22,14 +22,13 @@ $.extend(DocumentElement.prototype, {
         var elementContent = this.$element.contents();
         elementContent.each(function(idx) {
             var element = documentElementFromHTMLElement(this);
-            if(
-                (toret.length === 0 && (element instanceof DocumentNodeElement)) ||
-                (toret.length > 0 && (toret[toret.length -1] instanceof DocumentNodeElement) && (element instanceof DocumentNodeElement))
-            )
-                toret.push(documentElementFromHTMLElement(document.createTextNode()));
+            if(idx === 0 && elementContent.length > 1 && elementContent[1].nodeType === Node.ELEMENT_NODE && $.trim($(this).text()) === '')
+                return true;
+            if(idx > 0 && element instanceof DocumentTextElement) {
+                if(toret[toret.length-1] instanceof DocumentNodeElement && $.trim($(this).text()) === '')
+                    return true;
+            }
             toret.push(element);
-            if((idx === elementContent.length - 1) && (element instanceof DocumentNodeElement))
-                toret.push(documentElementFromHTMLElement(document.createTextNode()));
         });
         return toret;
     }
