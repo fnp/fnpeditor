@@ -31,6 +31,10 @@ $.extend(DocumentElement.prototype, {
             toret.push(element);
         });
         return toret;
+    },
+
+    sameNode: function(other) {
+        return other && (typeof other === typeof this) && other.$element[0] === this.$element[0];
     }
 });
 

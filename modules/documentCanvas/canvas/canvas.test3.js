@@ -32,6 +32,18 @@ describe('Canvas', function() {
             });
         });
 
+        describe('DocumentElements comparison', function() {
+            it('reports dwo DocumentElements to be the same when they represent the same wlxml document element', function() {
+                var c = canvas.fromXML('<section><div></div><div></div></section>'),
+                    first_div1 = c.doc().children()[0],
+                    first_div2 = c.doc().children()[0],
+                    second_div = c.doc().children()[1];
+                expect(first_div1.sameNode(first_div1)).to.be.true;
+                expect(first_div1.sameNode(first_div2)).to.be.true;
+                expect(first_div1.sameNode(second_div)).to.be.false;
+            });
+        });
+
         describe('traversing', function() {
             it('reports element nodes', function() {
                 var c = canvas.fromXML('<section><div></div></section>'),
