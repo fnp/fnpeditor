@@ -1,9 +1,9 @@
 (function() {
 
-    mocha.setup('tdd');
+    mocha.setup('bdd');
 
     var tests = Object.keys(window.__karma__.files).filter(function (file) {
-      return /\.test\.js$/.test(file);
+      return /\.test3\.js$/.test(file);
     });
 
     require({
