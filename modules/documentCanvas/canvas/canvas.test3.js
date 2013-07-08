@@ -8,6 +8,7 @@ define([
 
 var expect = chai.expect;
 
+
 describe('Canvas', function() {
     describe('basic properties', function() {
         it('renders empty document when canvas created from empty XML', function() {
@@ -78,7 +79,6 @@ describe('Canvas', function() {
                 });
             });
 
-
             describe('free text handling', function() {
                     it('sees free text', function() {
                         var c = canvas.fromXML('<section>Alice <span>has</span> a cat</section>'),
@@ -89,6 +89,7 @@ describe('Canvas', function() {
                         expect(children[2]).to.be.instanceOf(documentElement.DocumentTextElement);
                     });
             });
+            
             describe('white characters handling', function() {
                 it('says empty element node has no children', function() {
                     var c = canvas.fromXML('<section></section>');
@@ -101,24 +102,22 @@ describe('Canvas', function() {
                 });
                 it('ignores white space surrounding block elements', function() {
                     var c = canvas.fromXML('<section> <div></div> </section>');
-                        var children = c.doc().children();
-                        expect(children.length).to.equal(1);
-                        expect(children[0]).to.be.instanceOf(documentElement.DocumentNodeElement);
+                    var children = c.doc().children();
+                    expect(children.length).to.equal(1);
+                    expect(children[0]).to.be.instanceOf(documentElement.DocumentNodeElement);
                 });
                 it('ignores white space between block elements', function() {
                     var c = canvas.fromXML('<section><div></div> <div></div></section>');
-                        var children = c.doc().children();
-                        expect(children.length === 2);
-                        [0,1].forEach(function(idx) {
-                            expect(children[idx]).to.be.instanceOf(documentElement.DocumentNodeElement);
-                        });
+                    var children = c.doc().children();
+                    expect(children.length === 2);
+                    [0,1].forEach(function(idx) {
+                        expect(children[idx]).to.be.instanceOf(documentElement.DocumentNodeElement);
+                    });
                 });
             });
-        })
+        });
 
         describe('manipulation api', function() {
-            
-
 
             describe('Basic Element inserting', function() {
                 it('can put new NodeElement at the end', function() {
@@ -163,32 +162,11 @@ describe('Canvas', function() {
                     expect(returned.sameNode(parent)).to.be.true;
                     expect(returned.sameNode(parent2)).to.be.true;
                 });
-            })
+            });
         });
 
     });
 });
-
-/*describe('Canvas', function() {
-    it('can wrap selected document nodes in a list', function() {
-        var c = canvas.fromXML('\
-            <section>\
-                <div>Alice</div>\
-                <div>has</div>\
-                <div>a cat</div>\
-            </section>
-        ');
-        var div_alice   = c.doc().children({tag: 'div'})[0];
-        var div_cat     = c.doc().children({tag: 'div'})[2];
-        c.doc.wrapInList({start: div_alice, end: div_cat});
-
-        expect(c.doc().children().length === 3)
-
-
-    })
-});*/
-
-
 
 
 });

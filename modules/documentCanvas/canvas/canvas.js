@@ -8,7 +8,7 @@ define([
 var Canvas = function(xml) {
     xml = $.parseXML(xml);
     this.d = xml !== null ? $(xml.childNodes[0]) : null;
-}
+};
 
 $.extend(Canvas.prototype, {
 
