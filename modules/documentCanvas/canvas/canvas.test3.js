@@ -147,6 +147,16 @@ describe('Canvas', function() {
                     expect(children[0].sameNode(appended));
                 });
 
+                it('can put new TextElement at the end', function() {
+                    var c = canvas.fromXML('<section></section>'),
+                        appended = c.doc().append({text: 'Alice'}),
+                        children = c.doc().children();
+
+                    expect(children.length).to.equal(1);
+                    expect(children[0].sameNode(appended));
+                    expect(children[0].getText()).to.equal('Alice');
+                });
+
                 it('can put new NodeElement after another NodeElement', function() {
                     var c = canvas.fromXML('<section><div></div></section>'),
                         div = c.doc().children()[0],

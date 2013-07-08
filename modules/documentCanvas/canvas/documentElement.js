@@ -71,26 +71,31 @@ DocumentTextElement.prototype = new DocumentElement();
 
 $.extend(DocumentNodeElement.prototype, {
     append: function(params) {
-        var to_append = DocumentNodeElement.createDOM(params.tag, params.klass);
+        var to_append = DocumentNodeElement.createDOM(params);
         this.$element.append(to_append);
         return documentElementFromHTMLElement(to_append);
     },
     before: function(params) {
-        var to_append = DocumentNodeElement.createDOM(params.tag, params.klass);
+        var to_append = DocumentNodeElement.createDOM(params);
         this.$element.before(to_append);
         return documentElementFromHTMLElement(to_append);
     },
     after: function(params) {
-        var to_append = DocumentNodeElement.createDOM(params.tag, params.klass);
+        var to_append = DocumentNodeElement.createDOM(params);
         this.$element.after(to_append);
         return documentElementFromHTMLElement(to_append);   
     }
 });
 
-DocumentNodeElement.createDOM = function(tag, klass) {
-    var dom = $('<' + tag + '>');
-    if(klass)
-        dom.attr('class', klass);
+DocumentNodeElement.createDOM = function(params) {
+    var dom;
+    if(params.text) {
+        dom = $(document.createTextNode(params.text));
+    } else {
+        dom = $('<' + params.tag + '>');
+        if(params.klass)
+            dom.attr('class', params.klass);
+    }
     return dom;
 };
 
