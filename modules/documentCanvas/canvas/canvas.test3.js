@@ -20,6 +20,15 @@ describe('Canvas', function() {
             var c = canvas.fromXML('<section></section>');
             expect(c.doc().wlxmlTag).to.equal('section');
         });
+
+        describe('DocumentElement', function() {
+            it('knows index of its child', function() {
+                var c = canvas.fromXML('<section><div></div><header></header><span></span></section>'),
+                    root = c.doc(),
+                    child = root.children()[1];
+                expect(root.childIndex(child)).to.equal(1);
+            });
+        });
     });
 
     describe('document representation api', function() {

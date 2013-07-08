@@ -43,6 +43,18 @@ $.extend(DocumentElement.prototype, {
     wrapWithNodeElement: function(wlxmlNode) {
         this.$element.wrap($('<' + wlxmlNode.tag + ' class="' + wlxmlNode.klass + '"">')[0]);
         return documentElementFromHTMLElement(this.$element.parent().get(0));
+    },
+
+    childIndex: function(child) {
+        var children = this.children(),
+            toret = null;
+        children.forEach(function(c, idx) {
+            if(c.sameNode(child)) {
+                toret = idx;
+                return false;
+            }
+        });
+        return toret;
     }
 });
 
