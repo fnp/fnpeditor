@@ -116,6 +116,33 @@ describe('Canvas', function() {
             });
         })
 
+        describe('manipulation api', function() {
+            describe('wrapping', function() {
+                it('wraps DocumentNodeElement', function() {
+                    var c = canvas.fromXML('<section><div></div></section>'),
+                        div = c.doc().children()[0];
+                    
+                    var returned = div.wrapWithNodeElement({tag: 'header', klass: 'some.class'}),
+                        parent = div.parent(),
+                        parent2 = c.doc().children()[0];
+
+                    expect(returned.sameNode(parent)).to.be.true;
+                    expect(returned.sameNode(parent2)).to.be.true;
+                });
+                it('wraps DocumentTextElement', function() {
+                    var c = canvas.fromXML('<section>Alice</section>'),
+                        text = c.doc().children()[0];
+                    
+                    var returned = text.wrapWithNodeElement({tag: 'header', klass: 'some.class'}),
+                        parent = text.parent(),
+                        parent2 = c.doc().children()[0];
+
+                    expect(returned.sameNode(parent)).to.be.true;
+                    expect(returned.sameNode(parent2)).to.be.true;
+                });
+            })
+        });
+
     });
 });
 

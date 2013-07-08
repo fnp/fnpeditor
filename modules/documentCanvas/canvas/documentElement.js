@@ -38,6 +38,11 @@ $.extend(DocumentElement.prototype, {
 
     sameNode: function(other) {
         return other && (typeof other === typeof this) && other.$element[0] === this.$element[0];
+    },
+
+    wrapWithNodeElement: function(wlxmlNode) {
+        this.$element.wrap($('<' + wlxmlNode.tag + ' class="' + wlxmlNode.klass + '"">')[0]);
+        return documentElementFromHTMLElement(this.$element.parent().get(0));
     }
 });
 
