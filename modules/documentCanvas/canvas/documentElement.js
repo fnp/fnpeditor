@@ -70,9 +70,14 @@ DocumentNodeElement.prototype = new DocumentElement();
 DocumentTextElement.prototype = new DocumentElement();
 
 var manipulate = function(e, params, action) {
-    var newElement = DocumentNodeElement.createDOM(params);
-    e.$element[action](newElement);
-    return documentElementFromHTMLElement(newElement);
+    var dom;
+    if(params instanceof DocumentElement) {
+        dom = params.dom()
+    } else {
+        dom = DocumentNodeElement.createDOM(params);
+    }
+    e.$element[action](dom);
+    return documentElementFromHTMLElement(dom);
 };
 
 $.extend(DocumentNodeElement.prototype, {
