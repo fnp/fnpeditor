@@ -117,6 +117,22 @@ describe('Canvas', function() {
         })
 
         describe('manipulation api', function() {
+            
+
+
+            describe('Basic Element inserting', function() {
+                it('can put new NodeElement at the end', function() {
+                    var c = canvas.fromXML('<section></section>'),
+                        appended = c.doc().append({tag: 'header', klass: 'some.class'}),
+                        children = c.doc().children();
+
+                    expect(children.length).to.equal(1);
+                    expect(children[0].sameNode(appended));
+                });
+
+                //it('can')
+            });
+
             describe('wrapping', function() {
                 it('wraps DocumentNodeElement', function() {
                     var c = canvas.fromXML('<section><div></div></section>'),

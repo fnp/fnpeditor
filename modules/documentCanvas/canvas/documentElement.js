@@ -57,6 +57,16 @@ var DocumentTextElement = function(htmlElement) {
 DocumentNodeElement.prototype = new DocumentElement();
 DocumentTextElement.prototype = new DocumentElement();
 
+$.extend(DocumentNodeElement.prototype, {
+    append: function(params) {
+        var to_append = $('<' + params.tag + '>');
+        if(params.klass)
+            to_append.attr('class', params.klass);
+        this.$element.append(to_append);
+        return documentElementFromHTMLElement(to_append);
+    }
+})
+
 var documentElementFromHTMLElement = function(htmlElement) {
     if(htmlElement.nodeType === Node.ELEMENT_NODE)
         return new DocumentNodeElement(htmlElement);
