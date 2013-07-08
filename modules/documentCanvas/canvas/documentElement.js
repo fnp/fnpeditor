@@ -4,15 +4,20 @@ define([
     
 'use strict';
 
+
 // DocumentElement represents a node from WLXML document rendered inside Canvas
-var DocumentElement = function(htmlElement) {
+var DocumentElement = function(htmlElement, canvas) {
     if(arguments.length === 0)
         return;
+    this.canvas = canvas;
     this.$element = $(htmlElement);
     this.wlxmlTag = this.$element.prop('tagName');
 };
 
 $.extend(DocumentElement.prototype, {
+    dom: function() {
+        return this.$element;
+    },
     children: function() {
         var toret = [];
         if(this instanceof DocumentTextElement)
@@ -20,20 +25,21 @@ $.extend(DocumentElement.prototype, {
 
 
         var elementContent = this.$element.contents();
+        var element = this;
         elementContent.each(function(idx) {
-            var element = documentElementFromHTMLElement(this);
-            if(idx === 0 && elementContent.length > 1 && elementContent[1].nodeType === Node.ELEMENT_NODE && (element instanceof DocumentTextElement) && $.trim($(this).text()) === '')
+            var childElement = documentElementFromHTMLElement(this, element.canvas);
+            if(idx === 0 && elementContent.length > 1 && elementContent[1].nodeType === Node.ELEMENT_NODE && (childElement instanceof DocumentTextElement) && $.trim($(this).text()) === '')
                 return true;
-            if(idx > 0 && element instanceof DocumentTextElement) {
+            if(idx > 0 && childElement instanceof DocumentTextElement) {
                 if(toret[toret.length-1] instanceof DocumentNodeElement && $.trim($(this).text()) === '')
                     return true;
             }
-            toret.push(element);
+            toret.push(childElement);
         });
         return toret;
     },
     parent: function() {
-        return documentElementFromHTMLElement(this.$element.parent()[0]);
+        return documentElementFromHTMLElement(this.$element.parent()[0], this.canvas);
     },
 
     sameNode: function(other) {
@@ -42,7 +48,7 @@ $.extend(DocumentElement.prototype, {
 
     wrapWithNodeElement: function(wlxmlNode) {
         this.$element.wrap($('<' + wlxmlNode.tag + ' class="' + wlxmlNode.klass + '"">')[0]);
-        return documentElementFromHTMLElement(this.$element.parent().get(0));
+        return documentElementFromHTMLElement(this.$element.parent().get(0), this.canvas);
     },
 
     childIndex: function(child) {
@@ -55,15 +61,21 @@ $.extend(DocumentElement.prototype, {
             }
         });
         return toret;
+    },
+
+    detach: function() {
+        this.$element.detach();
+        this.canvas = null;
     }
 });
 
-var DocumentNodeElement = function(htmlElement) {
-    DocumentElement.call(this, htmlElement);
+
+var DocumentNodeElement = function(htmlElement, canvas) {
+    DocumentElement.call(this, htmlElement, canvas);
 };
 
-var DocumentTextElement = function(htmlElement) {
-    DocumentElement.call(this, htmlElement);  
+var DocumentTextElement = function(htmlElement, canvas) {
+    DocumentElement.call(this, htmlElement, canvas);
 };
 
 DocumentNodeElement.prototype = new DocumentElement();
@@ -105,6 +117,12 @@ DocumentNodeElement.createDOM = function(params) {
     return dom;
 };
 
+
+DocumentNodeElement.create = function(params) {
+    return documentElementFromHTMLElement(DocumentNodeElement.createDOM(params)[0]);
+};
+
+
 $.extend(DocumentTextElement.prototype, {
     setText: function(text) {
         this.$element[0].data = text;
@@ -113,7 +131,7 @@ $.extend(DocumentTextElement.prototype, {
         return this.$element.text();
     },
     after: function(params) {
-        if(params.text || params instanceof DocumentTextElement)
+        if(params instanceof DocumentTextElement || params.text)
             return false;
         var dom;
         if(params instanceof DocumentNodeElement) {
@@ -125,19 +143,34 @@ $.extend(DocumentTextElement.prototype, {
         this.$element.parent().after(dom[0]);
         this.$element.unwrap();
         return documentElementFromHTMLElement(dom[0]);
+    },
+    wrapWithNodeElement: function(wlxmlNode) {
+        if(wlxmlNode.start && wlxmlNode.end) {
+            return this.canvas.wrapText({
+                inside: this.parent(),
+                textNodeIdx: this.parent().childIndex(this),
+                offsetStart: wlxmlNode.start,
+                offsetEnd: wlxmlNode.end,
+                _with: {tag: wlxmlNode.tag, klass: wlxmlNode.klass}
+            });
+        } else {
+            return DocumentElement.prototype.wrapWithNodeElement.call(this, wlxmlNode);
+        }
     }
 });
 
-var documentElementFromHTMLElement = function(htmlElement) {
+var documentElementFromHTMLElement = function(htmlElement, canvas) {
+    // if(!canvas)
+    //    throw 'no canvas specified';
     if(htmlElement.nodeType === Node.ELEMENT_NODE)
-        return new DocumentNodeElement(htmlElement);
+        return new DocumentNodeElement(htmlElement, canvas);
     if(htmlElement.nodeType === Node.TEXT_NODE)
-        return new DocumentTextElement(htmlElement);
+        return new DocumentTextElement(htmlElement, canvas);
 };
 
 return {
-    wrap: function(htmlElement) {
-        return documentElementFromHTMLElement(htmlElement);
+    wrap: function(htmlElement, canvas) {
+        return documentElementFromHTMLElement(htmlElement, canvas);
     },
     DocumentElement: DocumentElement,
     DocumentNodeElement: DocumentNodeElement,

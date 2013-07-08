@@ -212,6 +212,26 @@ describe('Canvas', function() {
                     expect(returned.sameNode(parent)).to.be.true;
                     expect(returned.sameNode(parent2)).to.be.true;
                 });
+                
+                it('wraps part of DocumentTextElement', function() {
+                    var c = canvas.fromXML('<section>Alice has a cat</section>'),
+                        text = c.doc().children()[0];
+                    
+                    var returned = text.wrapWithNodeElement({tag: 'header', klass: 'some.class', start: 5, end: 12}),
+                        children = c.doc().children();
+
+                    expect(children.length).to.equal(3);
+                    
+                    expect(children[0]).to.be.instanceOf(documentElement.DocumentTextElement);
+                    expect(children[0].getText()).to.equal('Alice');
+
+                    expect(children[1].sameNode(returned)).to.be.true;
+                    expect(children[1].children().length).to.equal(1);
+                    expect(children[1].children()[0].getText()).to.equal(' has a ');
+
+                    expect(children[2]).to.be.instanceOf(documentElement.DocumentTextElement);
+                    expect(children[2].getText()).to.equal('cat');
+                });
             });
         });
 
