@@ -130,7 +130,14 @@ describe('Canvas', function() {
                     expect(children[0].sameNode(appended));
                 });
 
-                //it('can')
+                it('can put new NodeElement after another NodeElement', function() {
+                    var c = canvas.fromXML('<section><div></div></section>'),
+                        div = c.doc().children()[0],
+                        added = div.after({tag: 'header', klass: 'some.class'}),
+                        children = c.doc().children();
+                    expect(children.length).to.equal(2);
+                    expect(children[1].sameNode(added));
+                });
             });
 
             describe('wrapping', function() {

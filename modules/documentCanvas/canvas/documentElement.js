@@ -64,6 +64,13 @@ $.extend(DocumentNodeElement.prototype, {
             to_append.attr('class', params.klass);
         this.$element.append(to_append);
         return documentElementFromHTMLElement(to_append);
+    },
+    after: function(params) {
+        var to_append = $('<' + params.tag + '>');
+        if(params.klass)
+            to_append.attr('class', params.klass);
+        this.$element.after(to_append);
+        return documentElementFromHTMLElement(to_append);   
     }
 })
 
