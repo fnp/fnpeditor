@@ -24,7 +24,6 @@ $.extend(Canvas.prototype, {
         if(typeof params.textNodeIdx === 'number')
             params.textNodeIdx = [params.textNodeIdx];
         
-        //var container = params.inside.dom(),
         var childrenInside = params.inside.children(),
             idx1 = Math.min.apply(Math, params.textNodeIdx),
             idx2 = Math.max.apply(Math, params.textNodeIdx),
