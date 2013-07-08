@@ -41,20 +41,23 @@ $.extend(Canvas.prototype, {
         textNode1.after(wrapperElement);
         textNode1.detach();
         
-        wrapperElement.before({text:prefixOutside});
+        if(prefixOutside.length > 0)
+            wrapperElement.before({text:prefixOutside});
         if(sameNode) {
             var core = textNode1.getText().substr(params.offsetStart, params.offsetEnd - params.offsetStart);
             wrapperElement.append({text: core});
         } else {
             textNode2.detach();
-            wrapperElement.append({text: prefixInside});
+            if(prefixInside.length > 0)
+                wrapperElement.append({text: prefixInside});
             for(var i = idx1 + 1; i < idx2; i++) {
                 wrapperElement.append(childrenInside[i]);
             }
-            
-            wrapperElement.append({text: suffixInside});
+            if(suffixInside.length > 0)
+                wrapperElement.append({text: suffixInside});
         }
-        wrapperElement.after({text: suffixOutside});
+        if(suffixOutside.length > 0)
+            wrapperElement.after({text: suffixOutside});
         return wrapperElement;
     }
 

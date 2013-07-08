@@ -232,6 +232,35 @@ describe('Canvas', function() {
                     expect(children[2]).to.be.instanceOf(documentElement.DocumentTextElement);
                     expect(children[2].getText()).to.equal('cat');
                 });
+
+                it('wraps text spanning multiple sibling DocumentTextNodes', function() {
+                    var c = canvas.fromXML('<section>Alice has a <span>small</span> cat</section>'),
+                        section = c.doc(),
+                        wrapper = c.wrapText({
+                            inside: section, 
+                            _with: {tag: 'span', klass: 'some.class'},
+                            offsetStart: 6,
+                            offsetEnd: 4,
+                            textNodeIdx: [0,2]
+                        });
+
+                    expect(section.children().length).to.equal(2);
+                    expect(section.children()[0]).to.be.instanceOf(documentElement.DocumentTextElement);
+                    expect(section.children()[0].getText()).to.equal('Alice ');
+
+                    var wrapper2 = section.children()[1];
+                    expect(wrapper2.sameNode(wrapper)).to.be.true;
+
+                    var wrapperChildren = wrapper.children();
+                    expect(wrapperChildren.length).to.equal(3);
+                    expect(wrapperChildren[0].getText()).to.equal('has a ');
+
+                    expect(wrapperChildren[1]).to.be.instanceOf(documentElement.DocumentNodeElement);
+                    expect(wrapperChildren[1].children().length).to.equal(1);
+                    expect(wrapperChildren[1].children()[0].getText()).to.equal('small');
+
+                    expect(wrapperChildren[2].getText()).to.equal(' cat');
+                });
             });
         });
 
