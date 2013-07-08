@@ -111,6 +111,20 @@ $.extend(DocumentTextElement.prototype, {
     },
     getText: function() {
         return this.$element.text();
+    },
+    after: function(params) {
+        if(params.text || params instanceof DocumentTextElement)
+            return false;
+        var dom;
+        if(params instanceof DocumentNodeElement) {
+            dom = params.dom();
+        } else {
+            dom = DocumentNodeElement.createDOM(params);
+        }
+        this.$element.wrap('<div>');
+        this.$element.parent().after(dom[0]);
+        this.$element.unwrap();
+        return documentElementFromHTMLElement(dom[0]);
     }
 });
 
