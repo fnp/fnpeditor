@@ -210,6 +210,59 @@ describe('Canvas', function() {
                 });
             });
 
+            describe('Splitting text', function() {
+                
+                it('splits DocumentTextElement\'s parent into two DocumentNodeElements of the same type', function() {
+                    var c = canvas.fromXML('<section><header>Some header</header></section>'),
+                        section = c.doc(),
+                        text = section.children()[0].children()[0];
+
+                    text.split({offset: 5});
+                    expect(section.children().length).to.equal(2, 'section has two children');
+                    
+                    var header1 = section.children()[0];
+                    var header2 = section.children()[1];
+
+                    expect(header1.wlxmlTag).to.equal('header', 'first section child represents wlxml header');
+                    expect(header1.children().length).to.equal(1, 'first header has one text child');
+                    expect(header1.children()[0].getText()).to.equal('Some ', 'first header has correct content');
+                    expect(header2.wlxmlTag).to.equal('header', 'second section child represents wlxml header');
+                    expect(header2.children().length).to.equal(1, 'second header has one text child');
+                    expect(header2.children()[0].getText()).to.equal('header', 'second header has correct content');
+                });
+
+                it('keeps DocumentTextElement\'s parent\'s children elements intact', function() {
+                    var c = canvas.fromXML('\
+                            <section>\
+                                <header>\
+                                    A <span>fancy</span> and <span>nice</span> header\
+                                </header>\
+                            </section>'),
+                        section = c.doc(),
+                        header = section.children()[0],
+                        textAnd = header.children()[2];
+
+                    textAnd.split({offset: 2});
+                    
+                    var sectionChildren = section.children();
+                    expect(sectionChildren.length).to.equal(2, 'Section has two children');
+                    expect(sectionChildren[0].wlxmlTag).to.equal('header', 'First section element is a wlxml header');
+                    expect(sectionChildren[1].wlxmlTag).to.equal('header', 'Second section element is a wlxml header');
+
+                    var firstHeaderChildren = sectionChildren[0].children();
+                    expect(firstHeaderChildren.length).to.equal(3, 'First header has three children');
+                    expect(firstHeaderChildren[0].getText()).to.equal('A ', 'First header starts with a text');
+                    expect(firstHeaderChildren[1].wlxmlTag).to.equal('span', 'First header has span in the middle');
+                    expect(firstHeaderChildren[2].getText()).to.equal(' a', 'First header ends with text');
+
+                    var secondHeaderChildren = sectionChildren[1].children();
+                    expect(secondHeaderChildren.length).to.equal(3, 'Second header has three children');
+                    expect(secondHeaderChildren[0].getText()).to.equal('nd ', 'Second header starts with text');
+                    expect(secondHeaderChildren[1].wlxmlTag).to.equal('span', 'Second header has span in the middle');
+                    expect(secondHeaderChildren[2].getText()).to.equal(' header', 'Second header ends with text');
+                });
+            });
+
             describe('wrapping', function() {
                 it('wraps DocumentNodeElement', function() {
                     var c = canvas.fromXML('<section><div></div></section>'),

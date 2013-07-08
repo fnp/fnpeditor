@@ -11,7 +11,9 @@ var DocumentElement = function(htmlElement, canvas) {
         return;
     this.canvas = canvas;
     this.$element = $(htmlElement);
-    this.wlxmlTag = this.$element.prop('tagName');
+
+    var tagNameProp = this.$element.prop('tagName');
+    this.wlxmlTag = tagNameProp ? tagNameProp.toLowerCase() : undefined;
 };
 
 $.extend(DocumentElement.prototype, {
@@ -118,7 +120,7 @@ DocumentNodeElement.createDOM = function(params) {
 };
 
 
-DocumentNodeElement.create = function(params) {
+DocumentNodeElement.create = function(params, canvas) {
     return documentElementFromHTMLElement(DocumentNodeElement.createDOM(params)[0]);
 };
 
@@ -156,6 +158,37 @@ $.extend(DocumentTextElement.prototype, {
         } else {
             return DocumentElement.prototype.wrapWithNodeElement.call(this, wlxmlNode);
         }
+    },
+    split: function(params) {
+        var parentElement = this.parent(),
+            myIdx = parentElement.childIndex(this),
+            myCanvas = this.canvas,
+            passed = false,
+            succeedingChildren = [],
+            thisElement = this,
+            prefix = this.getText().substr(0, params.offset),
+            suffix = this.getText().substr(params.offset);
+
+        parentElement.children().forEach(function(child) {
+            if(passed)
+                succeedingChildren.push(child);
+            if(child.sameNode(thisElement))
+                passed = true;
+        });
+
+        if(prefix.length > 0)
+            this.setText(prefix);
+        else
+            this.remove();
+        
+        var newElement = DocumentNodeElement.create({tag: parentElement.wlxmlTag, klass: parentElement.wlxmlClass}, myCanvas);
+        parentElement.after(newElement);
+
+        if(suffix.length > 0)
+            newElement.append({text: suffix});
+        succeedingChildren.forEach(function(child) {
+            newElement.append(child);
+        });
     }
 });
 
