@@ -28,6 +28,15 @@ describe('Canvas', function() {
                     child = root.children()[1];
                 expect(root.childIndex(child)).to.equal(1);
             });
+
+            describe('DocumentTextElement can have its content set', function() {
+                var c = canvas.fromXML('<section>Alice</section>'),
+                    root = c.doc(),
+                    text = root.children()[0];
+                
+                text.setText('a cat');
+                expect(root.children()[0].getText()).to.equal('a cat');
+            });
         });
     });
 

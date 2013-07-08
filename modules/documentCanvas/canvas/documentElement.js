@@ -94,6 +94,15 @@ DocumentNodeElement.createDOM = function(tag, klass) {
     return dom;
 };
 
+$.extend(DocumentTextElement.prototype, {
+    setText: function(text) {
+        this.$element[0].data = text;
+    },
+    getText: function() {
+        return this.$element.text();
+    }
+});
+
 var documentElementFromHTMLElement = function(htmlElement) {
     if(htmlElement.nodeType === Node.ELEMENT_NODE)
         return new DocumentNodeElement(htmlElement);
