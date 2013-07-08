@@ -146,6 +146,20 @@ $.extend(DocumentTextElement.prototype, {
         this.$element.unwrap();
         return documentElementFromHTMLElement(dom[0]);
     },
+    before: function(params) {
+        if(params instanceof DocumentTextElement || params.text)
+            return false;
+        var dom;
+        if(params instanceof DocumentNodeElement) {
+            dom = params.dom();
+        } else {
+            dom = DocumentNodeElement.createDOM(params);
+        }
+        this.$element.wrap('<div>');
+        this.$element.parent().before(dom[0]);
+        this.$element.unwrap();
+        return documentElementFromHTMLElement(dom[0]);
+    },
     wrapWithNodeElement: function(wlxmlNode) {
         if(wlxmlNode.start && wlxmlNode.end) {
             return this.canvas.wrapText({

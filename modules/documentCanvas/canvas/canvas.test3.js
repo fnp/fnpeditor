@@ -208,6 +208,18 @@ describe('Canvas', function() {
                     expect(children[1]).to.be.instanceOf(documentElement.DocumentNodeElement);
                     expect(children[1].sameNode(added)).to.be.true;
                 });
+                it('can put new DocumentNodeElement before DocumentTextElement', function() {
+                    var c = canvas.fromXML('<section>Alice</section>'),
+                        text = c.doc().children()[0],
+                        added = text.before({tag: 'p'}),
+                        children = c.doc().children();
+
+                    expect(children.length).to.equal(2);
+                    expect(children[0]).to.be.instanceOf(documentElement.DocumentNodeElement);
+                    expect(children[0].sameNode(added)).to.be.true;
+                    expect(children[1]).to.be.instanceOf(documentElement.DocumentTextElement);
+                    expect(children[1].getText()).to.equal('Alice');
+                });
             });
 
             describe('Splitting text', function() {
