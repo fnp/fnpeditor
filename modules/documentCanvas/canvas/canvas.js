@@ -9,6 +9,34 @@ define([
 var Canvas = function(xml) {
     xml = $.parseXML(xml);
     this.d = xml !== null ? $(xml.childNodes[0]) : null;
+    if(this.d) {
+        var wrapper = $('<div>');
+        wrapper.append(this.d);
+        wrapper.find(':not(iframe)').addBack().contents()
+            .filter(function() {return this.nodeType === Node.TEXT_NODE})
+            .each(function() {
+
+                var el = $(this);
+                
+                // TODO: use DocumentElement API
+                var spanParent = el.parent().prop('tagName') === 'span',
+                    spanBefore = el.prev().length > 0  && $(el.prev()[0]).prop('tagName') === 'span',
+                    spanAfter = el.next().length > 0 && $(el.next()[0]).prop('tagName') === 'span';
+                    
+                if(spanParent || spanBefore || spanAfter) {
+                    var startSpace = /\s/g.test(this.data.substr(0,1));
+                    var endSpace = /\s/g.test(this.data.substr(-1)) && this.data.length > 1;
+                    var trimmed = $.trim(this.data);
+                    this.data = (startSpace && (spanParent || spanBefore) ? ' ' : '')
+                                + trimmed
+                                + (endSpace && (spanParent || spanAfter) ? ' ' : '');
+
+                } else {
+                    this.data = $.trim(this.data);
+                }
+            });
+        this.d.unwrap();
+    };
 };
 
 $.extend(Canvas.prototype, {

@@ -132,6 +132,27 @@ describe('Canvas', function() {
                         expect(children[idx]).to.be.instanceOf(documentElement.DocumentNodeElement);
                     });
                 });
+
+                it('trims white space from the beginning and the end of the block elements', function() {
+                    var c = canvas.fromXML('<section> Alice <span>has</span> a cat </section>');
+                    expect(c.doc().children()[0].getText()).to.equal('Alice ');
+                    expect(c.doc().children()[2].getText()).to.equal(' a cat');
+                });
+
+                it('normalizes string of white characters to one space at the inline element boundries', function() {
+                    var c = canvas.fromXML('<span>   Alice has a cat   </span>');
+                    expect(c.doc().children()[0].getText()).to.equal(' Alice has a cat ');
+                });
+
+                it('normalizes string of white characters to one space before inline element', function() {
+                    var c = canvas.fromXML('<div>Alice has  <span>a cat</span></div>');
+                    expect(c.doc().children()[0].getText()).to.equal('Alice has ');
+                });
+                
+                it('normalizes string of white characters to one space after inline element', function() {
+                    var c = canvas.fromXML('<div>Alice has <span>a</span>  cat</div>');
+                    expect(c.doc().children()[2].getText()).to.equal(' cat');
+                });
             });
         });
 
