@@ -69,21 +69,22 @@ var DocumentTextElement = function(htmlElement) {
 DocumentNodeElement.prototype = new DocumentElement();
 DocumentTextElement.prototype = new DocumentElement();
 
+var manipulate = function(e, params, action) {
+    var newElement = DocumentNodeElement.createDOM(params);
+    e.$element[action](newElement);
+    return documentElementFromHTMLElement(newElement);
+};
+
 $.extend(DocumentNodeElement.prototype, {
     append: function(params) {
-        var to_append = DocumentNodeElement.createDOM(params);
-        this.$element.append(to_append);
-        return documentElementFromHTMLElement(to_append);
+        manipulate(this, params, 'append');
     },
     before: function(params) {
-        var to_append = DocumentNodeElement.createDOM(params);
-        this.$element.before(to_append);
-        return documentElementFromHTMLElement(to_append);
+        manipulate(this, params, 'before');
+
     },
     after: function(params) {
-        var to_append = DocumentNodeElement.createDOM(params);
-        this.$element.after(to_append);
-        return documentElementFromHTMLElement(to_append);   
+        manipulate(this, params, 'after');
     }
 });
 
