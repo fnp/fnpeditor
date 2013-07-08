@@ -75,6 +75,11 @@ $.extend(DocumentNodeElement.prototype, {
         this.$element.append(to_append);
         return documentElementFromHTMLElement(to_append);
     },
+    before: function(params) {
+        var to_append = DocumentNodeElement.createDOM(params.tag, params.klass);
+        this.$element.before(to_append);
+        return documentElementFromHTMLElement(to_append);
+    },
     after: function(params) {
         var to_append = DocumentNodeElement.createDOM(params.tag, params.klass);
         this.$element.after(to_append);
