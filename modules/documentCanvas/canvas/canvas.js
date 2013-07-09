@@ -13,11 +13,26 @@ var Canvas = function(wlxml) {
 $.extend(Canvas.prototype, {
 
     loadWlxml: function(wlxml) {
-        var xml = $.parseXML(wlxml);
-        this.d = xml !== null ? $(xml.childNodes[0]) : null;
-        if(this.d) {
+        var d = wlxml ? $($.trim(wlxml)) : null;
+        if(d) {
             var wrapper = $('<div>');
-            wrapper.append(this.d);
+            wrapper.append(d);
+            
+            wrapper.find('*').replaceWith(function() {
+                var currentTag = $(this);
+                if(currentTag.attr('wlxml-tag'))
+                    return;
+                var toret = $('<div>').attr('wlxml-tag', currentTag.prop('tagName').toLowerCase());
+                toret.attr('id', 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);}));
+                for(var i = 0; i < this.attributes.length; i++) {
+                    var attr = this.attributes.item(i);
+                    var value = attr.name === 'class' ? attr.value.replace(/\./g, '-') : attr.value;
+                    toret.attr('wlxml-' + attr.name, value);
+                }
+                toret.append(currentTag.contents());
+                return toret;
+            });
+
             wrapper.find(':not(iframe)').addBack().contents()
                 .filter(function() {return this.nodeType === Node.TEXT_NODE})
                 .each(function() {
@@ -25,9 +40,9 @@ $.extend(Canvas.prototype, {
                     var el = $(this);
                     
                     // TODO: use DocumentElement API
-                    var spanParent = el.parent().prop('tagName') === 'span',
-                        spanBefore = el.prev().length > 0  && $(el.prev()[0]).prop('tagName') === 'span',
-                        spanAfter = el.next().length > 0 && $(el.next()[0]).prop('tagName') === 'span';
+                    var spanParent = el.parent().attr('wlxml-tag') === 'span',
+                        spanBefore = el.prev().length > 0  && $(el.prev()[0]).attr('wlxml-tag') === 'span',
+                        spanAfter = el.next().length > 0 && $(el.next()[0]).attr('wlxml-tag') === 'span';
                         
                     if(spanParent || spanBefore || spanAfter) {
                         var startSpace = /\s/g.test(this.data.substr(0,1));
@@ -41,8 +56,12 @@ $.extend(Canvas.prototype, {
                         this.data = $.trim(this.data);
                     }
                 });
+            
+            this.d = wrapper.children(0);
             this.d.unwrap();
-        };
+        } else {
+            this.d = null;
+        }
     },
 
     doc: function() {

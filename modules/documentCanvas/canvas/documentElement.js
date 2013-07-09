@@ -13,9 +13,8 @@ var DocumentElement = function(htmlElement, canvas) {
     this.canvas = canvas;
     this.$element = $(htmlElement);
 
-    var tagNameProp = this.$element.prop('tagName');
-    this.wlxmlTag = tagNameProp ? tagNameProp.toLowerCase() : undefined;
-};
+    this.wlxmlTag = this.$element.attr('wlxml-tag');
+}
 
 $.extend(DocumentElement.prototype, {
     dom: function() {
@@ -110,7 +109,7 @@ $.extend(DocumentNodeElement.prototype, {
         this.$element.attr('class', klass);
     },
     is: function(what) {
-        if(what === 'list' && _.contains(['list-items', 'list-items-enum'], this.$element.attr('class')))
+        if(what === 'list' && _.contains(['list-items', 'list-items-enum'], this.$element.attr('wlxml-class')))
             return true;
         return false;
     }
@@ -121,9 +120,9 @@ DocumentNodeElement.createDOM = function(params) {
     if(params.text) {
         dom = $(document.createTextNode(params.text));
     } else {
-        dom = $('<' + params.tag + '>');
+        dom = $('<div>').attr('wlxml-tag', params.tag);
         if(params.klass)
-            dom.attr('class', params.klass);
+            dom.attr('wlxml-class', params.klass);
     }
     return dom;
 };
