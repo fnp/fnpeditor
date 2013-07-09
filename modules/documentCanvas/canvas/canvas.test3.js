@@ -415,6 +415,9 @@ describe('Canvas', function() {
                 var list = section.children()[0];
                 expect(list.is('list')).to.equal(true, 'section\'s only child is a list');
                 expect(list.children().length).to.equal(4, 'list contains four elements');
+                list.children().forEach(function(child) {
+                    expect(child.getWlxmlClass()).to.equal('item', 'list childs have wlxml class of item');
+                });
             });
         });
 
