@@ -46,15 +46,8 @@ describe('Canvas', function() {
             expect(c.doc().wlxmlTag).to.equal('section');
         });
 
-        describe('DocumentElement', function() {
-            it('knows index of its child', function() {
-                var c = canvas.fromXML('<section><div></div><header></header><span></span></section>'),
-                    root = c.doc(),
-                    child = root.children()[1];
-                expect(root.childIndex(child)).to.equal(1);
-            });
-
-            describe('DocumentTextElement can have its content set', function() {
+        describe('DocumentTextElement', function() {
+            it('can have its content set', function() {
                 var c = canvas.fromXML('<section>Alice</section>'),
                     root = c.doc(),
                     text = root.children()[0];
@@ -63,7 +56,34 @@ describe('Canvas', function() {
                 expect(root.children()[0].getText()).to.equal('a cat');
             });
         });
+
+        describe('DocumentNodeElement', function() {
+            it('knows index of its child', function() {
+                var c = canvas.fromXML('<section><div></div><header></header><span></span></section>'),
+                    root = c.doc(),
+                    child = root.children()[1];
+                expect(root.childIndex(child)).to.equal(1);
+            });
+
+            it('knows WLXML tag it renders', function(){
+                var c = canvas.fromXML('<section></section>'),
+                    section = c.doc();
+                expect(section.getWlxmlTag()).to.equal('section', 'initial tag is section');
+                section.setWlxmlTag('header');
+                expect(section.getWlxmlTag()).to.equal('header', 'tag is changed to header');
+            });
+
+            it('knows WLXML class of a WLXML tag it renders', function(){
+                var c = canvas.fromXML('<section class="some.class"></section>'),
+                    section = c.doc();
+                expect(section.getWlxmlClass()).to.equal('some.class');
+                section.setWlxmlClass('some.other.class');
+                expect(section.getWlxmlClass()).to.equal('some.other.class');
+            });
+        });
     });
+
+
 
     describe('document representation api', function() {
         describe('document root element', function() {
