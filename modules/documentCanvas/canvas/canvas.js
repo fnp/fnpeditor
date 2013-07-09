@@ -86,8 +86,60 @@ $.extend(Canvas.prototype, {
         if(suffixOutside.length > 0)
             wrapperElement.after({text: suffixOutside});
         return wrapperElement;
-    }
+    },
+    list: {}
+});
 
+$.extend(Canvas.prototype.list, {
+    create: function(params) {
+        if(!(params.element1.parent().sameNode(params.element2.parent())))
+            return false;
+            
+        var parent = params.element1.parent();
+        
+        if(parent.childIndex(params.element1) > parent.childIndex(params.element2)) {
+            var tmp = params.element1;
+            params.element1 = params.element2;
+            params.element2 = tmp;
+        }
+        
+        var elementsToWrap = [];
+        
+        var place = 'before';
+        var canvas = this;
+        parent.children().forEach(function(element) {
+            if(element.sameNode(params.element1))
+                place = 'inside';
+            if(place === 'inside') {
+                if(element instanceof documentElement.DocumentTextElement) {
+                    element = element.wrapWithNodeElement({tag: 'div', klass: 'list.item'});
+                    if(element.children()[0].sameNode(params.element1))
+                        params.element1 = element;
+                }
+                element.setWlxmlClass('item');
+                elementsToWrap.push(element);
+            }
+            if(element.sameNode(params.element2))
+                return false;
+        });
+        
+        var listElement = documentElement.DocumentNodeElement.create({tag: 'div', klass: 'list-items' + (params.type === 'enum' ? '-enum' : '')});
+        
+        var toret;
+        if(parent.is('list')) {
+            listElement.wrap({tag: 'div', klass: 'item'});
+            toret = listElement.parent();
+        } else {
+            toret = listElement;
+        }  
+        
+        params.element1.before(toret);
+        
+        elementsToWrap.forEach(function(element) {
+            element.detach();
+            listElement.append(element);
+        });
+    }
 });
 
 return {

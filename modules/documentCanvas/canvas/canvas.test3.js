@@ -350,6 +350,29 @@ describe('Canvas', function() {
             });
         });
 
+        describe('Lists api', function() {
+            it('allows creation of a list from existing sibling DocumentElements', function() {
+                var c = canvas.fromXML('\
+                    <section>\
+                        Alice\
+                        <div>has</div>\
+                        a\
+                        <div>cat</div>\
+                    </section>'),
+                    section = c.doc(),
+                    textAlice = section.children()[0],
+                    divCat = section.children()[3]
+                
+                c.list.create({element1: textAlice, element2: divCat});
+
+                expect(section.children().length).to.equal(1, 'section has one child element');
+
+                var list = section.children()[0];
+                expect(list.is('list')).to.equal(true, 'section\'s only child is a list');
+                expect(list.children().length).to.equal(4, 'list contains four elements');
+            });
+        });
+
     });
 });
 

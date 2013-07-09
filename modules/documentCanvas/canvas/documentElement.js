@@ -1,6 +1,7 @@
 define([
-'libs/jquery-1.9.1.min'
-], function($) {
+'libs/jquery-1.9.1.min',
+'libs/underscore-min'
+], function($, _) {
     
 'use strict';
 
@@ -49,7 +50,7 @@ $.extend(DocumentElement.prototype, {
     },
 
     wrapWithNodeElement: function(wlxmlNode) {
-        this.$element.wrap($('<' + wlxmlNode.tag + ' class="' + wlxmlNode.klass + '"">')[0]);
+        this.$element.wrap($('<' + wlxmlNode.tag + ' class="' + wlxmlNode.klass.replace('.', '-') + '">')[0]);
         return documentElementFromHTMLElement(this.$element.parent().get(0), this.canvas);
     },
 
@@ -104,6 +105,14 @@ $.extend(DocumentNodeElement.prototype, {
     },
     after: function(params) {
         manipulate(this, params, 'after');
+    },
+    setWlxmlClass: function(klass) {
+        this.$element.attr('class', klass);
+    },
+    is: function(what) {
+        if(what === 'list' && _.contains(['list-items', 'list-items-enum'], this.$element.attr('class')))
+            return true;
+        return false;
     }
 });
 
