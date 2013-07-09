@@ -10,6 +10,31 @@ var expect = chai.expect;
 
 
 describe('Canvas', function() {
+
+    describe('Internal HTML representation of a DocumentNodeElement', function() {
+        it('is always a div tag', function() {
+            ['section', 'header', 'span', 'aside', 'figure'].forEach(function(tagName) {
+                var dom = canvas.fromXML('<' + tagName + '></' + tagName + '>').doc().dom();
+                expect(dom.prop('tagName')).to.equal('DIV', tagName + ' is represented as div');
+            });
+        });
+        it('has wlxml tag put into wlxml-tag attribute', function() {
+            var dom = canvas.fromXML('<section></section>').doc().dom();
+            expect(dom.attr('wlxml-tag')).to.equal('section');
+        });
+        it('has wlxml class put into wlxml-class, dots replaced with dashes', function() {
+            var dom = canvas.fromXML('<section class="some.class"></section>').doc().dom();
+            expect(dom.attr('wlxml-class')).to.equal('some-class');
+        });
+    });
+
+    describe('Internal HTML representation of a DocumentTextElement', function() {
+        it('is just a TextNode', function() {
+            var dom = canvas.fromXML('<section>Alice</section>').doc().children()[0].dom();
+            expect(dom[0].nodeType === Node.TEXT_NODE);
+        });
+    });
+
     describe('basic properties', function() {
         it('renders empty document when canvas created from empty XML', function() {
             var c = canvas.fromXML('');
