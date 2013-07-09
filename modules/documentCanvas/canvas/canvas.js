@@ -53,7 +53,10 @@ $.extend(Canvas.prototype, {
                                     + (endSpace && (spanParent || spanAfter) ? ' ' : '');
 
                     } else {
+                        var oldLength = this.data.length;
                         this.data = $.trim(this.data);
+                        if(this.data.length === 0 && oldLength > 0)
+                            this.data = ' ';
                     }
                 });
             

@@ -162,6 +162,7 @@ describe('Canvas', function() {
                     var c = canvas.fromXML('<section> </section>');
                     expect(c.doc().children().length).to.equal(1);
                     expect(c.doc().children()[0]).to.be.instanceOf(documentElement.DocumentTextElement);
+                    expect(c.doc().children()[0].getText()).to.equal(' ');
                 });
                 it('ignores white space surrounding block elements', function() {
                     var c = canvas.fromXML('<section> <div></div> </section>');
