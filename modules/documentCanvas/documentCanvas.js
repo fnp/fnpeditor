@@ -5,23 +5,27 @@ define([
 './transformations', 
 './canvas',
 './canvasManager',
-'libs/text!./template.html'], function(_, transformations, Canvas, CanvasManager, template) {
+'./canvas/canvas',
+'libs/text!./template.html'], function(_, transformations, Canvas, CanvasManager, canvas3, template) {
 
 'use strict';
 
 return function(sandbox) {
 
-    var canvas = Canvas.create();
-    var manager = new CanvasManager(canvas, sandbox);
+    var canvas = canvas3.fromXML(''); //canvasCanvas.create();
+    var manager;
+    var canvasWrapper = $(template);
 
     /* public api */
     return {
         start: function() { sandbox.publish('ready'); },
         getView: function() { 
-            return canvas.dom;
+            return canvasWrapper;
         },
         setDocument: function(xml) {
-            canvas.setHTML(transformations.fromXML.getHTMLTree(xml));
+            canvas.loadWlxml(xml); //canvas.setHTML(transformations.fromXML.getHTMLTree(xml));
+            canvasWrapper.find('#rng-module-documentCanvas-content').empty().append(canvas.doc().dom());
+            manager = new CanvasManager(canvas, sandbox);
             sandbox.publish('documentSet');
         },
         getDocument: function() {

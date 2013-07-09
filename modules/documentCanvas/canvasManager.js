@@ -28,25 +28,25 @@ var Manager = function(canvas, sandbox) {
     this.currentNode = null;
     var manager = this;
         
-    canvas.dom.find('#rng-module-documentCanvas-content').on('keyup', function() {
+    canvas.doc().dom().find('#rng-module-documentCanvas-content').on('keyup', function() {
         manager.sandbox.publish('contentChanged');
     });
 
-    canvas.dom.on('mouseover', '[wlxml-tag]', function(e) {
+    canvas.doc().dom().on('mouseover', '[wlxml-tag]', function(e) {
         e.stopPropagation();
         manager.sandbox.publish('nodeHovered', canvasNode.create($(e.target)));
     });
-    canvas.dom.on('mouseout', '[wlxml-tag]', function(e) {
+    canvas.doc().dom().on('mouseout', '[wlxml-tag]', function(e) {
         e.stopPropagation();
         manager.sandbox.publish('nodeBlured', canvasNode.create($(e.target)));
     });
-    canvas.dom.on('click', '[wlxml-tag]', function(e) {
+    canvas.doc().dom().on('click', '[wlxml-tag]', function(e) {
         e.stopPropagation();
         console.log('clicked node type: '+e.target.nodeType);
         manager.selectNode(canvasNode.create($(e.target)));
     });
 
-    canvas.dom.on('keyup', '#rng-module-documentCanvas-contentWrapper', function(e) {
+    canvas.doc().dom().on('keyup', '#rng-module-documentCanvas-contentWrapper', function(e) {
         var anchor = $(window.getSelection().anchorNode);
         
         if(anchor[0].nodeType === Node.TEXT_NODE)
@@ -56,7 +56,7 @@ var Manager = function(canvas, sandbox) {
         manager.selectNode(canvasNode.create(anchor));
     });
     
-    canvas.dom.on('keydown', '#rng-module-documentCanvas-contentWrapper', function(e) {
+    canvas.doc().dom().on('keydown', '#rng-module-documentCanvas-contentWrapper', function(e) {
         if(e.which === 13) { 
             manager.onEnterKey(e);
         }
@@ -65,17 +65,17 @@ var Manager = function(canvas, sandbox) {
         }
     });
               
-    canvas.dom.onShow = function() {
+    canvas.doc().dom().onShow = function() {
         if(!manager.shownAlready) {
             manager.shownAlready = true;
             manager.selectFirstNode();
         } else if(manager.currentNode) {
             manager.movecaretToNode(manager.getNodeElement(manager.currentNode));
-            canvas.dom.find('#rng-module-documentCanvas-contentWrapper').scrollTop(manager.scrollbarPosition);
+            canvas.doc().dom().find('#rng-module-documentCanvas-contentWrapper').scrollTop(manager.scrollbarPosition);
         }
     };
-    canvas.dom.onHide = function() {
-       manager.scrollbarPosition = canvas.dom.find('#rng-module-documentCanvas-contentWrapper').scrollTop();
+    canvas.doc().dom().onHide = function() {
+       manager.scrollbarPosition = canvas.doc().dom().find('#rng-module-documentCanvas-contentWrapper').scrollTop();
     };
 };
     
@@ -85,7 +85,7 @@ Manager.prototype.selectNode = function(cnode, options) {
     
     this.dimNode(cnode);
     
-    this.canvas.dom.find('.rng-module-documentCanvas-currentNode').removeClass('rng-module-documentCanvas-currentNode');
+    this.canvas.doc().dom().find('.rng-module-documentCanvas-currentNode').removeClass('rng-module-documentCanvas-currentNode');
     nodeElement.addClass('rng-module-documentCanvas-currentNode');
     
     if(options.movecaret) {
@@ -138,7 +138,7 @@ Manager.prototype.insertNewNode = function(wlxmlTag, wlxmlClass) {
 };
 
 Manager.prototype.getNodeElement = function(cnode) {
-    return this.canvas.dom.find('#'+cnode.getId());
+    return this.canvas.doc().dom().find('#'+cnode.getId());
 };
 
 Manager.prototype.highlightNode = function(cnode) {
@@ -162,14 +162,14 @@ Manager.prototype.dimNode = function(cnode) {
 };
 
 Manager.prototype.selectFirstNode = function() {
-    var firstNodeWithText = this.canvas.dom.find('[wlxml-tag]').filter(function() {
+    var firstNodeWithText = this.canvas.doc().dom().find('[wlxml-tag]').filter(function() {
         return $(this).clone().children().remove().end().text().trim() !== '';
     }).first();
     var node;
     if(firstNodeWithText.length)
         node = $(firstNodeWithText[0]);
     else {
-        node = this.canvas.dom.find('[wlxml-class|="p"]');
+        node = this.canvas.doc().dom().find('[wlxml-class|="p"]');
     }
     this.selectNode(canvasNode.create(node), {movecaret: true});
 };
@@ -190,7 +190,7 @@ Manager.prototype.movecaretToNode = function(nodeElement, where) {
 };
 
 Manager.prototype.toggleGrid =  function(toggle) {
-    this.canvas.dom.find('[wlxml-tag]').toggleClass('rng-common-hoveredNode', toggle);
+    this.canvas.doc().dom().find('[wlxml-tag]').toggleClass('rng-common-hoveredNode', toggle);
     this.gridToggled = toggle;
 };
 
