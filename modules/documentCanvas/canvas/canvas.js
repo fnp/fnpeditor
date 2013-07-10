@@ -175,37 +175,67 @@ $.extend(Canvas.prototype.list, {
 
         var idx1 = list.childIndex(params.element1),
             idx2 = list.childIndex(params.element2),
+            precedingItems = [],
             extractedItems = [],
             succeedingItems = [],
             items = list.children(),
+            listIsNested = list.parent().getWlxmlClass() === 'item',
             i;
 
-        for(i = Math.min(idx1,idx2); i <= Math.max(idx1, idx2); i++) {
-            extractedItems.push(items[i]);
-            items[i].detach();
-        }
-        for(i = i; i < items.length; i++) {
-            succeedingItems.push(items[i]);
-            items[i].detach();
+        if(idx1 > idx2) {
+            var tmp = idx1; idx1 = idx2; idx2 = tmp;
         }
 
-        var last = list;
-        extractedItems.forEach(function(item) {
-            item.setWlxmlClass(null); //
-            last.after(item);
-            last = item;
+        items.forEach(function(item, idx) {
+            if(idx < idx1)
+                precedingItems.push(item);
+            else if(idx >= idx1 && idx <= idx2) {
+                extractedItems.push(item);
+            }
+            else {
+                succeedingItems.push(item);
+            }
         });
 
-        if(list.children().length === 0)
-            list.detach();
-
-        if(succeedingItems.length > 0) {
-            var secondList = documentElement.DocumentNodeElement.create({tag: 'div', klass:'list-items'}, this);
-            last.after(secondList);
-
+        var reference = listIsNested ? list.parent() : list;
+        if(precedingItems.length === 0 && succeedingItems.length === 0) {
+            extractedItems.forEach(function(item) {
+                reference.after(item);
+                if(!listIsNested)
+                    item.setWlxmlClass(null);
+            });
+            reference.detach();
+        } else if(precedingItems.length > 0 && succeedingItems.length === 0) {
+            extractedItems.forEach(function(item) {
+                reference.after(item);
+                if(!listIsNested)
+                    item.setWlxmlClass(null);
+            });
+        } else if(precedingItems.length === 0 && succeedingItems.length > 0) {
+            extractedItems.forEach(function(item) {
+                reference.before(item);
+                if(!listIsNested)
+                    item.setWlxmlClass(null);
+            });
+        } else {
+            var ptr = reference;
+            extractedItems.forEach(function(item) {
+                ptr.after(item);
+                if(!listIsNested)
+                    item.setWlxmlClass(null);
+                ptr = item;
+            });
+            var secondList = documentElement.DocumentNodeElement.create({tag: 'div', klass:'list-items'}, this),
+                toAdd = secondList;
+            
+            if(listIsNested) {
+                toAdd = secondList.wrapWithNodeElement({tag: 'div', klass:'item'});
+            }
             succeedingItems.forEach(function(item) {
                 secondList.append(item);
             });
+
+            ptr.after(toAdd);
         }
     }
 });
