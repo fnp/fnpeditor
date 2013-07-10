@@ -499,20 +499,24 @@ describe('Canvas', function() {
                             <div class="list.items">\
                                 <div class="item">0</div>\
                                 <div class="item">1</div>\
+                                <div class="item">2</div>\
                             </div>\
                         </section>'),
                         list = c.doc().children()[0],
                         item1 = list.children()[0],
-                        item2 = list.children()[1];
+                        item2 = list.children()[1],
+                        item3 = list.children()[2];
 
-                    c.list.extractItems({element1: item1, element2: item1});
+                    c.list.extractItems({element1: item1, element2: item2});
 
                     var section = c.doc(),
-                        oldItem = section.children()[0],
-                        newList = section.children()[1];
+                        oldItem1 = section.children()[0],
+                        oldItem2 = section.children()[1],
+                        newList = section.children()[2];
 
-                    expect(section.children().length).to.equal(2, 'section has two children');
-                    expect(oldItem.children()[0].getText()).to.equal('0', 'first item extracted');
+                    expect(section.children().length).to.equal(3, 'section has three children');
+                    expect(oldItem1.children()[0].getText()).to.equal('0', 'first item extracted');
+                    expect(oldItem2.children()[0].getText()).to.equal('1', 'second item extracted');
                     expect(newList.is('list')).to.equal(true, 'list lies below extracted item');
                     expect(newList.children().length).to.equal(1, 'list has now one child');
                 });
@@ -523,20 +527,24 @@ describe('Canvas', function() {
                             <div class="list.items">\
                                 <div class="item">0</div>\
                                 <div class="item">1</div>\
+                                <div class="item">2</div>\
                             </div>\
                         </section>'),
                         list = c.doc().children()[0],
                         item1 = list.children()[0],
-                        item2 = list.children()[1];
+                        item2 = list.children()[1],
+                        item3 = list.children()[2];
 
-                    c.list.extractItems({element1: item2, element2: item2});
+                    c.list.extractItems({element1: item2, element2: item3});
 
                     var section = c.doc(),
-                        oldItem = section.children()[1],
+                        oldItem1 = section.children()[1],
+                        oldItem2 = section.children()[2],
                         newList = section.children()[0];
 
-                    expect(section.children().length).to.equal(2, 'section has two children');
-                    expect(oldItem.children()[0].getText()).to.equal('1', 'first item extracted');
+                    expect(section.children().length).to.equal(3, 'section has three children');
+                    expect(oldItem1.children()[0].getText()).to.equal('1', 'first item extracted');
+                    expect(oldItem2.children()[0].getText()).to.equal('2', 'second item extracted');
                     expect(newList.is('list')).to.equal(true, 'list lies above extracted item');
                     expect(newList.children().length).to.equal(1, 'list has now one child');
                 });
@@ -546,20 +554,23 @@ describe('Canvas', function() {
                         <section>\
                             <div class="list.items">\
                                 <div class="item">some item</div>\
+                                <div class="item">some item 2</div>\
                             </div>\
                         </section>'),
                         list = c.doc().children()[0],
-                        item = list.children()[0];
+                        item1 = list.children()[0],
+                        item2 = list.children()[1];
 
-                    c.list.extractItems({element1: item, element2: item});
+                    c.list.extractItems({element1: item1, element2: item2});
 
                     var section = c.doc(),
                         list1 = section.children()[0],
-                        oldItem1 = section.children()[1],
-                        oldItem2 = section.children()[2],
-                        list2 = section.children()[3];
+                        oldItem1 = section.children()[0],
+                        oldItem2 = section.children()[1];
 
-                    expect(section.children().length).to.equal(1, 'section contains one child');
+                    expect(section.children().length).to.equal(2, 'section contains two children');
+                    expect(oldItem1.children()[0].getText()).to.equal('some item');
+                    expect(oldItem2.children()[0].getText()).to.equal('some item 2');
                 });
 
                 it('creates two lists with extracted items in the middle if extracting from the middle of the list - nested case' , function() {
@@ -619,6 +630,7 @@ describe('Canvas', function() {
                                     <div class="list.items">\
                                         <div class="item">1.1</div>\
                                         <div class="item">1.2</div>\
+                                        <div class="item">1.3</div>\
                                     </div>\
                                 </div>\
                                 <div class="item">2</div>\
@@ -626,28 +638,73 @@ describe('Canvas', function() {
                         </section>'),
                         list = c.doc().children()[0],
                         nestedList = list.children()[1].children()[0],
-                        nestedListItem = nestedList.children()[1];
+                        nestedListItem1 = nestedList.children()[1],
+                        nestedListItem2 = nestedList.children()[2];
 
-                    c.list.extractItems({element1: nestedListItem, element2: nestedListItem, merge: true});
+                    c.list.extractItems({element1: nestedListItem1, element2: nestedListItem2, merge: true});
 
                     var section = c.doc(),
                         list = section.children()[0],
                         item1 = list.children()[0],
                         item2 = list.children()[1],
                         item3 = list.children()[2],
-                        item4 = list.children()[3];
+                        item4 = list.children()[3],
+                        item5 = list.children()[4];
                     nestedList = item2.children()[0];
 
-                    expect(list.children().length).to.equal(4, 'top list has four items');
+                    expect(list.children().length).to.equal(5, 'top list has five items');
                     expect(item1.children()[0].getText()).to.equal('0', 'first item ok');
                     expect(item2.getWlxmlClass()).to.equal('item', 'nested list is still wrapped in item element');
                     expect(nestedList.children().length).to.equal(1, 'nested list is left with one child');
                     expect(nestedList.children()[0].children()[0].getText()).to.equal('1.1', 'nested list item left alone');
-                    expect(item3.children()[0].getText()).to.equal('1.2', 'second item ok');
-                    expect(item4.children()[0].getText()).to.equal('2', 'fourth item ok');
+                    expect(item3.children()[0].getText()).to.equal('1.2', 'third item ok');
+                    expect(item4.children()[0].getText()).to.equal('1.3', 'fourth item ok');
+                    expect(item5.children()[0].getText()).to.equal('2', 'fifth item ok');
                 });
 
                 it('puts extracted items above the list if starting item is the first one - nested case' , function() {
+                    var c = canvas.fromXML('\
+                        <section>\
+                            <div class="list.items">\
+                                <div class="item">0</div>\
+                                <div class="item">\
+                                    <div class="list.items">\
+                                        <div class="item">1.1</div>\
+                                        <div class="item">1.2</div>\
+                                        <div class="item">1.3</div>\
+                                    </div>\
+                                </div>\
+                                <div class="item">2</div>\
+                            </div>\
+                        </section>'),
+                        list = c.doc().children()[0],
+                        nestedList = list.children()[1].children()[0],
+                        nestedListItem1 = nestedList.children()[0],
+                        nestedListItem2 = nestedList.children()[1];
+
+                    c.list.extractItems({element1: nestedListItem1, element2: nestedListItem2, merge: true});
+
+                    var section = c.doc(),
+                        list = section.children()[0],
+                        item1 = list.children()[0],
+                        item2 = list.children()[1],
+                        item3 = list.children()[2],
+                        item4 = list.children()[3],
+                        item5 = list.children()[4];
+                    nestedList = item4.children()[0];
+
+                    expect(list.children().length).to.equal(5, 'top list has five items');
+                    expect(item1.children()[0].getText()).to.equal('0', 'first item ok');
+                    expect(item2.children()[0].getText()).to.equal('1.1', 'second item ok');
+                    expect(item3.children()[0].getText()).to.equal('1.2', 'third item ok');
+                    
+                    expect(item4.getWlxmlClass()).to.equal('item', 'nested list is still wrapped in item element');
+                    expect(nestedList.children().length).to.equal(1, 'nested list is left with one child');
+                    expect(nestedList.children()[0].children()[0].getText()).to.equal('1.3', 'nested list item left alone');
+                    expect(item5.children()[0].getText()).to.equal('2', 'fifth item ok');
+                });
+
+                it('removes list if all its items are extracted - nested case', function() {
                     var c = canvas.fromXML('\
                         <section>\
                             <div class="list.items">\
@@ -663,9 +720,10 @@ describe('Canvas', function() {
                         </section>'),
                         list = c.doc().children()[0],
                         nestedList = list.children()[1].children()[0],
-                        nestedListItem = nestedList.children()[0];
+                        nestedListItem1 = nestedList.children()[0],
+                        nestedListItem2 = nestedList.children()[1];
 
-                    c.list.extractItems({element1: nestedListItem, element2: nestedListItem, merge: true});
+                    c.list.extractItems({element1: nestedListItem1, element2: nestedListItem2, merge: true});
 
                     var section = c.doc(),
                         list = section.children()[0],
@@ -673,46 +731,12 @@ describe('Canvas', function() {
                         item2 = list.children()[1],
                         item3 = list.children()[2],
                         item4 = list.children()[3];
-                    nestedList = item3.children()[0];
 
                     expect(list.children().length).to.equal(4, 'top list has four items');
                     expect(item1.children()[0].getText()).to.equal('0', 'first item ok');
                     expect(item2.children()[0].getText()).to.equal('1.1', 'second item ok');
-                    expect(item3.getWlxmlClass()).to.equal('item', 'nested list is still wrapped in item element');
-                    expect(nestedList.children().length).to.equal(1, 'nested list is left with one child');
-                    expect(nestedList.children()[0].children()[0].getText()).to.equal('1.2', 'nested list item left alone');
+                    expect(item3.children()[0].getText()).to.equal('1.2', 'third item ok');
                     expect(item4.children()[0].getText()).to.equal('2', 'fourth item ok');
-                });
-
-                it('removes list if all its items are extracted - nested case', function() {
-                    var c = canvas.fromXML('\
-                        <section>\
-                            <div class="list.items">\
-                                <div class="item">0</div>\
-                                <div class="item">\
-                                    <div class="list.items">\
-                                        <div class="item">1.1</div>\
-                                    </div>\
-                                </div>\
-                                <div class="item">2</div>\
-                            </div>\
-                        </section>'),
-                        list = c.doc().children()[0],
-                        nestedList = list.children()[1].children()[0],
-                        nestedListItem = nestedList.children()[0];
-
-                    c.list.extractItems({element1: nestedListItem, element2: nestedListItem, merge: true});
-
-                    var section = c.doc(),
-                        list = section.children()[0],
-                        item1 = list.children()[0],
-                        item2 = list.children()[1],
-                        item3 = list.children()[2];
-
-                    expect(list.children().length).to.equal(3, 'top list has three items');
-                    expect(item1.children()[0].getText()).to.equal('0', 'first item ok');
-                    expect(item2.children()[0].getText()).to.equal('1.1', 'second item ok');
-                    expect(item3.children()[0].getText()).to.equal('2', 'third item ok');
                 });
             });
         });

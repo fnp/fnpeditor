@@ -199,15 +199,18 @@ $.extend(Canvas.prototype.list, {
 
         var reference = listIsNested ? list.parent() : list;
         if(precedingItems.length === 0 && succeedingItems.length === 0) {
+            var list = reference;
             extractedItems.forEach(function(item) {
                 reference.after(item);
+                reference = item;
                 if(!listIsNested)
                     item.setWlxmlClass(null);
             });
-            reference.detach();
+            list.detach();
         } else if(precedingItems.length > 0 && succeedingItems.length === 0) {
             extractedItems.forEach(function(item) {
                 reference.after(item);
+                reference = item;
                 if(!listIsNested)
                     item.setWlxmlClass(null);
             });
