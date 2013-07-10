@@ -23,7 +23,7 @@ $.extend(Canvas.prototype, {
                 if(currentTag.attr('wlxml-tag'))
                     return;
                 var toret = $('<div>').attr('wlxml-tag', currentTag.prop('tagName').toLowerCase());
-                toret.attr('id', 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);}));
+                //toret.attr('id', 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);}));
                 for(var i = 0; i < this.attributes.length; i++) {
                     var attr = this.attributes.item(i);
                     var value = attr.name === 'class' ? attr.value.replace(/\./g, '-') : attr.value;
@@ -55,8 +55,10 @@ $.extend(Canvas.prototype, {
                     } else {
                         var oldLength = this.data.length;
                         this.data = $.trim(this.data);
-                        if(this.data.length === 0 && oldLength > 0)
+                        if(this.data.length === 0 && oldLength > 0 && el.parent().contents().length === 1)
                             this.data = ' ';
+                        if(this.data.length === 0)
+                            $(this).remove();
                     }
                 });
             

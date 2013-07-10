@@ -11,6 +11,30 @@ var expect = chai.expect;
 
 describe('Canvas', function() {
 
+    describe('Internal HTML representation of a sample document', function() {
+        it('works', function() {
+            var c = canvas.fromXML('\
+                <section>\
+                    This is some text without its own wrapping tag.\
+                    <div class="p.subclass">\
+                        This is a paragraph.\
+                    </div>\
+                    <div>\
+                        This is text in a div <span>with some inline text</span>.\
+                    </div>\
+                    This is some text without its own wrapping tag.\
+                </section>\
+            ');
+            var expected = '<div wlxml-tag="section">'
+                            + 'This is some text without its own wrapping tag.'
+                            + '<div wlxml-tag="div" wlxml-class="p-subclass">This is a paragraph.</div>'
+                            + '<div wlxml-tag="div">This is text in a div <div wlxml-tag="span">with some inline text</div>.</div>'
+                            + 'This is some text without its own wrapping tag.'
+                            + '</div>';
+            expect(c.doc().dom()[0].isEqualNode($(expected)[0])).to.be.true;
+        });
+    });
+
     describe('Internal HTML representation of a DocumentNodeElement', function() {
         it('is always a div tag', function() {
             ['section', 'header', 'span', 'aside', 'figure'].forEach(function(tagName) {
