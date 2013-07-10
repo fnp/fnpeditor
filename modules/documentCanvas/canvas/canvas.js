@@ -167,6 +167,42 @@ $.extend(Canvas.prototype.list, {
             element.detach();
             listElement.append(element);
         });
+    },
+    extractItems: function(params) {
+        var list = params.element1.parent();
+        if(!list.is('list') || !(list.sameNode(params.element2.parent())))
+            return false;
+
+        var idx1 = list.childIndex(params.element1),
+            idx2 = list.childIndex(params.element2),
+            extractedItems = [],
+            succeedingItems = [],
+            items = list.children(),
+            i;
+
+        for(i = Math.min(idx1,idx2); i <= Math.max(idx1, idx2); i++) {
+            extractedItems.push(items[i]);
+            items[i].detach();
+        }
+        for(i = i; i < items.length; i++) {
+            succeedingItems.push(items[i]);
+            items[i].detach();
+        }
+
+        var last = list;
+        extractedItems.forEach(function(item) {
+            item.setWlxmlClass(null); //
+            last.after(item);
+            last = item;
+        });
+
+        var secondList = documentElement.DocumentNodeElement.create({tag: 'div', klass:'list-items'}, this);
+
+        last.after(secondList);
+
+        succeedingItems.forEach(function(item) {
+            secondList.append(item);
+        });
     }
 });
 

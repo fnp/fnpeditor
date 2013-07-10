@@ -446,6 +446,45 @@ describe('Canvas', function() {
                     expect(child.getWlxmlClass()).to.equal('item', 'list childs have wlxml class of item');
                 });
             });
+
+            it('allows extracting continuous list of list items from its list', function() {
+                var c = canvas.fromXML('\
+                    <section>\
+                        <div class="list.items">\
+                            <div class="item">0</div>\
+                            <div class="item">1</div>\
+                            <div class="item">2</div>\
+                            <div class="item">3</div>\
+                        </div>\
+                    </section>'),
+                    list = c.doc().children()[0],
+                    item1 = list.children()[1],
+                    item2 = list.children()[2];
+
+                c.list.extractItems({element1: item1, element2: item2});
+
+                var section = c.doc(),
+                    list1 = section.children()[0],
+                    oldItem1 = section.children()[1],
+                    oldItem2 = section.children()[2],
+                    list2 = section.children()[3];
+
+                expect(section.children().length).to.equal(4, 'section contains four children');
+                
+                expect(list1.is('list')).to.equal(true, 'first section child is a list');
+                expect(list1.children().length).to.equal(1, 'first list has one child');
+                expect(list1.children()[0].children()[0].getText()).to.equal('0', 'first item of the first list is a first item of the original list');
+
+                expect(oldItem1.children()[0].getText()).to.equal('1', 'first item got extracted');
+                expect(oldItem1.getWlxmlClass() === undefined).to.equal(true, 'first extracted element has no wlxml class');
+
+                expect(oldItem2.children()[0].getText()).to.equal('2', 'second item got extracted');
+                expect(oldItem2.getWlxmlClass() === undefined).to.equal(true, 'second extracted element has no wlxml class');
+
+                expect(list2.is('list')).to.equal(true, 'last section child is a list');
+                expect(list2.children().length).to.equal(1, 'second list has one child');
+                expect(list2.children()[0].children()[0].getText()).to.equal('3', 'first item of the second list is a last item of the original list');
+            });
         });
 
     });
