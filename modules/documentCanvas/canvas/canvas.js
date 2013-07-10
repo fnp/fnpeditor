@@ -199,7 +199,7 @@ $.extend(Canvas.prototype.list, {
 
         var reference = listIsNested ? list.parent() : list;
         if(succeedingItems.length === 0) {
-            var list = reference;
+            var reference_orig = reference;
             extractedItems.forEach(function(item) {
                 reference.after(item);
                 reference = item;
@@ -207,7 +207,7 @@ $.extend(Canvas.prototype.list, {
                     item.setWlxmlClass(null);
             });
             if(precedingItems.length === 0)
-                list.detach();
+                reference_orig.detach();
         } else if(precedingItems.length === 0) {
             extractedItems.forEach(function(item) {
                 reference.before(item);
@@ -215,12 +215,11 @@ $.extend(Canvas.prototype.list, {
                     item.setWlxmlClass(null);
             });
         } else {
-            var ptr = reference;
             extractedItems.forEach(function(item) {
-                ptr.after(item);
+                reference.after(item);
                 if(!listIsNested)
                     item.setWlxmlClass(null);
-                ptr = item;
+                reference = item;
             });
             var secondList = documentElement.DocumentNodeElement.create({tag: 'div', klass:'list-items'}, this),
                 toAdd = secondList;
@@ -232,7 +231,7 @@ $.extend(Canvas.prototype.list, {
                 secondList.append(item);
             });
 
-            ptr.after(toAdd);
+            reference.after(toAdd);
         }
     }
 });
