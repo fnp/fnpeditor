@@ -103,6 +103,8 @@ describe('Canvas', function() {
                 expect(section.getWlxmlClass()).to.equal('some.class');
                 section.setWlxmlClass('some.other.class');
                 expect(section.getWlxmlClass()).to.equal('some.other.class');
+                section.setWlxmlClass(null);
+                expect(section.getWlxmlClass()).to.be.undefined;
             });
         });
     });

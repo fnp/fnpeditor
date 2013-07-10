@@ -112,10 +112,16 @@ $.extend(DocumentNodeElement.prototype, {
         this.$element.attr('wlxml-tag', tag);
     },
     getWlxmlClass: function() {
-        return this.$element.attr('wlxml-class').replace('-', '.');
+        var klass = this.$element.attr('wlxml-class');
+        if(klass)
+            return klass.replace('-', '.');
+        return undefined;
     },
     setWlxmlClass: function(klass) {
-        this.$element.attr('wlxml-class', klass);
+        if(klass)
+            this.$element.attr('wlxml-class', klass);
+        else
+            this.$element.removeAttr('wlxml-class');
     },
     is: function(what) {
         if(what === 'list' && _.contains(['list-items', 'list-items-enum'], this.$element.attr('wlxml-class')))
