@@ -447,64 +447,114 @@ describe('Canvas', function() {
                 });
             });
 
-            it('allows extracting continuous list of list items from its list', function() {
-                var c = canvas.fromXML('\
-                    <section>\
-                        <div class="list.items">\
-                            <div class="item">0</div>\
-                            <div class="item">1</div>\
-                            <div class="item">2</div>\
-                            <div class="item">3</div>\
-                        </div>\
-                    </section>'),
-                    list = c.doc().children()[0],
-                    item1 = list.children()[1],
-                    item2 = list.children()[2];
+            describe('extracting list items', function() {
+                it('creates two lists with extracted items in the middle if extracting from the middle of the list', function() {
+                    var c = canvas.fromXML('\
+                        <section>\
+                            <div class="list.items">\
+                                <div class="item">0</div>\
+                                <div class="item">1</div>\
+                                <div class="item">2</div>\
+                                <div class="item">3</div>\
+                            </div>\
+                        </section>'),
+                        list = c.doc().children()[0],
+                        item1 = list.children()[1],
+                        item2 = list.children()[2];
 
-                c.list.extractItems({element1: item1, element2: item2});
+                    c.list.extractItems({element1: item1, element2: item2});
 
-                var section = c.doc(),
-                    list1 = section.children()[0],
-                    oldItem1 = section.children()[1],
-                    oldItem2 = section.children()[2],
-                    list2 = section.children()[3];
+                    var section = c.doc(),
+                        list1 = section.children()[0],
+                        oldItem1 = section.children()[1],
+                        oldItem2 = section.children()[2],
+                        list2 = section.children()[3];
 
-                expect(section.children().length).to.equal(4, 'section contains four children');
-                
-                expect(list1.is('list')).to.equal(true, 'first section child is a list');
-                expect(list1.children().length).to.equal(1, 'first list has one child');
-                expect(list1.children()[0].children()[0].getText()).to.equal('0', 'first item of the first list is a first item of the original list');
+                    expect(section.children().length).to.equal(4, 'section contains four children');
+                    
+                    expect(list1.is('list')).to.equal(true, 'first section child is a list');
+                    expect(list1.children().length).to.equal(1, 'first list has one child');
+                    expect(list1.children()[0].children()[0].getText()).to.equal('0', 'first item of the first list is a first item of the original list');
 
-                expect(oldItem1.children()[0].getText()).to.equal('1', 'first item got extracted');
-                expect(oldItem1.getWlxmlClass() === undefined).to.equal(true, 'first extracted element has no wlxml class');
+                    expect(oldItem1.children()[0].getText()).to.equal('1', 'first item got extracted');
+                    expect(oldItem1.getWlxmlClass() === undefined).to.equal(true, 'first extracted element has no wlxml class');
 
-                expect(oldItem2.children()[0].getText()).to.equal('2', 'second item got extracted');
-                expect(oldItem2.getWlxmlClass() === undefined).to.equal(true, 'second extracted element has no wlxml class');
+                    expect(oldItem2.children()[0].getText()).to.equal('2', 'second item got extracted');
+                    expect(oldItem2.getWlxmlClass() === undefined).to.equal(true, 'second extracted element has no wlxml class');
 
-                expect(list2.is('list')).to.equal(true, 'last section child is a list');
-                expect(list2.children().length).to.equal(1, 'second list has one child');
-                expect(list2.children()[0].children()[0].getText()).to.equal('3', 'first item of the second list is a last item of the original list');
-            });
+                    expect(list2.is('list')).to.equal(true, 'last section child is a list');
+                    expect(list2.children().length).to.equal(1, 'second list has one child');
+                    expect(list2.children()[0].children()[0].getText()).to.equal('3', 'first item of the second list is a last item of the original list');
+                });
 
-            it('removes list if all its items are extracted', function() {
-                var c = canvas.fromXML('\
-                    <section>\
-                        <div class="list.items">\
-                            <div class="item">some item</div>\
-                        </div>\
-                    </section>'),
-                    list = c.doc().children()[0],
-                    item = list.children()[0];
+                it('puts extracted items above the list if starting item is the first one', function() {
+                    var c = canvas.fromXML('\
+                        <section>\
+                            <div class="list.items">\
+                                <div class="item">0</div>\
+                                <div class="item">1</div>\
+                            </div>\
+                        </section>'),
+                        list = c.doc().children()[0],
+                        item1 = list.children()[0],
+                        item2 = list.children()[1];
 
-                c.list.extractItems({element1: item, element2: item});
+                    c.list.extractItems({element1: item1, element2: item1});
 
-                var section = c.doc(),
-                    list1 = section.children()[0],
-                    oldItem1 = section.children()[1],
-                    oldItem2 = section.children()[2],
-                    list2 = section.children()[3];
+                    var section = c.doc(),
+                        oldItem = section.children()[0],
+                        newList = section.children()[1];
 
-                expect(section.children().length).to.equal(1, 'section contains one child');
+                    expect(section.children().length).to.equal(2, 'section has two children');
+                    expect(oldItem.children()[0].getText()).to.equal('0', 'first item extracted');
+                    expect(newList.is('list')).to.equal(true, 'list lies below extracted item');
+                    expect(newList.children().length).to.equal(1, 'list has now one child');
+                });
+
+                it('puts extracted items below the list if ending item is the last one', function() {
+                    var c = canvas.fromXML('\
+                        <section>\
+                            <div class="list.items">\
+                                <div class="item">0</div>\
+                                <div class="item">1</div>\
+                            </div>\
+                        </section>'),
+                        list = c.doc().children()[0],
+                        item1 = list.children()[0],
+                        item2 = list.children()[1];
+
+                    c.list.extractItems({element1: item2, element2: item2});
+
+                    var section = c.doc(),
+                        oldItem = section.children()[1],
+                        newList = section.children()[0];
+
+                    expect(section.children().length).to.equal(2, 'section has two children');
+                    expect(oldItem.children()[0].getText()).to.equal('1', 'first item extracted');
+                    expect(newList.is('list')).to.equal(true, 'list lies above extracted item');
+                    expect(newList.children().length).to.equal(1, 'list has now one child');
+                });
+
+                it('removes list if all its items are extracted', function() {
+                    var c = canvas.fromXML('\
+                        <section>\
+                            <div class="list.items">\
+                                <div class="item">some item</div>\
+                            </div>\
+                        </section>'),
+                        list = c.doc().children()[0],
+                        item = list.children()[0];
+
+                    c.list.extractItems({element1: item, element2: item});
+
+                    var section = c.doc(),
+                        list1 = section.children()[0],
+                        oldItem1 = section.children()[1],
+                        oldItem2 = section.children()[2],
+                        list2 = section.children()[3];
+
+                    expect(section.children().length).to.equal(1, 'section contains one child');
+                });
             });
         });
 
