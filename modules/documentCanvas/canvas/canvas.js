@@ -198,7 +198,7 @@ $.extend(Canvas.prototype.list, {
         });
 
         var reference = listIsNested ? list.parent() : list;
-        if(precedingItems.length === 0 && succeedingItems.length === 0) {
+        if(succeedingItems.length === 0) {
             var list = reference;
             extractedItems.forEach(function(item) {
                 reference.after(item);
@@ -206,15 +206,9 @@ $.extend(Canvas.prototype.list, {
                 if(!listIsNested)
                     item.setWlxmlClass(null);
             });
-            list.detach();
-        } else if(precedingItems.length > 0 && succeedingItems.length === 0) {
-            extractedItems.forEach(function(item) {
-                reference.after(item);
-                reference = item;
-                if(!listIsNested)
-                    item.setWlxmlClass(null);
-            });
-        } else if(precedingItems.length === 0 && succeedingItems.length > 0) {
+            if(precedingItems.length === 0)
+                list.detach();
+        } else if(precedingItems.length === 0) {
             extractedItems.forEach(function(item) {
                 reference.before(item);
                 if(!listIsNested)
