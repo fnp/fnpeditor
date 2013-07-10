@@ -485,6 +485,27 @@ describe('Canvas', function() {
                 expect(list2.children().length).to.equal(1, 'second list has one child');
                 expect(list2.children()[0].children()[0].getText()).to.equal('3', 'first item of the second list is a last item of the original list');
             });
+
+            it('removes list if all its items are extracted', function() {
+                var c = canvas.fromXML('\
+                    <section>\
+                        <div class="list.items">\
+                            <div class="item">some item</div>\
+                        </div>\
+                    </section>'),
+                    list = c.doc().children()[0],
+                    item = list.children()[0];
+
+                c.list.extractItems({element1: item, element2: item});
+
+                var section = c.doc(),
+                    list1 = section.children()[0],
+                    oldItem1 = section.children()[1],
+                    oldItem2 = section.children()[2],
+                    list2 = section.children()[3];
+
+                expect(section.children().length).to.equal(1, 'section contains one child');
+            });
         });
 
     });

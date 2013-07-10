@@ -196,13 +196,17 @@ $.extend(Canvas.prototype.list, {
             last = item;
         });
 
-        var secondList = documentElement.DocumentNodeElement.create({tag: 'div', klass:'list-items'}, this);
+        if(list.children().length === 0)
+            list.detach();
 
-        last.after(secondList);
+        if(succeedingItems.length > 0) {
+            var secondList = documentElement.DocumentNodeElement.create({tag: 'div', klass:'list-items'}, this);
+            last.after(secondList);
 
-        succeedingItems.forEach(function(item) {
-            secondList.append(item);
-        });
+            succeedingItems.forEach(function(item) {
+                secondList.append(item);
+            });
+        }
     }
 });
 
