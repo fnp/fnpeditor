@@ -358,6 +358,8 @@ describe('Canvas', function() {
 
                     expect(returned.sameNode(parent)).to.be.true;
                     expect(returned.sameNode(parent2)).to.be.true;
+                    expect(returned.getWlxmlTag()).to.equal('header');
+                    expect(returned.getWlxmlClass()).to.equal('some.class');
                 });
                 it('wraps DocumentTextElement', function() {
                     var c = canvas.fromXML('<section>Alice</section>'),
@@ -369,6 +371,8 @@ describe('Canvas', function() {
 
                     expect(returned.sameNode(parent)).to.be.true;
                     expect(returned.sameNode(parent2)).to.be.true;
+                    expect(returned.getWlxmlTag()).to.equal('header');
+                    expect(returned.getWlxmlClass()).to.equal('some.class');
                 });
                 
                 it('wraps part of DocumentTextElement', function() {
@@ -384,6 +388,8 @@ describe('Canvas', function() {
                     expect(children[0].getText()).to.equal('Alice');
 
                     expect(children[1].sameNode(returned)).to.be.true;
+                    expect(returned.getWlxmlTag()).to.equal('header');
+                    expect(returned.getWlxmlClass()).to.equal('some.class');
                     expect(children[1].children().length).to.equal(1);
                     expect(children[1].children()[0].getText()).to.equal(' has a ');
 

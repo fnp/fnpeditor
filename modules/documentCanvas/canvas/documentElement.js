@@ -49,8 +49,10 @@ $.extend(DocumentElement.prototype, {
     },
 
     wrapWithNodeElement: function(wlxmlNode) {
-        this.$element.wrap($('<' + wlxmlNode.tag + ' class="' + wlxmlNode.klass.replace('.', '-') + '">')[0]);
-        return documentElementFromHTMLElement(this.$element.parent().get(0), this.canvas);
+        var wrapper = DocumentNodeElement.create({tag: wlxmlNode.tag, klass: wlxmlNode.klass});
+        this.$element.replaceWith(wrapper.dom());
+        wrapper.append(this);
+        return wrapper;
     },
 
     childIndex: function(child) {
