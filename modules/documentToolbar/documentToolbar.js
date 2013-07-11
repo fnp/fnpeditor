@@ -11,35 +11,32 @@ return function(sandbox) {
             
             this.node.find('button').click(function(e) {
                 e.stopPropagation();
-                var btn = $(e.currentTarget);
+                var btn = $(e.currentTarget),
+                    btnName = btn.attr('data-name'),
+                    meta = btn.attr('data-meta'),
+                    params = {},
+                    command = btnName;
+
                 if(btn.attr('data-btn-type') === 'toggle') {
+                    command = 'toggle-' + command;
                     btn.toggleClass('active');
-                    var event;
-                    var btnId = btn.attr('data-btn');
-                    if(btnId === 'grid')
-                        event = 'toggleGrid';
-                    if(btnId === 'tags')
-                        event = 'toggleTags';
-                    if(btnId === 'list')
-                        event = 'toggleList'
-                    sandbox.publish(event, btn.hasClass('active'));
+                    params.toggle = btn.hasClass('active');
                 }
-                if(btn.attr('data-btn-type') === 'cmd') {
-                    var command = btn.attr('data-btn');
-                    var meta = btn.attr('data-meta');
-                    if(command === 'new-node') {
-                        var wlxmlTag = view.getOption('newTag-tag');
-                        var wlxmlClass = view.getOption('newTag-class');
-                        if(meta) {
-                            var split = meta.split('/');
-                            wlxmlTag = split[0];
-                            wlxmlClass = split[1];
-                        }
-                        sandbox.publish('newNodeRequested', wlxmlTag, wlxmlClass);
-                    } else {
-                        sandbox.publish('command', btn.attr('data-btn'), btn.attr('data-meta'));
+
+                if(btnName === 'new-node') {
+                    command = 'newNodeRequested';
+                    params.wlxmlTag = view.getOption('newTag-tag');
+                    params.wlxmlClass = view.getOption('newTag-class');
+                    if(meta) {
+                        var split = meta.split('/');
+                        params.wlxmlTag = split[0];
+                        params.wlxmlClass = split[1];
                     }
+                } else {
+                    params.meta = meta;
                 }
+
+                sandbox.publish('command', command, params);
             });
         },
         getOption: function(option) {

@@ -1,9 +1,9 @@
 <div class="rng-module-documentToolbar">
     <div class="rng-module-documentToolbar-toolbarGroup">
-        <button data-btn="new-node" data-meta="header/" data-btn-type="cmd" class="btn btn-mini">header</button>
-        <button data-btn="new-node" data-meta="div/p" data-btn-type="cmd" class="btn btn-mini">div/p</button>
-        <button data-btn="new-node" data-meta="span/cite" data-btn-type="cmd" class="btn btn-mini">span/cite</i></button>
-        <button data-btn="new-node" data-meta="span/uri" data-btn-type="cmd" class="btn btn-mini">span/uri</i></button>
+        <button data-name="new-node" data-meta="header/" data-btn-type="cmd" class="btn btn-mini">header</button>
+        <button data-name="new-node" data-meta="div/p" data-btn-type="cmd" class="btn btn-mini">div/p</button>
+        <button data-name="new-node" data-meta="span/cite" data-btn-type="cmd" class="btn btn-mini">span/cite</i></button>
+        <button data-name="new-node" data-meta="span/uri" data-btn-type="cmd" class="btn btn-mini">span/uri</i></button>
         <select class="rng-module-documentToolbar-toolbarOption" data-option="newTag-tag">
             <% var options = ['', 'section', 'header', 'div', 'span', 'aside']; %>
             <% options.forEach(function(option) { %>
@@ -16,19 +16,19 @@
                 <option value="<%= option.replace(/\./g, '-') %>" <% if(option==='cite') { %>selected<% } %>><%= option %></option>
             <% }); %>
         </select>
-        <button data-btn="new-node" data-btn-type="cmd" class="btn btn-mini"><i class="icon-plus"></i></button>
+        <button data-name="new-node" data-btn-type="cmd" class="btn btn-mini"><i class="icon-plus"></i></button>
     </div>
     <div class="rng-module-documentToolbar-toolbarGroup">
-        <button data-btn="unwrap-node" data-btn-type="cmd" class="btn btn-mini"><i class="icon-arrow-up"></i></button>
-        <button data-btn="wrap-node" data-btn-type="cmd" class="btn btn-mini"><i class="icon-arrow-down"></i></button>
+        <button data-name="unwrap-node" data-btn-type="cmd" class="btn btn-mini"><i class="icon-arrow-up"></i></button>
+        <button data-name="wrap-node" data-btn-type="cmd" class="btn btn-mini"><i class="icon-arrow-down"></i></button>
     </div>    
     <div class="rng-module-documentToolbar-toolbarGroup">
-        <button data-btn="grid" data-btn-type="toggle" class="btn btn-mini"><i class="icon-th-large"></i></button>
-        <button data-btn="tags" data-btn-type="toggle" class="btn btn-mini"><i class="icon-tag"></i></button>
+        <button data-name="grid" data-btn-type="toggle" class="btn btn-mini"><i class="icon-th-large"></i></button>
+        <button data-name="tags" data-btn-type="toggle" class="btn btn-mini"><i class="icon-tag"></i></button>
     </div>
     <div class="rng-module-documentToolbar-toolbarGroup">
-        <button data-btn="list" data-btn-type="toggle" data-meta="bullets" class="btn btn-mini"><i class="icon-list"></i></button>
-        <button data-btn="createList" data-btn-type="cmd" data-meta="enum" class="btn btn-mini"><i class="icon-th-list"></i></button>
+        <button data-name="list" data-btn-type="toggle" data-meta="bullets" class="btn btn-mini"><i class="icon-list"></i></button>
+        <<button data-name="createList" data-btn-type="cmd" data-meta="enum" class="btn btn-mini"><i class="icon-th-list"></i></button>
     </div>
     <div style="clear: both;"></div>
 </div>

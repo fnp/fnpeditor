@@ -56,17 +56,8 @@ return function(sandbox) {
             if(!canvasNode.isSame(manager.currentNode))
                 manager.selectNode(canvasNode, {movecaret: true});
         },
-        toggleGrid: function(toggle) {
-            manager.toggleGrid(toggle);
-        },
-        toggleList: function(toggle) {
-            manager.toggleList(toggle);
-        },
-        insertNewNode: function(wlxmlTag, wlxmlClass) {
-            manager.insertNewNode(wlxmlTag, wlxmlClass);
-        },
-        command: function(command, meta) {
-            manager.command(command, meta);
+        command: function(command, params) {
+            manager.command(command, params);
         }
     };
     

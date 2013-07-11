@@ -256,17 +256,8 @@ return function(sandbox) {
         ready: function() {
             views.visualEditing.setView('toolbar', sandbox.getModule('documentToolbar').getView());
         },
-        toggleGrid: function(toggle) {
-            sandbox.getModule('documentCanvas').toggleGrid(toggle);
-        },
-        toggleList: function(toggle) {
-            sandbox.getModule('documentCanvas').toggleList(toggle);
-        },
-        newNodeRequested: function(wlxmlTag, wlxmlClass) {
-                sandbox.getModule('documentCanvas').insertNewNode(wlxmlTag, wlxmlClass);
-        },
-        command: function(cmd, meta) {
-            sandbox.getModule('documentCanvas').command(cmd, meta);
+        command: function(cmd, params) {
+            sandbox.getModule('documentCanvas').command(cmd, params);
         }
     };
     
