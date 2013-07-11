@@ -426,6 +426,19 @@ describe('Canvas', function() {
                     expect(wrapperChildren[2].getText()).to.equal(' cat');
                 });
             });
+
+            describe('unwrapping', function() {
+                it('unwraps DocumentTextElement from its parent DocumentNodeElement if it\'s its only child', function() {
+                    var c = canvas.fromXML('<section><div>Alice has a cat</div></section>'),
+                    section = c.doc(),
+                    text = section.children()[0].children()[0];
+
+                    text.unwrap();
+
+                    expect(section.children().length).to.equal(1);
+                    expect(section.children()[0].getText()).to.equal('Alice has a cat');
+                })
+            });
         });
 
         describe('Lists api', function() {

@@ -198,6 +198,13 @@ $.extend(DocumentTextElement.prototype, {
             return DocumentElement.prototype.wrapWithNodeElement.call(this, wlxmlNode);
         }
     },
+    unwrap: function() {
+        if(this.parent().children().length === 1) {
+            var parent = this.parent();
+            parent.after(this);
+            parent.detach();
+        }
+    },
     split: function(params) {
         var parentElement = this.parent(),
             myIdx = parentElement.childIndex(this),
