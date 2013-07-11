@@ -194,30 +194,28 @@ Manager.prototype.toggleList = function(toggle) {
 Manager.prototype.command = function(command, params) {
     var selection  = window.getSelection(),
         element1 = this.canvas.getDocumentElement(selection.anchorNode),
-        element2 = this.canvas.getDocumentElement(selection.focusNode);
+        element2 = this.canvas.getDocumentElement(selection.focusNode),
+        parent1 = element1.parent(),
+        parent2 = element2.parent();
 
     if(command === 'unwrap-node') {
         // this.canvas.nodeUnwrap({node: canvasNode.create(pos.parentNode)});
         // this.sandbox.publish('contentChanged');
-        element1 = element1.parent();
-        element2 = element2.parent();
-        if(this.canvas.list.areItemsOfTheSameList({element1: element1, element2: element2})) {
-            this.canvas.list.extractItems({element1: element1, element2: element2});
+        if(this.canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
+            this.canvas.list.extractItems({element1: parent1, element2: parent2});
+        } else if (!selection.collapsed) {
+            element1.unwrap();
         }
     } else if(command === 'wrap-node') {
-        element1 = element1.parent();
-        element2 = element2.parent();
-        if(this.canvas.list.areItemsOfTheSameList({element1: element1, element2: element2})) {
-            this.canvas.list.create({element1: element1, element2: element2});
+        if(this.canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
+            this.canvas.list.create({element1: parent1, element2: parent2});
         }
     } else if(command === 'toggle-list') {
-        element1 = element1.parent();
-        element2 = element2.parent();
         if(params.toggle) {
-            this.canvas.list.create({element1: element1, element2: element2});
+            this.canvas.list.create({element1: parent1, element2: parent2});
         } else {
-            if(this.canvas.list.areItemsOfTheSameList({element1: element1, element2: element2})) {
-                this.canvas.list.extractItems({element1: element1, element2: element2, merge: false});
+            if(this.canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
+                this.canvas.list.extractItems({element1: parent1, element2: parent2, merge: false});
             } 
         }
     } else if(command == 'toggle-grid') {
