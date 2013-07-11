@@ -156,7 +156,7 @@ $.extend(Canvas.prototype.list, {
         
         var toret;
         if(parent.is('list')) {
-            listElement.wrap({tag: 'div', klass: 'item'});
+            listElement.wrapWithNodeElement({tag: 'div', klass: 'item'});
             toret = listElement.parent();
         } else {
             toret = listElement;

@@ -442,33 +442,70 @@ describe('Canvas', function() {
         });
 
         describe('Lists api', function() {
-            it('allows creation of a list from existing sibling DocumentElements', function() {
-                var c = canvas.fromXML('\
-                    <section>\
-                        Alice\
-                        <div>has</div>\
-                        a\
-                        <div>cat</div>\
-                    </section>'),
-                    section = c.doc(),
-                    textHas = section.children()[1],
-                    divA = section.children()[2]
-                
-                c.list.create({element1: textHas, element2: divA});
+            describe('creating lists', function() {
+                it('allows creation of a list from existing sibling DocumentElements', function() {
+                    var c = canvas.fromXML('\
+                        <section>\
+                            Alice\
+                            <div>has</div>\
+                            a\
+                            <div>cat</div>\
+                        </section>'),
+                        section = c.doc(),
+                        textHas = section.children()[1],
+                        divA = section.children()[2]
+                    
+                    c.list.create({element1: textHas, element2: divA});
 
-                expect(section.children().length).to.equal(3, 'section has three child elements');
+                    expect(section.children().length).to.equal(3, 'section has three child elements');
 
-                var child1 = section.children()[0],
-                    list = section.children()[1],
-                    child3 = section.children()[2];
+                    var child1 = section.children()[0],
+                        list = section.children()[1],
+                        child3 = section.children()[2];
 
-                expect(child1.getText()).to.equal('Alice');
-                expect(list.is('list')).to.equal(true, 'second child is a list');
-                expect(list.children().length).to.equal(2, 'list contains two elements');
-                list.children().forEach(function(child) {
-                    expect(child.getWlxmlClass()).to.equal('item', 'list childs have wlxml class of item');
+                    expect(child1.getText()).to.equal('Alice');
+                    expect(list.is('list')).to.equal(true, 'second child is a list');
+                    expect(list.children().length).to.equal(2, 'list contains two elements');
+                    list.children().forEach(function(child) {
+                        expect(child.getWlxmlClass()).to.equal('item', 'list childs have wlxml class of item');
+                    });
+                    expect(child3.children()[0].getText()).to.equal('cat');
                 });
-                expect(child3.children()[0].getText()).to.equal('cat');
+                
+                it('allows creating nested list from existing sibling list items', function() {
+                    var c = canvas.fromXML('\
+                        <section>\
+                            <div class="list-items">\
+                                <div class="item">A</div>\
+                                <div class="item">B</div>\
+                                <div class="item">C</div>\
+                                <div class="item">D</div>\
+                            </div>\
+                        </section>'),
+                        outerList = c.doc().children()[0],
+                        itemB = outerList.children()[1],
+                        itemC = outerList.children()[2];
+
+
+                        c.list.create({element1: itemB, element2: itemC});
+
+                    var outerListItems = outerList.children(),
+                        innerList = outerListItems[1].children()[0],
+                        innerListItems = innerList.children();
+
+                    expect(outerListItems.length).to.equal(3, 'outer list has three items');
+                    expect(outerListItems[0].children()[0].getText()).to.equal('A', 'first outer item ok');
+                    expect(outerListItems[1].getWlxmlClass()).to.equal('item', 'inner list is wrapped by item element');
+
+                    expect(innerList.is('list')).to.equal(true, 'inner list created');
+                    expect(innerListItems.length).to.equal(2, 'inner list has two items');
+                    expect(innerListItems[0].children()[0].getText()).to.equal('B', 'first inner item ok');
+                    expect(innerListItems[1].children()[0].getText()).to.equal('C', 'second inner item ok');
+
+                    expect(outerListItems[2].children()[0].getText()).to.equal('D', 'last outer item ok');
+
+                });
+
             });
 
             describe('extracting list items', function() {
