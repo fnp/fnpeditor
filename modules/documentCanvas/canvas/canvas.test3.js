@@ -451,19 +451,24 @@ describe('Canvas', function() {
                         <div>cat</div>\
                     </section>'),
                     section = c.doc(),
-                    textAlice = section.children()[0],
-                    divCat = section.children()[3]
+                    textHas = section.children()[1],
+                    divA = section.children()[2]
                 
-                c.list.create({element1: textAlice, element2: divCat});
+                c.list.create({element1: textHas, element2: divA});
 
-                expect(section.children().length).to.equal(1, 'section has one child element');
+                expect(section.children().length).to.equal(3, 'section has three child elements');
 
-                var list = section.children()[0];
-                expect(list.is('list')).to.equal(true, 'section\'s only child is a list');
-                expect(list.children().length).to.equal(4, 'list contains four elements');
+                var child1 = section.children()[0],
+                    list = section.children()[1],
+                    child3 = section.children()[2];
+
+                expect(child1.getText()).to.equal('Alice');
+                expect(list.is('list')).to.equal(true, 'second child is a list');
+                expect(list.children().length).to.equal(2, 'list contains two elements');
                 list.children().forEach(function(child) {
                     expect(child.getWlxmlClass()).to.equal('item', 'list childs have wlxml class of item');
                 });
+                expect(child3.children()[0].getText()).to.equal('cat');
             });
 
             describe('extracting list items', function() {

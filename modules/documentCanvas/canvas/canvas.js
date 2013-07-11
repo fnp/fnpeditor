@@ -135,7 +135,8 @@ $.extend(Canvas.prototype.list, {
         
         var place = 'before';
         var canvas = this;
-        parent.children().forEach(function(element) {
+        parent.children().some(function(element) {
+            var _e = element;
             if(element.sameNode(params.element1))
                 place = 'inside';
             if(place === 'inside') {
@@ -147,8 +148,8 @@ $.extend(Canvas.prototype.list, {
                 element.setWlxmlClass('item');
                 elementsToWrap.push(element);
             }
-            if(element.sameNode(params.element2))
-                return false;
+            if(_e.sameNode(params.element2))
+                return true;
         });
         
         var listElement = documentElement.DocumentNodeElement.create({tag: 'div', klass: 'list-items' + (params.type === 'enum' ? '-enum' : '')});
