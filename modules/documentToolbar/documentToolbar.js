@@ -20,6 +20,8 @@ return function(sandbox) {
                         event = 'toggleGrid';
                     if(btnId === 'tags')
                         event = 'toggleTags';
+                    if(btnId === 'list')
+                        event = 'toggleList'
                     sandbox.publish(event, btn.hasClass('active'));
                 }
                 if(btn.attr('data-btn-type') === 'cmd') {

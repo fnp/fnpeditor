@@ -228,19 +228,36 @@ Manager.prototype.onBackspaceKey = function(e) {
     }
 };
 
+Manager.prototype.toggleList = function(toggle) {
+    var selection  = window.getSelection(),
+        node1 = $(selection.anchorNode).parent()[0],
+        node2 = $(selection.focusNode).parent()[0],
+        element1 = this.canvas.getDocumentElement(node1),
+        element2 = this.canvas.getDocumentElement(node2);
+    if(toggle) {
+        this.canvas.list.create({element1: element1, element2: element2});
+    } else {
+        if(this.canvas.list.areItemsOfTheSameList({element1: element1, element2: element2})) {
+            this.canvas.list.extractItems({element1: element1, element2: element2, merge: false});
+        } 
+    }
+};
+
 Manager.prototype.command = function(command, meta) {
     var selection  = window.getSelection(),
         node1 = $(selection.anchorNode).parent()[0],
         node2 = $(selection.focusNode).parent()[0],
         element1 = this.canvas.getDocumentElement(node1),
         element2 = this.canvas.getDocumentElement(node2);
-    if(command === 'createList') {
-        this.canvas.list.create({element1: element1, element2: element2});
-    } else if(command === 'unwrap-node') {
+    if(command === 'unwrap-node') {
         // this.canvas.nodeUnwrap({node: canvasNode.create(pos.parentNode)});
         // this.sandbox.publish('contentChanged');
         if(this.canvas.list.areItemsOfTheSameList({element1: element1, element2: element2})) {
             this.canvas.list.extractItems({element1: element1, element2: element2});
+        }
+    } else if(command === 'wrap-node') {
+        if(this.canvas.list.areItemsOfTheSameList({element1: element1, element2: element2})) {
+            this.canvas.list.create({element1: element1, element2: element2});
         }
     }
 

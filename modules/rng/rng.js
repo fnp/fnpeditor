@@ -259,6 +259,9 @@ return function(sandbox) {
         toggleGrid: function(toggle) {
             sandbox.getModule('documentCanvas').toggleGrid(toggle);
         },
+        toggleList: function(toggle) {
+            sandbox.getModule('documentCanvas').toggleList(toggle);
+        },
         newNodeRequested: function(wlxmlTag, wlxmlClass) {
                 sandbox.getModule('documentCanvas').insertNewNode(wlxmlTag, wlxmlClass);
         },

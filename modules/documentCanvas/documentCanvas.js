@@ -59,6 +59,9 @@ return function(sandbox) {
         toggleGrid: function(toggle) {
             manager.toggleGrid(toggle);
         },
+        toggleList: function(toggle) {
+            manager.toggleList(toggle);
+        },
         insertNewNode: function(wlxmlTag, wlxmlClass) {
             manager.insertNewNode(wlxmlTag, wlxmlClass);
         },
