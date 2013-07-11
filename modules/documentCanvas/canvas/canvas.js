@@ -116,7 +116,7 @@ $.extend(Canvas.prototype, {
         return wrapperElement;
     },
     getDocumentElement: function(from) {
-        if(from instanceof HTMLElement) {
+        if(from instanceof HTMLElement || from instanceof Text) {
            return documentElement.wrap(from, this);
         }
     },

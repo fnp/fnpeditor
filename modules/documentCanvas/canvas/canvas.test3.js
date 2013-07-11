@@ -107,6 +107,22 @@ describe('Canvas', function() {
                 expect(section.getWlxmlClass()).to.be.undefined;
             });
         });
+
+        it('returns DocumentNodeElement instance from HTMLElement', function() {
+            var c = canvas.fromXML('<section></section>'),
+                htmlElement = c.doc().dom().get(0),
+                element = c.getDocumentElement(htmlElement);
+            expect(element).to.be.instanceOf(documentElement.DocumentNodeElement);
+            expect(element.sameNode(c.doc()));
+        });
+        
+        it('returns DocumentTextElement instance from Text Node', function() {
+            var c = canvas.fromXML('<section>Alice</section>'),
+                textNode = c.doc().children(0)[0].dom().get(0),
+                element = c.getDocumentElement(textNode);
+            expect(element).to.be.instanceOf(documentElement.DocumentTextElement);
+            expect(element.sameNode(c.doc().children()[0]));
+        });
     });
 
 
