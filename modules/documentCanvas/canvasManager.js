@@ -203,7 +203,7 @@ Manager.prototype.command = function(command, params) {
         // this.sandbox.publish('contentChanged');
         if(this.canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
             this.canvas.list.extractItems({element1: parent1, element2: parent2});
-        } else if (!selection.collapsed) {
+        } else if (selection.isCollapsed) {
             element1.unwrap();
         }
     } else if(command === 'wrap-node') {
