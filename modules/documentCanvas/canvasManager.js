@@ -195,8 +195,8 @@ Manager.prototype.command = function(command, params) {
     var selection  = window.getSelection(),
         element1 = this.canvas.getDocumentElement(selection.anchorNode),
         element2 = this.canvas.getDocumentElement(selection.focusNode),
-        parent1 = element1.parent(),
-        parent2 = element2.parent();
+        parent1 = element1 ? element1.parent() : undefined,
+        parent2 = element2 ? element2.parent() : undefined;
 
     if(command === 'unwrap-node') {
         // this.canvas.nodeUnwrap({node: canvasNode.create(pos.parentNode)});
