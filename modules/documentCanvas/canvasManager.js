@@ -229,25 +229,19 @@ Manager.prototype.onBackspaceKey = function(e) {
 };
 
 Manager.prototype.command = function(command, meta) {
-    var pos = getCursorPosition();
-    
+    var selection  = window.getSelection(),
+        node1 = $(selection.anchorNode).parent()[0],
+        node2 = $(selection.focusNode).parent()[0],
+        element1 = this.canvas.getDocumentElement(node1),
+        element2 = this.canvas.getDocumentElement(node2);
     if(command === 'createList') {
-        var node = canvasNode.create(pos.parentNode);
-        if(window.getSelection().getRangeAt(0).collapsed && this.canvas.nodeInsideList({node: node})) {
-            this.canvas.listRemove({pointer: node});
-            this.selectNode(node, {movecaret: 'end'});
-            this.sandbox.publish('contentChanged');
-        }
-        else {
-            //if(!this.canvas.nodeInsideList({node: node})) {
-                this.canvas.listCreate({start: node, end: canvasNode.create(pos.focusNode), type: meta});
-                this.selectNode(node, {movecaret: 'end'});
-                this.sandbox.publish('contentChanged');
-            //}
-        }
+        this.canvas.list.create({element1: element1, element2: element2});
     } else if(command === 'unwrap-node') {
-        this.canvas.nodeUnwrap({node: canvasNode.create(pos.parentNode)});
-        this.sandbox.publish('contentChanged');
+        // this.canvas.nodeUnwrap({node: canvasNode.create(pos.parentNode)});
+        // this.sandbox.publish('contentChanged');
+        if(this.canvas.list.areItemsOfTheSameList({element1: element1, element2: element2})) {
+            this.canvas.list.extractItems({element1: element1, element2: element2});
+        }
     }
 
 };

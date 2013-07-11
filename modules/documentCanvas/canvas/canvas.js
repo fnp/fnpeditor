@@ -115,6 +115,11 @@ $.extend(Canvas.prototype, {
             wrapperElement.after({text: suffixOutside});
         return wrapperElement;
     },
+    getDocumentElement: function(from) {
+        if(from instanceof HTMLElement) {
+           return documentElement.wrap(from, this);
+        }
+    },
     list: {}
 });
 
@@ -234,6 +239,12 @@ $.extend(Canvas.prototype.list, {
 
             reference.after(toAdd);
         }
+    },
+    areItemsOfTheSameList: function(params) {
+        var e1 = params.element1,
+            e2 = params.element2;
+        return e1.parent().sameNode(e2.parent())
+            && e1.parent().is('list');
     }
 });
 
