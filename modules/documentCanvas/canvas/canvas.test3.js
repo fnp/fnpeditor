@@ -375,26 +375,42 @@ describe('Canvas', function() {
                     expect(returned.getWlxmlClass()).to.equal('some.class');
                 });
                 
-                it('wraps part of DocumentTextElement', function() {
-                    var c = canvas.fromXML('<section>Alice has a cat</section>'),
-                        text = c.doc().children()[0];
-                    
-                    var returned = text.wrapWithNodeElement({tag: 'header', klass: 'some.class', start: 5, end: 12}),
-                        children = c.doc().children();
+                describe('wrapping part of DocumentTextElement', function() {
+                    [{start: 5, end: 12}, {start: 12, end: 5}].forEach(function(offsets) {
+                        it('wraps in the middle ' + offsets.start + '/' + offsets.end, function() {
+                            var c = canvas.fromXML('<section>Alice has a cat</section>'),
+                                text = c.doc().children()[0];
+                            
+                            var returned = text.wrapWithNodeElement({tag: 'header', klass: 'some.class', start: offsets.start, end: offsets.end}),
+                                children = c.doc().children();
 
-                    expect(children.length).to.equal(3);
-                    
-                    expect(children[0]).to.be.instanceOf(documentElement.DocumentTextElement);
-                    expect(children[0].getText()).to.equal('Alice');
+                            expect(children.length).to.equal(3);
+                            
+                            expect(children[0]).to.be.instanceOf(documentElement.DocumentTextElement);
+                            expect(children[0].getText()).to.equal('Alice');
 
-                    expect(children[1].sameNode(returned)).to.be.true;
-                    expect(returned.getWlxmlTag()).to.equal('header');
-                    expect(returned.getWlxmlClass()).to.equal('some.class');
-                    expect(children[1].children().length).to.equal(1);
-                    expect(children[1].children()[0].getText()).to.equal(' has a ');
+                            expect(children[1].sameNode(returned)).to.be.true;
+                            expect(returned.getWlxmlTag()).to.equal('header');
+                            expect(returned.getWlxmlClass()).to.equal('some.class');
+                            expect(children[1].children().length).to.equal(1);
+                            expect(children[1].children()[0].getText()).to.equal(' has a ');
 
-                    expect(children[2]).to.be.instanceOf(documentElement.DocumentTextElement);
-                    expect(children[2].getText()).to.equal('cat');
+                            expect(children[2]).to.be.instanceOf(documentElement.DocumentTextElement);
+                            expect(children[2].getText()).to.equal('cat');
+                        });
+                    });
+
+                    it('wraps whole text inside DocumentTextElement if offsets span entire content', function() {
+                         var c = canvas.fromXML('<section>Alice has a cat</section>'),
+                             text = c.doc().children()[0];
+                         
+                         var returned = text.wrapWithNodeElement({tag: 'header', klass: 'some.class', start: 0, end: 15}),
+                             children = c.doc().children();
+
+                         expect(children.length).to.equal(1);
+                         expect(children[0]).to.be.instanceOf(documentElement.DocumentNodeElement);
+                         expect(children[0].children()[0].getText()).to.equal('Alice has a cat');
+                    });
                 });
 
                 it('wraps text spanning multiple sibling DocumentTextNodes', function() {

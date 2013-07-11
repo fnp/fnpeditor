@@ -186,12 +186,12 @@ $.extend(DocumentTextElement.prototype, {
         return documentElementFromHTMLElement(dom[0]);
     },
     wrapWithNodeElement: function(wlxmlNode) {
-        if(wlxmlNode.start && wlxmlNode.end) {
+        if(typeof wlxmlNode.start === 'number' && typeof wlxmlNode.end === 'number') {
             return this.canvas.wrapText({
                 inside: this.parent(),
                 textNodeIdx: this.parent().childIndex(this),
-                offsetStart: wlxmlNode.start,
-                offsetEnd: wlxmlNode.end,
+                offsetStart: Math.min(wlxmlNode.start, wlxmlNode.end),
+                offsetEnd: Math.max(wlxmlNode.start, wlxmlNode.end),
                 _with: {tag: wlxmlNode.tag, klass: wlxmlNode.klass}
             });
         } else {
