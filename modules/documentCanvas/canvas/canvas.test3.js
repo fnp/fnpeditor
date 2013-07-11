@@ -647,7 +647,7 @@ describe('Canvas', function() {
                         nestedList = list.children()[1].children()[0],
                         nestedListItem = nestedList.children()[1];
 
-                    c.list.extractItems({element1: nestedListItem, element2: nestedListItem, merge: true});
+                    c.list.extractItems({element1: nestedListItem, element2: nestedListItem});
 
                     var section = c.doc(),
                         list = section.children()[0],
@@ -696,7 +696,7 @@ describe('Canvas', function() {
                         nestedListItem1 = nestedList.children()[1],
                         nestedListItem2 = nestedList.children()[2];
 
-                    c.list.extractItems({element1: nestedListItem1, element2: nestedListItem2, merge: true});
+                    c.list.extractItems({element1: nestedListItem1, element2: nestedListItem2});
 
                     var section = c.doc(),
                         list = section.children()[0],
@@ -737,7 +737,7 @@ describe('Canvas', function() {
                         nestedListItem1 = nestedList.children()[0],
                         nestedListItem2 = nestedList.children()[1];
 
-                    c.list.extractItems({element1: nestedListItem1, element2: nestedListItem2, merge: true});
+                    c.list.extractItems({element1: nestedListItem1, element2: nestedListItem2});
 
                     var section = c.doc(),
                         list = section.children()[0],
@@ -778,7 +778,7 @@ describe('Canvas', function() {
                         nestedListItem1 = nestedList.children()[0],
                         nestedListItem2 = nestedList.children()[1];
 
-                    c.list.extractItems({element1: nestedListItem1, element2: nestedListItem2, merge: true});
+                    c.list.extractItems({element1: nestedListItem1, element2: nestedListItem2});
 
                     var section = c.doc(),
                         list = section.children()[0],
