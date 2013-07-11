@@ -175,6 +175,7 @@ $.extend(Canvas.prototype.list, {
         });
     },
     extractItems: function(params) {
+        params = _.extend({merge: true}, params);
         var list = params.element1.parent();
         if(!list.is('list') || !(list.sameNode(params.element2.parent())))
             return false;
@@ -239,6 +240,10 @@ $.extend(Canvas.prototype.list, {
 
             reference.after(toAdd);
         }
+        if(!params.merge && listIsNested) {
+            return this.extractItems({element1: extractedItems[0], element2: extractedItems[extractedItems.length-1]});
+        }
+        return true;
     },
     areItemsOfTheSameList: function(params) {
         var e1 = params.element1,

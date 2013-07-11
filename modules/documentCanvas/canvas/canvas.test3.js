@@ -793,6 +793,41 @@ describe('Canvas', function() {
                     expect(item3.children()[0].getText()).to.equal('1.2', 'third item ok');
                     expect(item4.children()[0].getText()).to.equal('2', 'fourth item ok');
                 });
+
+                it('extracts items out of outer most list when merge flag is set to false', function() {
+                    var c = canvas.fromXML('\
+                        <section>\
+                            <div class="list.items">\
+                                <div class="item">0</div>\
+                                <div class="item">\
+                                    <div class="list.items">\
+                                        <div class="item">1.1</div>\
+                                        <div class="item">1.2</div>\
+                                    </div>\
+                                </div>\
+                                <div class="item">2</div>\
+                            </div>\
+                        </section>'),
+                        section = c.doc(),
+                        list = section.children()[0],
+                        nestedList = list.children()[1].children()[0],
+                        nestedListItem = nestedList.children()[0];
+
+                    var test = c.list.extractItems({element1: nestedListItem, element2: nestedListItem, merge: false});
+
+                    expect(test).to.equal(true, 'extraction status ok');
+
+                    var sectionChildren = section.children(),
+                        extractedItem = sectionChildren[1];
+
+                    expect(sectionChildren.length).to.equal(3, 'section has three children');
+                    expect(sectionChildren[0].is('list')).to.equal(true, 'first child is a list');
+
+                    expect(extractedItem.getWlxmlTag()).to.equal('div', 'extracted item is a wlxml div');
+                    expect(extractedItem.getWlxmlClass()).to.equal(undefined, 'extracted item has no wlxml class');
+                    expect(extractedItem.children()[0].getText()).to.equal('1.1', 'extracted item ok');
+                    expect(sectionChildren[2].is('list')).to.equal(true, 'second child is a list');
+                });
             });
         });
 
