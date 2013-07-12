@@ -18,26 +18,6 @@ $.extend(DocumentElement.prototype, {
     dom: function() {
         return this.$element;
     },
-    children: function() {
-        var toret = [];
-        if(this instanceof DocumentTextElement)
-            return toret;
-
-
-        var elementContent = this.$element.contents();
-        var element = this;
-        elementContent.each(function(idx) {
-            var childElement = documentElementFromHTMLElement(this, element.canvas);
-            if(idx === 0 && elementContent.length > 1 && elementContent[1].nodeType === Node.ELEMENT_NODE && (childElement instanceof DocumentTextElement) && $.trim($(this).text()) === '')
-                return true;
-            if(idx > 0 && childElement instanceof DocumentTextElement) {
-                if(toret[toret.length-1] instanceof DocumentNodeElement && $.trim($(this).text()) === '')
-                    return true;
-            }
-            toret.push(childElement);
-        });
-        return toret;
-    },
     parent: function() {
         return documentElementFromHTMLElement(this.$element.parent()[0], this.canvas);
     },
@@ -51,18 +31,6 @@ $.extend(DocumentElement.prototype, {
         this.$element.replaceWith(wrapper.dom());
         wrapper.append(this);
         return wrapper;
-    },
-
-    childIndex: function(child) {
-        var children = this.children(),
-            toret = null;
-        children.forEach(function(c, idx) {
-            if(c.sameNode(child)) {
-                toret = idx;
-                return false;
-            }
-        });
-        return toret;
     },
 
     detach: function() {
@@ -104,6 +72,37 @@ $.extend(DocumentNodeElement.prototype, {
     },
     after: function(params) {
         manipulate(this, params, 'after');
+    },
+    children: function() {
+        var toret = [];
+        if(this instanceof DocumentTextElement)
+            return toret;
+
+
+        var elementContent = this.$element.contents();
+        var element = this;
+        elementContent.each(function(idx) {
+            var childElement = documentElementFromHTMLElement(this, element.canvas);
+            if(idx === 0 && elementContent.length > 1 && elementContent[1].nodeType === Node.ELEMENT_NODE && (childElement instanceof DocumentTextElement) && $.trim($(this).text()) === '')
+                return true;
+            if(idx > 0 && childElement instanceof DocumentTextElement) {
+                if(toret[toret.length-1] instanceof DocumentNodeElement && $.trim($(this).text()) === '')
+                    return true;
+            }
+            toret.push(childElement);
+        });
+        return toret;
+    },
+    childIndex: function(child) {
+        var children = this.children(),
+            toret = null;
+        children.forEach(function(c, idx) {
+            if(c.sameNode(child)) {
+                toret = idx;
+                return false;
+            }
+        });
+        return toret;
     },
     getWlxmlTag: function() {
         return this.$element.attr('wlxml-tag');
