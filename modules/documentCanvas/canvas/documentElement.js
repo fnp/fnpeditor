@@ -12,8 +12,6 @@ var DocumentElement = function(htmlElement, canvas) {
         return;
     this.canvas = canvas;
     this.$element = $(htmlElement);
-
-    this.wlxmlTag = this.$element.attr('wlxml-tag');
 }
 
 $.extend(DocumentElement.prototype, {
@@ -227,7 +225,7 @@ $.extend(DocumentTextElement.prototype, {
         else
             this.detach();
         
-        var newElement = DocumentNodeElement.create({tag: parentElement.wlxmlTag, klass: parentElement.wlxmlClass}, myCanvas);
+        var newElement = DocumentNodeElement.create({tag: parentElement.getWlxmlTag(), klass: parentElement.getWlxmlClass()}, myCanvas);
         parentElement.after(newElement);
 
         if(suffix.length > 0)
