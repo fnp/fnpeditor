@@ -182,15 +182,6 @@ Manager.prototype.onBackspaceKey = function(e) {
     }
 };
 
-Manager.prototype.toggleList = function(toggle) {
-    var selection  = window.getSelection(),
-        node1 = $(selection.anchorNode).parent()[0],
-        node2 = $(selection.focusNode).parent()[0],
-        element1 = this.canvas.getDocumentElement(node1),
-        element2 = this.canvas.getDocumentElement(node2);
-
-};
-
 Manager.prototype.command = function(command, params) {
 
     var cursor = this.canvas.getCursor(),
