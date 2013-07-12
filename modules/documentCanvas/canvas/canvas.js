@@ -120,7 +120,12 @@ $.extend(Canvas.prototype, {
            return documentElement.wrap(from, this);
         }
     },
-    list: {}
+    getCursor: function() {
+        return new Cursor(this);
+    },
+
+    list: {},
+    
 });
 
 $.extend(Canvas.prototype.list, {
@@ -252,6 +257,89 @@ $.extend(Canvas.prototype.list, {
             && e1.parent().is('list');
     }
 });
+
+
+var Cursor = function(canvas) {
+    this.canvas = canvas;
+};
+
+$.extend(Cursor.prototype, {
+    isSelecting: function() {
+        var selection = window.getSelection();
+        return !selection.isCollapsed;
+    },
+    isSelectingWithinElement: function() {
+        return this.isSelecting() && this.getSelectionStart().element.sameNode(this.getSelectionEnd().element);
+    },
+    isSelectingSiblings: function() {
+        return this.isSelecting() && this.getSelectionStart().element.parent().sameNode(this.getSelectionEnd().element.parent());
+    },
+    getPosition: function() {
+        return this.getSelectionAnchor();
+    },
+    getSelectionStart: function() {
+        return this.getSelectionBoundry('start');
+    },
+    getSelectionEnd: function() {
+        return this.getSelectionBoundry('end');
+    },
+    getSelectionAnchor: function() {
+        return this.getSelectionBoundry('anchor');
+    },
+    getSelectionBoundry: function(which) {
+        var selection = window.getSelection(),
+            anchorElement = this.canvas.getDocumentElement(selection.anchorNode),
+            focusElement = this.canvas.getDocumentElement(selection.focusNode);
+        
+        if(which === 'anchor') {
+            return {
+                element: anchorElement,
+                offset: selection.anchorOffset
+            };
+        }
+        
+        var element,
+            offset;
+
+        if(anchorElement.parent().sameNode(focusElement.parent())) {
+            var parent = anchorElement.parent(),
+                anchorFirst = parent.childIndex(anchorElement) < parent.childIndex(focusElement);
+            if(anchorFirst) {
+                if(which === 'start') {
+                    element = anchorElement;
+                    offset = selection.anchorOffset;
+                }
+                else if(which === 'end') {
+                    element = focusElement,
+                    offset = selection.focusOffset;
+                }
+            } else {
+                if(which === 'start') {
+                    element = focusElement,
+                    offset = selection.focusOffset
+                }
+                else if(which === 'end') {
+                    element = anchorElement;
+                    offset = selection.anchorOffset;
+                }
+            }
+        } else {
+            // TODO: Handle order
+            if(which === 'start') {
+                element = anchorElement;
+                offset = selection.anchorOffset
+            } else {
+                element = focusElement;
+                offset = selection.focusOffset
+            }
+        }
+
+        return {
+            element: element,
+            offset: offset
+        }
+    }
+})
 
 return {
     fromXML: function(xml) {

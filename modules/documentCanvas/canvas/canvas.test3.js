@@ -1,8 +1,9 @@
 define([
 'libs/chai',
+'libs/sinon',
 'modules/documentCanvas/canvas/canvas',
 'modules/documentCanvas/canvas/documentElement'
-], function(chai, canvas, documentElement) {
+], function(chai, sinon, canvas, documentElement) {
     
 'use strict';
 
@@ -863,6 +864,107 @@ describe('Canvas', function() {
             });
         });
 
+    });
+
+    describe('Cursor', function() {
+
+        var getSelection;
+
+        beforeEach(function() {
+            getSelection = sinon.stub(window, 'getSelection');
+        });
+
+        afterEach(function() {
+            getSelection.restore();
+        });
+
+        it('returns position when browser selection collapsed', function() {
+            var c = canvas.fromXML('<section>Alice has a cat</section>'),
+                dom = c.doc().dom(),
+                text = dom.contents(0);
+
+            expect(text.text()).to.equal('Alice has a cat');
+
+            getSelection.returns({
+                anchorNode: text[0],
+                focusNode: text[0],
+                anchorOffset: 5,
+                focusOffset: 5,
+                isCollapsed: true
+            });
+            var cursor = c.getCursor(),
+                position = cursor.getPosition();
+
+            expect(cursor.isSelecting()).to.equal(false, 'cursor is not selecting anything');
+            //expect(cursor.getElement().getText())
+            expect(position.element.getText()).to.equal('Alice has a cat');
+            expect(position.offset).to.equal(5);
+        });
+
+        it('returns boundries of selection when browser selection not collapsed', function() {
+            var c = canvas.fromXML('<section>Alice <span>has</span> a <span>big</span> cat</section>'),
+                dom = c.doc().dom(),
+                text = {
+                    alice: dom.contents()[0],
+                    has: $(dom.contents()[1]).contents()[0],
+                    cat: dom.contents()[4]
+                },
+                cursor = c.getCursor(),
+                aliceElement = c.getDocumentElement(text.alice),
+                catElement = c.getDocumentElement(text.cat);
+
+
+                [
+                    {focus: text.alice, focusOffset: 1, anchor: text.cat,   anchorOffset: 2, selectionAnchor: catElement},
+                    {focus: text.cat,   focusOffset: 2, anchor: text.alice, anchorOffset: 1, selectionAnchor: aliceElement}
+                ].forEach(function(s, idx) {
+                    getSelection.returns({isColapsed: false, anchorNode: s.anchor, anchorOffset: s.anchorOffset, focusNode: s.focus, focusOffset: s.focusOffset});
+
+                    var selectionStart = cursor.getSelectionStart(),
+                        selectionEnd = cursor.getSelectionEnd(),
+                        selectionAnchor = cursor.getSelectionAnchor();
+
+                    expect(cursor.isSelecting()).to.equal(true, 'cursor is selecting');
+                    expect(selectionStart.element.sameNode(aliceElement)).to.equal(true, '"Alice" is the start of the selection ' + idx);
+                    expect(selectionStart.offset).to.equal(1, '"Alice" offset ok' + idx);
+                    expect(selectionEnd.element.sameNode(catElement)).to.equal(true, '"Cat" is the start of the selection ' + idx);
+                    expect(selectionEnd.offset).to.equal(2, '"Cat" offset ok' + idx);
+                    expect(selectionAnchor.element.sameNode(s.selectionAnchor)).to.equal(true, 'anchor ok');
+                    expect(selectionAnchor.offset).to.equal(s.anchorOffset, 'anchor offset ok');
+                });
+        });
+
+        it('recognizes when browser selection boundries lies in sibling DocumentTextElements', function() {
+            var c = canvas.fromXML('<section>Alice <span>has</span> a <span>big</span> cat</section>'),
+                dom = c.doc().dom(),
+                text = {
+                    alice: dom.contents()[0],
+                    has: $(dom.contents()[1]).contents()[0],
+                    a: dom.contents()[2],
+                    big: $(dom.contents()[3]).contents()[0],
+                    cat: dom.contents()[4]
+                },
+                cursor = c.getCursor();
+
+            expect($(text.alice).text()).to.equal('Alice ');
+            expect($(text.has).text()).to.equal('has');
+            expect($(text.a).text()).to.equal(' a ');
+            expect($(text.big).text()).to.equal('big');
+            expect($(text.cat).text()).to.equal(' cat');
+
+            getSelection.returns({anchorNode: text.alice, focusNode: text.a});
+            expect(cursor.isSelectingSiblings()).to.equal(true, '"Alice" and "a" are children');
+
+            getSelection.returns({anchorNode: text.alice, focusNode: text.cat});
+            expect(cursor.isSelectingSiblings()).to.equal(true, '"Alice" and "cat" are children');
+
+            getSelection.returns({anchorNode: text.alice, focusNode: text.has});
+            expect(cursor.isSelectingSiblings()).to.equal(false, '"Alice" and "has" are not children');
+
+            getSelection.returns({anchorNode: text.has, focusNode: text.big});
+            expect(cursor.isSelectingSiblings()).to.equal(false, '"has" and "big" are not children');
+            
+        })
     });
 });
 
