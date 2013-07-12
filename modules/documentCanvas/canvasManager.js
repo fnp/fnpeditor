@@ -192,19 +192,20 @@ Manager.prototype.toggleList = function(toggle) {
 };
 
 Manager.prototype.command = function(command, params) {
-    var selection  = window.getSelection(),
-        element1 = this.canvas.getDocumentElement(selection.anchorNode),
-        element2 = this.canvas.getDocumentElement(selection.focusNode),
-        parent1 = element1 ? element1.parent() : undefined,
-        parent2 = element2 ? element2.parent() : undefined;
+
+    var cursor = this.canvas.getCursor(),
+        selectionStart = cursor.getSelectionStart(),
+        selectionEnd = cursor.getSelectionEnd(),
+        parent1 = selectionStart.element.parent() || undefined,
+        parent2 = selectionEnd.element.parent() || undefined;
 
     if(command === 'unwrap-node') {
         // this.canvas.nodeUnwrap({node: canvasNode.create(pos.parentNode)});
         // this.sandbox.publish('contentChanged');
         if(this.canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
             this.canvas.list.extractItems({element1: parent1, element2: parent2});
-        } else if (selection.isCollapsed) {
-            element1.unwrap();
+        } else if(!cursor.isSelecting()) {
+            cursor.getPosition().element.unwrap();
         }
     } else if(command === 'wrap-node') {
         if(this.canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
@@ -222,26 +223,18 @@ Manager.prototype.command = function(command, params) {
         this.canvas.doc().dom().find('[wlxml-tag]').toggleClass('rng-common-hoveredNode', params.toggle);
         this.gridToggled = params.toggle;
     } else if(command == 'newNodeRequested') {
-        if(!selection.isCollapsed && element1.parent().sameNode(element2.parent())) {
-            var parent = element1.parent(),
-                offsetStart = selection.anchorOffset,
-                offsetEnd = selection.focusOffset;
-
-            if(element1.sameNode(element2)) {
-                element1.wrapWithNodeElement({tag: params.wlxmlTag, klass: params.wlxmlClass, start: offsetStart, end: offsetEnd});
+        if(cursor.isSelecting() && cursor.isSelectingSiblings()) {
+            if(cursor.isSelectingWithinElement()) {
+                selectionStart.element.wrapWithNodeElement({tag: params.wlxmlTag, klass: params.wlxmlClass, start: selectionStart.offset, end: selectionEnd.offset});
             }
             else {
-                if(parent.childIndex(element1) > parent.childIndex(element2)) {
-                    var tmp = offsetStart;
-                    offsetStart = offsetEnd;
-                    offsetEnd = tmp;
-                }
+                var parent = selectionStart.element.parent();
                 this.canvas.wrapText({
                     inside: parent,
                     _with: {tag: params.wlxmlTag, klass: params.wlxmlClass},
-                    offsetStart: offsetStart,
-                    offsetEnd: offsetEnd,
-                    textNodeIdx: [parent.childIndex(element1), parent.childIndex(element2)]
+                    offsetStart: selectionStart.offset,
+                    offsetEnd: selectionEnd.offset,
+                    textNodeIdx: [parent.childIndex(selectionStart.element), parent.childIndex(selectionEnd.element)]
                 });
             }
         }
