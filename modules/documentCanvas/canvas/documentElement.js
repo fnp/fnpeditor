@@ -225,7 +225,7 @@ $.extend(DocumentTextElement.prototype, {
         if(prefix.length > 0)
             this.setText(prefix);
         else
-            this.remove();
+            this.detach();
         
         var newElement = DocumentNodeElement.create({tag: parentElement.wlxmlTag, klass: parentElement.wlxmlClass}, myCanvas);
         parentElement.after(newElement);

@@ -332,6 +332,34 @@ describe('Canvas', function() {
                     expect(header2.children()[0].getText()).to.equal('header', 'second header has correct content');
                 });
 
+                it('leaves empty copy of DocumentNodeElement if splitting at the very beginning', function() {
+                        var c = canvas.fromXML('<section><header>Some header</header></section>'),
+                        section = c.doc(),
+                        text = section.children()[0].children()[0];
+
+                        text.split({offset: 0});
+                        
+                        var header1 = section.children()[0];
+                        var header2 = section.children()[1];
+
+                        expect(header1.children().length).to.equal(0);
+                        expect(header2.children()[0].getText()).to.equal('Some header');
+                });
+
+                it('leaves empty copy of DocumentNodeElement if splitting at the very end', function() {
+                        var c = canvas.fromXML('<section><header>Some header</header></section>'),
+                        section = c.doc(),
+                        text = section.children()[0].children()[0];
+
+                        text.split({offset: 11});
+                        
+                        var header1 = section.children()[0];
+                        var header2 = section.children()[1];
+
+                        expect(header1.children()[0].getText()).to.equal('Some header');
+                        expect(header2.children().length).to.equal(0);
+                });
+
                 it('keeps DocumentTextElement\'s parent\'s children elements intact', function() {
                     var c = canvas.fromXML('\
                             <section>\
