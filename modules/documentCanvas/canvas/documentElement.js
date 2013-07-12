@@ -23,18 +23,18 @@ $.extend(DocumentElement.prototype, {
     },
 
     sameNode: function(other) {
-        return other && (typeof other === typeof this) && other.$element[0] === this.$element[0];
+        return other && (typeof other === typeof this) && other.dom()[0] === this.dom()[0];
     },
 
     wrapWithNodeElement: function(wlxmlNode) {
         var wrapper = DocumentNodeElement.create({tag: wlxmlNode.tag, klass: wlxmlNode.klass});
-        this.$element.replaceWith(wrapper.dom());
+        this.dom().replaceWith(wrapper.dom());
         wrapper.append(this);
         return wrapper;
     },
 
     detach: function() {
-        this.$element.detach();
+        this.dom().detach();
         this.canvas = null;
     }
 });
@@ -58,7 +58,7 @@ var manipulate = function(e, params, action) {
     } else {
         dom = DocumentNodeElement.createDOM(params);
     }
-    e.$element[action](dom);
+    e.dom()[action](dom);
     return documentElementFromHTMLElement(dom);
 };
 
@@ -79,7 +79,7 @@ $.extend(DocumentNodeElement.prototype, {
             return toret;
 
 
-        var elementContent = this.$element.contents();
+        var elementContent = this.dom().contents();
         var element = this;
         elementContent.each(function(idx) {
             var childElement = documentElementFromHTMLElement(this, element.canvas);
@@ -105,25 +105,25 @@ $.extend(DocumentNodeElement.prototype, {
         return toret;
     },
     getWlxmlTag: function() {
-        return this.$element.attr('wlxml-tag');
+        return this.dom().attr('wlxml-tag');
     },
     setWlxmlTag: function(tag) {
-        this.$element.attr('wlxml-tag', tag);
+        this.dom().attr('wlxml-tag', tag);
     },
     getWlxmlClass: function() {
-        var klass = this.$element.attr('wlxml-class');
+        var klass = this.dom().attr('wlxml-class');
         if(klass)
             return klass.replace('-', '.');
         return undefined;
     },
     setWlxmlClass: function(klass) {
         if(klass)
-            this.$element.attr('wlxml-class', klass);
+            this.dom().attr('wlxml-class', klass);
         else
-            this.$element.removeAttr('wlxml-class');
+            this.dom().removeAttr('wlxml-class');
     },
     is: function(what) {
-        if(what === 'list' && _.contains(['list-items', 'list-items-enum'], this.$element.attr('wlxml-class')))
+        if(what === 'list' && _.contains(['list-items', 'list-items-enum'], this.dom().attr('wlxml-class')))
             return true;
         return false;
     }
@@ -149,10 +149,10 @@ DocumentNodeElement.create = function(params, canvas) {
 
 $.extend(DocumentTextElement.prototype, {
     setText: function(text) {
-        this.$element[0].data = text;
+        this.dom()[0].data = text;
     },
     getText: function() {
-        return this.$element.text();
+        return this.dom().text();
     },
     after: function(params) {
         if(params instanceof DocumentTextElement || params.text)
@@ -163,9 +163,9 @@ $.extend(DocumentTextElement.prototype, {
         } else {
             dom = DocumentNodeElement.createDOM(params);
         }
-        this.$element.wrap('<div>');
-        this.$element.parent().after(dom[0]);
-        this.$element.unwrap();
+        this.dom().wrap('<div>');
+        this.dom().parent().after(dom[0]);
+        this.dom().unwrap();
         return documentElementFromHTMLElement(dom[0]);
     },
     before: function(params) {
@@ -177,9 +177,9 @@ $.extend(DocumentTextElement.prototype, {
         } else {
             dom = DocumentNodeElement.createDOM(params);
         }
-        this.$element.wrap('<div>');
-        this.$element.parent().before(dom[0]);
-        this.$element.unwrap();
+        this.dom().wrap('<div>');
+        this.dom().parent().before(dom[0]);
+        this.dom().unwrap();
         return documentElementFromHTMLElement(dom[0]);
     },
     wrapWithNodeElement: function(wlxmlNode) {
