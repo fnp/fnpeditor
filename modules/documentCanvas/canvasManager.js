@@ -200,8 +200,6 @@ Manager.prototype.command = function(command, params) {
         parent2 = selectionEnd.element.parent() || undefined;
 
     if(command === 'unwrap-node') {
-        // this.canvas.nodeUnwrap({node: canvasNode.create(pos.parentNode)});
-        // this.sandbox.publish('contentChanged');
         if(this.canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
             this.canvas.list.extractItems({element1: parent1, element2: parent2});
         } else if(!cursor.isSelecting()) {

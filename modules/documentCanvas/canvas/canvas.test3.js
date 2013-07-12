@@ -896,7 +896,6 @@ describe('Canvas', function() {
                 position = cursor.getPosition();
 
             expect(cursor.isSelecting()).to.equal(false, 'cursor is not selecting anything');
-            //expect(cursor.getElement().getText())
             expect(position.element.getText()).to.equal('Alice has a cat');
             expect(position.offset).to.equal(5);
         });
