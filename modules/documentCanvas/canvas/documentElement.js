@@ -55,14 +55,14 @@ DocumentNodeElement.prototype = new DocumentElement();
 DocumentTextElement.prototype = new DocumentElement();
 
 var manipulate = function(e, params, action) {
-    var dom;
+    var element;
     if(params instanceof DocumentElement) {
-        dom = params.dom()
+        element = params;
     } else {
-        dom = DocumentElement.createDOM(params);
+        element = DocumentElement.create(params);
     }
-    e.dom()[action](dom);
-    return documentElementFromHTMLElement(dom);
+    e.dom()[action](element.dom());
+    return element;
 };
 
 $.extend(DocumentNodeElement.prototype, {
@@ -132,6 +132,12 @@ $.extend(DocumentNodeElement.prototype, {
     }
 });
 
+
+DocumentElement.create = function(params, canvas) {
+    var ElementType = params.text !== undefined ? DocumentTextElement : DocumentNodeElement;
+    return ElementType.create(params);
+};
+
 DocumentElement.createDOM = function(params) {
     var ElementType = params.text !== undefined ? DocumentTextElement : DocumentNodeElement;
     return ElementType.createDOM(params);
@@ -152,6 +158,10 @@ DocumentNodeElement.create = function(params, canvas) {
     return documentElementFromHTMLElement(DocumentNodeElement.createDOM(params)[0]);
 };
 
+DocumentTextElement.create = function(params, canvas) {
+    return documentElementFromHTMLElement(DocumentTextElement.createDOM(params)[0]);
+};
+
 
 $.extend(DocumentTextElement.prototype, {
     setText: function(text) {
@@ -163,30 +173,30 @@ $.extend(DocumentTextElement.prototype, {
     after: function(params) {
         if(params instanceof DocumentTextElement || params.text)
             return false;
-        var dom;
+        var element;
         if(params instanceof DocumentNodeElement) {
-            dom = params.dom();
+            element = params;
         } else {
-            dom = DocumentNodeElement.createDOM(params);
+            element = DocumentNodeElement.create(params);
         }
         this.dom().wrap('<div>');
-        this.dom().parent().after(dom[0]);
+        this.dom().parent().after(element.dom());
         this.dom().unwrap();
-        return documentElementFromHTMLElement(dom[0]);
+        return element;
     },
     before: function(params) {
         if(params instanceof DocumentTextElement || params.text)
             return false;
-        var dom;
+        var element;
         if(params instanceof DocumentNodeElement) {
-            dom = params.dom();
+            element = params;
         } else {
-            dom = DocumentNodeElement.createDOM(params);
+            element = DocumentNodeElement.create(params);
         }
         this.dom().wrap('<div>');
-        this.dom().parent().before(dom[0]);
+        this.dom().parent().before(element.dom());
         this.dom().unwrap();
-        return documentElementFromHTMLElement(dom[0]);
+        return element;
     },
     wrapWithNodeElement: function(wlxmlNode) {
         if(typeof wlxmlNode.start === 'number' && typeof wlxmlNode.end === 'number') {
