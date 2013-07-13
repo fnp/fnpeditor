@@ -909,13 +909,13 @@ describe('Canvas', function() {
         it('returns position when browser selection collapsed', function() {
             var c = canvas.fromXML('<section>Alice has a cat</section>'),
                 dom = c.doc().dom(),
-                text = dom.contents(0);
+                text = dom.contents()[0];
 
-            expect(text.text()).to.equal('Alice has a cat');
+            expect($(text).text()).to.equal('Alice has a cat');
 
             getSelection.returns({
-                anchorNode: text[0],
-                focusNode: text[0],
+                anchorNode: text,
+                focusNode: text,
                 anchorOffset: 5,
                 focusOffset: 5,
                 isCollapsed: true
