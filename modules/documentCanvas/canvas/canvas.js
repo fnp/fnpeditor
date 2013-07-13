@@ -72,7 +72,7 @@ $.extend(Canvas.prototype, {
     doc: function() {
         if(this.d === null)
             return null;
-        return documentElement.wrap(this.d.get(0), this); //{wlxmlTag: this.d.prop('tagName')};
+        return documentElement.DocumentNodeElement.fromHTMLElement(this.d.get(0), this); //{wlxmlTag: this.d.prop('tagName')};
     },
 
     wrapText: function(params) {
@@ -117,7 +117,7 @@ $.extend(Canvas.prototype, {
     },
     getDocumentElement: function(from) {
         if(from instanceof HTMLElement || from instanceof Text) {
-           return documentElement.wrap(from, this);
+           return documentElement.DocumentElement.fromHTMLElement(from, this);
         }
     },
     getCursor: function() {

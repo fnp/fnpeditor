@@ -21,7 +21,7 @@ $.extend(DocumentElement.prototype, {
     parent: function() {
         var parents = this.$element.parents('[wlxml-tag]');
         if(parents.length)
-            return documentElementFromHTMLElement(parents[0], this.canvas);
+            return DocumentElement.fromHTMLElement(parents[0], this.canvas);
         return null;
     },
 
@@ -85,7 +85,7 @@ $.extend(DocumentNodeElement.prototype, {
         var elementContent = this.dom().contents();
         var element = this;
         elementContent.each(function(idx) {
-            var childElement = documentElementFromHTMLElement(this, element.canvas);
+            var childElement = DocumentElement.fromHTMLElement(this, element.canvas);
             if(idx === 0 && elementContent.length > 1 && elementContent[1].nodeType === Node.ELEMENT_NODE && (childElement instanceof DocumentTextElement) && $.trim($(this).text()) === '')
                 return true;
             if(idx > 0 && childElement instanceof DocumentTextElement) {
@@ -143,6 +143,13 @@ DocumentElement.createDOM = function(params) {
     return ElementType.createDOM(params);
 };
 
+DocumentElement.fromHTMLElement = function(htmlElement, canvas) {
+    if(htmlElement.nodeType === Node.ELEMENT_NODE)
+        return DocumentNodeElement.fromHTMLElement(htmlElement, canvas);
+    if(htmlElement.nodeType === Node.TEXT_NODE)
+        return DocumentTextElement.fromHTMLElement(htmlElement, canvas);
+}
+
 DocumentNodeElement.createDOM = function(params) {
     var dom = $('<div>').attr('wlxml-tag', params.tag);
     if(params.klass)
@@ -155,11 +162,19 @@ DocumentTextElement.createDOM = function(params) {
 };
 
 DocumentNodeElement.create = function(params, canvas) {
-    return documentElementFromHTMLElement(DocumentNodeElement.createDOM(params)[0]);
+    return this.fromHTMLElement(this.createDOM(params)[0]);
 };
 
 DocumentTextElement.create = function(params, canvas) {
-    return documentElementFromHTMLElement(DocumentTextElement.createDOM(params)[0]);
+    return this.fromHTMLElement(this.createDOM(params)[0]);
+};
+
+DocumentNodeElement.fromHTMLElement = function(htmlElement, canvas) {
+    return new this(htmlElement, canvas);
+};
+
+DocumentTextElement.fromHTMLElement = function(htmlElement, canvas) {
+    return new this(htmlElement, canvas);
 };
 
 
@@ -268,19 +283,7 @@ $.extend(DocumentTextElement.prototype, {
     }
 });
 
-var documentElementFromHTMLElement = function(htmlElement, canvas) {
-    // if(!canvas)
-    //    throw 'no canvas specified';
-    if(htmlElement.nodeType === Node.ELEMENT_NODE)
-        return new DocumentNodeElement(htmlElement, canvas);
-    if(htmlElement.nodeType === Node.TEXT_NODE)
-        return new DocumentTextElement(htmlElement, canvas);
-};
-
 return {
-    wrap: function(htmlElement, canvas) {
-        return documentElementFromHTMLElement(htmlElement, canvas);
-    },
     DocumentElement: DocumentElement,
     DocumentNodeElement: DocumentNodeElement,
     DocumentTextElement: DocumentTextElement
