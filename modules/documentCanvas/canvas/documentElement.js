@@ -59,7 +59,7 @@ var manipulate = function(e, params, action) {
     if(params instanceof DocumentElement) {
         dom = params.dom()
     } else {
-        dom = DocumentNodeElement.createDOM(params);
+        dom = DocumentElement.createDOM(params);
     }
     e.dom()[action](dom);
     return documentElementFromHTMLElement(dom);
@@ -132,18 +132,21 @@ $.extend(DocumentNodeElement.prototype, {
     }
 });
 
+DocumentElement.createDOM = function(params) {
+    var ElementType = params.text !== undefined ? DocumentTextElement : DocumentNodeElement;
+    return ElementType.createDOM(params);
+};
+
 DocumentNodeElement.createDOM = function(params) {
-    var dom;
-    if(params.text) {
-        dom = $(document.createTextNode(params.text));
-    } else {
-        dom = $('<div>').attr('wlxml-tag', params.tag);
-        if(params.klass)
-            dom.attr('wlxml-class', params.klass);
-    }
+    var dom = $('<div>').attr('wlxml-tag', params.tag);
+    if(params.klass)
+        dom.attr('wlxml-class', params.klass);
     return dom;
 };
 
+DocumentTextElement.createDOM = function(params) {
+    return $(document.createTextNode(params.text));
+};
 
 DocumentNodeElement.create = function(params, canvas) {
     return documentElementFromHTMLElement(DocumentNodeElement.createDOM(params)[0]);
