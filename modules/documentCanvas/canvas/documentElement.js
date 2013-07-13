@@ -19,7 +19,10 @@ $.extend(DocumentElement.prototype, {
         return this.$element;
     },
     parent: function() {
-        return documentElementFromHTMLElement(this.$element.parent()[0], this.canvas);
+        var parents = this.$element.parents('[wlxml-tag]');
+        if(parents.length)
+            return documentElementFromHTMLElement(parents[0], this.canvas);
+        return null;
     },
 
     sameNode: function(other) {

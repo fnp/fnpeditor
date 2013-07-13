@@ -71,6 +71,13 @@ describe('Canvas', function() {
             expect(c.doc().getWlxmlTag()).to.equal('section');
         });
 
+        describe('root element', function() {
+            it('has no parent', function() {
+                var c = canvas.fromXML('<section></section>');
+                expect(c.doc().parent()).to.be.null;
+            });
+        });
+
         describe('DocumentTextElement', function() {
             it('can have its content set', function() {
                 var c = canvas.fromXML('<section>Alice</section>'),
