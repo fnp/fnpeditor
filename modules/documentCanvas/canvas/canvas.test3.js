@@ -119,8 +119,13 @@ describe('Canvas', function() {
         
         it('returns DocumentTextElement instance from Text Node', function() {
             var c = canvas.fromXML('<section>Alice</section>'),
-                textNode = c.doc().children(0)[0].dom().get(0),
+                aliceElement = c.doc().children()[0],
+                textNode = aliceElement.dom()[0],
                 element = c.getDocumentElement(textNode);
+
+            expect(textNode.nodeType).to.equal(Node.TEXT_NODE, 'text node selected');
+            expect($(textNode).text()).to.equal('Alice');
+
             expect(element).to.be.instanceOf(documentElement.DocumentTextElement);
             expect(element.sameNode(c.doc().children()[0]));
         });
