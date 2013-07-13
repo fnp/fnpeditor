@@ -502,13 +502,13 @@ describe('Canvas', function() {
 
             describe('unwrapping', function() {
                 it('unwraps DocumentTextElement from its parent DocumentNodeElement if it\'s its only child', function() {
-                    var c = canvas.fromXML('<section><div>Alice has a cat</div></section>'),
+                    var c = canvas.fromXML('<section>Alice <span>has a</span> cat</section>'),
                     section = c.doc(),
-                    text = section.children()[0].children()[0];
+                    text = section.children()[1].children()[0];
 
                     text.unwrap();
 
-                    expect(section.children().length).to.equal(1);
+                    expect(section.children().length).to.equal(1, 'section has one child');
                     expect(section.children()[0].getText()).to.equal('Alice has a cat');
                 })
             });

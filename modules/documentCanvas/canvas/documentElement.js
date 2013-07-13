@@ -199,9 +199,26 @@ $.extend(DocumentTextElement.prototype, {
         }
     },
     unwrap: function() {
-        if(this.parent().children().length === 1) {
-            var parent = this.parent();
-            parent.after(this);
+        var parent = this.parent();
+        if(parent.children().length === 1) {
+            var grandParent = parent.parent();
+            if(grandParent) {
+                var grandParentChildren = grandParent.children(),
+                    idx = grandParent.childIndex(parent),
+                    prev = idx - 1 > -1 ? grandParentChildren[idx-1] : null,
+                    next = idx + 1 < grandParentChildren.length ? grandParentChildren[idx+1] : null;
+                if(prev && next) {
+                    prev.setText(prev.getText() + this.getText() + next.getText());
+                    next.detach();
+                } else if (prev || next) {
+                    var target = prev ? prev : next;
+                    target.setText(target.getText() + this.getText());
+                } else {
+                    parent.after(this);
+                }
+            } else {
+                parent.after(this);
+            }
             parent.detach();
         }
     },
