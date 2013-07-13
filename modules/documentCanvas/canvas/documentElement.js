@@ -6,13 +6,35 @@ define([
 'use strict';
 
 
-// DocumentElement represents a node from WLXML document rendered inside Canvas
+// DocumentElement represents a text or an element node from WLXML document rendered inside Canvas
 var DocumentElement = function(htmlElement, canvas) {
     if(arguments.length === 0)
         return;
     this.canvas = canvas;
     this.$element = $(htmlElement);
 }
+
+var elementTypeFromParams = function(params) {
+    return params.text !== undefined ? DocumentTextElement : DocumentNodeElement;
+
+};
+
+$.extend(DocumentElement, {
+    create: function(params, canvas) {
+        return elementTypeFromParams(params).create(params);
+    },
+
+    createDOM: function(params) {
+        return elementTypeFromParams(params).createDOM(params);
+    },
+
+    fromHTMLElement: function(htmlElement, canvas) {
+        if(htmlElement.nodeType === Node.ELEMENT_NODE)
+            return DocumentNodeElement.fromHTMLElement(htmlElement, canvas);
+        if(htmlElement.nodeType === Node.TEXT_NODE)
+            return DocumentTextElement.fromHTMLElement(htmlElement, canvas);
+    }
+});
 
 $.extend(DocumentElement.prototype, {
     dom: function() {
@@ -43,16 +65,27 @@ $.extend(DocumentElement.prototype, {
 });
 
 
+// DocumentNodeElement represents an element node from WLXML document rendered inside Canvas
 var DocumentNodeElement = function(htmlElement, canvas) {
     DocumentElement.call(this, htmlElement, canvas);
 };
 
-var DocumentTextElement = function(htmlElement, canvas) {
-    DocumentElement.call(this, htmlElement, canvas);
-};
+$.extend(DocumentNodeElement, {
+    createDOM: function(params) {
+        var dom = $('<div>').attr('wlxml-tag', params.tag);
+        if(params.klass)
+            dom.attr('wlxml-class', params.klass);
+        return dom;
+    },
 
-DocumentNodeElement.prototype = new DocumentElement();
-DocumentTextElement.prototype = new DocumentElement();
+    create: function(params, canvas) {
+        return this.fromHTMLElement(this.createDOM(params)[0]);
+    },
+
+    fromHTMLElement: function(htmlElement, canvas) {
+        return new this(htmlElement, canvas);
+    }
+});
 
 var manipulate = function(e, params, action) {
     var element;
@@ -64,6 +97,8 @@ var manipulate = function(e, params, action) {
     e.dom()[action](element.dom());
     return element;
 };
+
+DocumentNodeElement.prototype = new DocumentElement();
 
 $.extend(DocumentNodeElement.prototype, {
     append: function(params) {
@@ -133,50 +168,26 @@ $.extend(DocumentNodeElement.prototype, {
 });
 
 
-DocumentElement.create = function(params, canvas) {
-    var ElementType = params.text !== undefined ? DocumentTextElement : DocumentNodeElement;
-    return ElementType.create(params);
+// DocumentNodeElement represents a text node from WLXML document rendered inside Canvas
+var DocumentTextElement = function(htmlElement, canvas) {
+    DocumentElement.call(this, htmlElement, canvas);
 };
 
-DocumentElement.createDOM = function(params) {
-    var ElementType = params.text !== undefined ? DocumentTextElement : DocumentNodeElement;
-    return ElementType.createDOM(params);
-};
+$.extend(DocumentTextElement, {
+    createDOM: function(params) {
+        return $(document.createTextNode(params.text));
+    },
 
-DocumentElement.fromHTMLElement = function(htmlElement, canvas) {
-    if(htmlElement.nodeType === Node.ELEMENT_NODE)
-        return DocumentNodeElement.fromHTMLElement(htmlElement, canvas);
-    if(htmlElement.nodeType === Node.TEXT_NODE)
-        return DocumentTextElement.fromHTMLElement(htmlElement, canvas);
-}
+    create: function(params, canvas) {
+        return this.fromHTMLElement(this.createDOM(params)[0]);
+    },
 
-DocumentNodeElement.createDOM = function(params) {
-    var dom = $('<div>').attr('wlxml-tag', params.tag);
-    if(params.klass)
-        dom.attr('wlxml-class', params.klass);
-    return dom;
-};
+    fromHTMLElement: function(htmlElement, canvas) {
+        return new this(htmlElement, canvas);
+    }
+});
 
-DocumentTextElement.createDOM = function(params) {
-    return $(document.createTextNode(params.text));
-};
-
-DocumentNodeElement.create = function(params, canvas) {
-    return this.fromHTMLElement(this.createDOM(params)[0]);
-};
-
-DocumentTextElement.create = function(params, canvas) {
-    return this.fromHTMLElement(this.createDOM(params)[0]);
-};
-
-DocumentNodeElement.fromHTMLElement = function(htmlElement, canvas) {
-    return new this(htmlElement, canvas);
-};
-
-DocumentTextElement.fromHTMLElement = function(htmlElement, canvas) {
-    return new this(htmlElement, canvas);
-};
-
+DocumentTextElement.prototype = new DocumentElement();
 
 $.extend(DocumentTextElement.prototype, {
     setText: function(text) {
