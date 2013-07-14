@@ -61,9 +61,8 @@ $.extend(Canvas.prototype, {
                         }
                     }
 
-                    var wrapper = documentElement.DocumentTextElement.create({text: this.data});
-                    $(this).before(wrapper.dom());
-                    $(this).remove();
+                    var element = documentElement.DocumentTextElement.create({text: this.data});
+                    $(this).replaceWith(element.dom());
                 });
             
             this.d = wrapper.children(0);
