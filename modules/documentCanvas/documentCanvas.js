@@ -12,7 +12,7 @@ define([
 
 return function(sandbox) {
 
-    var canvas = canvas3.fromXML(''); //canvasCanvas.create();
+    var canvas = canvas3.fromXML('', sandbox.publish); //canvasCanvas.create();
     var manager;
     var canvasWrapper = $(template);
 

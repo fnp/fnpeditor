@@ -66,6 +66,10 @@ $.extend(DocumentElement.prototype, {
     detach: function() {
         this.dom().detach();
         this.canvas = null;
+    },
+
+    markAsCurrent: function() {
+        this.canvas.markAsCurrent(this);
     }
 });
 
@@ -306,7 +310,7 @@ $.extend(DocumentTextElement.prototype, {
         succeedingChildren.forEach(function(child) {
             newElement.append(child);
         });
-    }
+    },
 });
 
 return {

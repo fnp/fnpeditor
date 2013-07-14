@@ -6,8 +6,9 @@ define([
     
 'use strict';
 
-var Canvas = function(wlxml) {
+var Canvas = function(wlxml, publisher) {
     this.loadWlxml(wlxml);
+    this.publisher = publisher ? publisher : function() {};
 };
 
 $.extend(Canvas.prototype, {
@@ -66,6 +67,29 @@ $.extend(Canvas.prototype, {
                 });
             
             this.d = this.wrapper.children(0);
+
+            var canvas = this;
+            this.wrapper.on('keydown', function(e) {
+                if(e.which === 13) { 
+                    e.preventDefault();
+                    var cursor = canvas.getCursor();
+                    if(!cursor.isSelecting()) {
+                        var position = cursor.getPosition();
+                        position.element.split({offset: position.offset});
+                    }
+                }
+            });
+
+            this.wrapper.on('keyup', function(e) {
+                if(e.which >= 37 && e.which <= 40)
+                    canvas.markAsCurrent(canvas.getCursor().getPosition().element)
+            });
+
+            this.wrapper.on('click', '[wlxml-tag], [wlxml-text]', function(e) {
+                e.stopPropagation();
+                canvas.markAsCurrent(canvas.getCursor().getPosition().element)
+            });
+
         } else {
             this.d = null;
         }
@@ -131,7 +155,19 @@ $.extend(Canvas.prototype, {
     },
 
     list: {},
-    
+
+    markAsCurrent: function(element) {
+        if(element instanceof documentElement.DocumentTextElement) {
+            this.wrapper.find('.current-text-element').removeClass('current-text-element');
+            element.dom().addClass('current-text-element');
+            this.markAsCurrent(element.parent());
+            this.publisher('currentTextElementChanged', element);
+        } else {
+            this.wrapper.find('.current-node-element').removeClass('current-node-element')
+            element.dom().addClass('current-node-element');
+        }
+
+    }
 });
 
 $.extend(Canvas.prototype.list, {
@@ -348,8 +384,8 @@ $.extend(Cursor.prototype, {
 })
 
 return {
-    fromXML: function(xml) {
-        return new Canvas(xml);
+    fromXML: function(xml, publisher) {
+        return new Canvas(xml, publisher);
     }
 };
 
