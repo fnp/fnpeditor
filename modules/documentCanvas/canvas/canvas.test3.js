@@ -27,10 +27,18 @@ describe('Canvas', function() {
                 </section>\
             ');
             var expected = '<div wlxml-tag="section">'
-                            + 'This is some text without its own wrapping tag.'
-                            + '<div wlxml-tag="div" wlxml-class="p-subclass">This is a paragraph.</div>'
-                            + '<div wlxml-tag="div">This is text in a div <div wlxml-tag="span">with some inline text</div>.</div>'
-                            + 'This is some text without its own wrapping tag.'
+                            + '<div wlxml-text>This is some text without its own wrapping tag.</div>'
+                            + '<div wlxml-tag="div" wlxml-class="p-subclass">'
+                            +   '<div wlxml-text>This is a paragraph.</div>'
+                            + '</div>'
+                            + '<div wlxml-tag="div">'
+                            +   '<div wlxml-text>This is text in a div </div>'
+                            +   '<div wlxml-tag="span">'
+                            +       '<div wlxml-text>with some inline text</div>'
+                            +   '</div>'
+                            +   '<div wlxml-text>.</div>'
+                            + '</div>'
+                            + '<div wlxml-text>This is some text without its own wrapping tag.</div>'
                             + '</div>';
             expect(c.doc().dom()[0].isEqualNode($(expected)[0])).to.be.true;
         });
@@ -54,9 +62,13 @@ describe('Canvas', function() {
     });
 
     describe('Internal HTML representation of a DocumentTextElement', function() {
-        it('is just a TextNode', function() {
+        it('is text node wrapped in a div with wlxml-text attribute set', function() {
             var dom = canvas.fromXML('<section>Alice</section>').doc().children()[0].dom();
-            expect(dom[0].nodeType === Node.TEXT_NODE);
+            expect(dom.prop('tagName')).to.equal('DIV');
+            expect(dom.attr('wlxml-text')).to.equal('');
+            expect(dom.contents().length).to.equal(1);
+            expect(dom.contents()[0].nodeType).to.equal(Node.TEXT_NODE);
+            expect($(dom.contents()[0]).text()).to.equal('Alice');
         });
     });
 
@@ -127,7 +139,7 @@ describe('Canvas', function() {
         it('returns DocumentTextElement instance from Text Node', function() {
             var c = canvas.fromXML('<section>Alice</section>'),
                 aliceElement = c.doc().children()[0],
-                textNode = aliceElement.dom()[0],
+                textNode = aliceElement.dom().contents()[0],
                 element = c.getDocumentElement(textNode);
 
             expect(textNode.nodeType).to.equal(Node.TEXT_NODE, 'text node selected');
@@ -921,8 +933,9 @@ describe('Canvas', function() {
         it('returns position when browser selection collapsed', function() {
             var c = canvas.fromXML('<section>Alice has a cat</section>'),
                 dom = c.doc().dom(),
-                text = dom.contents()[0];
+                text = $(dom.contents()[0]).contents()[0];
 
+            expect(text.nodeType).to.equal(Node.TEXT_NODE, 'correct node selected');
             expect($(text).text()).to.equal('Alice has a cat');
 
             getSelection.returns({

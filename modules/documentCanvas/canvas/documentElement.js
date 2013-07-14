@@ -11,7 +11,7 @@ var DocumentElement = function(htmlElement, canvas) {
     if(arguments.length === 0)
         return;
     this.canvas = canvas;
-    this.$element = $(htmlElement);
+    this._setupDOMHandler(htmlElement);
 }
 
 var elementTypeFromParams = function(params) {
@@ -29,14 +29,19 @@ $.extend(DocumentElement, {
     },
 
     fromHTMLElement: function(htmlElement, canvas) {
-        if(htmlElement.nodeType === Node.ELEMENT_NODE)
+        var $element = $(htmlElement);
+        if(htmlElement.nodeType === Node.ELEMENT_NODE && $element.attr('wlxml-tag'))
             return DocumentNodeElement.fromHTMLElement(htmlElement, canvas);
-        if(htmlElement.nodeType === Node.TEXT_NODE)
+        if($element.attr('wlxml-text') !== undefined || (htmlElement.nodeType === Node.TEXT_NODE && $element.parent().attr('wlxml-text') !== undefined))
             return DocumentTextElement.fromHTMLElement(htmlElement, canvas);
+        return undefined;
     }
 });
 
 $.extend(DocumentElement.prototype, {
+    _setupDOMHandler: function(htmlElement) {
+        this.$element = $(htmlElement);
+    },
     dom: function() {
         return this.$element;
     },
@@ -175,7 +180,9 @@ var DocumentTextElement = function(htmlElement, canvas) {
 
 $.extend(DocumentTextElement, {
     createDOM: function(params) {
-        return $(document.createTextNode(params.text));
+        return $('<div>')
+            .attr('wlxml-text', '')
+            .text(params.text);
     },
 
     create: function(params, canvas) {
@@ -190,8 +197,15 @@ $.extend(DocumentTextElement, {
 DocumentTextElement.prototype = new DocumentElement();
 
 $.extend(DocumentTextElement.prototype, {
+    _setupDOMHandler: function(htmlElement) {
+        var $element = $(htmlElement);
+        if(htmlElement.nodeType === Node.TEXT_NODE)
+            this.$element = $element.parent();
+        else
+            this.$element = $element;
+    },
     setText: function(text) {
-        this.dom()[0].data = text;
+        this.dom().contents()[0].data = text;
     },
     getText: function() {
         return this.dom().text();
