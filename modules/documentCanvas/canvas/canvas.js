@@ -22,16 +22,13 @@ $.extend(Canvas.prototype, {
                 var currentTag = $(this);
                 if(currentTag.attr('wlxml-tag'))
                     return;
-                var toret = $('<div>')
-                    .attr('wlxml-tag', currentTag.prop('tagName').toLowerCase());
-                //toret.attr('id', 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);}));
-                for(var i = 0; i < this.attributes.length; i++) {
-                    var attr = this.attributes.item(i);
-                    var value = attr.name === 'class' ? attr.value.replace(/\./g, '-') : attr.value;
-                    toret.attr('wlxml-' + attr.name, value);
-                }
-                toret.append(currentTag.contents());
-                return toret;
+                var element = documentElement.DocumentNodeElement.createDOM({
+                    tag: currentTag.prop('tagName').toLowerCase(),
+                    klass: currentTag.attr('class')
+                });
+
+                element.append(currentTag.contents());
+                return element;
             });
 
             wrapper.find(':not(iframe)').addBack().contents()

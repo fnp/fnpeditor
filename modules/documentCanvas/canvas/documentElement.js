@@ -77,9 +77,10 @@ var DocumentNodeElement = function(htmlElement, canvas) {
 
 $.extend(DocumentNodeElement, {
     createDOM: function(params) {
-        var dom = $('<div>').attr('wlxml-tag', params.tag);
+        var dom = $('<div>')
+            .attr('wlxml-tag', params.tag);
         if(params.klass)
-            dom.attr('wlxml-class', params.klass);
+            dom.attr('wlxml-class', params.klass.replace(/\./g, '-'));
         return dom;
     },
 
