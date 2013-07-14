@@ -24,7 +24,7 @@ return function(sandbox) {
         },
         setDocument: function(xml) {
             canvas.loadWlxml(xml); //canvas.setHTML(transformations.fromXML.getHTMLTree(xml));
-            canvasWrapper.find('#rng-module-documentCanvas-content').empty().append(canvas.doc().dom());
+            canvasWrapper.find('#rng-module-documentCanvas-content').empty().append(canvas.view());
             manager = new CanvasManager(canvas, sandbox);
             sandbox.publish('documentSet');
         },

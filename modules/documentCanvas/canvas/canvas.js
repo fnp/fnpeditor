@@ -15,10 +15,10 @@ $.extend(Canvas.prototype, {
     loadWlxml: function(wlxml) {
         var d = wlxml ? $($.trim(wlxml)) : null;
         if(d) {
-            var wrapper = $('<div>');
-            wrapper.append(d);
+            this.wrapper = $('<div>').addClass('canvas-wrapper').attr('contenteditable', true);
+            this.wrapper.append(d);
             
-            wrapper.find('*').replaceWith(function() {
+            this.wrapper.find('*').replaceWith(function() {
                 var currentTag = $(this);
                 if(currentTag.attr('wlxml-tag'))
                     return;
@@ -31,7 +31,7 @@ $.extend(Canvas.prototype, {
                 return element;
             });
 
-            wrapper.find(':not(iframe)').addBack().contents()
+            this.wrapper.find(':not(iframe)').addBack().contents()
                 .filter(function() {return this.nodeType === Node.TEXT_NODE})
                 .each(function() {
 
@@ -65,11 +65,14 @@ $.extend(Canvas.prototype, {
                     $(this).replaceWith(element.dom());
                 });
             
-            this.d = wrapper.children(0);
-            this.d.unwrap();
+            this.d = this.wrapper.children(0);
         } else {
             this.d = null;
         }
+    },
+
+    view: function() {
+        return this.wrapper;
     },
 
     doc: function() {

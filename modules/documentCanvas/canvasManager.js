@@ -28,55 +28,55 @@ var Manager = function(canvas, sandbox) {
     this.currentNode = null;
     var manager = this;
         
-    canvas.doc().dom().find('#rng-module-documentCanvas-content').on('keyup', function() {
-        manager.sandbox.publish('contentChanged');
-    });
+    // canvas.doc().dom().find('#rng-module-documentCanvas-content').on('keyup', function() {
+    //     manager.sandbox.publish('contentChanged');
+    // });
 
-    canvas.doc().dom().on('mouseover', '[wlxml-tag]', function(e) {
-        e.stopPropagation();
-        manager.sandbox.publish('nodeHovered', canvasNode.create($(e.target)));
-    });
-    canvas.doc().dom().on('mouseout', '[wlxml-tag]', function(e) {
-        e.stopPropagation();
-        manager.sandbox.publish('nodeBlured', canvasNode.create($(e.target)));
-    });
-    canvas.doc().dom().on('click', '[wlxml-tag]', function(e) {
-        e.stopPropagation();
-        console.log('clicked node type: '+e.target.nodeType);
-        manager.selectNode(canvasNode.create($(e.target)));
-    });
+    // canvas.doc().dom().on('mouseover', '[wlxml-tag]', function(e) {
+    //     e.stopPropagation();
+    //     manager.sandbox.publish('nodeHovered', canvasNode.create($(e.target)));
+    // });
+    // canvas.doc().dom().on('mouseout', '[wlxml-tag]', function(e) {
+    //     e.stopPropagation();
+    //     manager.sandbox.publish('nodeBlured', canvasNode.create($(e.target)));
+    // });
+    // canvas.doc().dom().on('click', '[wlxml-tag]', function(e) {
+    //     e.stopPropagation();
+    //     console.log('clicked node type: '+e.target.nodeType);
+    //     manager.selectNode(canvasNode.create($(e.target)));
+    // });
 
-    canvas.doc().dom().on('keyup', '#rng-module-documentCanvas-contentWrapper', function(e) {
-        var anchor = $(window.getSelection().anchorNode);
+    // canvas.doc().dom().on('keyup', '#rng-module-documentCanvas-contentWrapper', function(e) {
+    //     var anchor = $(window.getSelection().anchorNode);
         
-        if(anchor[0].nodeType === Node.TEXT_NODE)
-            anchor = anchor.parent();
-        if(!anchor.is('[wlxml-tag]'))
-            return;
-        manager.selectNode(canvasNode.create(anchor));
-    });
+    //     if(anchor[0].nodeType === Node.TEXT_NODE)
+    //         anchor = anchor.parent();
+    //     if(!anchor.is('[wlxml-tag]'))
+    //         return;
+    //     manager.selectNode(canvasNode.create(anchor));
+    // });
     
-    canvas.doc().dom().on('keydown', '#rng-module-documentCanvas-contentWrapper', function(e) {
-        if(e.which === 13) { 
-            manager.onEnterKey(e);
-        }
-        if(e.which === 8) {
-            manager.onBackspaceKey(e);
-        }
-    });
+    // canvas.doc().dom().on('keydown', '#rng-module-documentCanvas-contentWrapper', function(e) {
+    //     if(e.which === 13) { 
+    //         manager.onEnterKey(e);
+    //     }
+    //     if(e.which === 8) {
+    //         manager.onBackspaceKey(e);
+    //     }
+    // });
               
-    canvas.doc().dom().onShow = function() {
-        if(!manager.shownAlready) {
-            manager.shownAlready = true;
-            manager.selectFirstNode();
-        } else if(manager.currentNode) {
-            manager.movecaretToNode(manager.getNodeElement(manager.currentNode));
-            canvas.doc().dom().find('#rng-module-documentCanvas-contentWrapper').scrollTop(manager.scrollbarPosition);
-        }
-    };
-    canvas.doc().dom().onHide = function() {
-       manager.scrollbarPosition = canvas.doc().dom().find('#rng-module-documentCanvas-contentWrapper').scrollTop();
-    };
+    // canvas.doc().dom().onShow = function() {
+    //     if(!manager.shownAlready) {
+    //         manager.shownAlready = true;
+    //         manager.selectFirstNode();
+    //     } else if(manager.currentNode) {
+    //         manager.movecaretToNode(manager.getNodeElement(manager.currentNode));
+    //         canvas.doc().dom().find('#rng-module-documentCanvas-contentWrapper').scrollTop(manager.scrollbarPosition);
+    //     }
+    // };
+    // canvas.doc().dom().onHide = function() {
+    //    manager.scrollbarPosition = canvas.doc().dom().find('#rng-module-documentCanvas-contentWrapper').scrollTop();
+    // };
 };
     
 Manager.prototype.selectNode = function(cnode, options) {
