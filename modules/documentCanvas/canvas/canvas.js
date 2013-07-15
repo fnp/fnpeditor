@@ -179,14 +179,17 @@ $.extend(Canvas.prototype, {
 
     setCurrentElement: function(element, params) {
         params = _.extend({caretTo: 'end'}, params);
-        var findFirstDirectTextChild = function(e) {
+        var findFirstDirectTextChild = function(e, nodeToLand) {
+            var byBrowser = this.getCursor().getPosition().element;
+            if(byBrowser.parent().sameNode(nodeToLand))
+                return byBrowser;
             var children = e.children();
             for(var i = 0; i < children.length; i++) {
                 if(children[i] instanceof documentElement.DocumentTextElement)
                     return children[i];
             }
             return null;
-        };
+        }.bind(this);
         var _markAsCurrent = function(element) {
             if(element instanceof documentElement.DocumentTextElement) {
                 this.wrapper.find('.current-text-element').removeClass('current-text-element');
@@ -200,8 +203,8 @@ $.extend(Canvas.prototype, {
 
 
         var isTextElement = element instanceof documentElement.DocumentTextElement,
-            textElementToLand = isTextElement ? element : findFirstDirectTextChild(element),
             nodeElementToLand = isTextElement ? element.parent() : element,
+            textElementToLand = isTextElement ? element : findFirstDirectTextChild(element, nodeElementToLand),
             currentTextElement = this.getCurrentTextElement(),
             currentNodeElement = this.getCurrentNodeElement();
 
