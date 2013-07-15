@@ -197,18 +197,7 @@ $.extend(Canvas.prototype, {
                 this.publisher('currentElementChanged', element);
             }
         }.bind(this);
-        var _moveCaretToTextElement = function(element, where) {
-            var range = document.createRange();
-            range.selectNodeContents(element.dom().contents()[0]);
-            
-            var collapseArg = true;
-            if(where === 'end')
-                collapseArg = false;
-            range.collapse(collapseArg);
-            var selection = document.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-        };
+
 
         var isTextElement = element instanceof documentElement.DocumentTextElement,
             textElementToLand = isTextElement ? element : findFirstDirectTextChild(element),
@@ -222,7 +211,7 @@ $.extend(Canvas.prototype, {
         if(textElementToLand && !(textElementToLand.sameNode(currentTextElement))) {
             _markAsCurrent(textElementToLand);
             if(params.caretTo)
-                _moveCaretToTextElement(textElementToLand, params.caretTo); // as method on element?
+                this._moveCaretToTextElement(textElementToLand, params.caretTo); // as method on element?
             this.publisher('currentTextElementSet', element);
         }
 
@@ -232,8 +221,34 @@ $.extend(Canvas.prototype, {
                 document.getSelection().removeAllRanges();
             this.publisher('currentNodeElementSet', nodeElementToLand);
         }
-    }
+    },
 
+    _moveCaretToTextElement: function(element, where) {
+        var range = document.createRange(),
+            node = element.dom().contents()[0];
+
+        if(typeof where !== 'number') {
+            range.selectNodeContents(node);
+        } else {
+            range.setStart(node, where);
+        }
+        
+        var collapseArg = true;
+        if(where === 'end')
+            collapseArg = false;
+        range.collapse(collapseArg);
+        
+        var selection = document.getSelection();
+
+        selection.removeAllRanges();
+        selection.addRange(range);
+        this.wrapper.focus(); // FF requires this for caret to be put where range colllapses, Chrome doesn't.
+    },
+
+    setCursorPosition: function(position) {
+        if(position.element)
+            this._moveCaretToTextElement(position.element, position.offset);
+    }
 });
 
 $.extend(Canvas.prototype.list, {

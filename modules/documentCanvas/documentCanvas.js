@@ -15,6 +15,23 @@ return function(sandbox) {
     var canvas = canvas3.fromXML('', sandbox.publish); //canvasCanvas.create();
     var manager;
     var canvasWrapper = $(template);
+    var shownAlready = false;
+    var scrollbarPosition = 0,
+        cursorPosition;
+    
+    canvasWrapper.onShow = function() {
+        if(!shownAlready) {
+            shownAlready = true;
+        } else {
+            canvas.setCursorPosition(cursorPosition);
+            this.find('#rng-module-documentCanvas-contentWrapper').scrollTop(scrollbarPosition);
+        }
+    };
+    
+    canvasWrapper.onHide = function() {
+       scrollbarPosition = this.find('#rng-module-documentCanvas-contentWrapper').scrollTop();
+       cursorPosition = canvas.getCursor().getPosition();
+    };
 
     /* public api */
     return {
