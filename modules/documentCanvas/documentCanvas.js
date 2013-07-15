@@ -31,30 +31,19 @@ return function(sandbox) {
         getDocument: function() {
             return transformations.toXML.getXML(canvas.getContent());
         },
-        modifyCurrentNode: function(attr, value) {
-            if(manager.currentNode) {
-                if(attr === 'tag') {
-                    manager.getNodeElement(manager.currentNode).attr('wlxml-'+attr, value);
-                }
-                else if(attr === 'class') {
-                    manager.currentNode.setClass(value);
-                } else {
-                    // changing node meta attr
-                    manager.currentNode.setMetaAttr(attr, value);
-                }
-                sandbox.publish('contentChanged');
-                sandbox.publish('currentNodeChanged', manager.currentNode);
+        modifyCurrentNodeElement: function(attr, value) {
+            if(attr === 'class' || attr === 'tag') {
+                canvas.getCurrentNodeElement()['setWlxml'+(attr[0].toUpperCase() + attr.substring(1))](value);    
             }
         },
-        highlightNode: function(canvasNode) {
-            manager.highlightNode(canvasNode);
+        highlightElement: function(element) {
+            canvas.highlightElement(element);
         },
-        dimNode: function(canvasNode) {
-            manager.dimNode(canvasNode);
+        dimElement: function(element) {
+            canvas.dimElement(element);
         },
-        selectNode: function(canvasNode) {
-            if(!canvasNode.isSame(manager.currentNode))
-                manager.selectNode(canvasNode, {movecaret: true});
+        jumpToElement: function(element) {
+            canvas.setCurrentElement(element);
         },
         command: function(command, params) {
             manager.command(command, params);

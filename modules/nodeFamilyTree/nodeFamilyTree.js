@@ -16,41 +16,54 @@ return function(sandbox) {
             var view = this;
             this.dom.on('click', 'a', function(e) {
                 var target = $(e.target);
-                sandbox.publish('nodeSelected', view.nodes[target.attr('data-id')]);
+                sandbox.publish('elementClicked', target.data('element'));
             });
             
             this.dom.on('mouseenter', 'a', function(e) {
                 var target = $(e.target);
-                sandbox.publish('nodeEntered', view.nodes[target.attr('data-id')]);
+                sandbox.publish('elementEntered', target.data('element'));
             });
             this.dom.on('mouseleave', 'a', function(e) {
                 var target = $(e.target);
-                sandbox.publish('nodeLeft', view.nodes[target.attr('data-id')]);
+                sandbox.publish('elementLeft', target.data('element'));
             });
         },
-        setNode: function(node) {
+        setElement: function(element) {
             console.log('familyTree sets node');
-            var nodes = this.nodes = {};
-            this.currentNode = node;
-            var parentNode = node.parent();
-            var parent;
+            var textElement = element.getText ? element : null,
+                nodeElement = element.getText ? element.parent() : element, // TODO: better type detection
+                nodeElementParent = nodeElement.parent(),
+                parent;
             
-            if(parentNode) {
+            this.currentNodeElement = nodeElement;
+
+            if(nodeElementParent) {
                 parent = {
-                    repr: parentNode.getTag() + (parentNode.getClass() ? ' / ' + parentNode.getClass() : ''),
-                    id: parentNode.getId()
+                    repr: nodeElementParent.getWlxmlTag() + (nodeElementParent.getWlxmlClass() ? ' / ' + nodeElementParent.getWlxmlClass() : '')
                 };
-                this.nodes[parentNode.getId()] = parentNode;
             }
         
-            var children = [];
-            node.children().each(function() {
-                var child = this;
-                children.push({repr: child.getTag() + (child.getClass() ? ' / ' + child.getClass() : ''), id: child.getId()});
-                nodes[child.getId()] = child;
+            var nodeChildren = nodeElement.children(),
+                children = [];
+            nodeChildren.forEach(function(child) {
+                if(child.getText) {
+                    var text = child.getText();
+                    if(text.length > 13)
+                        text = text.substr(0,13) + '...';
+                    children.push({repr: '"' + text + '"', bold: child.sameNode(textElement)});
+                } else {
+                    children.push({repr: child.getWlxmlTag() + (child.getWlxmlClass() ? ' / ' + child.getWlxmlClass() : '')});
+                }
             });
             this.dom.empty();
             this.dom.append($(template({parent: parent, children: children})));
+
+            if(parent) {
+                this.dom.find('.rng-module-nodeFamilyTree-parent').data('element', nodeElementParent)
+            }
+            this.dom.find('li a').each(function(idx, a) {
+                $(a).data('element', nodeChildren[idx]);
+            });
         },
         highlightNode: function(canvasNode) {
             this.dom.find('a[data-id="'+canvasNode.getId()+'"]').addClass('rng-common-hoveredNode');
@@ -66,9 +79,9 @@ return function(sandbox) {
         start: function() {
             sandbox.publish('ready');
         },
-        setNode: function(canvasNode) {
-            if(!canvasNode.isSame(view.currentNode))
-                view.setNode(canvasNode);
+        setElement: function(element) {
+            if(!(element.sameNode(view.currentNodeElement)))
+                view.setElement(element);
         },
         getView: function() {
             return view.dom;

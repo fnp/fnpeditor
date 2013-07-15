@@ -52,6 +52,16 @@ $.extend(DocumentElement.prototype, {
         return null;
     },
 
+    parents: function() {
+        var parents = [],
+            parent = this.parent();
+        while(parent) {
+            parents.push(parent);
+            parent = parent.parent();
+        }
+        return parents;
+    },
+
     sameNode: function(other) {
         return other && (typeof other === typeof this) && other.dom()[0] === this.dom()[0];
     },

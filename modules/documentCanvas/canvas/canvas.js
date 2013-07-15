@@ -82,12 +82,12 @@ $.extend(Canvas.prototype, {
 
             this.wrapper.on('keyup', function(e) {
                 if(e.which >= 37 && e.which <= 40)
-                    canvas.markAsCurrent(canvas.getCursor().getPosition().element)
+                    canvas.setCurrentElement(canvas.getCursor().getPosition().element, {caretTo: false})
             });
 
             this.wrapper.on('click', '[wlxml-tag], [wlxml-text]', function(e) {
                 e.stopPropagation();
-                canvas.markAsCurrent(canvas.getCursor().getPosition().element)
+                canvas.setCurrentElement(canvas.getDocumentElement(e.target), {caretTo: false});
             });
 
         } else {
@@ -156,18 +156,84 @@ $.extend(Canvas.prototype, {
 
     list: {},
 
-    markAsCurrent: function(element) {
-        if(element instanceof documentElement.DocumentTextElement) {
+
+
+    highlightElement: function(element) {
+        this.wrapper.find('.highlighted-element').removeClass('highlighted-element');
+        element.dom().addClass('highlighted-element');
+    },
+
+    dimElement: function(element) {
+        element.dom().removeClass('highlighted-element');
+    },
+    
+    getCurrentNodeElement: function() {
+        return this.getDocumentElement(this.wrapper.find('.current-node-element')[0]);
+    },
+
+    getCurrentTextElement: function() {
+        return this.getDocumentElement(this.wrapper.find('.current-text-element')[0]);
+    },
+
+
+
+    setCurrentElement: function(element, params) {
+        params = _.extend({caretTo: 'end'}, params);
+        var findFirstDirectTextChild = function(e) {
+            var children = e.children();
+            for(var i = 0; i < children.length; i++) {
+                if(children[i] instanceof documentElement.DocumentTextElement)
+                    return children[i];
+            }
+            return null;
+        };
+        var _markAsCurrent = function(element) {
+            if(element instanceof documentElement.DocumentTextElement) {
+                this.wrapper.find('.current-text-element').removeClass('current-text-element');
+                element.dom().addClass('current-text-element');
+            } else {
+                this.wrapper.find('.current-node-element').removeClass('current-node-element')
+                element.dom().addClass('current-node-element');
+                this.publisher('currentElementChanged', element);
+            }
+        }.bind(this);
+        var _moveCaretToTextElement = function(element, where) {
+            var range = document.createRange();
+            range.selectNodeContents(element.dom().contents()[0]);
+            
+            var collapseArg = true;
+            if(where === 'end')
+                collapseArg = false;
+            range.collapse(collapseArg);
+            var selection = document.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        };
+
+        var isTextElement = element instanceof documentElement.DocumentTextElement,
+            textElementToLand = isTextElement ? element : findFirstDirectTextChild(element),
+            nodeElementToLand = isTextElement ? element.parent() : element,
+            currentTextElement = this.getCurrentTextElement(),
+            currentNodeElement = this.getCurrentNodeElement();
+
+        if(currentTextElement && !(currentTextElement.sameNode(textElementToLand)))
             this.wrapper.find('.current-text-element').removeClass('current-text-element');
-            element.dom().addClass('current-text-element');
-            this.markAsCurrent(element.parent());
-            this.publisher('currentTextElementChanged', element);
-        } else {
-            this.wrapper.find('.current-node-element').removeClass('current-node-element')
-            element.dom().addClass('current-node-element');
+
+        if(textElementToLand && !(textElementToLand.sameNode(currentTextElement))) {
+            _markAsCurrent(textElementToLand);
+            if(params.caretTo)
+                _moveCaretToTextElement(textElementToLand, params.caretTo); // as method on element?
+            this.publisher('currentTextElementSet', element);
         }
 
+        if(!(currentNodeElement && currentNodeElement.sameNode(nodeElementToLand))) {
+            _markAsCurrent(nodeElementToLand);
+            if(!textElementToLand)
+                document.getSelection().removeAllRanges();
+            this.publisher('currentNodeElementSet', nodeElementToLand);
+        }
     }
+
 });
 
 $.extend(Canvas.prototype.list, {

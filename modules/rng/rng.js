@@ -50,26 +50,30 @@ return function(sandbox) {
     };
     
     var commands = {
-        highlightDocumentNode: function(canvasNode, origin) {
-            ['documentCanvas', 'nodeBreadCrumbs', 'nodeFamilyTree'].forEach(function(moduleName) {
+        highlightDocumentElement: function(element, origin) {
+            ///'nodeBreadCrumbs', 'nodeFamilyTree'
+            ['documentCanvas', ].forEach(function(moduleName) {
                 if(!origin || moduleName != origin)
-                    sandbox.getModule(moduleName).highlightNode(canvasNode);
+                    sandbox.getModule(moduleName).highlightElement(element);
             });
         },
-        dimDocumentNode: function(canvasNode, origin) {
-            ['documentCanvas', 'nodeBreadCrumbs', 'nodeFamilyTree'].forEach(function(moduleName) {
+        dimDocumentElement: function(element, origin) {
+            //'nodeBreadCrumbs', 'nodeFamilyTree'
+            ['documentCanvas'].forEach(function(moduleName) {
                 if(!origin || moduleName != origin)
-                    sandbox.getModule(moduleName).dimNode(canvasNode);
+                    sandbox.getModule(moduleName).dimElement(element);
             });
         },
-        selectNode: function(canvasNode, origin) {
-            sandbox.getModule('documentCanvas').selectNode(canvasNode);
-            this.updateNodesModules(canvasNode);           
+        jumpToDocumentElement: function(element) {
+            sandbox.getModule('documentCanvas').jumpToElement(element);
         },
-        updateNodesModules: function(canvasNode) {
-            sandbox.getModule('nodePane').setNode(canvasNode);
-            sandbox.getModule('nodeFamilyTree').setNode(canvasNode);
-            sandbox.getModule('nodeBreadCrumbs').setNode(canvasNode);
+        updateCurrentNodeElement: function(nodeElement) {
+            sandbox.getModule('nodePane').setNodeElement(nodeElement);
+            sandbox.getModule('nodeFamilyTree').setElement(nodeElement);
+            sandbox.getModule('nodeBreadCrumbs').setNodeElement(nodeElement);
+        },
+        updateCurrentTextElement: function(textElement) {
+            sandbox.getModule('nodeFamilyTree').setElement(textElement);
         },
         resetDocument: function(document, reason) {
             var modules = [];
@@ -193,16 +197,16 @@ return function(sandbox) {
             dirty.documentCanvas = false;
         },
         
-        nodeSelected: function(canvasNode) {
-            commands.selectNode(canvasNode);
+        currentTextElementSet: function(textElement) {
+            commands.updateCurrentTextElement(textElement);
+        },
+
+        currentNodeElementSet: function(nodeElement) {
+            commands.updateCurrentNodeElement(nodeElement);
         },
         
         contentChanged: function() {
             dirty.documentCanvas = true;
-        },
-        
-        currentNodeChanged: function(canvasNode) {
-            commands.updateNodesModules(canvasNode);
         },
 
         nodeHovered: function(canvasNode) {
@@ -219,8 +223,8 @@ return function(sandbox) {
             views.currentNodePaneLayout.appendView(sandbox.getModule('nodePane').getView());
         },
         
-        nodeChanged: function(attr, value) {
-            sandbox.getModule('documentCanvas').modifyCurrentNode(attr, value);
+        nodeElementChange: function(attr, value) {
+            sandbox.getModule('documentCanvas').modifyCurrentNodeElement(attr, value);
         }
     };
     
@@ -241,14 +245,14 @@ return function(sandbox) {
         ready: function() {
             views.currentNodePaneLayout.appendView(sandbox.getModule('nodeFamilyTree').getView());
         },
-        nodeEntered: function(canvasNode) {
-            commands.highlightDocumentNode(canvasNode, 'nodeFamilyTree');
+        elementEntered: function(element) {
+            commands.highlightDocumentElement(element, 'nodeFamilyTree');
         },
-        nodeLeft: function(canvasNode) {
-            commands.dimDocumentNode(canvasNode, 'nodeFamilyTree');
+        elementLeft: function(element) {
+            commands.dimDocumentElement(element, 'nodeFamilyTree');
         },
-        nodeSelected: function(canvasNode) {
-            commands.selectNode(canvasNode);
+        elementClicked: function(element) {
+            commands.jumpToDocumentElement(element);
         }
     };
     
@@ -265,14 +269,14 @@ return function(sandbox) {
         ready: function() {
             views.visualEditing.setView('statusBar', sandbox.getModule('nodeBreadCrumbs').getView());
         },
-        nodeHighlighted: function(canvasNode) {
-            commands.highlightDocumentNode(canvasNode, 'nodeBreadCrumbs');
+        elementEntered: function(element) {
+            commands.highlightDocumentElement(element, 'nodeBreadCrumbs');
         },
-        nodeDimmed: function(canvasNode) {
-            commands.dimDocumentNode(canvasNode, 'nodeBreadCrumbs');
+        elementLeft: function(element) {
+            commands.dimDocumentElement(element, 'nodeBreadCrumbs');
         },
-        nodeSelected: function(canvasNode) {
-            commands.selectNode(canvasNode);
+        elementClicked: function(element) {
+            commands.jumpToDocumentElement(element);
         }        
     };
     

@@ -15,30 +15,29 @@ return function(sandbox) {
             var view = this;
             this.dom.on('mouseenter', 'a', function(e) {
                 var target = $(e.target);
-                sandbox.publish('nodeHighlighted', view.nodes[target.attr('data-id')]);
+                sandbox.publish('elementEntered', target.data('element'));
             });
             this.dom.on('mouseleave', 'a', function(e) {
                 var target = $(e.target);
-                sandbox.publish('nodeDimmed', view.nodes[target.attr('data-id')]);
+                sandbox.publish('elementLeft', target.data('element'));
             });
             this.dom.on('click', 'a', function(e) {
                 e.preventDefault();
                 var target = $(e.target);
-                sandbox.publish('nodeSelected', view.nodes[target.attr('data-id')]);
+                sandbox.publish('elementClicked', target.data('element'));
             });
         },
         
-        setNode: function(node) {
+        setNodeElement: function(nodeElement) {
             this.dom.empty();
-            var nodes = this.nodes = {};
-            this.currentNode = node;
-            this.nodes[node.getId()] = node;
-            var parents = node.parents();
-            parents.each(function() {
-                var parent = this;
-                nodes[parent.getId()] = parent;
+            this.currentNodeElement = nodeElement;
+            var parents = nodeElement.parents();
+            this.dom.html(template({node: nodeElement, parents: parents}));
+
+            this.dom.find('li > a[href="#"]').each(function(idx, a) {
+                $(a).data('element', parents[parents.length - 1 - idx]);
             });
-            this.dom.html(template({node: node, parents: parents}));
+            this.dom.find('a.active').data('element', nodeElement);
         },
         
         highlightNode: function(node) {
@@ -54,9 +53,9 @@ return function(sandbox) {
     return {
         start: function() { sandbox.publish('ready'); },
         getView: function() { return view.dom; },
-        setNode: function(canvasNode) {
-            if(!canvasNode.isSame(view.currentNode)) {
-                view.setNode(canvasNode);
+        setNodeElement: function(nodeElement) {
+            if(!nodeElement.sameNode(view.currentNodeElement)) {
+                view.setNodeElement(nodeElement);
             }
         },
         highlightNode: function(id) { view.highlightNode(id); },
