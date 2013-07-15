@@ -217,12 +217,13 @@ $.extend(Canvas.prototype, {
                 this._moveCaretToTextElement(textElementToLand, params.caretTo); // as method on element?
             if(!(textElementToLand.sameNode(currentTextElement)))
                 this.publisher('currentTextElementSet', element);
+        } else {
+            document.getSelection().removeAllRanges();
         }
 
         if(!(currentNodeElement && currentNodeElement.sameNode(nodeElementToLand))) {
             _markAsCurrent(nodeElementToLand);
-            if(!textElementToLand)
-                document.getSelection().removeAllRanges();
+
             this.publisher('currentNodeElementSet', nodeElementToLand);
         }
     },
