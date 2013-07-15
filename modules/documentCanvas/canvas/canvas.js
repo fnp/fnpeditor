@@ -208,11 +208,12 @@ $.extend(Canvas.prototype, {
         if(currentTextElement && !(currentTextElement.sameNode(textElementToLand)))
             this.wrapper.find('.current-text-element').removeClass('current-text-element');
 
-        if(textElementToLand && !(textElementToLand.sameNode(currentTextElement))) {
+        if(textElementToLand) {
             _markAsCurrent(textElementToLand);
-            if(params.caretTo)
+            if(params.caretTo || !textElementToLand.sameNode(this.getCursor().getPosition().element))
                 this._moveCaretToTextElement(textElementToLand, params.caretTo); // as method on element?
-            this.publisher('currentTextElementSet', element);
+            if(!(textElementToLand.sameNode(currentTextElement)))
+                this.publisher('currentTextElementSet', element);
         }
 
         if(!(currentNodeElement && currentNodeElement.sameNode(nodeElementToLand))) {
