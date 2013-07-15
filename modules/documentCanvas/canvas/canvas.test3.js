@@ -267,6 +267,32 @@ describe('Canvas', function() {
                     expect(c.doc().children()[2].getText()).to.equal(' cat');
                 });
             });
+
+            describe('getting vertically first text element', function() {
+                it('returns the first child if it\'s text element, ignores metadata', function() {
+                    var c = canvas.fromXML('<section><metadata><dc:author>author</dc:author></metadata>Alice<div>has</div>a cat</section>'),
+                        first = c.doc().getVerticallyFirstTextElement();
+
+                    expect(first.sameNode(c.doc().children()[1])).to.be.true;
+                });
+
+                it('looks recursively inside node elements if they precede text element', function() {
+                    var c = canvas.fromXML('\
+                            <section>\
+                                <div>\
+                                    <div>\
+                                        Alice\
+                                    </div>\
+                                </div>\
+                                Some text\
+                            </section>'),
+                        textAlice = c.doc().children()[0].children()[0].children()[0],
+                        first = c.doc().getVerticallyFirstTextElement();
+
+                    expect(textAlice).to.be.instanceOf(documentElement.DocumentTextElement);
+                    expect(first.sameNode(textAlice)).to.be.true;
+                });
+            });
         });
 
         describe('manipulation api', function() {

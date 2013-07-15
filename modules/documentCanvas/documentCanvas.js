@@ -22,6 +22,7 @@ return function(sandbox) {
     canvasWrapper.onShow = function() {
         if(!shownAlready) {
             shownAlready = true;
+            canvas.setCurrentElement(canvas.doc().getVerticallyFirstTextElement());
         } else {
             canvas.setCursorPosition(cursorPosition);
             this.find('#rng-module-documentCanvas-contentWrapper').scrollTop(scrollbarPosition);

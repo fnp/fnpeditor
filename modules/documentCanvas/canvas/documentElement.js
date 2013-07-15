@@ -80,6 +80,27 @@ $.extend(DocumentElement.prototype, {
 
     markAsCurrent: function() {
         this.canvas.markAsCurrent(this);
+    },
+
+    getVerticallyFirstTextElement: function() {
+        var toret;
+        this.children().some(function(child) {
+            if(!child.isVisible())
+                return false; // continue
+            if(child instanceof DocumentTextElement) {
+                toret = child;
+                return true; // break
+            } else {
+                toret = child.getVerticallyFirstTextElement();
+                if(toret)
+                    return true; // break
+            }
+        });
+        return toret;
+    },
+
+    isVisible: function() {
+        return this instanceof DocumentTextElement || this.getWlxmlTag() !== 'metadata';
     }
 });
 
