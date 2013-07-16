@@ -48,9 +48,15 @@ return function(sandbox) {
             nodeChildren.forEach(function(child) {
                 if(child.getText) {
                     var text = child.getText();
-                    if(text.length > 13)
-                        text = text.substr(0,13) + '...';
-                    children.push({repr: '"' + text + '"', bold: child.sameNode(textElement)});
+                    if(!text)
+                        text = '&lt;pusty tekst&gt;';
+                    else {
+                        if(text.length > 13) {
+                            text = text.substr(0,13) + '...';
+                        }
+                        text = '"' + text + '"';
+                    }
+                    children.push({repr: text, bold: child.sameNode(textElement)});
                 } else {
                     children.push({repr: child.getWlxmlTag() + (child.getWlxmlClass() ? ' / ' + child.getWlxmlClass() : '')});
                 }
