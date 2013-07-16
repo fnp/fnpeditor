@@ -576,10 +576,11 @@ describe('Canvas', function() {
                     section = c.doc(),
                     text = section.children()[1].children()[0];
 
-                    text.unwrap();
+                    var newTextContainer = text.unwrap();
 
                     expect(section.children().length).to.equal(1, 'section has one child');
                     expect(section.children()[0].getText()).to.equal('Alice has a cat');
+                    expect(newTextContainer.sameNode(c.doc())).to.equal(true, 'unwrap returns new text parent DocumentNodeElement');
                 })
             });
         });

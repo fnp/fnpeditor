@@ -194,7 +194,9 @@ Manager.prototype.command = function(command, params) {
         if(this.canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
             this.canvas.list.extractItems({element1: parent1, element2: parent2});
         } else if(!cursor.isSelecting()) {
-            cursor.getPosition().element.unwrap();
+            var toUnwrap = cursor.getPosition().element,
+                parent = toUnwrap.unwrap();
+            this.canvas.setCurrentElement(parent);
         }
     } else if(command === 'wrap-node') {
         if(this.canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {

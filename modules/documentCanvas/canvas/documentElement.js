@@ -315,8 +315,10 @@ $.extend(DocumentTextElement.prototype, {
         }
     },
     unwrap: function() {
-        var parent = this.parent();
+        var parent = this.parent(),
+            toret;
         if(parent.children().length === 1) {
+            toret = parent.parent();
             var grandParent = parent.parent();
             if(grandParent) {
                 var grandParentChildren = grandParent.children(),
@@ -336,6 +338,7 @@ $.extend(DocumentTextElement.prototype, {
                 parent.after(this);
             }
             parent.detach();
+            return toret;
         }
     },
     split: function(params) {
