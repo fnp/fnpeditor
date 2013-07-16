@@ -14,7 +14,7 @@ return function(sandbox) {
     view.on('change', 'select', function(e) {
         var target = $(e.target);
         var attr = target.attr('class').split('-')[3] === 'tagSelect' ? 'tag' : 'class';
-        sandbox.publish('nodeElementChange', attr, target.val());
+        sandbox.publish('nodeElementChange', attr, target.val().replace(/-/g, '.'));
     });
     
     return {
@@ -26,7 +26,7 @@ return function(sandbox) {
         },
         setNodeElement: function(nodeElement) {
             view.find('.rng-module-nodePane-tagSelect').val(nodeElement.getWlxmlTag());
-            view.find('.rng-module-nodePane-classSelect').val(nodeElement.getWlxmlClass());
+            view.find('.rng-module-nodePane-classSelect').val((nodeElement.getWlxmlClass() || '').replace(/\./g, '-'));
 
             //var widget = metaWidget.create({attrs:canvasNode.getMetaAttrs()});
             //widget.on('valueChanged', function(key, value) {

@@ -192,12 +192,12 @@ $.extend(DocumentNodeElement.prototype, {
     getWlxmlClass: function() {
         var klass = this.dom().attr('wlxml-class');
         if(klass)
-            return klass.replace('-', '.');
+            return klass.replace(/-/g, '.');
         return undefined;
     },
     setWlxmlClass: function(klass) {
         if(klass)
-            this.dom().attr('wlxml-class', klass.replace('.', '-'));
+            this.dom().attr('wlxml-class', klass.replace(/\./g, '-'));
         else
             this.dom().removeAttr('wlxml-class');
     },

@@ -118,11 +118,11 @@ describe('Canvas', function() {
             });
 
             it('knows WLXML class of a WLXML tag it renders', function(){
-                var c = canvas.fromXML('<section class="some.class"></section>'),
+                var c = canvas.fromXML('<section class="some.class.A"></section>'),
                     section = c.doc();
-                expect(section.getWlxmlClass()).to.equal('some.class');
-                section.setWlxmlClass('some.other.class');
-                expect(section.getWlxmlClass()).to.equal('some.other.class');
+                expect(section.getWlxmlClass()).to.equal('some.class.A');
+                section.setWlxmlClass('some.class.B');
+                expect(section.getWlxmlClass()).to.equal('some.class.B');
                 section.setWlxmlClass(null);
                 expect(section.getWlxmlClass()).to.be.undefined;
             });
