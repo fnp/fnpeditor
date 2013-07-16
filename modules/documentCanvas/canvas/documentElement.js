@@ -197,7 +197,7 @@ $.extend(DocumentNodeElement.prototype, {
     },
     setWlxmlClass: function(klass) {
         if(klass)
-            this.dom().attr('wlxml-class', klass);
+            this.dom().attr('wlxml-class', klass.replace('.', '-'));
         else
             this.dom().removeAttr('wlxml-class');
     },
