@@ -368,7 +368,7 @@ describe('Canvas', function() {
                         section = c.doc(),
                         text = section.children()[0].children()[0];
 
-                    text.split({offset: 5});
+                    var returnedValue = text.split({offset: 5});
                     expect(section.children().length).to.equal(2, 'section has two children');
                     
                     var header1 = section.children()[0];
@@ -380,6 +380,9 @@ describe('Canvas', function() {
                     expect(header2.getWlxmlTag()).to.equal('header', 'second section child represents wlxml header');
                     expect(header2.children().length).to.equal(1, 'second header has one text child');
                     expect(header2.children()[0].getText()).to.equal('header', 'second header has correct content');
+
+                    expect(returnedValue.first.sameNode(header1)).to.equal(true, 'first node returnde');
+                    expect(returnedValue.second.sameNode(header2)).to.equal(true, 'second node returned');
                 });
 
                 it('leaves empty copy of DocumentNodeElement if splitting at the very beginning', function() {

@@ -341,6 +341,8 @@ $.extend(DocumentTextElement.prototype, {
         succeedingChildren.forEach(function(child) {
             newElement.append(child);
         });
+
+        return {first: parentElement, second: newElement};
     },
 });
 
