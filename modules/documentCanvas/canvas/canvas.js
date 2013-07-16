@@ -74,8 +74,19 @@ $.extend(Canvas.prototype, {
                     e.preventDefault();
                     var cursor = canvas.getCursor();
                     if(!cursor.isSelecting()) {
-                        var position = cursor.getPosition();
-                        position.element.split({offset: position.offset});
+                        var position = cursor.getPosition(),
+                            elements = position.element.split({offset: position.offset}),
+                            newEmpty,
+                            goto;
+
+                        if(position.offsetAtBeginning)
+                            newEmpty = elements.first;
+                        else if(position.offsetAtEnd)
+                            newEmpty = elements.second;
+                        if(newEmpty) {
+                            goto = newEmpty.append(documentElement.DocumentTextElement.create({text: '\u200B'}, this));
+                            canvas.setCurrentElement(goto);
+                        }
                     }
                 }
             });
@@ -425,7 +436,9 @@ $.extend(Cursor.prototype, {
         if(which === 'anchor') {
             return {
                 element: anchorElement,
-                offset: selection.anchorOffset
+                offset: selection.anchorOffset,
+                offsetAtBeginning: selection.anchorOffset === 0,
+                offsetAtEnd: anchorElement && anchorElement.getText().length === selection.anchorOffset
             };
         }
         
@@ -467,7 +480,9 @@ $.extend(Cursor.prototype, {
 
         return {
             element: element,
-            offset: offset
+            offset: offset,
+            offsetAtBeginning: offset === 0,
+            offsetAtEnd: element.getText().length === offset
         }
     }
 })

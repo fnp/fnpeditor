@@ -980,6 +980,17 @@ describe('Canvas', function() {
             expect(cursor.isSelecting()).to.equal(false, 'cursor is not selecting anything');
             expect(position.element.getText()).to.equal('Alice has a cat');
             expect(position.offset).to.equal(5);
+            expect(position.offsetAtEnd).to.equal(false, 'offset is not at end');
+
+            getSelection.returns({
+                anchorNode: text,
+                focusNode: text,
+                anchorOffset: 15,
+                focusOffset: 15,
+                isCollapsed: true
+            });
+
+            expect(cursor.getPosition().offsetAtEnd).to.equal(true, 'offset at end');
         });
 
         it('returns boundries of selection when browser selection not collapsed', function() {
