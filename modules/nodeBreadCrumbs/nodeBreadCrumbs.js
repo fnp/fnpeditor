@@ -54,9 +54,7 @@ return function(sandbox) {
         start: function() { sandbox.publish('ready'); },
         getView: function() { return view.dom; },
         setNodeElement: function(nodeElement) {
-            if(!nodeElement.sameNode(view.currentNodeElement)) {
-                view.setNodeElement(nodeElement);
-            }
+            view.setNodeElement(nodeElement);
         },
         highlightNode: function(id) { view.highlightNode(id); },
         dimNode: function(id) { view.dimNode(id); }

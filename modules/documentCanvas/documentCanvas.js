@@ -56,6 +56,7 @@ return function(sandbox) {
             } else {
                 currentNodeElement.setWlxmlMetaAttr(attr, value);
             }
+            sandbox.publish('currentNodeElementChanged', currentNodeElement);
         },
         highlightElement: function(element) {
             canvas.highlightElement(element);

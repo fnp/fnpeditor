@@ -205,6 +205,10 @@ return function(sandbox) {
             commands.updateCurrentNodeElement(nodeElement);
         },
         
+        currentNodeElementChanged: function(nodeElement) {
+            commands.updateCurrentNodeElement(nodeElement);
+        },
+
         contentChanged: function() {
             dirty.documentCanvas = true;
         },
