@@ -216,7 +216,7 @@ $.extend(Canvas.prototype, {
             if(params.caretTo || !textElementToLand.sameNode(this.getCursor().getPosition().element))
                 this._moveCaretToTextElement(textElementToLand, params.caretTo); // as method on element?
             if(!(textElementToLand.sameNode(currentTextElement)))
-                this.publisher('currentTextElementSet', element);
+                this.publisher('currentTextElementSet', textElementToLand);
         } else {
             document.getSelection().removeAllRanges();
         }
