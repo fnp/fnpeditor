@@ -181,7 +181,7 @@ $.extend(Canvas.prototype, {
         params = _.extend({caretTo: 'end'}, params);
         var findFirstDirectTextChild = function(e, nodeToLand) {
             var byBrowser = this.getCursor().getPosition().element;
-            if(byBrowser.parent().sameNode(nodeToLand))
+            if(byBrowser && byBrowser.parent().sameNode(nodeToLand))
                 return byBrowser;
             var children = e.children();
             for(var i = 0; i < children.length; i++) {
