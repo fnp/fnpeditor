@@ -49,14 +49,14 @@ return function(sandbox) {
                 if(child.getText) {
                     var text = child.getText();
                     if(!text)
-                        text = '&lt;pusty tekst&gt;';
+                        text = '<pusty tekst>';
                     else {
                         if(text.length > 13) {
                             text = text.substr(0,13) + '...';
                         }
                         text = '"' + text + '"';
                     }
-                    children.push({repr: text, bold: child.sameNode(textElement)});
+                    children.push({repr: _.escape(text), bold: child.sameNode(textElement)});
                 } else {
                     children.push({repr: child.getWlxmlTag() + (child.getWlxmlClass() ? ' / ' + child.getWlxmlClass() : '')});
                 }
