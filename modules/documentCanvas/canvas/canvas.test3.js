@@ -304,7 +304,7 @@ describe('Canvas', function() {
                         children = c.doc().children();
 
                     expect(children.length).to.equal(1);
-                    expect(children[0].sameNode(appended));
+                    expect(children[0].sameNode(appended)).to.be.true;
                 });
 
                 it('can put new TextElement at the end', function() {
@@ -313,7 +313,7 @@ describe('Canvas', function() {
                         children = c.doc().children();
 
                     expect(children.length).to.equal(1);
-                    expect(children[0].sameNode(appended));
+                    expect(children[0].sameNode(appended)).to.be.true;
                     expect(children[0].getText()).to.equal('Alice');
                 });
 
@@ -323,7 +323,7 @@ describe('Canvas', function() {
                         added = div.after({tag: 'header', klass: 'some.class'}),
                         children = c.doc().children();
                     expect(children.length).to.equal(2);
-                    expect(children[1].sameNode(added));
+                    expect(children[1].sameNode(added)).to.be.true;
                 });
 
                 it('can put new Nodeelement before another element', function() {
@@ -332,7 +332,7 @@ describe('Canvas', function() {
                         added = div.before({tag: 'header', klass: 'some.class'}),
                         children = c.doc().children();
                     expect(children.length).to.equal(2);
-                    expect(children[0].sameNode(added));
+                    expect(children[0].sameNode(added)).to.be.true;
                 });
 
                 it('can put new DocumentNodeElement after DocumentTextElement', function() {

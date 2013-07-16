@@ -143,14 +143,14 @@ DocumentNodeElement.prototype = new DocumentElement();
 
 $.extend(DocumentNodeElement.prototype, {
     append: function(params) {
-        manipulate(this, params, 'append');
+        return manipulate(this, params, 'append');
     },
     before: function(params) {
-        manipulate(this, params, 'before');
+        return manipulate(this, params, 'before');
 
     },
     after: function(params) {
-        manipulate(this, params, 'after');
+        return manipulate(this, params, 'after');
     },
     children: function() {
         var toret = [];
