@@ -419,6 +419,9 @@ $.extend(Cursor.prototype, {
             anchorElement = this.canvas.getDocumentElement(selection.anchorNode),
             focusElement = this.canvas.getDocumentElement(selection.focusNode);
         
+        if(anchorElement instanceof documentElement.DocumentNodeElement || focusElement instanceof documentElement.DocumentNodeElement)
+            return {};
+
         if(which === 'anchor') {
             return {
                 element: anchorElement,
