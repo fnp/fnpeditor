@@ -126,6 +126,35 @@ describe('Canvas', function() {
                 section.setWlxmlClass(null);
                 expect(section.getWlxmlClass()).to.be.undefined;
             });
+
+
+
+            describe('element has meta attributes', function() {
+                it('can change its meta attributes', function() {
+                    var c = canvas.fromXML('<section><span class="uri" meta-uri="someuri"></span></section>'),
+                    span = c.doc().children()[0];
+                    
+                    expect(span.getWlxmlMetaAttr('uri')).to.equal('someuri');
+                    span.setWlxmlMetaAttr('uri', 'otheruri');
+                    expect(span.getWlxmlMetaAttr('uri')).to.equal('otheruri');
+                });
+
+                it('changes its meta attributes with class change', function() {
+                    var c = canvas.fromXML('<section><span class="uri" meta-uri="someuri"></span></section>'),
+                    span = c.doc().children()[0];
+                    
+                    expect(span.getWlxmlMetaAttr('uri')).to.equal('someuri');
+                    span.setWlxmlClass('author');
+                    expect(span.getWlxmlMetaAttr('uri')).to.be.undefined;
+                });
+
+                it('keeps meta attribute value on class change if a new class has this attribute', function() {
+                    var c = canvas.fromXML('<section><span class="uri" meta-uri="someuri"></span></section>'),
+                    span = c.doc().children()[0];
+                    span.setWlxmlClass('uri.some.subclass');
+                    expect(span.getWlxmlMetaAttr('uri')).to.equal('someuri');
+                });
+            });
         });
 
         it('returns DocumentNodeElement instance from HTMLElement', function() {

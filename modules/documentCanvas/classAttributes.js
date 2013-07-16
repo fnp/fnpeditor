@@ -13,10 +13,10 @@ var hasMetaAttr = function(klass, attrName, dict) {
     if(!klass)
         return false;
 
-    var parts = klass.split('-');
+    var parts = klass.split('.');
     var partialClass = '';
     for(var i = 0; i < parts.length; i++) {
-        partialClass += (partialClass === '' ? '' : '-') + parts[i];
+        partialClass += (partialClass === '' ? '' : '.') + parts[i];
         if(dict[partialClass] && dict[partialClass][attrName])
             return true;
     }
@@ -28,7 +28,7 @@ var getMetaAttrsList = function(klass, dict) {
     klass = klass || '';
 
     var toret = {own: [], inheritedFrom: {}, all: []};
-    var parts = klass.split('-');
+    var parts = klass.split('.');
     var partialClass = '';
     
     var generate = function(klass) {
@@ -46,7 +46,7 @@ var getMetaAttrsList = function(klass, dict) {
 
     toret.own = generate(klass);
     for(var i = 0; i < parts.length; i++) {
-        partialClass += (partialClass === '' ? '' : '-') + parts[i];
+        partialClass += (partialClass === '' ? '' : '.') + parts[i];
         var list = generate(partialClass);
         if(list.length > 0) {
             toret.inheritedFrom[partialClass] = generate(partialClass);

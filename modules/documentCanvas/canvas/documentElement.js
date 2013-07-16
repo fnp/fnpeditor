@@ -1,7 +1,8 @@
 define([
 'libs/jquery-1.9.1.min',
-'libs/underscore-min'
-], function($, _) {
+'libs/underscore-min',
+'modules/documentCanvas/classAttributes'
+], function($, _, classAttributes) {
     
 'use strict';
 
@@ -116,6 +117,11 @@ $.extend(DocumentNodeElement, {
             .attr('wlxml-tag', params.tag);
         if(params.klass)
             dom.attr('wlxml-class', params.klass.replace(/\./g, '-'));
+        if(params.meta) {
+            _.keys(params.meta).forEach(function(key) {
+                dom.attr('wlxml-meta-'+key, params.meta[key]);
+            });
+        }
         return dom;
     },
 
@@ -196,6 +202,11 @@ $.extend(DocumentNodeElement.prototype, {
         return undefined;
     },
     setWlxmlClass: function(klass) {
+        this.getWlxmlMetaAttrs().forEach(function(attr) {
+            if(!classAttributes.hasMetaAttr(klass, attr.name))
+                this.dom().removeAttr('wlxml-meta-' + attr.name);
+        }, this);
+
         if(klass)
             this.dom().attr('wlxml-class', klass.replace(/\./g, '-'));
         else
@@ -205,6 +216,22 @@ $.extend(DocumentNodeElement.prototype, {
         if(what === 'list' && _.contains(['list-items', 'list-items-enum'], this.dom().attr('wlxml-class')))
             return true;
         return false;
+    },
+
+
+    getWlxmlMetaAttr: function(attr) {
+        return this.dom().attr('wlxml-meta-'+attr);
+    },
+    getWlxmlMetaAttrs: function() {
+        var toret = [];
+        var attrList = classAttributes.getMetaAttrsList(this.getWlxmlClass());
+        attrList.all.forEach(function(attr) {
+            toret.push({name: attr.name, value: this.getWlxmlMetaAttr(attr.name) || ''});
+        }, this);
+        return toret;
+    },
+    setWlxmlMetaAttr: function(attr, value) {
+        this.dom().attr('wlxml-meta-'+attr, value);
     }
 });
 

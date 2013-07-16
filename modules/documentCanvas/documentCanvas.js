@@ -50,8 +50,11 @@ return function(sandbox) {
             return transformations.toXML.getXML(canvas.getContent());
         },
         modifyCurrentNodeElement: function(attr, value) {
+            var currentNodeElement = canvas.getCurrentNodeElement();
             if(attr === 'class' || attr === 'tag') {
-                canvas.getCurrentNodeElement()['setWlxml'+(attr[0].toUpperCase() + attr.substring(1))](value);    
+                currentNodeElement['setWlxml'+(attr[0].toUpperCase() + attr.substring(1))](value);
+            } else {
+                currentNodeElement.setWlxmlMetaAttr(attr, value);
             }
         },
         highlightElement: function(element) {
