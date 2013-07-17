@@ -26,7 +26,9 @@ commands.register('unwrap-node', function(canvas) {
         parent2 = selectionEnd.element.parent() || undefined;
 
     if(canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
+        var selectionAnchor = cursor.getSelectionAnchor();
         canvas.list.extractItems({element1: parent1, element2: parent2});
+        canvas.setCurrentElement(selectionAnchor.element, {caretTo: selectionAnchor.offset});
     } else if(!cursor.isSelecting()) {
         var toUnwrap = cursor.getPosition().element,
             parent = toUnwrap.unwrap();
