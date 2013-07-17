@@ -23,7 +23,6 @@ var Manager = function(canvas, sandbox) {
     this.canvas = canvas;
     this.sandbox = sandbox;
     this.shownAlready = false;
-    this.gridToggled = false;
     this.scrollbarPosition = 0;
     this.currentNode = null;
     var manager = this;
@@ -179,56 +178,6 @@ Manager.prototype.onBackspaceKey = function(e) {
         var prevNode = this.canvas.getPrecedingNode({node:toRemove});
         this.canvas.nodeRemove({node: toRemove}); // jesli nie ma tekstu, to anchor nie jest tex nodem
         this.selectNode(prevNode, {movecaret: 'end'});
-    }
-};
-
-Manager.prototype.command = function(command, params) {
-
-    var cursor = this.canvas.getCursor(),
-        selectionStart = cursor.getSelectionStart(),
-        selectionEnd = cursor.getSelectionEnd(),
-        parent1 = selectionStart.element.parent() || undefined,
-        parent2 = selectionEnd.element.parent() || undefined;
-
-    if(command === 'unwrap-node') {
-        if(this.canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
-            this.canvas.list.extractItems({element1: parent1, element2: parent2});
-        } else if(!cursor.isSelecting()) {
-            var toUnwrap = cursor.getPosition().element,
-                parent = toUnwrap.unwrap();
-            this.canvas.setCurrentElement(parent);
-        }
-    } else if(command === 'wrap-node') {
-        if(this.canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
-            this.canvas.list.create({element1: parent1, element2: parent2});
-        }
-    } else if(command === 'toggle-list') {
-        if(params.toggle) {
-            this.canvas.list.create({element1: parent1, element2: parent2});
-        } else {
-            if(this.canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
-                this.canvas.list.extractItems({element1: parent1, element2: parent2, merge: false});
-            } 
-        }
-    } else if(command == 'toggle-grid') {
-        this.canvas.doc().dom().find('[wlxml-tag]').toggleClass('rng-common-hoveredNode', params.toggle);
-        this.gridToggled = params.toggle;
-    } else if(command == 'newNodeRequested') {
-        if(cursor.isSelecting() && cursor.isSelectingSiblings()) {
-            if(cursor.isSelectingWithinElement()) {
-                selectionStart.element.wrapWithNodeElement({tag: params.wlxmlTag, klass: params.wlxmlClass, start: selectionStart.offset, end: selectionEnd.offset});
-            }
-            else {
-                var parent = selectionStart.element.parent();
-                this.canvas.wrapText({
-                    inside: parent,
-                    _with: {tag: params.wlxmlTag, klass: params.wlxmlClass},
-                    offsetStart: selectionStart.offset,
-                    offsetEnd: selectionEnd.offset,
-                    textNodeIdx: [parent.childIndex(selectionStart.element), parent.childIndex(selectionEnd.element)]
-                });
-            }
-        }
     }
 };
 

@@ -6,7 +6,8 @@ define([
 './canvas',
 './canvasManager',
 './canvas/canvas',
-'libs/text!./template.html'], function(_, transformations, Canvas, CanvasManager, canvas3, template) {
+'./commands',
+'libs/text!./template.html'], function(_, transformations, Canvas, CanvasManager, canvas3, commands, template) {
 
 'use strict';
 
@@ -68,7 +69,7 @@ return function(sandbox) {
             canvas.setCurrentElement(element);
         },
         command: function(command, params) {
-            manager.command(command, params);
+            commands.run(command, params, canvas);
         }
     };
     
