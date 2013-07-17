@@ -477,7 +477,7 @@ $.extend(Cursor.prototype, {
                 }
             }
         } else {
-            // TODO: Handle order
+            // TODO: Handle order via https://developer.mozilla.org/en-US/docs/Web/API/Node.compareDocumentPosition
             if(which === 'start') {
                 element = anchorElement;
                 offset = selection.anchorOffset
