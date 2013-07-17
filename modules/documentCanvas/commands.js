@@ -56,7 +56,9 @@ commands.register('toggle-list', function(canvas, params) {
         parent2 = selectionEnd.element.parent() || undefined;
 
     if(params.toggle) {
+        var selectionFocus = cursor.getSelectionFocus();
         canvas.list.create({element1: parent1, element2: parent2});
+        canvas.setCurrentElement(selectionFocus.element, {caretTo: selectionFocus.offset});
     } else {
         if(canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
             canvas.list.extractItems({element1: parent1, element2: parent2, merge: false});

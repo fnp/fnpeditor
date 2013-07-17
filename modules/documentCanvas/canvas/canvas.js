@@ -434,6 +434,9 @@ $.extend(Cursor.prototype, {
     getSelectionAnchor: function() {
         return this.getSelectionBoundry('anchor');
     },
+    getSelectionFocus: function() {
+        return this.getSelectionBoundry('focus');
+    },
     getSelectionBoundry: function(which) {
         var selection = window.getSelection(),
             anchorElement = this.canvas.getDocumentElement(selection.anchorNode),
@@ -448,6 +451,14 @@ $.extend(Cursor.prototype, {
                 offset: selection.anchorOffset,
                 offsetAtBeginning: selection.anchorOffset === 0,
                 offsetAtEnd: anchorElement && anchorElement.getText().length === selection.anchorOffset
+            };
+        }
+        if(which === 'focus') {
+            return {
+                element: focusElement,
+                offset: selection.focusOffset,
+                offsetAtBeginning: selection.focusOffset === 0,
+                offsetAtEnd: focusElement && focusElement.getText().length === selection.focusOffset
             };
         }
         
