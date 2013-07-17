@@ -76,17 +76,23 @@ commands.register('newNodeRequested', function(canvas, params) {
 
     if(cursor.isSelecting() && cursor.isSelectingSiblings()) {
         if(cursor.isSelectingWithinElement()) {
-            selectionStart.element.wrapWithNodeElement({tag: params.wlxmlTag, klass: params.wlxmlClass, start: selectionStart.offset, end: selectionEnd.offset});
+            var newElement = selectionStart.element.wrapWithNodeElement({tag: params.wlxmlTag, klass: params.wlxmlClass, start: selectionStart.offset, end: selectionEnd.offset}),
+                caretTo = selectionStart.offset < selectionEnd.offset ? 'start' : 'end';
+            canvas.setCurrentElement(newElement.children()[0], {caretTo: caretTo});
         }
         else {
-            var parent = selectionStart.element.parent();
-            canvas.wrapText({
+            var parent = selectionStart.element.parent(),
+                caretTo = selectionStart.element.sameNode(cursor.getSelectionAnchor().element) ? 'end' : 'start';
+
+            var wrapper = canvas.wrapText({
                 inside: parent,
                 _with: {tag: params.wlxmlTag, klass: params.wlxmlClass},
                 offsetStart: selectionStart.offset,
                 offsetEnd: selectionEnd.offset,
                 textNodeIdx: [parent.childIndex(selectionStart.element), parent.childIndex(selectionEnd.element)]
             });
+
+            canvas.setCurrentElement(wrapper.children()[caretTo === 0 ? 0 : wrapper.children().length - 1], {caretTo: caretTo});
         }
     }
 });
