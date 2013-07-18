@@ -65,11 +65,11 @@ $.extend(Canvas.prototype, {
                         idx = parentContents.index(this),
                         next = idx < parentContents.length - 1 ? parentContents[idx+1] : null;
 
-                    var addInfo = function() {
+                    var addInfo = function(toAdd) {
                         if(next) {
-                            $(next).data('orig-before', oldText);
+                            $(next).data('orig-before', toAdd);
                         } else {
-                            parent.data('orig-append', oldText);
+                            parent.data('orig-append', toAdd);
                         }
                     }
 
@@ -82,7 +82,12 @@ $.extend(Canvas.prototype, {
                                     + (endSpace && (spanParent || spanAfter) ? ' ' : '');
                         if(newText !== oldText) {
                             this.data = newText;
-                            addInfo();
+                            if(endSpace) {
+                                var toAdd = oldText.match(/\s+$/g)[0];
+                                if(newText[newText.length - 1] === ' ' && toAdd[0] === ' ')
+                                    toAdd = toAdd.substr(1);
+                                addInfo(toAdd);
+                            }
                         }
                     } else {
 
@@ -90,7 +95,7 @@ $.extend(Canvas.prototype, {
                         if(this.data.length === 0 && oldLength > 0 && el.parent().contents().length === 1)
                             this.data = ' ';
                         if(this.data.length === 0) {
-                            addInfo();
+                            addInfo(oldText);
                             el.remove();
 
                             return true; // continue

@@ -1173,6 +1173,21 @@ describe('Canvas', function() {
                 expect(xmlOut).to.equal('<section><span></span></section>');
             });
 
+            it('keeps original white space at the end of text', function() {
+                
+                var xmlIn = '<header>Some text ended with white space \
+                \
+                <span class="uri">Some text</span> some text\
+            \
+            </header>',
+                    c = canvas.fromXML(xmlIn);
+
+            var xmlOut = c.toXML();
+            console.log(xmlOut);
+            expect(xmlOut).to.equal(xmlIn);
+
+            });
+
         })
     })
 });
