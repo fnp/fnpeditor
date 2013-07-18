@@ -1108,7 +1108,18 @@ describe('Canvas', function() {
 
             expect($xmlOut.attr('a')).to.equal('1');
             expect($xmlOut.attr('xmlns:dcterms')).to.equal('http://purl.org/dc/terms/');
+        });
 
+        it('doesn\' serialize meta attribute if its empty', function() {
+            var c;
+
+            c = canvas.fromXML('<section class="uri" meta-uri="some.uri"></section>');
+            c.doc().setWlxmlMetaAttr('uri', '');
+            expect($(c.toXML()).attr('meta-uri')).to.equal(undefined, 'overriding attribute with zero length string');
+
+            c = canvas.fromXML('<section class="uri"></section>');
+            c.doc().setWlxmlMetaAttr('uri', '');
+            expect($(c.toXML()).attr('meta-uri')).to.equal(undefined, 'setting attribute to zero length string');
         });
 
         describe('formatting output xml', function() {

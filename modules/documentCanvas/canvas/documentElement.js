@@ -163,7 +163,8 @@ $.extend(DocumentNodeElement.prototype, {
             node.attr('class', this.getWlxmlClass());
         var meta = this.getWlxmlMetaAttrs();
         meta.forEach(function(attr) {
-            node.attr('meta-' + attr.name, attr.value);
+            if(attr.value)
+                node.attr('meta-' + attr.name, attr.value);
         });
         _.keys(this.data('other-attrs') || {}).forEach(function(key) {
             node.attr(key, this.data('other-attrs')[key]);
