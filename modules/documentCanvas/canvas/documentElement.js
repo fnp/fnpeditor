@@ -122,6 +122,7 @@ $.extend(DocumentNodeElement, {
                 dom.attr('wlxml-meta-'+key, params.meta[key]);
             });
         }
+        dom.data('other-attrs', params.others);
         return dom;
     },
 
@@ -164,6 +165,9 @@ $.extend(DocumentNodeElement.prototype, {
         meta.forEach(function(attr) {
             node.attr('meta-' + attr.name, attr.value);
         });
+        _.keys(this.data('other-attrs') || {}).forEach(function(key) {
+            node.attr(key, this.data('other-attrs')[key]);
+        }, this);
 
         if(this.data('orig-before') !== undefined) {
             toret.append(document.createTextNode(this.data('orig-before')));

@@ -1102,6 +1102,15 @@ describe('Canvas', function() {
             expect(input.isEqualNode(output)).to.be.true;
         });
 
+        it('keeps arbitrary node attributes intact', function() {
+            var xmlIn = '<section a="1" xmlns:dcterms="http://purl.org/dc/terms/"></section>',
+                $xmlOut = $(canvas.fromXML(xmlIn).toXML());
+
+            expect($xmlOut.attr('a')).to.equal('1');
+            expect($xmlOut.attr('xmlns:dcterms')).to.equal('http://purl.org/dc/terms/');
+
+        });
+
         describe('formatting output xml', function() {
             /*it('keeps white spaces at the edges of input xml', function() {
                 var xmlIn = '  <section></section>  ',

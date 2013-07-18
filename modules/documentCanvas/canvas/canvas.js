@@ -24,17 +24,20 @@ $.extend(Canvas.prototype, {
                 if(currentTag.attr('wlxml-tag'))
                     return;
 
-                var meta = {};
+                var meta = {}, others = {};
                 for(var i = 0; i < this.attributes.length; i++) {
                     var attr = this.attributes[i];
                     if(attr.name.substr(0, 5) === 'meta-')
                         meta[attr.name.substr(5)] = attr.value;
+                    else if(attr.name !== 'class')
+                        others[attr.name] = attr.value;
                 }
 
                 var element = documentElement.DocumentNodeElement.create({
                     tag: currentTag.prop('tagName').toLowerCase(),
                     klass: currentTag.attr('class'),
-                    meta: meta
+                    meta: meta,
+                    others: others
                 });
 
                 element.dom().append(currentTag.contents());
