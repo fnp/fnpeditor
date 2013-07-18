@@ -1122,7 +1122,18 @@ describe('Canvas', function() {
                 expect(partsIn).to.deep.equal(partsOut);
             });
 
-            it('nests new children elements', function() {
+            it('keeps white space between XML nodes - inline case', function() {
+                var xmlIn = '<section>\n\n\n<span></span>\n\n\n<span></span>\n\n\n</section>',
+                c = canvas.fromXML(xmlIn),
+                xmlOut = c.toXML();
+
+                var partsIn = xmlIn.split('\n\n\n'),
+                    partsOut = xmlOut.split('\n\n\n');
+                
+                expect(partsIn).to.deep.equal(partsOut);
+            });
+
+            it('nests new children block elements', function() {
                 var c = canvas.fromXML('<section></section>');
     
                 c.doc().append({tag: 'header'});
@@ -1132,6 +1143,16 @@ describe('Canvas', function() {
                 expect(xmlOut.split('\n').slice(-1)[0]).to.equal('</section>', 'nesting end ok');
 
             });
+
+            it('doesn\'t nest new children inline elements', function() {
+                var c = canvas.fromXML('<section></section>');
+    
+                c.doc().append({tag: 'span'});
+
+                var xmlOut = c.toXML();
+                expect(xmlOut).to.equal('<section><span></span></section>');
+            });
+
         })
     })
 });

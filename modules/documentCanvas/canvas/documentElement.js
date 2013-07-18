@@ -167,13 +167,13 @@ $.extend(DocumentNodeElement.prototype, {
 
         if(this.data('orig-before') !== undefined) {
             toret.append(document.createTextNode(this.data('orig-before')));
-        } else if(level) {
+        } else if(level && this.getWlxmlTag() !== 'span') {
             toret.append('\n' + (new Array(level * 2 + 1)).join(' '));
         }
         if(this.data('orig-append') !== undefined) {
             node.append(this.data('orig-append'));
             //toret = toret.prepend(document.createTextNode(this.data('orig-prepend')));
-        } else {
+        } else if(this.getWlxmlTag() !== 'span'){
             node.append('\n' + (new Array(level * 2 + 1)).join(' '));
         }
 
@@ -181,7 +181,8 @@ $.extend(DocumentNodeElement.prototype, {
         return toret.contents();
     },
     append: function(params) {
-        this.data('orig-append', undefined);
+        if(params.tag !== 'span')
+            this.data('orig-append', undefined);
         return manipulate(this, params, 'append');
     },
     before: function(params) {

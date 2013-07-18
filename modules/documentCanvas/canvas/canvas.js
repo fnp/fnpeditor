@@ -55,32 +55,40 @@ $.extend(Canvas.prototype, {
                         spanBefore = el.prev().length > 0  && $(el.prev()[0]).attr('wlxml-tag') === 'span',
                         spanAfter = el.next().length > 0 && $(el.next()[0]).attr('wlxml-tag') === 'span';
                         
+                    var oldText = this.data,
+                        oldLength = this.data.length;
+                    var parent = el.parent(),
+                        parentContents = parent.contents(),
+                        idx = parentContents.index(this),
+                        next = idx < parentContents.length - 1 ? parentContents[idx+1] : null;
+
+                    var addInfo = function() {
+                        if(next) {
+                            $(next).data('orig-before', oldText);
+                        } else {
+                            parent.data('orig-append', oldText);
+                        }
+                    }
+
                     if(spanParent || spanBefore || spanAfter) {
                         var startSpace = /\s/g.test(this.data.substr(0,1));
                         var endSpace = /\s/g.test(this.data.substr(-1)) && this.data.length > 1;
                         var trimmed = $.trim(this.data);
-                        this.data = (startSpace && (spanParent || spanBefore) ? ' ' : '')
+                        var newText = (startSpace && (spanParent || spanBefore) ? ' ' : '')
                                     + trimmed
                                     + (endSpace && (spanParent || spanAfter) ? ' ' : '');
-
+                        if(newText !== oldText) {
+                            this.data = newText;
+                            addInfo();
+                        }
                     } else {
-                        var oldText = this.data,
-                            oldLength = this.data.length;
+
                         this.data = $.trim(this.data);
                         if(this.data.length === 0 && oldLength > 0 && el.parent().contents().length === 1)
                             this.data = ' ';
                         if(this.data.length === 0) {
-                            var parent = $(this).parent(),
-                                parentContents = parent.contents(),
-                                idx = parentContents.index(this),
-                                next = idx < parentContents.length - 1 ? parentContents[idx+1] : null;
-
-                            if(next) {
-                                $(next).data('orig-before', oldText);
-                            } else {
-                                parent.data('orig-append', oldText);
-                            }
-                            $(this).remove();
+                            addInfo();
+                            el.remove();
 
                             return true; // continue
                         }
