@@ -148,7 +148,40 @@ var manipulate = function(e, params, action) {
 DocumentNodeElement.prototype = new DocumentElement();
 
 $.extend(DocumentNodeElement.prototype, {
+    data: function() {
+        var dom = this.dom(),
+            args = Array.prototype.slice.call(arguments, 0);
+        if(args.length === 2 && args[1] === undefined)
+            return dom.removeData(args[1]);
+        return dom.data.apply(dom, arguments);
+    },
+    toXML: function(level) {
+        var node = $('<' + this.getWlxmlTag() + '>'),
+            toret = $('<div>');
+        if(this.getWlxmlClass())
+            node.attr('class', this.getWlxmlClass());
+        var meta = this.getWlxmlMetaAttrs();
+        meta.forEach(function(attr) {
+            node.attr('meta-' + attr.name, attr.value);
+        });
+
+        if(this.data('orig-before') !== undefined) {
+            toret.append(document.createTextNode(this.data('orig-before')));
+        } else if(level) {
+            toret.append('\n' + (new Array(level * 2 + 1)).join(' '));
+        }
+        if(this.data('orig-append') !== undefined) {
+            node.append(this.data('orig-append'));
+            //toret = toret.prepend(document.createTextNode(this.data('orig-prepend')));
+        } else {
+            node.append('\n' + (new Array(level * 2 + 1)).join(' '));
+        }
+
+        toret.append(node);
+        return toret.contents();
+    },
     append: function(params) {
+        this.data('orig-append', undefined);
         return manipulate(this, params, 'append');
     },
     before: function(params) {
@@ -260,6 +293,9 @@ $.extend(DocumentTextElement, {
 DocumentTextElement.prototype = new DocumentElement();
 
 $.extend(DocumentTextElement.prototype, {
+    toXML: function() {
+        return this.getText();
+    },
     _setupDOMHandler: function(htmlElement) {
         var $element = $(htmlElement);
         if(htmlElement.nodeType === Node.TEXT_NODE)

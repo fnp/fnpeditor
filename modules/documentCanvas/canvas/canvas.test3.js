@@ -1088,6 +1088,52 @@ describe('Canvas', function() {
             
         })
     });
+
+    describe('Serializing document to WLXML', function() {
+        it('keeps document intact when no changes have been made', function() {
+            var xmlIn = '<section>Alice<div>has</div>a <span class="uri" meta-uri="http://cat.com">cat</span>!</section>',
+                c = canvas.fromXML(xmlIn),
+                xmlOut = c.toXML();
+
+            var parser = new DOMParser(),
+                input = parser.parseFromString(xmlIn, "application/xml").childNodes[0],
+                output = parser.parseFromString(xmlOut, "application/xml").childNodes[0];
+            
+            expect(input.isEqualNode(output)).to.be.true;
+        });
+
+        describe('formatting output xml', function() {
+            /*it('keeps white spaces at the edges of input xml', function() {
+                var xmlIn = '  <section></section>  ',
+                c = canvas.fromXML(xmlIn),
+                xmlOut = c.toXML();
+
+                expect(xmlOut.substr(4)).to.equal('   <', 'start');
+                expect(xmlOut.substr(-2)).to.equal('>  ', 'end');
+            });*/
+            it('keeps white space between XML nodes', function() {
+                var xmlIn = '<section>\n\n\n<div></div>\n\n\n<div></div>\n\n\n</section>',
+                c = canvas.fromXML(xmlIn),
+                xmlOut = c.toXML();
+
+                var partsIn = xmlIn.split('\n\n\n'),
+                    partsOut = xmlOut.split('\n\n\n');
+                
+                expect(partsIn).to.deep.equal(partsOut);
+            });
+
+            it('nests new children elements', function() {
+                var c = canvas.fromXML('<section></section>');
+    
+                c.doc().append({tag: 'header'});
+
+                var xmlOut = c.toXML();
+                expect(xmlOut.split('\n  ')[0]).to.equal('<section>', 'nesting start ok');
+                expect(xmlOut.split('\n').slice(-1)[0]).to.equal('</section>', 'nesting end ok');
+
+            });
+        })
+    })
 });
 
 

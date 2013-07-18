@@ -31,14 +31,17 @@ $.extend(Canvas.prototype, {
                         meta[attr.name.substr(5)] = attr.value;
                 }
 
-                var element = documentElement.DocumentNodeElement.createDOM({
+                var element = documentElement.DocumentNodeElement.create({
                     tag: currentTag.prop('tagName').toLowerCase(),
                     klass: currentTag.attr('class'),
                     meta: meta
                 });
 
-                element.append(currentTag.contents());
-                return element;
+                element.dom().append(currentTag.contents());
+                ['orig-before', 'orig-append'].forEach(function(attr) {
+                    element.data(attr, '');
+                });
+                return element.dom();
             });
 
             this.wrapper.find(':not(iframe)').addBack().contents()
@@ -61,12 +64,24 @@ $.extend(Canvas.prototype, {
                                     + (endSpace && (spanParent || spanAfter) ? ' ' : '');
 
                     } else {
-                        var oldLength = this.data.length;
+                        var oldText = this.data,
+                            oldLength = this.data.length;
                         this.data = $.trim(this.data);
                         if(this.data.length === 0 && oldLength > 0 && el.parent().contents().length === 1)
                             this.data = ' ';
                         if(this.data.length === 0) {
+                            var parent = $(this).parent(),
+                                parentContents = parent.contents(),
+                                idx = parentContents.index(this),
+                                next = idx < parentContents.length - 1 ? parentContents[idx+1] : null;
+
+                            if(next) {
+                                $(next).data('orig-before', oldText);
+                            } else {
+                                parent.data('orig-append', oldText);
+                            }
                             $(this).remove();
+
                             return true; // continue
                         }
                     }
@@ -273,6 +288,24 @@ $.extend(Canvas.prototype, {
     setCursorPosition: function(position) {
         if(position.element)
             this._moveCaretToTextElement(position.element, position.offset);
+    },
+
+    toXML: function() {
+        var d = function(element, parent, level) {
+            console.log(element.getText ? 'text: ' + element.getText() : 'node: ' + element.getWlxmlTag());
+            var isElementNode = element instanceof documentElement.DocumentNodeElement;
+            parent.prepend(element.toXML(level));
+            if(isElementNode) {
+                var dom = $(parent.children()[0]),
+                    elementChildren = element.children();
+                for(var i = elementChildren.length - 1; i >= 0; i--) {
+                    d(elementChildren[i], dom, level + 1);
+                }
+            }
+        }
+        var parent = $('<div>');
+        d(this.doc(), parent, 0);
+        return parent.html();
     }
 });
 
