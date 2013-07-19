@@ -1175,7 +1175,7 @@ describe('Canvas', function() {
 
             it('keeps original white space at the end of text', function() {
                 
-                var xmlIn = '<header>Some text ended with white space \
+                var xmlIn = '<header>    Some text ended with white space \
                 \
                 <span class="uri">Some text</span> some text\
             \

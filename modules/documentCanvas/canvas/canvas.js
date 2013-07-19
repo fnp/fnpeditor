@@ -42,7 +42,7 @@ $.extend(Canvas.prototype, {
 
                 element.dom().append(currentTag.contents());
                 ['orig-before', 'orig-append'].forEach(function(attr) {
-                    element.data(attr, '');
+                    element.data(attr, ['']);
                 });
                 return element.dom();
             });
@@ -82,12 +82,25 @@ $.extend(Canvas.prototype, {
                                     + (endSpace && (spanParent || spanAfter) ? ' ' : '');
                         if(newText !== oldText) {
                             this.data = newText;
-                            if(endSpace) {
-                                var toAdd = oldText.match(/\s+$/g)[0];
-                                if(newText[newText.length - 1] === ' ' && toAdd[0] === ' ')
-                                    toAdd = toAdd.substr(1);
-                                addInfo(toAdd);
+                            var toAdd1, toAdd2;
+                            var toAdd = [];
+                            if(!trimmed) {
+                                toAdd.push(oldText);
+                            } else {
+                                if(endSpace) {
+                                    toAdd1 = oldText.match(/\s+$/g)[0];
+                                    if(newText[newText.length - 1] === ' ' && toAdd1[0] === ' ')
+                                        toAdd1 = toAdd1.substr(1);
+                                    toAdd.push(toAdd1);
+                                }
+                                if(startSpace) {
+                                    toAdd2 = oldText.match(/^\s+/g)[0];
+                                    if(newText[0] === ' ' && toAdd2[toAdd2.length-1] === ' ')
+                                        toAdd2 = toAdd2.substr(0, toAdd2.length -1);
+                                    toAdd.push(toAdd2);
+                                }
                             }
+                            addInfo(toAdd);
                         }
                     } else {
 
@@ -95,7 +108,7 @@ $.extend(Canvas.prototype, {
                         if(this.data.length === 0 && oldLength > 0 && el.parent().contents().length === 1)
                             this.data = ' ';
                         if(this.data.length === 0) {
-                            addInfo(oldText);
+                            addInfo([oldText]);
                             el.remove();
 
                             return true; // continue
@@ -310,10 +323,25 @@ $.extend(Canvas.prototype, {
         var d = function(element, parent, level) {
             console.log(element.getText ? 'text: ' + element.getText() : 'node: ' + element.getWlxmlTag());
             var isElementNode = element instanceof documentElement.DocumentNodeElement;
-            parent.prepend(element.toXML(level));
+            var parentChildren = parent.contents();
+            var dom;
+
+            var elXML = element.toXML(level);
+            if(parentChildren.length > 2 && parentChildren[0].nodeType === Node.TEXT_NODE && parentChildren[1].nodeType == Node.TEXT_NODE) {
+                $(parentChildren[0]).after(elXML);
+            } else {
+                parent.prepend(elXML);
+            }
+
+
             if(isElementNode) {
-                var dom = $(parent.children()[0]),
-                    elementChildren = element.children();
+                elXML.each(function() {
+                    if(this.nodeType === Node.ELEMENT_NODE) {
+                        dom = $(this);
+                        return;
+                    }
+                });
+                var elementChildren = element.children();
                 for(var i = elementChildren.length - 1; i >= 0; i--) {
                     d(elementChildren[i], dom, level + 1);
                 }

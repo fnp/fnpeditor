@@ -170,13 +170,19 @@ $.extend(DocumentNodeElement.prototype, {
             node.attr(key, this.data('other-attrs')[key]);
         }, this);
 
-        if(this.data('orig-before') !== undefined) {
-            toret.append(document.createTextNode(this.data('orig-before')));
+        if(this.data('orig-before') && this.data('orig-before').length) {
+            this.data('orig-before').forEach(function(toAdd) {
+                if(toAdd)
+                    toret.prepend(document.createTextNode(toAdd));
+            });
         } else if(level && this.getWlxmlTag() !== 'span') {
             toret.append('\n' + (new Array(level * 2 + 1)).join(' '));
         }
-        if(this.data('orig-append') !== undefined) {
-            node.append(this.data('orig-append'));
+        if(this.data('orig-append') && this.data('orig-append').length) {
+            this.data('orig-append').forEach(function(toAdd) {
+                if(toAdd)
+                    node.prepend(toAdd);
+            });
             //toret = toret.prepend(document.createTextNode(this.data('orig-prepend')));
         } else if(this.getWlxmlTag() !== 'span'){
             node.append('\n' + (new Array(level * 2 + 1)).join(' '));
@@ -187,7 +193,7 @@ $.extend(DocumentNodeElement.prototype, {
     },
     append: function(params) {
         if(params.tag !== 'span')
-            this.data('orig-append', undefined);
+            this.data('orig-append', []);
         return manipulate(this, params, 'append');
     },
     before: function(params) {
