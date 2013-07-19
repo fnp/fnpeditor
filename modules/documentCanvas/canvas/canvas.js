@@ -50,73 +50,73 @@ $.extend(Canvas.prototype, {
             this.wrapper.find(':not(iframe)').addBack().contents()
                 .filter(function() {return this.nodeType === Node.TEXT_NODE})
                 .each(function() {
-
-                    var el = $(this);
-                    
                     // TODO: use DocumentElement API
-                    var spanParent = el.parent().attr('wlxml-tag') === 'span',
-                        spanBefore = el.prev().length > 0  && $(el.prev()[0]).attr('wlxml-tag') === 'span',
-                        spanAfter = el.next().length > 0 && $(el.next()[0]).attr('wlxml-tag') === 'span';
-                        
-                    var oldText = this.data,
-                        oldLength = this.data.length;
-                    var parent = el.parent(),
-                        parentContents = parent.contents(),
-                        idx = parentContents.index(this),
-                        next = idx < parentContents.length - 1 ? parentContents[idx+1] : null;
+
+                    var el = $(this),
+                        text = {original: el.text(), trimmed: $.trim(el.text())},
+                        elParent = el.parent(),
+                        hasSpanParent = elParent.attr('wlxml-tag') === 'span',
+                        hasSpanBefore = el.prev().length > 0  && $(el.prev()[0]).attr('wlxml-tag') === 'span',
+                        hasSpanAfter = el.next().length > 0 && $(el.next()[0]).attr('wlxml-tag') === 'span';
+
 
                     var addInfo = function(toAdd) {
+                        var parentContents = elParent.contents(),
+                            idx = parentContents.index(el[0]),
+                            next = idx < parentContents.length - 1 ? parentContents[idx+1] : null;
                         if(next) {
                             $(next).data('orig-before', toAdd);
                         } else {
-                            parent.data('orig-append', toAdd);
+                            elParent.data('orig-append', toAdd);
                         }
                     }
 
-                    if(spanParent || spanBefore || spanAfter) {
-                        var startSpace = /\s/g.test(this.data.substr(0,1));
-                        var endSpace = /\s/g.test(this.data.substr(-1)) && this.data.length > 1;
-                        var trimmed = $.trim(this.data);
-                        var newText = (startSpace && (spanParent || spanBefore) ? ' ' : '')
-                                    + trimmed
-                                    + (endSpace && (spanParent || spanAfter) ? ' ' : '');
-                        if(newText !== oldText) {
-                            this.data = newText;
-                            var toAdd1, toAdd2;
-                            var toAdd = [];
-                            if(!trimmed) {
-                                toAdd.push(oldText);
-                            } else {
-                                if(endSpace) {
-                                    toAdd1 = oldText.match(/\s+$/g)[0];
-                                    if(newText[newText.length - 1] === ' ' && toAdd1[0] === ' ')
-                                        toAdd1 = toAdd1.substr(1);
-                                    toAdd.push(toAdd1);
-                                }
-                                if(startSpace) {
-                                    toAdd2 = oldText.match(/^\s+/g)[0];
-                                    if(newText[0] === ' ' && toAdd2[toAdd2.length-1] === ' ')
-                                        toAdd2 = toAdd2.substr(0, toAdd2.length -1);
-                                    toAdd.push(toAdd2);
-                                }
-                            }
-                            addInfo(toAdd);
-                        }
+                    text.transformed = text.trimmed;
+                    
+                    if(hasSpanParent || hasSpanBefore || hasSpanAfter) {
+                        var startSpace = /\s/g.test(text.original.substr(0,1)),
+                            endSpace = /\s/g.test(text.original.substr(-1)) && text.original.length > 1;
+                        text.transformed = (startSpace && (hasSpanParent || hasSpanBefore) ? ' ' : '')
+                                    + text.trimmed
+                                    + (endSpace && (hasSpanParent || hasSpanAfter) ? ' ' : '');
                     } else {
-
-                        this.data = $.trim(this.data);
-                        if(this.data.length === 0 && oldLength > 0 && el.parent().contents().length === 1)
-                            this.data = ' ';
-                        if(this.data.length === 0) {
-                            addInfo([oldText]);
-                            el.remove();
-
-                            return true; // continue
-                        }
+                        if(text.trimmed.length === 0 && text.original.length > 0 && elParent.contents().length === 1)
+                            text.transformed = ' ';
                     }
 
-                    var element = documentElement.DocumentTextElement.create({text: this.data});
-                    $(this).replaceWith(element.dom());
+                    if(!text.transformed) {
+                        addInfo([text.original]);
+                        el.remove();
+                        return true; // continue
+                    }
+
+                    if(text.transformed !== text.original) {
+                        var toAdd = [];
+                        if(!text.trimmed) {
+                            toAdd.push(text.original);
+                        } else {
+                            var startingMatch = text.original.match(/^\s+/g),
+                                endingMatch = text.original.match(/\s+$/g),
+                                startingWhiteSpace = startingMatch ? startingMatch[0] : null,
+                                endingWhiteSpace = endingMatch ? endingMatch[0] : null;
+
+                            if(endingWhiteSpace) {
+                                if(text.transformed[text.transformed.length - 1] === ' ' && endingWhiteSpace[0] === ' ')
+                                    endingWhiteSpace = endingWhiteSpace.substr(1);
+                                toAdd.push(endingWhiteSpace);
+                            }
+
+                            if(startingWhiteSpace) {
+                                if(text.transformed[0] === ' ' && startingWhiteSpace[startingWhiteSpace.length-1] === ' ')
+                                    startingWhiteSpace = startingWhiteSpace.substr(0, startingWhiteSpace.length -1);
+                                toAdd.push(startingWhiteSpace);
+                            }
+                        }
+                        addInfo(toAdd);
+                    }
+
+                    var element = documentElement.DocumentTextElement.create({text: text.transformed});
+                    el.replaceWith(element.dom());
                 });
             
             this.d = this.wrapper.children(0);
