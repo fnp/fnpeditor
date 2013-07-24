@@ -320,35 +320,8 @@ $.extend(Canvas.prototype, {
     },
 
     toXML: function() {
-        var d = function(element, parent, level) {
-            console.log(element.getText ? 'text: ' + element.getText() : 'node: ' + element.getWlxmlTag());
-            var isElementNode = element instanceof documentElement.DocumentNodeElement;
-            var parentChildren = parent.contents();
-            var dom;
-
-            var elXML = element.toXML(level);
-            if(parentChildren.length > 2 && parentChildren[0].nodeType === Node.TEXT_NODE && parentChildren[1].nodeType == Node.TEXT_NODE) {
-                $(parentChildren[0]).after(elXML);
-            } else {
-                parent.prepend(elXML);
-            }
-
-
-            if(isElementNode) {
-                elXML.each(function() {
-                    if(this.nodeType === Node.ELEMENT_NODE) {
-                        dom = $(this);
-                        return;
-                    }
-                });
-                var elementChildren = element.children();
-                for(var i = elementChildren.length - 1; i >= 0; i--) {
-                    d(elementChildren[i], dom, level + 1);
-                }
-            }
-        }
         var parent = $('<div>');
-        d(this.doc(), parent, 0);
+        this.doc().toXML(parent, 0)
         return parent.html();
     }
 });

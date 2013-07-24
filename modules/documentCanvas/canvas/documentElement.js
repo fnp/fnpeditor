@@ -148,6 +148,15 @@ var manipulate = function(e, params, action) {
 
 DocumentNodeElement.prototype = new DocumentElement();
 
+var addParts = function(parts, parent) {
+    var parentChildren = parent.contents();
+    if(parentChildren.length > 2 && parentChildren[0].nodeType === Node.TEXT_NODE && parentChildren[1].nodeType == Node.TEXT_NODE) {
+        $(parentChildren[0]).after(parts);
+    } else {
+        parent.prepend(parts);
+    }
+}
+
 $.extend(DocumentNodeElement.prototype, {
     data: function() {
         var dom = this.dom(),
@@ -156,9 +165,9 @@ $.extend(DocumentNodeElement.prototype, {
             return dom.removeData(args[1]);
         return dom.data.apply(dom, arguments);
     },
-    toXML: function(level) {
-        var node = $('<' + this.getWlxmlTag() + '>'),
-            toret = $('<div>');
+    toXML: function(parent, level) {
+        var node = $('<' + this.getWlxmlTag() + '>');
+
         if(this.getWlxmlClass())
             node.attr('class', this.getWlxmlClass());
         var meta = this.getWlxmlMetaAttrs();
@@ -170,26 +179,37 @@ $.extend(DocumentNodeElement.prototype, {
             node.attr(key, this.data('other-attrs')[key]);
         }, this);
 
-        if(this.data('orig-before') && this.data('orig-before').length) {
-            this.data('orig-before').forEach(function(toAdd) {
-                if(toAdd)
-                    toret.prepend(document.createTextNode(toAdd));
-            });
-        } else if(level && this.getWlxmlTag() !== 'span') {
-            toret.append('\n' + (new Array(level * 2 + 1)).join(' '));
-        }
-        if(this.data('orig-append') && this.data('orig-append').length) {
-            this.data('orig-append').forEach(function(toAdd) {
-                if(toAdd)
-                    node.prepend(toAdd);
-            });
-            //toret = toret.prepend(document.createTextNode(this.data('orig-prepend')));
-        } else if(this.getWlxmlTag() !== 'span'){
-            node.append('\n' + (new Array(level * 2 + 1)).join(' '));
+        var addFormatting = function() {
+            var toret = $('<div>');
+
+            if(this.data('orig-before') && this.data('orig-before').length) {
+                this.data('orig-before').forEach(function(toAdd) {
+                    if(toAdd)
+                        toret.prepend(document.createTextNode(toAdd));
+                });
+            } else if(level && this.getWlxmlTag() !== 'span') {
+                toret.append('\n' + (new Array(level * 2 + 1)).join(' '));
+            }
+            if(this.data('orig-append') && this.data('orig-append').length) {
+                this.data('orig-append').forEach(function(toAdd) {
+                    if(toAdd)
+                        node.prepend(toAdd);
+                });
+            } else if(this.getWlxmlTag() !== 'span'){
+                node.append('\n' + (new Array(level * 2 + 1)).join(' '));
+            }
+            toret.append(node);
+            return toret.contents();
+        }.bind(this);
+
+        var parts = addFormatting(node);
+        
+        var children = this.children();
+        for(var i = children.length - 1; i >= 0; i--) {
+            children[i].toXML(node, level + 1);
         }
 
-        toret.append(node);
-        return toret.contents();
+        addParts(parts, parent);
     },
     append: function(params) {
         if(params.tag !== 'span')
@@ -305,8 +325,8 @@ $.extend(DocumentTextElement, {
 DocumentTextElement.prototype = new DocumentElement();
 
 $.extend(DocumentTextElement.prototype, {
-    toXML: function() {
-        return this.getText();
+    toXML: function(parent) {
+        addParts(this.getText(), parent);
     },
     _setupDOMHandler: function(htmlElement) {
         var $element = $(htmlElement);
