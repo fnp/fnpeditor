@@ -1122,6 +1122,21 @@ describe('Canvas', function() {
             expect($(c.toXML()).attr('meta-uri')).to.equal(undefined, 'setting attribute to zero length string');
         });
 
+        describe('output xml', function() {
+            it('keeps entities intact', function() {
+                var xmlIn = '<section>&lt; &gt;</section>',
+                    c = canvas.fromXML(xmlIn),
+                    xmlOut = c.toXML();
+                expect(xmlOut).to.equal(xmlIn);
+            });
+            it('keeps entities intact when they form html/xml', function() {
+                var xmlIn = '<section>&lt;abc&gt;</section>',
+                    c = canvas.fromXML(xmlIn),
+                    xmlOut = c.toXML();
+                expect(xmlOut).to.equal(xmlIn);
+            });
+        });
+
         describe('formatting output xml', function() {
             /*it('keeps white spaces at the edges of input xml', function() {
                 var xmlIn = '  <section></section>  ',
