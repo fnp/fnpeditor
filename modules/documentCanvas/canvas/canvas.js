@@ -320,8 +320,9 @@ $.extend(Canvas.prototype, {
     },
 
     toXML: function() {
-        var parent = $('<div>');
-        this.doc().toXML(parent, 0)
+        var parent = $('<div>'),
+            parts = this.doc().toXML(0);
+        parent.append(parts);
         return parent.html();
     }
 });

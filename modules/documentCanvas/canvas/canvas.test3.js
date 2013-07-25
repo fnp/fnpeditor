@@ -1185,7 +1185,31 @@ describe('Canvas', function() {
             var xmlOut = c.toXML();
             console.log(xmlOut);
             expect(xmlOut).to.equal(xmlIn);
+            });
 
+            it('keeps white space around text node', function() {
+                var xmlIn = '<section>\
+                <header>header1</header>\
+                Some text surrounded by white space\
+                <header>header2</header>\
+            </section>',
+                    c = canvas.fromXML(xmlIn);
+
+                var xmlOut = c.toXML();
+                expect(xmlOut).to.equal(xmlIn);
+            });
+
+            it('keeps white space around text node - last node case', function() {
+                var xmlIn = '<section>\
+                <header>header</header>\
+                    \
+                Some text surrounded by white space\
+                    \
+            </section>',
+                    c = canvas.fromXML(xmlIn);
+
+                var xmlOut = c.toXML();
+                expect(xmlOut).to.equal(xmlIn);
             });
 
         })

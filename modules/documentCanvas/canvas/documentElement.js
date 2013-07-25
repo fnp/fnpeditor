@@ -148,14 +148,6 @@ var manipulate = function(e, params, action) {
 
 DocumentNodeElement.prototype = new DocumentElement();
 
-var addParts = function(parts, parent) {
-    var parentChildren = parent.contents();
-    if(parentChildren.length > 2 && parentChildren[0].nodeType === Node.TEXT_NODE && parentChildren[1].nodeType == Node.TEXT_NODE) {
-        $(parentChildren[0]).after(parts);
-    } else {
-        parent.prepend(parts);
-    }
-}
 
 $.extend(DocumentNodeElement.prototype, {
     data: function() {
@@ -165,7 +157,7 @@ $.extend(DocumentNodeElement.prototype, {
             return dom.removeData(args[1]);
         return dom.data.apply(dom, arguments);
     },
-    toXML: function(parent, level) {
+    toXML: function(level) {
         var node = $('<' + this.getWlxmlTag() + '>');
 
         if(this.getWlxmlClass())
@@ -204,12 +196,30 @@ $.extend(DocumentNodeElement.prototype, {
 
         var parts = addFormatting(node);
         
-        var children = this.children();
-        for(var i = children.length - 1; i >= 0; i--) {
-            children[i].toXML(node, level + 1);
-        }
+        var children = this.children(),
+            childParts,
+            prevChildParts;
 
-        addParts(parts, parent);
+        for(var i = children.length - 1; i >= 0; i--) {
+            childParts = children[i].toXML(level + 1);
+            
+            if(i === children.length - 1 && node.contents().length === 2) {
+                $(node.contents()[0]).after(childParts);
+                prevChildParts = childParts;
+                continue;
+            }
+
+            if(prevChildParts && prevChildParts.length > 1 && prevChildParts[0].nodeType === Node.TEXT_NODE && prevChildParts[1].nodeType === Node.TEXT_NODE) {
+                $(node.contents()[0]).after(childParts);
+                prevChildParts = childParts;
+                continue;
+            }
+
+            node.prepend(childParts);
+
+            prevChildParts = childParts;
+        }
+        return parts;
     },
     append: function(params) {
         if(params.tag !== 'span')
@@ -326,7 +336,7 @@ DocumentTextElement.prototype = new DocumentElement();
 
 $.extend(DocumentTextElement.prototype, {
     toXML: function(parent) {
-        addParts(this.getText(), parent);
+        return this.getText();
     },
     _setupDOMHandler: function(htmlElement) {
         var $element = $(htmlElement);
