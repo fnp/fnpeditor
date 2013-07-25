@@ -1212,6 +1212,29 @@ describe('Canvas', function() {
                 expect(xmlOut).to.equal(xmlIn);
             });
 
+            it('keeps white space after detaching text element', function() {
+                var xmlIn = '<section><header>header</header>\
+                    \
+                text1\
+                    \
+            </section>',
+                    expectedXmlOut = '<section><header>header</header>\
+                    \
+                \
+                    \
+            </section>',
+                    c = canvas.fromXML(xmlIn),
+                    children = c.doc().children(),
+                    text = children[children.length-1];
+                
+                expect(text.getText()).to.equal('text1');
+
+                text.detach();
+
+                var xmlOut = c.toXML();
+                expect(xmlOut).to.equal(expectedXmlOut);
+            });
+
         })
     })
 });

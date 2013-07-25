@@ -211,7 +211,7 @@ $.extend(DocumentNodeElement.prototype, {
         for(var i = children.length - 1; i >= 0; i--) {
             childParts = children[i].toXML(level + 1);
             
-            if(containsPrefixAndSuffix(i)) {
+            if(containsPrefixAndSuffix(i) && children[i] instanceof DocumentTextElement) {
                 $(node.contents()[0]).after(childParts);
             } else {
                 node.prepend(childParts);
