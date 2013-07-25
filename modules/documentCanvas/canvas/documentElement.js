@@ -200,23 +200,22 @@ $.extend(DocumentNodeElement.prototype, {
             childParts,
             prevChildParts;
 
+        var containsPrefixAndSuffix = function(idx) {
+            if(idx === children.length - 1 && node.contents().length === 2)
+                return true;
+            if(prevChildParts && prevChildParts.length > 1 && prevChildParts[0].nodeType === Node.TEXT_NODE && prevChildParts[1].nodeType === Node.TEXT_NODE)
+                return true;
+            return false;
+        }
+
         for(var i = children.length - 1; i >= 0; i--) {
             childParts = children[i].toXML(level + 1);
             
-            if(i === children.length - 1 && node.contents().length === 2) {
+            if(containsPrefixAndSuffix(i)) {
                 $(node.contents()[0]).after(childParts);
-                prevChildParts = childParts;
-                continue;
+            } else {
+                node.prepend(childParts);
             }
-
-            if(prevChildParts && prevChildParts.length > 1 && prevChildParts[0].nodeType === Node.TEXT_NODE && prevChildParts[1].nodeType === Node.TEXT_NODE) {
-                $(node.contents()[0]).after(childParts);
-                prevChildParts = childParts;
-                continue;
-            }
-
-            node.prepend(childParts);
-
             prevChildParts = childParts;
         }
         return parts;
