@@ -1168,6 +1168,14 @@ describe('Canvas', function() {
                 expect(partsIn).to.deep.equal(partsOut);
             });
 
+            it('keeps white space at the beginning of text', function() {
+                var xmlIn = '<section>    abc<div>some div</div>    abc</section>',
+                    c = canvas.fromXML(xmlIn),
+                    xmlOut = c.toXML();
+
+                expect(xmlOut).to.equal(xmlIn);
+            });
+
             it('nests new children block elements', function() {
                 var c = canvas.fromXML('<section></section>');
     

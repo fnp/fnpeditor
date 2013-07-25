@@ -41,8 +41,8 @@ $.extend(Canvas.prototype, {
                 });
 
                 element.dom().append(currentTag.contents());
-                ['orig-before', 'orig-append'].forEach(function(attr) {
-                    element.data(attr, ['']);
+                ['orig-before', 'orig-after', 'orig-begin', 'orig-end'].forEach(function(attr) {
+                    element.data(attr, '');
                 });
                 return element.dom();
             });
@@ -60,15 +60,22 @@ $.extend(Canvas.prototype, {
                         hasSpanAfter = el.next().length > 0 && $(el.next()[0]).attr('wlxml-tag') === 'span';
 
 
-                    var addInfo = function(toAdd) {
+                    var addInfo = function(toAdd, where) {
                         var parentContents = elParent.contents(),
                             idx = parentContents.index(el[0]),
-                            next = idx < parentContents.length - 1 ? parentContents[idx+1] : null;
-                        if(next) {
-                            $(next).data('orig-before', toAdd);
-                        } else {
-                            elParent.data('orig-append', toAdd);
-                        }
+                            prev = idx > 0 ? parentContents[idx-1] : null,
+                            next = idx < parentContents.length - 1 ? parentContents[idx+1] : null,
+                            target, key;
+
+                        if(where === 'above') {
+                            target = prev ? $(prev) : elParent;
+                            key = prev ? 'orig-after' : 'orig-begin';
+                        } else if(where === 'below') {
+                            target = next ? $(next) : elParent;
+                            key = next ? 'orig-before' : 'orig-end';
+                        } else { throw new Object;}
+
+                        target.data(key, toAdd);
                     }
 
                     text.transformed = text.trimmed;
@@ -85,15 +92,14 @@ $.extend(Canvas.prototype, {
                     }
 
                     if(!text.transformed) {
-                        addInfo([text.original]);
+                        addInfo(text.original, 'below');
                         el.remove();
                         return true; // continue
                     }
 
                     if(text.transformed !== text.original) {
-                        var toAdd = [];
                         if(!text.trimmed) {
-                            toAdd.push(text.original);
+                            addInfo(text.original, 'below');
                         } else {
                             var startingMatch = text.original.match(/^\s+/g),
                                 endingMatch = text.original.match(/\s+$/g),
@@ -103,16 +109,15 @@ $.extend(Canvas.prototype, {
                             if(endingWhiteSpace) {
                                 if(text.transformed[text.transformed.length - 1] === ' ' && endingWhiteSpace[0] === ' ')
                                     endingWhiteSpace = endingWhiteSpace.substr(1);
-                                toAdd.push(endingWhiteSpace);
+                                addInfo(endingWhiteSpace, 'below');
                             }
 
                             if(startingWhiteSpace) {
                                 if(text.transformed[0] === ' ' && startingWhiteSpace[startingWhiteSpace.length-1] === ' ')
                                     startingWhiteSpace = startingWhiteSpace.substr(0, startingWhiteSpace.length -1);
-                                toAdd.push(startingWhiteSpace);
+                                addInfo(startingWhiteSpace, 'above');
                             }
                         }
-                        addInfo(toAdd);
                     }
 
                     var element = documentElement.DocumentTextElement.create({text: text.transformed});

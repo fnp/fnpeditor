@@ -173,58 +173,61 @@ $.extend(DocumentNodeElement.prototype, {
 
         var addFormatting = function() {
             var toret = $('<div>');
+            var formattings = {};
 
-            if(this.data('orig-before') && this.data('orig-before').length) {
-                this.data('orig-before').forEach(function(toAdd) {
-                    if(toAdd)
-                        toret.prepend(document.createTextNode(toAdd));
-                });
+            if(this.data('orig-before') !== undefined) {
+                if(this.data('orig-before')) {
+                    toret.prepend(document.createTextNode(this.data('orig-before')));
+                }
             } else if(level && this.getWlxmlTag() !== 'span') {
                 toret.append('\n' + (new Array(level * 2 + 1)).join(' '));
             }
-            if(this.data('orig-append') && this.data('orig-append').length) {
-                this.data('orig-append').forEach(function(toAdd) {
-                    if(toAdd)
-                        node.prepend(toAdd);
-                });
-            } else if(this.getWlxmlTag() !== 'span'){
+
+            toret.append(node);
+
+            if(this.data('orig-after')) {
+                toret.append(document.createTextNode(this.data('orig-after')));
+            }
+
+            /* Inside node */
+            if(this.data('orig-begin')) {
+                node.prepend(this.data('orig-begin'));
+                formattings.begin = true;
+            }
+
+            if(this.data('orig-end') !== undefined) {
+                if(this.data('orig-end')) {
+                    node.append(this.data('orig-end'));
+                }
+            } else if(this.getWlxmlTag() !== 'span' && children.length){
                 node.append('\n' + (new Array(level * 2 + 1)).join(' '));
             }
-            toret.append(node);
-            return toret.contents();
+           
+            return {parts: toret.contents(), formattings: formattings};
         }.bind(this);
 
-        var parts = addFormatting(node);
+        
         
         var children = this.children(),
-            childParts,
-            prevChildParts;
+            childParts;
 
-        var containsPrefixAndSuffix = function(idx) {
-            if(idx === children.length - 1 && node.contents().length === 2)
-                return true;
-            if(prevChildParts && prevChildParts.length > 1 && prevChildParts[0].nodeType === Node.TEXT_NODE && prevChildParts[1].nodeType === Node.TEXT_NODE)
-                return true;
-            return false;
-        }
+        var formatting = addFormatting(node);
 
         for(var i = children.length - 1; i >= 0; i--) {
             childParts = children[i].toXML(level + 1);
             if(typeof childParts === 'string')
                 childParts = [document.createTextNode(childParts)];
 
-            if(containsPrefixAndSuffix(i) && children[i] instanceof DocumentTextElement) {
+            if(formatting.formattings.begin) {
                 $(node.contents()[0]).after(childParts);
-            } else {
+            } else
                 node.prepend(childParts);
-            }
-            prevChildParts = childParts;
         }
-        return parts;
+        return formatting.parts;
     },
     append: function(params) {
         if(params.tag !== 'span')
-            this.data('orig-append', []);
+            this.data('orig-ends', undefined);
         return manipulate(this, params, 'append');
     },
     before: function(params) {
