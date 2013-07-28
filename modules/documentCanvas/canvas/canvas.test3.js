@@ -1236,15 +1236,15 @@ describe('Canvas', function() {
             });
 
             it('keeps white space after detaching text element', function() {
-                var xmlIn = '<section><header>header</header>\
-                    \
-                text1\
-                    \
+                var xmlIn = '<section><header>header</header>\n\
+                    \n\
+                text1\n\
+                    \n\
             </section>',
-                    expectedXmlOut = '<section><header>header</header>\
-                    \
-                \
-                    \
+                    expectedXmlOut = '<section><header>header</header>\n\
+                    \n\
+                \n\
+                    \n\
             </section>',
                     c = canvas.fromXML(xmlIn),
                     children = c.doc().children(),
