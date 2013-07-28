@@ -124,6 +124,14 @@ $.extend(DocumentNodeElement, {
             });
         }
         dom.data('other-attrs', params.others);
+
+        var widgets = $('<div class="canvas-widgets" contenteditable="false">');
+        widgets.append($('<span class="canvas-widget canvas-widget-label">').text(params.tag + (params.klass ? ' / ' + params.klass : '')));
+        dom.append(widgets);
+
+        // Make sure widgets aren't navigable with arrow keys
+        widgets.find('*').add(widgets).attr('tabindex', -1);
+        
         return dom;
     },
 
@@ -248,7 +256,9 @@ $.extend(DocumentNodeElement.prototype, {
         var element = this;
         elementContent.each(function(idx) {
             var childElement = DocumentElement.fromHTMLElement(this, element.canvas);
-            if(idx === 0 && elementContent.length > 1 && elementContent[1].nodeType === Node.ELEMENT_NODE && (childElement instanceof DocumentTextElement) && $.trim($(this).text()) === '')
+            if(childElement === undefined)
+                return true;
+            if(idx === 1 && elementContent.length > 2 && elementContent[1].nodeType === Node.ELEMENT_NODE && (childElement instanceof DocumentTextElement) && $.trim($(this).text()) === '')
                 return true;
             if(idx > 0 && childElement instanceof DocumentTextElement) {
                 if(toret[toret.length-1] instanceof DocumentNodeElement && $.trim($(this).text()) === '')
@@ -298,10 +308,10 @@ $.extend(DocumentNodeElement.prototype, {
         return false;
     },
 
-
     getWlxmlMetaAttr: function(attr) {
         return this.dom().attr('wlxml-meta-'+attr);
     },
+
     getWlxmlMetaAttrs: function() {
         var toret = [];
         var attrList = classAttributes.getMetaAttrsList(this.getWlxmlClass());
@@ -310,8 +320,16 @@ $.extend(DocumentNodeElement.prototype, {
         }, this);
         return toret;
     },
+
     setWlxmlMetaAttr: function(attr, value) {
         this.dom().attr('wlxml-meta-'+attr, value);
+    },
+    
+    toggleLabel: function(toggle) {
+        var displayCss = toggle ? 'inline-block' : 'none';
+        var label = this.dom().children('.canvas-widgets').find('.canvas-widget-label');
+        label.css('display', displayCss);
+        this.dom().toggleClass('highlighted-element');
     }
 });
 

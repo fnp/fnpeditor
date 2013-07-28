@@ -12,38 +12,6 @@ var expect = chai.expect;
 
 describe('Canvas', function() {
 
-    describe('Internal HTML representation of a sample document', function() {
-        it('works', function() {
-            var c = canvas.fromXML('\
-                <section>\
-                    This is some text without its own wrapping tag.\
-                    <div class="p.subclass">\
-                        This is a paragraph.\
-                    </div>\
-                    <div>\
-                        This is text in a div <span>with some inline text</span>.\
-                    </div>\
-                    This is some text without its own wrapping tag.\
-                </section>\
-            ');
-            var expected = '<div wlxml-tag="section">'
-                            + '<div wlxml-text>This is some text without its own wrapping tag.</div>'
-                            + '<div wlxml-tag="div" wlxml-class="p-subclass">'
-                            +   '<div wlxml-text>This is a paragraph.</div>'
-                            + '</div>'
-                            + '<div wlxml-tag="div">'
-                            +   '<div wlxml-text>This is text in a div </div>'
-                            +   '<div wlxml-tag="span">'
-                            +       '<div wlxml-text>with some inline text</div>'
-                            +   '</div>'
-                            +   '<div wlxml-text>.</div>'
-                            + '</div>'
-                            + '<div wlxml-text>This is some text without its own wrapping tag.</div>'
-                            + '</div>';
-            expect(c.doc().dom()[0].isEqualNode($(expected)[0])).to.be.true;
-        });
-    });
-
     describe('Internal HTML representation of a DocumentNodeElement', function() {
         it('is always a div tag', function() {
             ['section', 'header', 'span', 'aside', 'figure'].forEach(function(tagName) {
@@ -1039,7 +1007,7 @@ describe('Canvas', function() {
         it('returns position when browser selection collapsed', function() {
             var c = canvas.fromXML('<section>Alice has a cat</section>'),
                 dom = c.doc().dom(),
-                text = $(dom.contents()[0]).contents()[0];
+                text = $(dom.contents()[1]).contents()[0];
 
             expect(text.nodeType).to.equal(Node.TEXT_NODE, 'correct node selected');
             expect($(text).text()).to.equal('Alice has a cat');
@@ -1074,9 +1042,9 @@ describe('Canvas', function() {
             var c = canvas.fromXML('<section>Alice <span>has</span> a <span>big</span> cat</section>'),
                 dom = c.doc().dom(),
                 text = {
-                    alice: dom.contents()[0],
-                    has: $(dom.contents()[1]).contents()[0],
-                    cat: dom.contents()[4]
+                    alice: dom.contents()[1],
+                    has: $(dom.contents()[2]).contents()[1],
+                    cat: dom.contents()[5]
                 },
                 cursor = c.getCursor(),
                 aliceElement = c.getDocumentElement(text.alice),
@@ -1107,11 +1075,11 @@ describe('Canvas', function() {
             var c = canvas.fromXML('<section>Alice <span>has</span> a <span>big</span> cat</section>'),
                 dom = c.doc().dom(),
                 text = {
-                    alice: dom.contents()[0],
-                    has: $(dom.contents()[1]).contents()[0],
-                    a: dom.contents()[2],
-                    big: $(dom.contents()[3]).contents()[0],
-                    cat: dom.contents()[4]
+                    alice: dom.contents()[1],
+                    has: $(dom.contents()[2]).contents()[1],
+                    a: dom.contents()[3],
+                    big: $(dom.contents()[4]).contents()[1],
+                    cat: dom.contents()[5]
                 },
                 cursor = c.getCursor();
 

@@ -48,9 +48,12 @@ $.extend(Canvas.prototype, {
                 return element.dom();
             });
 
+            var FIRST_CONTENT_INDEX = 1;
+
             this.wrapper.find(':not(iframe)').addBack().contents()
                 .filter(function() {return this.nodeType === Node.TEXT_NODE})
                 .each(function() {
+
                     // TODO: use DocumentElement API
 
                     var el = $(this),
@@ -60,11 +63,13 @@ $.extend(Canvas.prototype, {
                         hasSpanBefore = el.prev().length > 0  && $(el.prev()[0]).attr('wlxml-tag') === 'span',
                         hasSpanAfter = el.next().length > 0 && $(el.next()[0]).attr('wlxml-tag') === 'span';
 
+                    if(el.parent().hasClass('canvas-widget'))
+                        return true; // continue
 
                     var addInfo = function(toAdd, where) {
                         var parentContents = elParent.contents(),
                             idx = parentContents.index(el[0]),
-                            prev = idx > 0 ? parentContents[idx-1] : null,
+                            prev = idx > FIRST_CONTENT_INDEX ? parentContents[idx-1] : null,
                             next = idx < parentContents.length - 1 ? parentContents[idx+1] : null,
                             target, key;
 
@@ -88,7 +93,7 @@ $.extend(Canvas.prototype, {
                                     + text.trimmed
                                     + (endSpace && (hasSpanParent || hasSpanAfter) ? ' ' : '');
                     } else {
-                        if(text.trimmed.length === 0 && text.original.length > 0 && elParent.contents().length === 1)
+                        if(text.trimmed.length === 0 && text.original.length > 0 && elParent.contents().length === 2)
                             text.transformed = ' ';
                     }
 
@@ -201,7 +206,6 @@ $.extend(Canvas.prototype, {
                 canvas.setCurrentElement(canvas.getDocumentElement(e.target), {caretTo: false});
             });
 
-
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     if(documentElement.DocumentTextElement.isContentContainer(mutation.target) && mutation.target.data === '')
@@ -210,6 +214,25 @@ $.extend(Canvas.prototype, {
             });
             var config = { attributes: false, childList: false, characterData: true, subtree: true, characterDataOldValue: true};
             observer.observe(this.d[0], config);
+
+            this.wrapper.on('mouseover', '[wlxml-tag], [wlxml-text]', function(e) {
+                var el = canvas.getDocumentElement(e.target);
+                if(!el)
+                    return;
+                e.stopPropagation();
+                if(el instanceof documentElement.DocumentTextElement)
+                    el = el.parent();
+                el.toggleLabel(true);
+            });
+            this.wrapper.on('mouseout', '[wlxml-tag], [wlxml-text]', function(e) {
+                var el = canvas.getDocumentElement(e.target);
+                if(!el)
+                    return;
+                e.stopPropagation();
+                if(el instanceof documentElement.DocumentTextElement)
+                    el = el.parent();
+                el.toggleLabel(false);
+            });
 
         } else {
             this.d = null;
