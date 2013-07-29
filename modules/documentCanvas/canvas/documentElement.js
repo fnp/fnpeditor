@@ -292,7 +292,7 @@ $.extend(DocumentNodeElement.prototype, {
             this.dom().removeAttr('wlxml-class');
     },
     is: function(what) {
-        if(what === 'list' && _.contains(['list-items', 'list-items-enum'], this.dom().attr('wlxml-class')))
+        if(what === 'list' && _.contains(['list.items', 'list.items.enum'], this.getWlxmlClass()))
             return true;
         return false;
     },
