@@ -48,7 +48,7 @@ return function(sandbox) {
             sandbox.publish('documentSet');
         },
         getDocument: function() {
-            return transformations.toXML.getXML(canvas.getContent());
+            return canvas.toXML();
         },
         modifyCurrentNodeElement: function(attr, value) {
             var currentNodeElement = canvas.getCurrentNodeElement();
@@ -70,6 +70,7 @@ return function(sandbox) {
         },
         command: function(command, params) {
             commands.run(command, params, canvas);
+            sandbox.publish('contentChanged');
         }
     };
     
