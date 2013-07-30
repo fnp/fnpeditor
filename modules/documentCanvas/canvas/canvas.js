@@ -169,8 +169,23 @@ $.extend(Canvas.prototype, {
             }
 
             this.wrapper.on('keyup', function(e) {
-                if(e.which >= 37 && e.which <= 40)
-                    canvas.setCurrentElement(canvas.getCursor().getPosition().element, {caretTo: false})
+                if(e.which >= 37 && e.which <= 40) {
+                    var element = canvas.getCursor().getPosition().element,
+                        caretTo = false;
+                    if(!element) {
+                        // Chrome hack
+                        var direction;
+                        if(e.which === (KEYS.ARROW_LEFT  || KEYS.ARROW_DOWN)) {
+                            direction = 'above';
+                            caretTo = 'end';
+                        } else {
+                            direction = 'below';
+                            caretTo = 'start';
+                        }
+                        element = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]', direction, window.getSelection().focusNode));
+                    }
+                    canvas.setCurrentElement(element, {caretTo: caretTo});
+                }
             });
          
             this.wrapper.on('keydown', function(e) {

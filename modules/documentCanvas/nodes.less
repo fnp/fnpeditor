@@ -1,4 +1,8 @@
+[document-node-element] {
+    font-size: 1px;
+}
 [document-text-element] {
+    font-size: 14px;
     display: inline;
     margin: 0 1px;
     border: 1px solid white;
@@ -20,7 +24,7 @@
     min-width: 10px;
 }
 
-[wlxml-tag=header] {
+[wlxml-tag=header] [document-text-element] {
     font-size: 13px;
     font-weight: bold;
     margin: 10px 0;
@@ -47,11 +51,11 @@
     color: blue;
 }
 
-[wlxml-tag=header] [wlxml-class=author] {
+[wlxml-tag=header] [wlxml-class=author] [document-text-element] {
     font-size: 14px;
 }
 
-[wlxml-tag=header] [wlxml-class=title] {
+[wlxml-tag=header] [wlxml-class=title] [document-text-element] {
     font-size:18px;
 }
 
