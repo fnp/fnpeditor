@@ -207,6 +207,7 @@ return function(sandbox) {
         
         currentNodeElementChanged: function(nodeElement) {
             commands.updateCurrentNodeElement(nodeElement);
+            dirty.documentCanvas = true;
         },
 
         contentChanged: function() {
