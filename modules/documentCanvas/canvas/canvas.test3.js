@@ -19,13 +19,13 @@ describe('Canvas', function() {
                 expect(dom.prop('tagName')).to.equal('DIV', tagName + ' is represented as div');
             });
         });
-        it('has wlxml tag put into wlxml-tag attribute', function() {
+        it('has wlxml tag put into wlxml-tag attribute of its internal container', function() {
             var dom = canvas.fromXML('<section></section>').doc().dom();
-            expect(dom.attr('wlxml-tag')).to.equal('section');
+            expect(dom.children('[document-element-content]').attr('wlxml-tag')).to.equal('section');
         });
-        it('has wlxml class put into wlxml-class, dots replaced with dashes', function() {
+        it('has wlxml class put into wlxml-class attribute of its internal containr, dots replaced with dashes', function() {
             var dom = canvas.fromXML('<section class="some.class"></section>').doc().dom();
-            expect(dom.attr('wlxml-class')).to.equal('some-class');
+            expect(dom.children('[document-element-content]').attr('wlxml-class')).to.equal('some-class');
         });
     });
 
@@ -996,6 +996,15 @@ describe('Canvas', function() {
 
         var getSelection;
 
+        var findTextNode = function(inside, text) {
+            var nodes = inside.find(':not(iframe)').addBack().contents().filter(function() {
+                return this.nodeType === Node.TEXT_NODE && this.data === text;
+            });
+            if(nodes.length)
+                return nodes[0];
+            return null;
+        }
+
         beforeEach(function() {
             getSelection = sinon.stub(window, 'getSelection');
         });
@@ -1007,7 +1016,7 @@ describe('Canvas', function() {
         it('returns position when browser selection collapsed', function() {
             var c = canvas.fromXML('<section>Alice has a cat</section>'),
                 dom = c.doc().dom(),
-                text = $(dom.contents()[1]).contents()[0];
+                text = findTextNode(dom, 'Alice has a cat');
 
             expect(text.nodeType).to.equal(Node.TEXT_NODE, 'correct node selected');
             expect($(text).text()).to.equal('Alice has a cat');
@@ -1042,9 +1051,9 @@ describe('Canvas', function() {
             var c = canvas.fromXML('<section>Alice <span>has</span> a <span>big</span> cat</section>'),
                 dom = c.doc().dom(),
                 text = {
-                    alice: dom.contents()[1],
-                    has: $(dom.contents()[2]).contents()[1],
-                    cat: dom.contents()[5]
+                    alice: findTextNode(dom, 'Alice '),
+                    has: findTextNode(dom, 'has'),
+                    cat: findTextNode(dom, ' cat')
                 },
                 cursor = c.getCursor(),
                 aliceElement = c.getDocumentElement(text.alice),
@@ -1075,11 +1084,11 @@ describe('Canvas', function() {
             var c = canvas.fromXML('<section>Alice <span>has</span> a <span>big</span> cat</section>'),
                 dom = c.doc().dom(),
                 text = {
-                    alice: dom.contents()[1],
-                    has: $(dom.contents()[2]).contents()[1],
-                    a: dom.contents()[3],
-                    big: $(dom.contents()[4]).contents()[1],
-                    cat: dom.contents()[5]
+                    alice: findTextNode(dom, 'Alice '),
+                    has: findTextNode(dom, 'has'),
+                    a: findTextNode(dom, ' a '),
+                    big: findTextNode(dom, 'big'),
+                    cat: findTextNode(dom, ' cat'),
                 },
                 cursor = c.getCursor();
 

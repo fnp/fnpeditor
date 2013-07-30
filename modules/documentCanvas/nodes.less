@@ -47,11 +47,11 @@
     color: blue;
 }
 
-[wlxml-tag=header] > [wlxml-class=author] {
+[wlxml-tag=header] [wlxml-class=author] {
     font-size: 14px;
 }
 
-[wlxml-tag=header] > [wlxml-class=title] {
+[wlxml-tag=header] [wlxml-class=title] {
     font-size:18px;
 }
 
@@ -74,7 +74,7 @@
 
 [wlxml-class="list-items"] {
 
-    > [wlxml-class="item"] {
+     [wlxml-class="item"] {
         display: list-item;
         margin-left: 10px;
         padding-left: 5px;
@@ -82,7 +82,7 @@
 }
 
 [wlxml-class="item"] {
-    > [wlxml-class="list-items"] {
+    [wlxml-class="list-items"] {
         display: block;
     }
 }

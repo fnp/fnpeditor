@@ -38,17 +38,22 @@ $.extend(Canvas.prototype, {
                     tag: currentTag.prop('tagName').toLowerCase(),
                     klass: currentTag.attr('class'),
                     meta: meta,
-                    others: others
+                    others: others,
+                    rawChildren: currentTag.contents()
                 });
 
-                element.dom().append(currentTag.contents());
                 ['orig-before', 'orig-after', 'orig-begin', 'orig-end'].forEach(function(attr) {
                     element.data(attr, '');
                 });
                 return element.dom();
             });
 
-            var FIRST_CONTENT_INDEX = 1;
+            var FIRST_CONTENT_INDEX = 0;
+
+            // @@ TODO - refactor!
+            var getNode = function(element) {
+                return element.children('[document-element-content]');
+            }
 
             this.wrapper.find(':not(iframe)').addBack().contents()
                 .filter(function() {return this.nodeType === Node.TEXT_NODE})
@@ -60,8 +65,8 @@ $.extend(Canvas.prototype, {
                         text = {original: el.text(), trimmed: $.trim(el.text())},
                         elParent = el.parent(),
                         hasSpanParent = elParent.attr('wlxml-tag') === 'span',
-                        hasSpanBefore = el.prev().length > 0  && $(el.prev()[0]).attr('wlxml-tag') === 'span',
-                        hasSpanAfter = el.next().length > 0 && $(el.next()[0]).attr('wlxml-tag') === 'span';
+                        hasSpanBefore = el.prev().length > 0  && getNode($(el.prev()[0])).attr('wlxml-tag') === 'span',
+                        hasSpanAfter = el.next().length > 0 && getNode($(el.next()[0])).attr('wlxml-tag') === 'span';
 
                     if(el.parent().hasClass('canvas-widget'))
                         return true; // continue
@@ -74,10 +79,10 @@ $.extend(Canvas.prototype, {
                             target, key;
 
                         if(where === 'above') {
-                            target = prev ? $(prev) : elParent;
+                            target = prev ? $(prev) : elParent.parent();
                             key = prev ? 'orig-after' : 'orig-begin';
                         } else if(where === 'below') {
-                            target = next ? $(next) : elParent;
+                            target = next ? $(next) : elParent.parent();
                             key = next ? 'orig-before' : 'orig-end';
                         } else { throw new Object;}
 
@@ -93,7 +98,7 @@ $.extend(Canvas.prototype, {
                                     + text.trimmed
                                     + (endSpace && (hasSpanParent || hasSpanAfter) ? ' ' : '');
                     } else {
-                        if(text.trimmed.length === 0 && text.original.length > 0 && elParent.contents().length === 2)
+                        if(text.trimmed.length === 0 && text.original.length > 0 && elParent.contents().length === 1)
                             text.transformed = ' ';
                     }
 
