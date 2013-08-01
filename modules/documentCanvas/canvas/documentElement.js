@@ -3,8 +3,9 @@ define([
 'libs/underscore-min',
 'modules/documentCanvas/classAttributes',
 'modules/documentCanvas/canvas/utils',
-'modules/documentCanvas/canvas/widgets'
-], function($, _, classAttributes, utils, widgets) {
+'modules/documentCanvas/canvas/widgets',
+'modules/documentCanvas/canvas/wlxmlManagers'
+], function($, _, classAttributes, utils, widgets, wlxmlManagers) {
     
 'use strict';
 
@@ -113,14 +114,6 @@ var DocumentNodeElement = function(htmlElement, canvas) {
     DocumentElement.call(this, htmlElement, canvas);
 };
 
-var getDisplayStyle = function(tag, klass) {
-    if(tag === 'metadata')
-        return 'none';
-    if(tag === 'span')
-        return 'inline';
-    return 'block';
-}
-
 $.extend(DocumentNodeElement, {
     createDOM: function(params) {
         var dom = $('<div>')
@@ -146,7 +139,7 @@ $.extend(DocumentNodeElement, {
             });
         }
         element.data('other-attrs', params.others);
-        widgetsContainer.append(widgets.labelWidget(params.tag, params.klass));
+
         if(params.rawChildren) {
             container.append(params.rawChildren);
         }
@@ -305,8 +298,11 @@ $.extend(DocumentNodeElement.prototype, {
         return this._container().attr('wlxml-tag');
     },
     setWlxmlTag: function(tag) {
+        if(tag === this.getWlxmlTag())
+            return;
+
         this._container().attr('wlxml-tag', tag);
-        this._updateDisplayStyle();
+        this._updateWlxmlManager();
     },
     getWlxmlClass: function() {
         var klass = this._container().attr('wlxml-class');
@@ -315,6 +311,9 @@ $.extend(DocumentNodeElement.prototype, {
         return undefined;
     },
     setWlxmlClass: function(klass) {
+        if(klass === this.getWlxmlClass())
+            return;
+
         this.getWlxmlMetaAttrs().forEach(function(attr) {
             if(!classAttributes.hasMetaAttr(klass, attr.name))
                 this.dom().removeAttr('wlxml-meta-' + attr.name);
@@ -324,12 +323,12 @@ $.extend(DocumentNodeElement.prototype, {
             this._container().attr('wlxml-class', klass.replace(/\./g, '-'));
         else
             this._container().removeAttr('wlxml-class');
-        this._updateDisplayStyle();
+        this._updateWlxmlManager();
     },
-    _updateDisplayStyle: function() {
-        var displayStyle = getDisplayStyle(this.getWlxmlTag(), this.getWlxmlClass());
-        this.dom().css('display', displayStyle);
-        this._container().css('display', displayStyle);
+    _updateWlxmlManager: function() {
+        var manager = wlxmlManagers.getFor(this);
+        this.data('_wlxmlManager', manager);
+        manager.setup();
     },
     is: function(what) {
         if(what === 'list' && _.contains(['list.items', 'list.items.enum'], this.getWlxmlClass()))
