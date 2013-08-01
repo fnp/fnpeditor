@@ -364,7 +364,7 @@ $.extend(DocumentNodeElement.prototype, {
     },
 
     toggleHighlight: function(toogle) {
-        this.dom().toggleClass('highlighted-element');
+        this._container().toggleClass('highlighted-element');
     }
 });
 

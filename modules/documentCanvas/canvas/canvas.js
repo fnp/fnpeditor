@@ -323,7 +323,7 @@ $.extend(Canvas.prototype, {
 
     
     getCurrentNodeElement: function() {
-        return this.getDocumentElement(this.wrapper.find('.current-node-element')[0]);
+        return this.getDocumentElement(this.wrapper.find('.current-node-element').parent()[0]);
     },
 
     getCurrentTextElement: function() {
@@ -351,7 +351,7 @@ $.extend(Canvas.prototype, {
                 element.dom().addClass('current-text-element');
             } else {
                 this.wrapper.find('.current-node-element').removeClass('current-node-element')
-                element.dom().addClass('current-node-element');
+                element._container().addClass('current-node-element');
                 this.publisher('currentElementChanged', element);
             }
         }.bind(this);
