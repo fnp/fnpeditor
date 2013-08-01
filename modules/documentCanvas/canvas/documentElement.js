@@ -330,7 +330,7 @@ $.extend(DocumentNodeElement.prototype, {
         this._updateDisplayStyle();
     },
     _updateDisplayStyle: function() {
-        var displayStyle = getDisplayStyle(this.getWlxmlTag, this.getWlxmlClass);
+        var displayStyle = getDisplayStyle(this.getWlxmlTag(), this.getWlxmlClass());
         this.dom().css('display', displayStyle);
         this._container().css('display', displayStyle);
     },
