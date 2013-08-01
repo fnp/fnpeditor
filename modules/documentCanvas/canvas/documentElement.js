@@ -2,8 +2,9 @@ define([
 'libs/jquery-1.9.1.min',
 'libs/underscore-min',
 'modules/documentCanvas/classAttributes',
-'modules/documentCanvas/canvas/utils'
-], function($, _, classAttributes, utils) {
+'modules/documentCanvas/canvas/utils',
+'modules/documentCanvas/canvas/widgets'
+], function($, _, classAttributes, utils, widgets) {
     
 'use strict';
 
@@ -140,12 +141,12 @@ $.extend(DocumentNodeElement, {
         dom.css('display', displayStyle);
         container.css('display', displayStyle);
 
-        var widgets = $('<div class="canvas-widgets" contenteditable="false">');
-        widgets.append($('<span class="canvas-widget canvas-widget-label">').text(params.tag + (params.klass ? ' / ' + params.klass : '')));
-        dom.append(widgets);
+        var widgetsContainer = $('<div class="canvas-widgets" contenteditable="false">');
+        widgetsContainer.append(widgets.labelWidget(params.tag, params.klass));
+        dom.append(widgetsContainer);
 
         // Make sure widgets aren't navigable with arrow keys
-        widgets.find('*').add(widgets).attr('tabindex', -1);
+        widgetsContainer.find('*').add(widgetsContainer).attr('tabindex', -1);
         
         dom.append(container);
 
