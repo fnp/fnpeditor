@@ -2,19 +2,15 @@
 
 define([
 'libs/underscore-min',
-'./transformations', 
-'./canvas',
-'./canvasManager',
 './canvas/canvas',
 './commands',
-'libs/text!./template.html'], function(_, transformations, Canvas, CanvasManager, canvas3, commands, template) {
+'libs/text!./template.html'], function(_, canvas3, commands, template) {
 
 'use strict';
 
 return function(sandbox) {
 
-    var canvas = canvas3.fromXML('', sandbox.publish); //canvasCanvas.create();
-    var manager;
+    var canvas = canvas3.fromXML('', sandbox.publish);
     var canvasWrapper = $(template);
     var shownAlready = false;
     var scrollbarPosition = 0,
@@ -42,9 +38,8 @@ return function(sandbox) {
             return canvasWrapper;
         },
         setDocument: function(xml) {
-            canvas.loadWlxml(xml); //canvas.setHTML(transformations.fromXML.getHTMLTree(xml));
+            canvas.loadWlxml(xml);
             canvasWrapper.find('#rng-module-documentCanvas-content').empty().append(canvas.view());
-            manager = new CanvasManager(canvas, sandbox);
             sandbox.publish('documentSet');
         },
         getDocument: function() {
