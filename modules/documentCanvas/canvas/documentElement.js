@@ -123,9 +123,13 @@ var getDisplayStyle = function(tag, klass) {
 
 $.extend(DocumentNodeElement, {
     createDOM: function(params) {
-        var dom = $('<div document-node-element>'),
-            widgetsContainer = $('<div class="canvas-widgets" contenteditable="false">'),
-            container = $('<div document-element-content>');
+        var dom = $('<div>')
+                .attr('document-node-element', ''),
+            widgetsContainer = $('<div>')
+                .addClass('canvas-widgets')
+                .attr('contenteditable', false),
+            container = $('<div>')
+                .attr('document-element-content', '');
         
         dom.append(widgetsContainer, container);
         // Make sure widgets aren't navigable with arrow keys
