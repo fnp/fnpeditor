@@ -112,6 +112,14 @@ var DocumentNodeElement = function(htmlElement, canvas) {
     DocumentElement.call(this, htmlElement, canvas);
 };
 
+var getDisplayStyle = function(tag, klass) {
+    if(tag === 'metadata')
+        return 'none';
+    if(tag === 'span')
+        return 'inline';
+    return 'block';
+}
+
 $.extend(DocumentNodeElement, {
     createDOM: function(params) {
         var dom = $('<div document-node-element>'),
@@ -126,6 +134,11 @@ $.extend(DocumentNodeElement, {
             });
         }
         dom.data('other-attrs', params.others);
+
+        /* display style */
+        var displayStyle = getDisplayStyle(params.tag, params.klass);
+        dom.css('display', displayStyle);
+        container.css('display', displayStyle);
 
         var widgets = $('<div class="canvas-widgets" contenteditable="false">');
         widgets.append($('<span class="canvas-widget canvas-widget-label">').text(params.tag + (params.klass ? ' / ' + params.klass : '')));
@@ -295,6 +308,7 @@ $.extend(DocumentNodeElement.prototype, {
     },
     setWlxmlTag: function(tag) {
         this._container().attr('wlxml-tag', tag);
+        this._updateDisplayStyle();
     },
     getWlxmlClass: function() {
         var klass = this._container().attr('wlxml-class');
@@ -312,6 +326,12 @@ $.extend(DocumentNodeElement.prototype, {
             this._container().attr('wlxml-class', klass.replace(/\./g, '-'));
         else
             this._container().removeAttr('wlxml-class');
+        this._updateDisplayStyle();
+    },
+    _updateDisplayStyle: function() {
+        var displayStyle = getDisplayStyle(this.getWlxmlTag, this.getWlxmlClass);
+        this.dom().css('display', displayStyle);
+        this._container().css('display', displayStyle);
     },
     is: function(what) {
         if(what === 'list' && _.contains(['list.items', 'list.items.enum'], this.getWlxmlClass()))
