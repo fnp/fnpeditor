@@ -124,32 +124,25 @@ var getDisplayStyle = function(tag, klass) {
 $.extend(DocumentNodeElement, {
     createDOM: function(params) {
         var dom = $('<div document-node-element>'),
+            widgetsContainer = $('<div class="canvas-widgets" contenteditable="false">'),
             container = $('<div document-element-content>');
         
-        container.attr('wlxml-tag', params.tag);
-        if(params.klass)
-            container.attr('wlxml-class', params.klass.replace(/\./g, '-'));
-        if(params.meta) {
-            _.keys(params.meta).forEach(function(key) {
-                dom.attr('wlxml-meta-'+key, params.meta[key]);
-            });
-        }
-        dom.data('other-attrs', params.others);
-
-        /* display style */
-        var displayStyle = getDisplayStyle(params.tag, params.klass);
-        dom.css('display', displayStyle);
-        container.css('display', displayStyle);
-
-        var widgetsContainer = $('<div class="canvas-widgets" contenteditable="false">');
-        widgetsContainer.append(widgets.labelWidget(params.tag, params.klass));
-        dom.append(widgetsContainer);
-
+        dom.append(widgetsContainer, container);
         // Make sure widgets aren't navigable with arrow keys
         widgetsContainer.find('*').add(widgetsContainer).attr('tabindex', -1);
-        
-        dom.append(container);
 
+        var element = this.fromHTMLElement(dom[0]);
+
+        element.setWlxmlTag(params.tag);
+        if(params.klass)
+            element.setWlxmlClass(params.klass);
+        if(params.meta) {
+            _.keys(params.meta).forEach(function(key) {
+                element.setWlxmlMetaAttr(key, params.meta[key]);
+            });
+        }
+        element.data('other-attrs', params.others);
+        widgetsContainer.append(widgets.labelWidget(params.tag, params.klass));
         if(params.rawChildren) {
             container.append(params.rawChildren);
         }
