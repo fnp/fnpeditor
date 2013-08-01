@@ -360,6 +360,10 @@ $.extend(DocumentNodeElement.prototype, {
         var displayCss = toggle ? 'inline-block' : 'none';
         var label = this.dom().children('.canvas-widgets').find('.canvas-widget-label');
         label.css('display', displayCss);
+        this.toggleHighlight(toggle);
+    },
+
+    toggleHighlight: function(toogle) {
         this.dom().toggleClass('highlighted-element');
     }
 });
@@ -530,6 +534,10 @@ $.extend(DocumentTextElement.prototype, {
         this.after(newElement);
         newElement.after(rhsTextElement);
         return newElement;
+    },
+
+    toggleHighlight: function() {
+        // do nothing for now
     }
 });
 

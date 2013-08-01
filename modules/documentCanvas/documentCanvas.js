@@ -55,10 +55,10 @@ return function(sandbox) {
             sandbox.publish('currentNodeElementChanged', currentNodeElement);
         },
         highlightElement: function(element) {
-            canvas.highlightElement(element);
+            element.toggleHighlight(true);
         },
         dimElement: function(element) {
-            canvas.dimElement(element);
+            element.toggleHighlight(false);
         },
         jumpToElement: function(element) {
             canvas.setCurrentElement(element);

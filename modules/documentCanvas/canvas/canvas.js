@@ -321,16 +321,6 @@ $.extend(Canvas.prototype, {
 
     list: {},
 
-
-
-    highlightElement: function(element) {
-        this.wrapper.find('.highlighted-element').removeClass('highlighted-element');
-        element.dom().addClass('highlighted-element');
-    },
-
-    dimElement: function(element) {
-        element.dom().removeClass('highlighted-element');
-    },
     
     getCurrentNodeElement: function() {
         return this.getDocumentElement(this.wrapper.find('.current-node-element')[0]);
