@@ -154,7 +154,7 @@ $.extend(DocumentNodeElement.prototype, {
         var dom = this.dom(),
             args = Array.prototype.slice.call(arguments, 0);
         if(args.length === 2 && args[1] === undefined)
-            return dom.removeData(args[1]);
+            return dom.removeData(args[0]);
         return dom.data.apply(dom, arguments);
     },
     toXML: function(level) {
@@ -227,7 +227,7 @@ $.extend(DocumentNodeElement.prototype, {
     },
     append: function(params) {
         if(params.tag !== 'span')
-            this.data('orig-ends', undefined);
+            this.data('orig-end', undefined);
         return manipulate(this, params, 'append');
     },
     before: function(params) {
