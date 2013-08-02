@@ -388,6 +388,21 @@ describe('Canvas', function() {
                     expect(children[1]).to.be.instanceOf(documentElement.DocumentTextElement);
                     expect(children[1].getText()).to.equal('Alice');
                 });
+
+                it('can divide DocumentTextElement with a new DocumentNodeElement', function() {
+                    var c = canvas.fromXML('<section>Alice has a cat</section>'),
+                        section = c.doc(),
+                        text = section.children()[0];
+
+                    var returned = text.divide({tag: 'aside', klass: 'footnote', offset: 5}),
+                        sectionChildren = section.children(),
+                        lhsText = sectionChildren[0],
+                        rhsText = sectionChildren[2];
+
+                    expect(lhsText.getText()).to.equal('Alice');
+                    expect(returned.sameNode(sectionChildren[1]));
+                    expect(rhsText.getText()).to.equal(' has a cat');
+                });
             });
 
             describe('Splitting text', function() {

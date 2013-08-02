@@ -456,6 +456,22 @@ $.extend(DocumentTextElement.prototype, {
 
         return {first: parentElement, second: newElement};
     },
+    divide: function(params) {
+        var myText = this.getText();
+        
+        if(params.offset <= 0 || params.offset >= myText.length)
+            return;
+
+        var lhsText = myText.substr(0, params.offset),
+            rhsText = myText.substr(params.offset),
+            newElement = DocumentNodeElement.create({tag: params.tag, klass: params.klass}, this.canvas),
+            rhsTextElement = DocumentTextElement.create({text: rhsText});
+
+        this.setText(lhsText);
+        this.after(newElement);
+        newElement.after(rhsTextElement);
+        return newElement;
+    }
 });
 
 return {
