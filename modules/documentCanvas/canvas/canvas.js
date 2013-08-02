@@ -175,7 +175,7 @@ $.extend(Canvas.prototype, {
                     if(!element) {
                         // Chrome hack
                         var direction;
-                        if(e.which === (KEYS.ARROW_LEFT  || KEYS.ARROW_DOWN)) {
+                        if(e.which === KEYS.ARROW_LEFT  || e.which === KEYS.ARROW_UP) {
                             direction = 'above';
                             caretTo = 'end';
                         } else {
