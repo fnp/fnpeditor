@@ -6,7 +6,7 @@ define([
 'use strict';
 
 
-var DocumentElementAPI = function(documentElement) {
+var DocumentElementWrapper = function(documentElement) {
     
     this.addWidget = function(widget) {
         documentElement.dom().find('.canvas-widgets').append(widget);
@@ -28,6 +28,10 @@ var DocumentElementAPI = function(documentElement) {
     this.klass = function() {
         return documentElement.getWlxmlClass();
     };
+
+    this.toggle = function(toggle) {
+        documentElement._container().toggle(toggle);
+    }
 }
 
 var getDisplayStyle = function(tag, klass) {
@@ -52,10 +56,58 @@ $.extend(GenericManager.prototype, {
     }
 })
 
+var managers = {
+    _m: {},
+    set: function(tag, klass, manager) {
+        if(!this._m[tag])
+            this._m[tag] = {};
+        this._m[tag][klass] = manager;
+    },
+    get: function(tag,klass) {
+        if(this._m[tag] && this._m[tag][klass])
+            return this._m[tag][klass];
+        return GenericManager;
+    }
+}
+
+var FootnoteManager = function(wlxmlElement) {
+    this.el = wlxmlElement;
+};
+$.extend(FootnoteManager.prototype, {
+    setup: function() {
+        this.el.clearWidgets();
+
+        var clickHandler = function() {
+            this._toggleFootnote(true);
+        }.bind(this);
+        this.footnoteHandler = widgets.footnoteHandler(clickHandler);
+        this.el.addWidget(this.footnoteHandler);
+
+        var closeHandler = function() {
+            this._toggleFootnote(false);
+
+        }.bind(this);
+        this.hideButton = widgets.hideButton(closeHandler);
+        this.el.addWidget(this.hideButton);
+
+        this._toggleFootnote(false);
+    },
+    _toggleFootnote: function(toggle) {
+        this.hideButton.toggle(toggle);
+        this.footnoteHandler.toggle(!toggle);
+        
+        this.el.setDisplayStyle(toggle ? 'block' : 'inline');
+        this.el.toggle(toggle);
+    }
+})
+managers.set('aside', 'footnote', FootnoteManager);
+
+
 return {
     getFor: function(documentElement) {
-        var wlxmlElement = new DocumentElementAPI(documentElement);
-        return new GenericManager(wlxmlElement);
+        var wlxmlElement = new DocumentElementWrapper(documentElement);
+        return new (managers.get(wlxmlElement.tag(), wlxmlElement.klass()))(wlxmlElement);
+
     }
 };
 

@@ -1,6 +1,7 @@
 [document-node-element] {
     .canvas-widgets {
         display: inline;
+        text-indent: 0;
     }
 
     .canvas-widget {
@@ -22,5 +23,37 @@
         font-family: monospace;
         z-index:9999;
         white-space: nowrap;
+    }
+
+
+
+    .canvas-widget-footnote-handle {
+        display: inline;
+        outline: 0px solid transparent;
+        cursor: pointer;
+        counter-increment: footnote;
+        vertical-align: super;
+        color: blue;
+        font-size: .8em;
+
+        &::before, {
+            content: "[" counter(footnote) "]";
+        }
+    }
+
+    .canvas-widget-hide-button {
+        @line_height: 12px;
+        @padding: 2px;
+
+        position: absolute;
+        top: -(@line_height + 2 * @padding);
+        right: 0;
+        line-height: @line_height;
+        padding: @padding;
+        font-weight: bold;
+        color: white;
+        background-image: linear-gradient(to bottom,#ee5f5b,#bd362f);
+        border-radius: 1px;
+        cursor: pointer;
     }
 }
