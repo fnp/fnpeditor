@@ -182,7 +182,7 @@ $.extend(Canvas.prototype, {
                             direction = 'below';
                             caretTo = 'start';
                         }
-                        element = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]', direction, window.getSelection().focusNode));
+                        element = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]:visible', direction, window.getSelection().focusNode));
                     }
                     canvas.setCurrentElement(element, {caretTo: caretTo});
                 }
