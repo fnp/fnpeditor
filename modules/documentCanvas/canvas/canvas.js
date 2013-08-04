@@ -206,9 +206,9 @@ $.extend(Canvas.prototype, {
                 }
             });
 
-            this.wrapper.on('click', '[wlxml-tag], [document-text-element]', function(e) {
+            this.wrapper.on('click', '[document-node-element], [document-text-element]', function(e) {
                 e.stopPropagation();
-                canvas.setCurrentElement(canvas.getDocumentElement(e.target), {caretTo: false});
+                canvas.setCurrentElement(canvas.getDocumentElement(e.currentTarget), {caretTo: false});
             });
 
             var observer = new MutationObserver(function(mutations) {
@@ -221,8 +221,8 @@ $.extend(Canvas.prototype, {
             observer.observe(this.d[0], config);
 
 
-            this.wrapper.on('mouseover', '[wlxml-tag], [document-text-element]', function(e) {
-                var el = canvas.getDocumentElement(e.target);
+            this.wrapper.on('mouseover', '[document-node-element], [document-text-element]', function(e) {
+                var el = canvas.getDocumentElement(e.currentTarget);
                 if(!el)
                     return;
                 e.stopPropagation();
@@ -230,8 +230,8 @@ $.extend(Canvas.prototype, {
                     el = el.parent();
                 el.toggleLabel(true);
             });
-            this.wrapper.on('mouseout', '[wlxml-tag], [document-text-element]', function(e) {
-                var el = canvas.getDocumentElement(e.target);
+            this.wrapper.on('mouseout', '[document-node-element], [document-text-element]', function(e) {
+                var el = canvas.getDocumentElement(e.currentTarget);
                 if(!el)
                     return;
                 e.stopPropagation();
