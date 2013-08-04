@@ -20,7 +20,10 @@ var nearestInDocumentOrder = function(selector, direction, element) {
 }
 
 return {
-    nearestInDocumentOrder: nearestInDocumentOrder
+    nearestInDocumentOrder: nearestInDocumentOrder,
+    unicode: {
+        ZWS: '\u200B'
+    }
 };
 
 });

@@ -1,8 +1,9 @@
 define([
 'libs/jquery-1.9.1.min',
 'libs/underscore-min',
-'modules/documentCanvas/classAttributes'
-], function($, _, classAttributes) {
+'modules/documentCanvas/classAttributes',
+'modules/documentCanvas/canvas/utils'
+], function($, _, classAttributes, utils) {
     
 'use strict';
 
@@ -324,7 +325,7 @@ $.extend(DocumentTextElement, {
     createDOM: function(params) {
         return $('<div>')
             .attr('wlxml-text', '')
-            .text(params.text);
+            .text(params.text || utils.unicode.ZWS);
     },
 
     create: function(params, canvas) {
@@ -333,6 +334,9 @@ $.extend(DocumentTextElement, {
 
     fromHTMLElement: function(htmlElement, canvas) {
         return new this(htmlElement, canvas);
+    },
+    isContentContainer: function(htmlElement) {
+        return htmlElement.nodeType === Node.TEXT_NODE && $(htmlElement).parent().is('[wlxml-text]');
     }
 });
 
@@ -353,7 +357,11 @@ $.extend(DocumentTextElement.prototype, {
         this.dom().contents()[0].data = text;
     },
     getText: function() {
-        return this.dom().text();
+        return this.dom().text().replace(utils.unicode.ZWS, '');
+    },
+    isEmpty: function() {
+        // Having at least Zero Width Space is guaranteed be Content Observer
+        return this.dom().contents()[0].data === utils.unicode.ZWS;
     },
     after: function(params) {
         if(params instanceof DocumentTextElement || params.text)

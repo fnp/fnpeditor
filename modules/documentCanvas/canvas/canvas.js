@@ -1,8 +1,9 @@
 define([
 'libs/jquery-1.9.1.min',
 'libs/underscore-min',
-'modules/documentCanvas/canvas/documentElement'
-], function($, _, documentElement) {
+'modules/documentCanvas/canvas/documentElement',
+'modules/documentCanvas/canvas/utils'
+], function($, _, documentElement, utils) {
     
 'use strict';
 
@@ -142,22 +143,73 @@ $.extend(Canvas.prototype, {
                         else if(position.offsetAtEnd)
                             newEmpty = elements.second;
                         if(newEmpty) {
-                            goto = newEmpty.append(documentElement.DocumentTextElement.create({text: '\u200B'}, this));
+                            goto = newEmpty.append(documentElement.DocumentTextElement.create({text: ''}, this));
                             canvas.setCurrentElement(goto);
                         }
                     }
                 }
             });
 
+
+            var KEYS = {
+                ARROW_LEFT: 37,
+                ARROW_UP: 38,
+                ARROW_RIGHT: 39,
+                ARROW_DOWN: 40
+            }
+
             this.wrapper.on('keyup', function(e) {
                 if(e.which >= 37 && e.which <= 40)
                     canvas.setCurrentElement(canvas.getCursor().getPosition().element, {caretTo: false})
+            });
+         
+            this.wrapper.on('keydown', function(e) {
+                if(e.which >= 37 && e.which <= 40) {
+                    var position = canvas.getCursor().getPosition(),
+                        element = position.element;
+                    if(element && (element instanceof documentElement.DocumentTextElement)) {
+                        if(element.isEmpty()) {
+                            var direction, caretTo;
+                            if(e.which === KEYS.ARROW_LEFT  || e.which === KEYS.ARROW_UP) {
+                                direction = 'above';
+                                caretTo = 'end';
+                            } else {
+                                direction = 'below';
+                                caretTo = 'start';
+                            }
+                            var el = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]', direction, window.getSelection().focusNode))
+                            canvas.setCurrentElement(element, {caretTo: caretTo});
+                        } else {
+                            var txt = element.dom().contents()[0].data;
+                            if(e.which === KEYS.ARROW_LEFT && position.offset > 1 && txt.charAt(position.offset-2) === utils.unicode.ZWS) {
+                                e.preventDefault();
+                                canvas._moveCaretToTextElement(element, position.offset-2);
+                            }
+                            if(e.which === KEYS.ARROW_RIGHT && position.offset < txt.length - 1 && txt.charAt(position.offset+1) === utils.unicode.ZWS) {
+                                e.preventDefault();
+                                canvas._moveCaretToTextElement(element, position.offset+2);
+                            }
+                        }
+                    }
+
+
+                }
             });
 
             this.wrapper.on('click', '[wlxml-tag], [wlxml-text]', function(e) {
                 e.stopPropagation();
                 canvas.setCurrentElement(canvas.getDocumentElement(e.target), {caretTo: false});
             });
+
+
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if(documentElement.DocumentTextElement.isContentContainer(mutation.target) && mutation.target.data === '')
+                        mutation.target.data = utils.unicode.ZWS;
+                });
+            });
+            var config = { attributes: false, childList: false, characterData: true, subtree: true, characterDataOldValue: true};
+            observer.observe(this.d[0], config);
 
         } else {
             this.d = null;
