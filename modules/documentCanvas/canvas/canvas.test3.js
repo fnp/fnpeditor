@@ -30,10 +30,10 @@ describe('Canvas', function() {
     });
 
     describe('Internal HTML representation of a DocumentTextElement', function() {
-        it('is text node wrapped in a div with wlxml-text attribute set', function() {
+        it('is text node wrapped in a div with document-text-element attribute set', function() {
             var dom = canvas.fromXML('<section>Alice</section>').doc().children()[0].dom();
             expect(dom.prop('tagName')).to.equal('DIV');
-            expect(dom.attr('wlxml-text')).to.equal('');
+            expect(dom.attr('document-text-element')).to.equal('');
             expect(dom.contents().length).to.equal(1);
             expect(dom.contents()[0].nodeType).to.equal(Node.TEXT_NODE);
             expect($(dom.contents()[0]).text()).to.equal('Alice');

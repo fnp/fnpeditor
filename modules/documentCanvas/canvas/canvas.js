@@ -206,7 +206,7 @@ $.extend(Canvas.prototype, {
                 }
             });
 
-            this.wrapper.on('click', '[wlxml-tag], [wlxml-text]', function(e) {
+            this.wrapper.on('click', '[wlxml-tag], [document-text-element]', function(e) {
                 e.stopPropagation();
                 canvas.setCurrentElement(canvas.getDocumentElement(e.target), {caretTo: false});
             });
@@ -220,7 +220,8 @@ $.extend(Canvas.prototype, {
             var config = { attributes: false, childList: false, characterData: true, subtree: true, characterDataOldValue: true};
             observer.observe(this.d[0], config);
 
-            this.wrapper.on('mouseover', '[wlxml-tag], [wlxml-text]', function(e) {
+
+            this.wrapper.on('mouseover', '[wlxml-tag], [document-text-element]', function(e) {
                 var el = canvas.getDocumentElement(e.target);
                 if(!el)
                     return;
@@ -229,7 +230,7 @@ $.extend(Canvas.prototype, {
                     el = el.parent();
                 el.toggleLabel(true);
             });
-            this.wrapper.on('mouseout', '[wlxml-tag], [wlxml-text]', function(e) {
+            this.wrapper.on('mouseout', '[wlxml-tag], [document-text-element]', function(e) {
                 var el = canvas.getDocumentElement(e.target);
                 if(!el)
                     return;

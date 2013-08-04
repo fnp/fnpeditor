@@ -34,7 +34,7 @@ $.extend(DocumentElement, {
         var $element = $(htmlElement);
         if(htmlElement.nodeType === Node.ELEMENT_NODE && $element.attr('document-node-element') !== undefined)
             return DocumentNodeElement.fromHTMLElement(htmlElement, canvas);
-        if($element.attr('wlxml-text') !== undefined || (htmlElement.nodeType === Node.TEXT_NODE && $element.parent().attr('wlxml-text') !== undefined))
+        if($element.attr('document-text-element') !== undefined || (htmlElement.nodeType === Node.TEXT_NODE && $element.parent().attr('document-text-element') !== undefined))
             return DocumentTextElement.fromHTMLElement(htmlElement, canvas);
         return undefined;
     }
@@ -353,7 +353,7 @@ var DocumentTextElement = function(htmlElement, canvas) {
 $.extend(DocumentTextElement, {
     createDOM: function(params) {
         return $('<div>')
-            .attr('wlxml-text', '')
+            .attr('document-text-element', '')
             .text(params.text || utils.unicode.ZWS);
     },
 
@@ -365,7 +365,7 @@ $.extend(DocumentTextElement, {
         return new this(htmlElement, canvas);
     },
     isContentContainer: function(htmlElement) {
-        return htmlElement.nodeType === Node.TEXT_NODE && $(htmlElement).parent().is('[wlxml-text]');
+        return htmlElement.nodeType === Node.TEXT_NODE && $(htmlElement).parent().is('[document-text-element]');
     }
 });
 
