@@ -362,6 +362,13 @@ $.extend(DocumentNodeElement.prototype, {
 
     toggleHighlight: function(toogle) {
         this._container().toggleClass('highlighted-element');
+    },
+
+    toggle: function(toggle) {
+        var mng = this.data('_wlxmlManager');
+        if(mng) {
+            mng.toggle(toggle);
+        }
     }
 });
 

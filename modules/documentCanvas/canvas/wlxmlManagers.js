@@ -53,7 +53,11 @@ $.extend(GenericManager.prototype, {
         this.el.clearWidgets();
         this.el.addWidget(widgets.labelWidget(this.el.tag(), this.el.klass()));
 
+    },
+    toggle: function(toggle) {
+        this.el.toggle(toggle);
     }
+
 })
 
 var managers = {
@@ -78,21 +82,21 @@ $.extend(FootnoteManager.prototype, {
         this.el.clearWidgets();
 
         var clickHandler = function() {
-            this._toggleFootnote(true);
+            this.toggle(true);
         }.bind(this);
         this.footnoteHandler = widgets.footnoteHandler(clickHandler);
         this.el.addWidget(this.footnoteHandler);
 
         var closeHandler = function() {
-            this._toggleFootnote(false);
+            this.toggle(false);
 
         }.bind(this);
         this.hideButton = widgets.hideButton(closeHandler);
         this.el.addWidget(this.hideButton);
 
-        this._toggleFootnote(false);
+        this.toggle(false);
     },
-    _toggleFootnote: function(toggle) {
+    toggle: function(toggle) {
         this.hideButton.toggle(toggle);
         this.footnoteHandler.toggle(!toggle);
         

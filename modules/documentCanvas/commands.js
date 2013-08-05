@@ -99,6 +99,16 @@ commands.register('newNodeRequested', function(canvas, params) {
     }
 });
 
+commands.register('footnote', function(canvas, params) {
+    var position = canvas.getCursor().getPosition();
+
+    var asideElement = position.element.divide({tag: 'aside', klass: 'footnote', offset: position.offset});
+
+    asideElement.append({text: ''});
+    asideElement.toggle(true);
+    canvas.setCurrentElement(asideElement);
+});
+
 
 return {
     run: function(name, params, canvas) {
