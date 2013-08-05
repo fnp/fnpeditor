@@ -2,8 +2,9 @@ define([
 'libs/chai',
 'libs/sinon',
 'modules/documentCanvas/canvas/canvas',
-'modules/documentCanvas/canvas/documentElement'
-], function(chai, sinon, canvas, documentElement) {
+'modules/documentCanvas/canvas/documentElement',
+'modules/documentCanvas/canvas/utils'
+], function(chai, sinon, canvas, documentElement, utils) {
     
 'use strict';
 
@@ -1111,6 +1112,25 @@ describe('Canvas', function() {
             expect(cursor.isSelectingSiblings()).to.equal(false, '"has" and "big" are not children');
             
         })
+
+        describe('zero width space handling', function() {
+            it('position range includes ZWS at the boundries of text in case when native selection api doesn\'t', function() {
+                var c = canvas.fromXML("<section>Alice</section>"),
+                    dom = c.doc().dom(),
+                    textNode = findTextNode(dom, 'Alice'),
+                    cursor = c.getCursor();
+
+                textNode.data = utils.unicode.ZWS + 'Alice';
+                getSelection.returns({anchorNode: textNode, anchorOffset: 1, focusNode: textNode, focusOffset: 1});
+                expect(cursor.getPosition().offset).to.equal(0);
+                expect(cursor.getPosition().offsetAtBeginning).to.equal(true, 'offset at beginning');
+                
+                textNode.data = 'Alice' + utils.unicode.ZWS;
+                getSelection.returns({anchorNode: textNode, anchorOffset: 5, focusNode: textNode, focusOffset: 5});
+                expect(cursor.getPosition().offset).to.equal(6);
+                expect(cursor.getPosition().offsetAtEnd).to.equal(true, 'offset at end');
+            });
+        });
     });
 
     describe('Serializing document to WLXML', function() {

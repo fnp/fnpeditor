@@ -584,23 +584,40 @@ $.extend(Cursor.prototype, {
             anchorElement = this.canvas.getDocumentElement(selection.anchorNode),
             focusElement = this.canvas.getDocumentElement(selection.focusNode);
         
-        if(anchorElement instanceof documentElement.DocumentNodeElement || focusElement instanceof documentElement.DocumentNodeElement)
+        var getOffset = function(where) {
+            var toret, node;
+            if(where === 'anchor') {
+                node = selection.anchorNode;
+                toret = selection.anchorOffset;
+            } else {
+                node = selection.focusNode;
+                toret = selection.focusOffset;
+            }
+                        
+            if(toret === 1 && node.data.charAt(0) === utils.unicode.ZWS)
+                toret = 0;
+            else if((toret === node.data.length - 1) && (node.data.charAt(node.data.length - 1) === utils.unicode.ZWS))
+                toret++;
+            return toret;
+        }
+
+        if((!anchorElement) || (anchorElement instanceof documentElement.DocumentNodeElement) || (!focusElement) || focusElement instanceof documentElement.DocumentNodeElement)
             return {};
 
         if(which === 'anchor') {
             return {
                 element: anchorElement,
-                offset: selection.anchorOffset,
-                offsetAtBeginning: selection.anchorOffset === 0,
-                offsetAtEnd: anchorElement && anchorElement.getText().length === selection.anchorOffset
+                offset: getOffset('anchor'),
+                offsetAtBeginning: getOffset('anchor') === 0,
+                offsetAtEnd: selection.anchorNode.data.length === getOffset('anchor')
             };
         }
         if(which === 'focus') {
             return {
                 element: focusElement,
-                offset: selection.focusOffset,
-                offsetAtBeginning: selection.focusOffset === 0,
-                offsetAtEnd: focusElement && focusElement.getText().length === selection.focusOffset
+                offset: getOffset('focus'),
+                offsetAtBeginning: getOffset('focus') === 0,
+                offsetAtEnd: selection.focusElement.data.length === getOffset('focus')
             };
         }
         
@@ -613,38 +630,39 @@ $.extend(Cursor.prototype, {
             if(anchorFirst) {
                 if(which === 'start') {
                     element = anchorElement;
-                    offset = selection.anchorOffset;
+                    offset = getOffset('anchor')
                 }
                 else if(which === 'end') {
                     element = focusElement,
-                    offset = selection.focusOffset;
+                    offset = getOffset('focus')
                 }
             } else {
                 if(which === 'start') {
                     element = focusElement,
-                    offset = selection.focusOffset
+                    offset = getOffset('focus')
                 }
                 else if(which === 'end') {
                     element = anchorElement;
-                    offset = selection.anchorOffset;
+                    offset = getOffset('anchor')
                 }
             }
         } else {
             // TODO: Handle order via https://developer.mozilla.org/en-US/docs/Web/API/Node.compareDocumentPosition
             if(which === 'start') {
                 element = anchorElement;
-                offset = selection.anchorOffset
+                offset = getOffset('anchor')
             } else {
                 element = focusElement;
-                offset = selection.focusOffset
+                offset = getOffset('focus')
             }
         }
 
+        var nodeLen = (element.sameNode(focusElement) ? selection.focusNode : selection.anchorNode).length;
         return {
             element: element,
             offset: offset,
             offsetAtBeginning: offset === 0,
-            offsetAtEnd: element.getText().length === offset
+            offsetAtEnd: nodeLen === offset
         }
     }
 })
