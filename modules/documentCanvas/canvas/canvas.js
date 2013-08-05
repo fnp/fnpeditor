@@ -617,7 +617,7 @@ $.extend(Cursor.prototype, {
                 element: focusElement,
                 offset: getOffset('focus'),
                 offsetAtBeginning: getOffset('focus') === 0,
-                offsetAtEnd: selection.focusElement.data.length === getOffset('focus')
+                offsetAtEnd: selection.focusNode.data.length === getOffset('focus')
             };
         }
         
