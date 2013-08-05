@@ -17,7 +17,8 @@ return {
             .css('display', 'inline')
             .show();
 
-        mydom.click(function() {
+        mydom.click(function(e) {
+            e.stopPropagation();
             clickHandler();
         });
 
@@ -27,7 +28,10 @@ return {
     hideButton: function(clickHandler) {
         var mydom = $('<span>x</span>')
             .addClass('canvas-widget canvas-widget-hide-button');
-        mydom.click(clickHandler);
+        mydom.click(function(e) {
+            e.stopPropagation();
+            clickHandler();
+        });
         return mydom;
     }
 
