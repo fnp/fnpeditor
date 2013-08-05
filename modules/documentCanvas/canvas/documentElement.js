@@ -466,9 +466,11 @@ $.extend(DocumentTextElement.prototype, {
     },
     divide: function(params) {
         var myText = this.getText();
-        
-        if(params.offset <= 0 || params.offset >= myText.length)
-            return;
+
+        if(params.offset === myText.length)
+            return this.after(params);
+        if(params.offset === 0)
+            return this.before(params);
 
         var lhsText = myText.substr(0, params.offset),
             rhsText = myText.substr(params.offset),

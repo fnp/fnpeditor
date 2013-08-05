@@ -403,6 +403,38 @@ describe('Canvas', function() {
                     expect(returned.sameNode(sectionChildren[1]));
                     expect(rhsText.getText()).to.equal(' has a cat');
                 });
+
+                it('treats dividing DocumentTextElement at the very end as appending after it', function() {
+                    var c = canvas.fromXML('<section>Alice has a cat</section>'),
+                        section = c.doc(),
+                        text = section.children()[0];
+
+                    var returned = text.divide({tag: 'aside', klass: 'footnote', offset: 15}),
+                        sectionChildren = section.children(),
+                        textElement = sectionChildren[0],
+                        nodeElement = sectionChildren[1];
+
+                    expect(sectionChildren.length).to.equal(2);
+                    expect(textElement.getText()).to.equal('Alice has a cat');
+                    expect(returned.sameNode(nodeElement)).to.be.true;
+                    expect(nodeElement.getWlxmlTag()).to.equal('aside');
+                });
+
+                it('treats dividing DocumentTextElement at the very beginning as appending before it', function() {
+                    var c = canvas.fromXML('<section>Alice has a cat</section>'),
+                        section = c.doc(),
+                        text = section.children()[0];
+
+                    var returned = text.divide({tag: 'aside', klass: 'footnote', offset: 0}),
+                        sectionChildren = section.children(),
+                        nodeElement = sectionChildren[0],
+                        textElement = sectionChildren[1];
+                        
+                    expect(sectionChildren.length).to.equal(2);
+                    expect(textElement.getText()).to.equal('Alice has a cat');
+                    expect(returned.sameNode(nodeElement)).to.be.true;
+                    expect(nodeElement.getWlxmlTag()).to.equal('aside');
+                });
             });
 
             describe('Splitting text', function() {
