@@ -319,6 +319,23 @@ $.extend(Canvas.prototype, {
             wrapperElement.after({text: suffixOutside});
         return wrapperElement;
     },
+    getSiblingParents: function(params) {
+        var parents1 = [params.element1].concat(params.element1.parents()).reverse(),
+            parents2 = [params.element2].concat(params.element2.parents()).reverse(),
+            noSiblingParents = null;
+
+        if(parents1.length === 0 || parents2.length === 0 || !(parents1[0].sameNode(parents2[0])))
+            return noSiblingParents;
+
+        var i;
+        for(i = 0; i < Math.min(parents1.length, parents2.length); i++) {
+            if(parents1[i].sameNode(parents2[i]))
+                continue;
+            break;
+        }
+        return {element1: parents1[i], element2: parents2[i]};
+    },
+
     getDocumentElement: function(from) {
         if(from instanceof HTMLElement || from instanceof Text) {
            return documentElement.DocumentElement.fromHTMLElement(from, this);

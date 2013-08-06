@@ -207,6 +207,39 @@ describe('Canvas', function() {
                 });
             });
 
+            describe('accessing sibling parents of two elements', function() {
+                it('returns elements themself if they have direct common parent', function() {
+                    var c = canvas.fromXML('<section>\
+                        <div>\
+                            <div>A</div>\
+                            <div>B</div>\
+                        </div>\
+                    </section>'),
+                        section = c.doc(),
+                        wrappingDiv = c.doc().children()[0],
+                        divA = wrappingDiv.children()[0],
+                        divB = wrappingDiv.children()[1];
+
+                    var siblingParents = c.getSiblingParents({element1: divA, element2: divB});
+
+                    expect(siblingParents.element1.sameNode(divA)).to.equal(true, 'divA');
+                    expect(siblingParents.element2.sameNode(divB)).to.equal(true, 'divB');
+                });
+
+                it('returns sibling parents - example 1', function() {
+                    var c = canvas.fromXML('<section>Alice <span>has a cat</span></section>'),
+                        section = c.doc(),
+                        aliceText = section.children()[0],
+                        span = section.children()[1],
+                        spanText = span.children()[0];
+
+                    var siblingParents = c.getSiblingParents({element1: aliceText, element2: spanText});
+
+                    expect(siblingParents.element1.sameNode(aliceText)).to.equal(true, 'aliceText');
+                    expect(siblingParents.element2.sameNode(span)).to.equal(true, 'span');
+                });
+            })
+
             describe('free text handling', function() {
                     it('sees free text', function() {
                         var c = canvas.fromXML('<section>Alice <span>has</span> a cat</section>'),
