@@ -636,6 +636,54 @@ describe('Canvas', function() {
 
                     expect(wrapperChildren[2].getText()).to.equal(' cat');
                 });
+
+                it('wraps multiple sibling Elements', function() {
+                    var c = canvas.fromXML('<section>Alice<div>has</div><div>a cat</div></section>'),
+                        section = c.doc(),
+                        aliceText = section.children()[0],
+                        firstDiv = section.children()[1],
+                        lastDiv = section.children()[section.children().length -1];
+
+                    var returned = c.wrapElements({
+                            element1: aliceText,
+                            element2: lastDiv,
+                            _with: {tag: 'header'}
+                        });
+
+                    var sectionChildren = section.children(),
+                        header = sectionChildren[0],
+                        headerChildren = header.children();
+
+                    expect(sectionChildren).to.have.length(1);
+                    expect(header.sameNode(returned)).to.equal(true, 'wrapper returned');
+                    expect(headerChildren).to.have.length(3);
+                    expect(headerChildren[0].sameNode(aliceText)).to.equal(true, 'first node wrapped');
+                    expect(headerChildren[1].sameNode(firstDiv)).to.equal(true, 'second node wrapped');
+                    expect(headerChildren[2].sameNode(lastDiv)).to.equal(true, 'third node wrapped');
+                });
+                it('wraps multiple sibling Elements - middle case', function() {
+                    var c = canvas.fromXML('<section><div></div>div></div><div></div><div></div></section>'),
+                        section = c.doc(),
+                        div1 = section.children()[0],
+                        div2 = section.children()[1],
+                        div3 = section.children()[2],
+                        div4 = section.children()[3];
+
+                    var returned = c.wrapElements({
+                            element1: div2,
+                            element2: div3,
+                            _with: {tag: 'header'}
+                        });
+
+                    var sectionChildren = section.children(),
+                        header = sectionChildren[1],
+                        headerChildren = header.children();
+
+                    expect(sectionChildren).to.have.length(3);
+                    expect(headerChildren).to.have.length(2);
+                    expect(headerChildren[0].sameNode(div2)).to.equal(true, 'first node wrapped');
+                    expect(headerChildren[1].sameNode(div3)).to.equal(true, 'second node wrapped');
+                });
             });
 
             describe('unwrapping', function() {

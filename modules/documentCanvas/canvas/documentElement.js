@@ -83,6 +83,7 @@ $.extend(DocumentElement.prototype, {
     detach: function() {
         this.dom().detach();
         this.canvas = null;
+        return this;
     },
 
     markAsCurrent: function() {

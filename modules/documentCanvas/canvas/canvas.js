@@ -319,6 +319,42 @@ $.extend(Canvas.prototype, {
             wrapperElement.after({text: suffixOutside});
         return wrapperElement;
     },
+
+    wrapElements: function(params) {
+        if(!(params.element1.parent().sameNode(params.element2.parent())))
+            return;
+
+        var parent = params.element1.parent(),
+            parentChildren = parent.children(),
+            wrapper = documentElement.DocumentNodeElement.create({
+                tag: params._with.tag,
+                klass: params._with.klass}),
+            idx1 = parent.childIndex(params.element1),
+            idx2 = parent.childIndex(params.element2);
+
+        if(idx1 > idx2) {
+            var tmp = idx1;
+            idx1 = idx2;
+            idx2 = tmp;
+        }
+
+        var insertingMethod, insertingTarget;
+        if(idx1 === 0) {
+            insertingMethod = 'prepend';
+            insertingTarget = parent;
+        } else {
+            insertingMethod = 'after';
+            insertingTarget = parentChildren[idx1-1];
+        }
+
+        for(var i = idx1; i <= idx2; i++) {
+            wrapper.append(parentChildren[i].detach());
+        }
+
+        insertingTarget[insertingMethod](wrapper);
+        return wrapper;
+    },
+
     getSiblingParents: function(params) {
         var parents1 = [params.element1].concat(params.element1.parents()).reverse(),
             parents2 = [params.element2].concat(params.element2.parents()).reverse(),
