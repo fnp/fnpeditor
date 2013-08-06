@@ -686,8 +686,26 @@ describe('Canvas', function() {
                 });
             });
 
-            describe('unwrapping', function() {
-                it('unwraps DocumentTextElement from its parent DocumentNodeElement if it\'s its only child', function() {
+            describe('unwrapping DocumentTextElement from its parent DocumentNodeElement if it\'s its only child', function() {
+                it('unwraps text element from its parent and stays between its old parent siblings', function() {
+                    var c = canvas.fromXML('<section><div>Alice</div><div>has</div><div>a cat</div></section>'),
+                        section = c.doc(),
+                        sectionChildren = section.children(),
+                        divAlice = sectionChildren[0],
+                        divHas = sectionChildren[1],
+                        textHas = divHas.children()[0],
+                        divCat = sectionChildren[2];
+
+                    var newTextContainer = textHas.unwrap(),
+                        sectionChildren = section.children();
+
+                    expect(sectionChildren[0].sameNode(divAlice)).to.equal(true, 'divAlice ok');
+                    expect(newTextContainer.sameNode(section)).to.equal(true, 'unwrap returns new text parent DocumentNodeElement');
+                    expect(sectionChildren[1].getText()).to.equal('has');
+                    expect(sectionChildren[2].sameNode(divCat)).to.equal(true, 'divCat ok');
+
+                });
+                it('unwraps and join with its old parent adjacent text elements ', function() {
                     var c = canvas.fromXML('<section>Alice <span>has a</span> cat</section>'),
                     section = c.doc(),
                     text = section.children()[1].children()[0];
@@ -697,7 +715,7 @@ describe('Canvas', function() {
                     expect(section.children().length).to.equal(1, 'section has one child');
                     expect(section.children()[0].getText()).to.equal('Alice has a cat');
                     expect(newTextContainer.sameNode(c.doc())).to.equal(true, 'unwrap returns new text parent DocumentNodeElement');
-                })
+                });
             });
         });
 

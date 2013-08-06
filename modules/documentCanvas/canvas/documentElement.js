@@ -479,6 +479,10 @@ $.extend(DocumentTextElement.prototype, {
                     idx = grandParent.childIndex(parent),
                     prev = idx - 1 > -1 ? grandParentChildren[idx-1] : null,
                     next = idx + 1 < grandParentChildren.length ? grandParentChildren[idx+1] : null;
+                
+                prev = (prev instanceof DocumentTextElement) ? prev : null;
+                next = (next instanceof DocumentTextElement) ? next : null;
+
                 if(prev && next) {
                     prev.setText(prev.getText() + this.getText() + next.getText());
                     next.detach();
