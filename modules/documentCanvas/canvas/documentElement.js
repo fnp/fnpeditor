@@ -46,6 +46,9 @@ $.extend(DocumentElement.prototype, {
     _setupDOMHandler: function(htmlElement) {
         this.$element = $(htmlElement);
     },
+    bound: function() {
+        return this.canvas !== undefined;
+    },
     dom: function() {
         return this.$element;
     },
@@ -115,7 +118,7 @@ var DocumentNodeElement = function(htmlElement, canvas) {
 };
 
 $.extend(DocumentNodeElement, {
-    createDOM: function(params) {
+    createDOM: function(params, canvas) {
         var dom = $('<div>')
                 .attr('document-node-element', ''),
             widgetsContainer = $('<div>')
@@ -128,7 +131,7 @@ $.extend(DocumentNodeElement, {
         // Make sure widgets aren't navigable with arrow keys
         widgetsContainer.find('*').add(widgetsContainer).attr('tabindex', -1);
 
-        var element = this.fromHTMLElement(dom[0]);
+        var element = this.fromHTMLElement(dom[0], canvas);
 
         element.setWlxmlTag(params.tag);
         if(params.klass)
@@ -147,7 +150,7 @@ $.extend(DocumentNodeElement, {
     },
 
     create: function(params, canvas) {
-        return this.fromHTMLElement(this.createDOM(params)[0]);
+        return this.fromHTMLElement(this.createDOM(params, canvas)[0], canvas);
     },
 
     fromHTMLElement: function(htmlElement, canvas) {
@@ -427,7 +430,7 @@ $.extend(DocumentTextElement.prototype, {
         if(params instanceof DocumentNodeElement) {
             element = params;
         } else {
-            element = DocumentNodeElement.create(params);
+            element = DocumentNodeElement.create(params, this.canvas);
         }
         this.dom().wrap('<div>');
         this.dom().parent().after(element.dom());
@@ -441,7 +444,7 @@ $.extend(DocumentTextElement.prototype, {
         if(params instanceof DocumentNodeElement) {
             element = params;
         } else {
-            element = DocumentNodeElement.create(params);
+            element = DocumentNodeElement.create(params, this.canvas);
         }
         this.dom().wrap('<div>');
         this.dom().parent().before(element.dom());

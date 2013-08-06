@@ -8,6 +8,8 @@ define([
 
 var DocumentElementWrapper = function(documentElement) {
     
+    this.documentElement = documentElement;
+
     this.addWidget = function(widget) {
         documentElement.dom().find('.canvas-widgets').append(widget);
     };
@@ -32,6 +34,13 @@ var DocumentElementWrapper = function(documentElement) {
     this.toggle = function(toggle) {
         documentElement._container().toggle(toggle);
     }
+
+    var eventBus = documentElement.bound() ? documentElement.canvas.eventBus :
+        {trigger: function() {}};
+    this.trigger = function() {
+        eventBus.trigger.apply(eventBus, arguments);
+    }
+
 }
 
 var getDisplayStyle = function(tag, klass) {
@@ -94,14 +103,17 @@ $.extend(FootnoteManager.prototype, {
         this.hideButton = widgets.hideButton(closeHandler);
         this.el.addWidget(this.hideButton);
 
-        this.toggle(false);
+        this.toggle(false, {silent: true});
     },
-    toggle: function(toggle) {
+    toggle: function(toggle, options) {
+        options = options || {};
         this.hideButton.toggle(toggle);
         this.footnoteHandler.toggle(!toggle);
         
         this.el.setDisplayStyle(toggle ? 'block' : 'inline');
         this.el.toggle(toggle);
+        if(!options.silent)
+            this.el.trigger('elementToggled', toggle, this.el.documentElement);
     }
 })
 managers.set('aside', 'footnote', FootnoteManager);

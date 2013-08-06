@@ -1,13 +1,15 @@
 define([
 'libs/jquery-1.9.1.min',
 'libs/underscore-min',
+'libs/backbone-min',
 'modules/documentCanvas/canvas/documentElement',
 'modules/documentCanvas/canvas/utils'
-], function($, _, documentElement, utils) {
+], function($, _, Backbone, documentElement, utils) {
     
 'use strict';
 
 var Canvas = function(wlxml, publisher) {
+    this.eventBus = _.extend({}, Backbone.Events);
     this.loadWlxml(wlxml);
     this.publisher = publisher ? publisher : function() {};
 };
@@ -19,7 +21,8 @@ $.extend(Canvas.prototype, {
         if(d) {
             this.wrapper = $('<div>').addClass('canvas-wrapper').attr('contenteditable', true);
             this.wrapper.append(d);
-            
+            var canvas = this;
+
             this.wrapper.find('*').replaceWith(function() {
                 var currentTag = $(this);
                 if(currentTag.attr('wlxml-tag'))
@@ -40,7 +43,7 @@ $.extend(Canvas.prototype, {
                     meta: meta,
                     others: others,
                     rawChildren: currentTag.contents()
-                });
+                }, canvas);
 
                 ['orig-before', 'orig-after', 'orig-begin', 'orig-end'].forEach(function(attr) {
                     element.data(attr, '');
@@ -137,7 +140,6 @@ $.extend(Canvas.prototype, {
             
             this.d = this.wrapper.children(0);
 
-            var canvas = this;
             this.wrapper.on('keydown', function(e) {
                 if(e.which === 13) { 
                     e.preventDefault();
@@ -254,6 +256,13 @@ $.extend(Canvas.prototype, {
                     el = el.parent();
                 el.toggleLabel(false);
             });
+
+            this.eventBus.on('elementToggled', function(toggle, element) {
+                if(!toggle) {
+                    element = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]:visible', 'above', element.dom()[0]));
+                    canvas.setCurrentElement(element);
+                }
+            })
 
         } else {
             this.d = null;
