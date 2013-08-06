@@ -76,27 +76,40 @@ commands.register('newNodeRequested', function(canvas, params) {
         selectionStart = cursor.getSelectionStart(),
         selectionEnd = cursor.getSelectionEnd();
 
-    if(cursor.isSelecting() && cursor.isSelectingSiblings()) {
-        if(cursor.isSelectingWithinElement()) {
-            var newElement = selectionStart.element.wrapWithNodeElement({tag: params.wlxmlTag, klass: params.wlxmlClass, start: selectionStart.offset, end: selectionEnd.offset}),
-                caretTo = selectionStart.offset < selectionEnd.offset ? 'start' : 'end';
-            canvas.setCurrentElement(newElement.children()[0], {caretTo: caretTo});
-        }
-        else {
-            var parent = selectionStart.element.parent(),
-                caretTo = selectionStart.element.sameNode(cursor.getSelectionAnchor().element) ? 'end' : 'start';
+    if(cursor.isSelecting()) {
+        if(cursor.isSelectingSiblings()) {
+            if(cursor.isSelectingWithinElement()) {
+                var newElement = selectionStart.element.wrapWithNodeElement({tag: params.wlxmlTag, klass: params.wlxmlClass, start: selectionStart.offset, end: selectionEnd.offset}),
+                    caretTo = selectionStart.offset < selectionEnd.offset ? 'start' : 'end';
+                canvas.setCurrentElement(newElement.children()[0], {caretTo: caretTo});
+            }
+            else {
+                var parent = selectionStart.element.parent(),
+                    caretTo = selectionStart.element.sameNode(cursor.getSelectionAnchor().element) ? 'end' : 'start';
 
-            var wrapper = canvas.wrapText({
-                inside: parent,
-                _with: {tag: params.wlxmlTag, klass: params.wlxmlClass},
-                offsetStart: selectionStart.offset,
-                offsetEnd: selectionEnd.offset,
-                textNodeIdx: [parent.childIndex(selectionStart.element), parent.childIndex(selectionEnd.element)]
-            });
+                var wrapper = canvas.wrapText({
+                    inside: parent,
+                    _with: {tag: params.wlxmlTag, klass: params.wlxmlClass},
+                    offsetStart: selectionStart.offset,
+                    offsetEnd: selectionEnd.offset,
+                    textNodeIdx: [parent.childIndex(selectionStart.element), parent.childIndex(selectionEnd.element)]
+                });
 
-            canvas.setCurrentElement(wrapper.children()[caretTo === 0 ? 0 : wrapper.children().length - 1], {caretTo: caretTo});
+                canvas.setCurrentElement(wrapper.children()[caretTo === 0 ? 0 : wrapper.children().length - 1], {caretTo: caretTo});
+            }
+        } else {
+            var siblingParents = canvas.getSiblingParents({element1: selectionStart.element, element2: selectionEnd.element})
+            if(siblingParents) {
+                canvas.wrapElements({
+                    element1: siblingParents.element1,
+                    element2: siblingParents.element2,
+                    _with: {tag: params.wlxmlTag, klass: params.wlxmlClass}
+                });
+            }
         }
     }
+
+
 });
 
 commands.register('footnote', function(canvas, params) {
