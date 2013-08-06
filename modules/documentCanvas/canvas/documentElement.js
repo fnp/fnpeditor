@@ -165,7 +165,7 @@ var manipulate = function(e, params, action) {
     } else {
         element = DocumentElement.create(params);
     }
-    var target = action === 'append' ? e._container() : e.dom();
+    var target = (action === 'append' || action === 'prepend') ? e._container() : e.dom();
     target[action](element.dom());
     return element;
 };
@@ -256,6 +256,9 @@ $.extend(DocumentNodeElement.prototype, {
         if(params.tag !== 'span')
             this.data('orig-end', undefined);
         return manipulate(this, params, 'append');
+    },
+    prepend: function(params) {
+        return manipulate(this, params, 'prepend');
     },
     before: function(params) {
         return manipulate(this, params, 'before');

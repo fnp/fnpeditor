@@ -315,6 +315,25 @@ describe('Canvas', function() {
                     expect(children[0].getText()).to.equal('Alice');
                 });
 
+                it('can put new NodeElement at the beginning', function() {
+                    var c = canvas.fromXML('<section><div></div></section>'),
+                        prepended = c.doc().prepend({tag: 'header', klass: 'some.class'}),
+                        children = c.doc().children();
+
+                    expect(children).to.have.length(2);
+                    expect(children[0].sameNode(prepended)).to.be.true;
+                });
+
+                it('can put new TextElement at the beginning', function() {
+                    var c = canvas.fromXML('<section><div></div></section>'),
+                        prepended = c.doc().prepend({text: 'Alice'}),
+                        children = c.doc().children();
+
+                    expect(children).to.have.length(2)
+                    expect(children[0].sameNode(prepended)).to.be.true;
+                    expect(children[0].getText()).to.equal('Alice');
+                });
+
                 it('can put new NodeElement after another NodeElement', function() {
                     var c = canvas.fromXML('<section><div></div></section>'),
                         div = c.doc().children()[0],
