@@ -146,7 +146,13 @@ $.extend(Canvas.prototype, {
                     var cursor = canvas.getCursor();
                     if(!cursor.isSelecting()) {
                         var position = cursor.getPosition(),
-                            elements = position.element.split({offset: position.offset}),
+                            element = position.element;
+
+                        if(!(element.parent().parent())) {
+                            return false; // top level element is unsplittable
+                        }
+
+                        var elements = position.element.split({offset: position.offset}),
                             newEmpty,
                             goto;
 
