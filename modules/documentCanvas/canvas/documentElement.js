@@ -367,8 +367,8 @@ $.extend(DocumentNodeElement.prototype, {
         this.toggleHighlight(toggle);
     },
 
-    toggleHighlight: function(toogle) {
-        this._container().toggleClass('highlighted-element');
+    toggleHighlight: function(toggle) {
+        this._container().toggleClass('highlighted-element', toggle);
     },
 
     toggle: function(toggle) {
