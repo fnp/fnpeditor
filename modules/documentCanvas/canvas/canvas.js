@@ -284,16 +284,23 @@ $.extend(Canvas.prototype, {
 
                             var elements = position.element.split({offset: position.offset}),
                                 newEmpty,
-                                goto;
+                                goto,
+                                gotoOptions;
 
                             if(position.offsetAtBeginning)
                                 newEmpty = elements.first;
                             else if(position.offsetAtEnd)
                                 newEmpty = elements.second;
+                            
                             if(newEmpty) {
                                 goto = newEmpty.append(documentElement.DocumentTextElement.create({text: ''}, this));
-                                canvas.setCurrentElement(goto);
+                                gotoOptions = {};
+                            } else {
+                                goto = elements.second;
+                                gotoOptions = {caretTo: 'start'};
                             }
+
+                            canvas.setCurrentElement(goto, gotoOptions);
                         }
                     }
                 }
