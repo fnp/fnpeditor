@@ -1,6 +1,6 @@
 define([
-
-], function() {
+'modules/documentCanvas/canvas/documentElement'
+], function(documentElement) {
     
 'use strict';
 
@@ -113,11 +113,18 @@ commands.register('newNodeRequested', function(canvas, params) {
 });
 
 commands.register('footnote', function(canvas, params) {
-    var position = canvas.getCursor().getPosition();
+    var cursor = canvas.getCursor(),
+        position = cursor.getPosition(),
+        asideElement;
+        
 
-    var asideElement = position.element.divide({tag: 'aside', klass: 'footnote', offset: position.offset});
+    if(cursor.isSelectingWithinElement()) {
+        asideElement = position.element.wrapWithNodeElement({tag: 'aside', klass: 'footnote', start: cursor.getSelectionStart().offset, end: cursor.getSelectionEnd().offset});
+    } else {
+        asideElement = position.element.divide({tag: 'aside', klass: 'footnote', offset: position.offset});
+        asideElement.append({text: ''});
+    }
 
-    asideElement.append({text: ''});
     asideElement.toggle(true);
     canvas.setCurrentElement(asideElement);
 });
