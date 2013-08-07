@@ -173,7 +173,8 @@ $.extend(Canvas.prototype, {
                 ARROW_LEFT: 37,
                 ARROW_UP: 38,
                 ARROW_RIGHT: 39,
-                ARROW_DOWN: 40
+                ARROW_DOWN: 40,
+                BACKSPACE: 8
             }
 
             this.wrapper.on('keyup', function(e) {
@@ -197,9 +198,10 @@ $.extend(Canvas.prototype, {
             });
          
             this.wrapper.on('keydown', function(e) {
+                var position = canvas.getCursor().getPosition(),
+                    element = position.element;
                 if(e.which >= 37 && e.which <= 40) {
-                    var position = canvas.getCursor().getPosition(),
-                        element = position.element;
+
                     if(element && (element instanceof documentElement.DocumentTextElement)) {
                         if(element.isEmpty()) {
                             var direction, caretTo;
@@ -226,6 +228,34 @@ $.extend(Canvas.prototype, {
                     }
 
 
+                }
+                if(e.which === KEYS.BACKSPACE) {
+                    if(element.getText().length === 1) {
+                        e.preventDefault();
+                        element.setText('');
+                    }
+                    else if(element.isEmpty()) {
+                        e.preventDefault();
+
+                        var parent = element.parent(),
+                            grandParent = parent ? parent.parent() : null,
+                            goto;
+                        if(parent.children().length === 1) {
+                            if(grandParent && grandParent.children().length === 1) {
+                                goto = grandParent.append({text: ''});
+                            } else {
+                                goto = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]', 'above', element.dom()[0]));
+                            }
+                            parent.detach();
+                        } else {
+                            goto = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]', 'above', element.dom()[0]));
+                            element.detach();
+                        }
+                        canvas.setCurrentElement(goto, {caretTo: 'end'});
+                    }
+                    else if(position.offset === 0) {
+                        // todo
+                    }
                 }
             });
 
