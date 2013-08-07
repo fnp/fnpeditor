@@ -458,6 +458,22 @@ describe('Canvas', function() {
                 });
             });
 
+            describe('Removing elements', function() {
+                it('merges left and right DocumentTextElement sibling of a detached DocumentNodeElement', function() {
+                    var c = canvas.fromXML('<section>Alice<div>has</div>a cat</section>'),
+                        section = c.doc(),
+                        div = section.children()[1];
+
+                    div.detach();
+
+                    var sectionChildren = section.children(),
+                        textElement = sectionChildren[0];
+
+                    expect(sectionChildren).to.have.length(1);
+                    expect(textElement.getText()).to.equal('Alicea cat');
+                });
+            });
+
             describe('Splitting text', function() {
                 
                 it('splits DocumentTextElement\'s parent into two DocumentNodeElements of the same type', function() {
