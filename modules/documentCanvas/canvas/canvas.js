@@ -266,26 +266,34 @@ $.extend(Canvas.prototype, {
 
                 if(e.which === KEYS.ENTER) {
                     e.preventDefault();
-                    var cursor = canvas.getCursor();
+                    var cursor = canvas.getCursor(),
+                        position = cursor.getPosition(),
+                        element = position.element;
+
                     if(!cursor.isSelecting()) {
-                        var position = cursor.getPosition(),
-                            element = position.element;
+                        if(e.ctrlKey) {
+                            var added = element.after({tag: 'block'});
+                            added.append({text:''});
+                            canvas.setCurrentElement(added, {caretTo: 'start'});
 
-                        if(!(element.parent().parent())) {
-                            return false; // top level element is unsplittable
-                        }
+                        } else {
 
-                        var elements = position.element.split({offset: position.offset}),
-                            newEmpty,
-                            goto;
+                            if(!(element.parent().parent())) {
+                                return false; // top level element is unsplittable
+                            }
 
-                        if(position.offsetAtBeginning)
-                            newEmpty = elements.first;
-                        else if(position.offsetAtEnd)
-                            newEmpty = elements.second;
-                        if(newEmpty) {
-                            goto = newEmpty.append(documentElement.DocumentTextElement.create({text: ''}, this));
-                            canvas.setCurrentElement(goto);
+                            var elements = position.element.split({offset: position.offset}),
+                                newEmpty,
+                                goto;
+
+                            if(position.offsetAtBeginning)
+                                newEmpty = elements.first;
+                            else if(position.offsetAtEnd)
+                                newEmpty = elements.second;
+                            if(newEmpty) {
+                                goto = newEmpty.append(documentElement.DocumentTextElement.create({text: ''}, this));
+                                canvas.setCurrentElement(goto);
+                            }
                         }
                     }
                 }
