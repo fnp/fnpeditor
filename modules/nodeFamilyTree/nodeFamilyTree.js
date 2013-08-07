@@ -1,8 +1,9 @@
 define([
 'libs/jquery-1.9.1.min',
 'libs/underscore-min',
+'utils/wlxml',
 'libs/text!./template.html'
-], function($, _, templateSrc) {
+], function($, _, wlxmlUtils, templateSrc) {
 
 'use strict';
 
@@ -39,7 +40,7 @@ return function(sandbox) {
 
             if(nodeElementParent) {
                 parent = {
-                    repr: nodeElementParent.getWlxmlTag() + (nodeElementParent.getWlxmlClass() ? ' / ' + nodeElementParent.getWlxmlClass() : '')
+                    repr: wlxmlUtils.wlxmlTagNames[nodeElementParent.getWlxmlTag()] + (nodeElementParent.getWlxmlClass() ? ' / ' + wlxmlUtils.wlxmlClassNames[nodeElementParent.getWlxmlClass()] : '')
                 };
             }
         
@@ -58,7 +59,7 @@ return function(sandbox) {
                     }
                     children.push({repr: _.escape(text), bold: child.sameNode(textElement)});
                 } else {
-                    children.push({repr: child.getWlxmlTag() + (child.getWlxmlClass() ? ' / ' + child.getWlxmlClass() : '')});
+                    children.push({repr: wlxmlUtils.wlxmlTagNames[child.getWlxmlTag()] + (child.getWlxmlClass() ? ' / ' + wlxmlUtils.wlxmlClassNames[child.getWlxmlClass()] : '')});
                 }
             });
             this.dom.empty();

@@ -2,9 +2,9 @@
     <ul class="breadcrumb">
     <% if(node && parents) { %>
         <% for(var i = parents.length - 1; i >= 0; i--) { %>
-            <li><a href="#"> <%= parents[i].getWlxmlTag() %><% if(parents[i].getWlxmlClass()) { %>.<%= parents[i].getWlxmlClass() %> <% } %></a><span class="divider">/</span></li>
+            <li><a href="#"> <%= tagNames[parents[i].getWlxmlTag()] %><% if(parents[i].getWlxmlClass()) { %>.<%= classNames[parents[i].getWlxmlClass()] %> <% } %></a><span class="divider">/</span></li>
         <% } %>
-            <li class="active"><%= node.getWlxmlTag() %><% if(node.getWlxmlClass()) { %>.<%= node.getWlxmlClass() %> <% } %></span></li>
+            <li class="active"><%= tagNames[node.getWlxmlTag()] %><% if(node.getWlxmlClass()) { %>.<%= classNames[node.getWlxmlClass()] %> <% } %></span></li>
     <% } %>
     </ul>
 </div>

@@ -1,7 +1,8 @@
 define([
 'libs/jquery-1.9.1.min',
 'libs/underscore-min',
-'libs/text!./template.html'], function($, _, templateSrc) {
+'utils/wlxml',
+'libs/text!./template.html'], function($, _, wlxmlUtils, templateSrc) {
 
 'use strict';
 
@@ -32,7 +33,7 @@ return function(sandbox) {
             this.dom.empty();
             this.currentNodeElement = nodeElement;
             var parents = nodeElement.parents();
-            this.dom.html(template({node: nodeElement, parents: parents}));
+            this.dom.html(template({node: nodeElement, parents: parents, tagNames: wlxmlUtils.wlxmlTagNames, classNames: wlxmlUtils.wlxmlClassNames}));
 
             this.dom.find('li > a[href="#"]').each(function(idx, a) {
                 $(a).data('element', parents[parents.length - 1 - idx]);
