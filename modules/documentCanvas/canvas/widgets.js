@@ -1,6 +1,7 @@
 define([
-'libs/jquery-1.9.1.min'
-], function($) {
+'libs/jquery-1.9.1.min',
+'utils/wlxml'
+], function($, wlxmlUtils) {
     
 'use strict';
 
@@ -8,7 +9,7 @@ return {
     labelWidget: function(tag, klass) {
         return $('<span>')
             .addClass('canvas-widget canvas-widget-label')
-            .text(tag + (klass ? ' / ' + klass : ''));
+            .text(wlxmlUtils.wlxmlTagNames[tag] + (klass ? ' / ' + wlxmlUtils.wlxmlClassNames[klass] : ''));
     },
 
     footnoteHandler: function(clickHandler) {

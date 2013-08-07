@@ -10,6 +10,7 @@ files = [
   {pattern: 'libs/*.js', included: false},
   {pattern: 'fnpjs/**/*.js', included: false},
   {pattern: 'modules/**/*.js', included: false},
+  {pattern: 'utils/**/*.js', included: false},
   {pattern: 'views/**/*.js', included: false},
   {pattern: 'fnpjs/**/*.html', included: false},
   {pattern: 'modules/**/*.html', included: false},
