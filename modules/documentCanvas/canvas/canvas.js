@@ -174,7 +174,9 @@ $.extend(Canvas.prototype, {
                 ARROW_UP: 38,
                 ARROW_RIGHT: 39,
                 ARROW_DOWN: 40,
-                BACKSPACE: 8
+                BACKSPACE: 8,
+                DELETE: 46,
+                X: 88
             }
 
             this.wrapper.on('keyup', function(e) {
@@ -198,7 +200,8 @@ $.extend(Canvas.prototype, {
             });
          
             this.wrapper.on('keydown', function(e) {
-                var position = canvas.getCursor().getPosition(),
+                var cursor = canvas.getCursor(),
+                    position = canvas.getCursor().getPosition(),
                     element = position.element;
                 if(e.which >= 37 && e.which <= 40) {
 
@@ -229,12 +232,42 @@ $.extend(Canvas.prototype, {
 
 
                 }
-                if(e.which === KEYS.BACKSPACE) {
-                    if(element.getText().length === 1) {
+
+                var selectsWholeTextElement = function() {
+                    if(cursor.isSelecting() && cursor.getSelectionStart().offsetAtBeginning && cursor.getSelectionEnd().offsetAtEnd)
+                        return true;
+                    return false;
+                }
+
+                if(e.which === KEYS.X && e.ctrlKey && selectsWholeTextElement()) {
+                    e.preventDefault();
+                }
+
+                if(e.which === KEYS.BACKSPACE || e.which === KEYS.DELETE) {
+                    if(cursor.isSelecting() && !cursor.isSelectingWithinElement()) {
+                        e.preventDefault();
+                        return;
+                    }
+                        
+                    var cursorAtOperationEdge = position.offsetAtBeginning;
+                    if(e.which === KEYS.DELETE) {
+                        cursorAtOperationEdge = position.offsetAtEnd;
+                    }
+
+                    if(element.getText().length === 1 || selectsWholeTextElement()) {
                         e.preventDefault();
                         element.setText('');
                     }
                     else if(element.isEmpty()) {
+
+                        var direction = 'above',
+                            caretTo = 'end';
+                            
+                        if(e.which === KEYS.DELETE) {
+                            direction = 'below';
+                            caretTo = 'start';
+                        }
+
                         e.preventDefault();
 
                         var parent = element.parent(),
@@ -244,17 +277,18 @@ $.extend(Canvas.prototype, {
                             if(grandParent && grandParent.children().length === 1) {
                                 goto = grandParent.append({text: ''});
                             } else {
-                                goto = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]', 'above', element.dom()[0]));
+                                goto = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]', direction, element.dom()[0]));
                             }
                             parent.detach();
                         } else {
-                            goto = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]', 'above', element.dom()[0]));
+                            goto = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]', direction, element.dom()[0]));
                             element.detach();
                         }
-                        canvas.setCurrentElement(goto, {caretTo: 'end'});
+                        canvas.setCurrentElement(goto, {caretTo: caretTo});
                     }
-                    else if(position.offset === 0) {
+                    else if(cursorAtOperationEdge) {
                         // todo
+                        e.preventDefault();
                     }
                 }
             });
