@@ -140,36 +140,8 @@ $.extend(Canvas.prototype, {
             
             this.d = this.wrapper.children(0);
 
-            this.wrapper.on('keydown', function(e) {
-                if(e.which === 13) { 
-                    e.preventDefault();
-                    var cursor = canvas.getCursor();
-                    if(!cursor.isSelecting()) {
-                        var position = cursor.getPosition(),
-                            element = position.element;
-
-                        if(!(element.parent().parent())) {
-                            return false; // top level element is unsplittable
-                        }
-
-                        var elements = position.element.split({offset: position.offset}),
-                            newEmpty,
-                            goto;
-
-                        if(position.offsetAtBeginning)
-                            newEmpty = elements.first;
-                        else if(position.offsetAtEnd)
-                            newEmpty = elements.second;
-                        if(newEmpty) {
-                            goto = newEmpty.append(documentElement.DocumentTextElement.create({text: ''}, this));
-                            canvas.setCurrentElement(goto);
-                        }
-                    }
-                }
-            });
-
-
             var KEYS = {
+                ENTER: 13,
                 ARROW_LEFT: 37,
                 ARROW_UP: 38,
                 ARROW_RIGHT: 39,
@@ -289,6 +261,32 @@ $.extend(Canvas.prototype, {
                     else if(cursorAtOperationEdge) {
                         // todo
                         e.preventDefault();
+                    }
+                }
+
+                if(e.which === KEYS.ENTER) {
+                    e.preventDefault();
+                    var cursor = canvas.getCursor();
+                    if(!cursor.isSelecting()) {
+                        var position = cursor.getPosition(),
+                            element = position.element;
+
+                        if(!(element.parent().parent())) {
+                            return false; // top level element is unsplittable
+                        }
+
+                        var elements = position.element.split({offset: position.offset}),
+                            newEmpty,
+                            goto;
+
+                        if(position.offsetAtBeginning)
+                            newEmpty = elements.first;
+                        else if(position.offsetAtEnd)
+                            newEmpty = elements.second;
+                        if(newEmpty) {
+                            goto = newEmpty.append(documentElement.DocumentTextElement.create({text: ''}, this));
+                            canvas.setCurrentElement(goto);
+                        }
                     }
                 }
             });
