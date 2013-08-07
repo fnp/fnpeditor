@@ -7,13 +7,13 @@
         <select class="rng-module-documentToolbar-toolbarOption" data-option="newTag-tag">
             <% var options = ['', 'section', 'header', 'div', 'span', 'aside']; %>
             <% options.forEach(function(option) { %>
-                <option value="<%= option %>" <% if(option==='span') { %>selected<% } %>><%= option %></option>
+                <option value="<%= option %>" <% if(option==='span') { %>selected<% } %>><%= tagNames[option] %></option>
             <% }); %>
         </select>
         <select class="rng-module-documentToolbar-toolbarOption" data-option="newTag-class">
-            <% var options = ['', 'author', 'title', 'cite', 'cite.code', 'cite.code.xml', 'list', 'list.items', 'item', 'uri', 'p', 'footnote', 'todo', 'emp', 'emph.tech'] %>
+            <% var options = ['', 'author', 'title', 'cite', 'cite.code', 'cite.code.xml', 'list.items', 'item', 'uri', 'p', 'footnote', 'todo', 'emp'] %>
             <% options.forEach(function(option) { %>
-                <option value="<%= option.replace(/\./g, '-') %>" <% if(option==='cite') { %>selected<% } %>><%= option %></option>
+                <option value="<%= option.replace(/\./g, '-') %>" <% if(option==='cite') { %>selected<% } %>><%= classNames[option] %></option>
             <% }); %>
         </select>
         <button data-name="new-node" data-btn-type="cmd" class="btn btn-mini"><i class="icon-plus"></i></button>

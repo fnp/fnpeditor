@@ -1,11 +1,11 @@
-define(['libs/jquery-1.9.1.min', 'libs/underscore-min', 'libs/text!./template.html'], function($, _, template) {
+define(['libs/jquery-1.9.1.min', 'libs/underscore-min', 'utils/wlxml', 'libs/text!./template.html'], function($, _, wlxmlUtils, template) {
 
 'use strict';
 
 return function(sandbox) {
     
     var view = {
-        node: $(_.template(template)()),
+        node: $(_.template(template)({tagNames: wlxmlUtils.wlxmlTagNames, classNames: wlxmlUtils.wlxmlClassNames})),
         setup: function() {
             var view = this;
             

@@ -2,14 +2,15 @@ define([
 'libs/text!./template.html',
 'libs/jquery-1.9.1.min',
 'libs/underscore-min',
-'modules/nodePane/metaWidget/metaWidget'
-], function(templateSrc, $, _, metaWidget) {
+'modules/nodePane/metaWidget/metaWidget',
+'utils/wlxml'
+], function(templateSrc, $, _, metaWidget, wlxmlUtils) {
 
 'use strict';
 
 return function(sandbox) {
     
-    var view = $(_.template(templateSrc)());
+    var view = $(_.template(templateSrc)({tagNames: wlxmlUtils.wlxmlTagNames, classNames: wlxmlUtils.wlxmlClassNames}));
     
     view.on('change', 'select', function(e) {
         var target = $(e.target);
