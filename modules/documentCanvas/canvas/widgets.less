@@ -44,9 +44,10 @@
     .canvas-widget-hide-button {
         @line_height: 12px;
         @padding: 2px;
+        @temporary_footnote_hack: 10px;
 
         position: absolute;
-        top: -(@line_height + 2 * @padding);
+        top: -(@line_height + 2 * @padding) + @temporary_footnote_hack;
         right: 0;
         line-height: @line_height;
         padding: @padding;
