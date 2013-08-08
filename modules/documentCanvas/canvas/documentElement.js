@@ -74,7 +74,7 @@ $.extend(DocumentElement.prototype, {
     },
 
     wrapWithNodeElement: function(wlxmlNode) {
-        var wrapper = DocumentNodeElement.create({tag: wlxmlNode.tag, klass: wlxmlNode.klass});
+        var wrapper = DocumentNodeElement.create({tag: wlxmlNode.tag, klass: wlxmlNode.klass}, this);
         this.dom().replaceWith(wrapper.dom());
         wrapper.append(this);
         return wrapper;
