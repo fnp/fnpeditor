@@ -245,7 +245,7 @@ $.extend(Canvas.prototype, {
                         var parent = element.parent(),
                             grandParent = parent ? parent.parent() : null,
                             goto;
-                        if(parent.children().length === 1) {
+                        if(parent.children().length === 1 && parent.children()[0].sameNode(element)) {
                             if(grandParent && grandParent.children().length === 1) {
                                 goto = grandParent.append({text: ''});
                             } else {
