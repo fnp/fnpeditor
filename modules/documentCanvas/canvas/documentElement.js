@@ -128,9 +128,7 @@ $.extend(DocumentNodeElement, {
 
         var element = this.fromHTMLElement(dom[0], canvas);
 
-        element.setWlxmlTag(params.tag);
-        if(params.klass)
-            element.setWlxmlClass(params.klass);
+        element.setWlxml({tag: params.tag, klass: params.klass});
         if(params.meta) {
             _.keys(params.meta).forEach(function(key) {
                 element.setWlxmlMetaAttr(key, params.meta[key]);
@@ -321,7 +319,8 @@ $.extend(DocumentNodeElement.prototype, {
             return;
 
         this._container().attr('wlxml-tag', tag);
-        this._updateWlxmlManager();
+        if(!this.__updatingWlxml)
+            this._updateWlxmlManager();
     },
     getWlxmlClass: function() {
         var klass = this._container().attr('wlxml-class');
@@ -342,7 +341,17 @@ $.extend(DocumentNodeElement.prototype, {
             this._container().attr('wlxml-class', klass.replace(/\./g, '-'));
         else
             this._container().removeAttr('wlxml-class');
+        if(!this.__updatingWlxml)
+            this._updateWlxmlManager();
+    },
+    setWlxml: function(params) {
+        this.__updatingWlxml = true;
+        if(params.tag !== undefined)
+            this.setWlxmlTag(params.tag);
+        if(params.klass !== undefined)
+            this.setWlxmlClass(params.klass);
         this._updateWlxmlManager();
+        this.__updatingWlxml = false;
     },
     _updateWlxmlManager: function() {
         var manager = wlxmlManagers.getFor(this);
