@@ -313,8 +313,11 @@ $.extend(Canvas.prototype, {
 
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
-                    if(documentElement.DocumentTextElement.isContentContainer(mutation.target) && mutation.target.data === '')
-                        mutation.target.data = utils.unicode.ZWS;
+                    if(documentElement.DocumentTextElement.isContentContainer(mutation.target)) {
+                        if(mutation.target.data === '')
+                            mutation.target.data = utils.unicode.ZWS;
+                        canvas.publisher('contentChanged');
+                    }
                 });
             });
             var config = { attributes: false, childList: false, characterData: true, subtree: true, characterDataOldValue: true};
