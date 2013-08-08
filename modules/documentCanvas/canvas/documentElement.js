@@ -528,8 +528,9 @@ $.extend(DocumentTextElement.prototype, {
                     prev.setText(prev.getText() + this.getText() + next.getText());
                     next.detach();
                 } else if (prev || next) {
-                    var target = prev ? prev : next;
-                    target.setText(target.getText() + this.getText());
+                    var target = prev ? prev : next,
+                        newText = prev ? target.getText() + this.getText() : this.getText() + target.getText();
+                    target.setText(newText);
                 } else {
                     parent.after(this);
                 }

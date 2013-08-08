@@ -732,6 +732,19 @@ describe('Canvas', function() {
                     expect(section.children()[0].getText()).to.equal('Alice has a cat');
                     expect(newTextContainer.sameNode(c.doc())).to.equal(true, 'unwrap returns new text parent DocumentNodeElement');
                 });
+
+                it('unwraps text element from its parent - first child case', function() {
+                    var c = canvas.fromXML('<section><span class="uri">Some</span>text</section>'),
+                        section = c.doc(),
+                        span = section.children()[0];
+
+                    span.children()[0].unwrap();
+
+                    var sectionChildren = section.children();
+
+                    expect(sectionChildren).to.have.length(1);
+                    expect(sectionChildren[0].getText()).to.equal('Sometext');
+                });
             });
         });
 
