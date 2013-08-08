@@ -121,6 +121,21 @@ $.extend(FootnoteManager.prototype, {
 managers.set('aside', 'footnote', FootnoteManager);
 
 
+var ListItemManager = function(wlxmlElement) {
+    this.el = wlxmlElement;
+};
+$.extend(ListItemManager.prototype, {
+    setup: function() {
+        this.el.clearWidgets();
+        this.el.addWidget(widgets.labelWidget(this.el.tag(), this.el.klass()));
+        this.el.documentElement._container().css({display: 'list-item'});
+    },
+    toggleBullet: function(toggle) {
+        this.el.documentElement._container().css({display : toggle ? 'list-item' : 'block'});
+    }
+});
+managers.set('div', 'item', ListItemManager);
+
 return {
     getFor: function(documentElement) {
         var wlxmlElement = new DocumentElementWrapper(documentElement);

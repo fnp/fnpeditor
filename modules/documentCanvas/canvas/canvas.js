@@ -604,7 +604,8 @@ $.extend(Canvas.prototype.list, {
         
         var toret;
         if(parent.is('list')) {
-            listElement.wrapWithNodeElement({tag: 'div', klass: 'item'});
+            var item = listElement.wrapWithNodeElement({tag: 'div', klass: 'item'});
+            item.exec('toggleBullet', false);
             toret = listElement.parent();
         } else {
             toret = listElement;

@@ -109,6 +109,12 @@ $.extend(DocumentElement.prototype, {
         return this.parents().some(function(parent) {
             return parent.is('list');
         });
+    },
+
+    exec: function(method) {
+        var manager = this.data('_wlxmlManager');
+        if(manager[method])
+            return manager[method].apply(manager, Array.prototype.slice.call(arguments, 1));
     }
 });
 
