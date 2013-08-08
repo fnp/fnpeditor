@@ -103,6 +103,12 @@ $.extend(DocumentElement.prototype, {
 
     isVisible: function() {
         return this instanceof DocumentTextElement || this.getWlxmlTag() !== 'metadata';
+    },
+
+    isInsideList: function() {
+        return this.parents().some(function(parent) {
+            return parent.is('list');
+        });
     }
 });
 

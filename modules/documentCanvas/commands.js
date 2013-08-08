@@ -48,7 +48,7 @@ commands.register('wrap-node', function(canvas) {
     }
 });
 
-commands.register('toggle-list', function(canvas, params) {
+commands.register('list', function(canvas, params) {
     var cursor = canvas.getCursor(),
         selectionStart = cursor.getSelectionStart(),
         selectionEnd = cursor.getSelectionEnd(),
@@ -56,13 +56,13 @@ commands.register('toggle-list', function(canvas, params) {
         parent2 = selectionEnd.element.parent() || undefined;
 
     var selectionFocus = cursor.getSelectionFocus();
-    if(params.toggle) {
-        canvas.list.create({element1: parent1, element2: parent2});
-    } else {
-        if(canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
-            canvas.list.extractItems({element1: parent1, element2: parent2, merge: false});
-        } 
+
+    if(selectionStart.element.isInsideList() || selectionEnd.element.isInsideList()) {
+        return;
     }
+
+    canvas.list.create({element1: parent1, element2: parent2});
+
     canvas.setCurrentElement(selectionFocus.element, {caretTo: selectionFocus.offset});
 });
 
