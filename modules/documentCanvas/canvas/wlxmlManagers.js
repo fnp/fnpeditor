@@ -19,8 +19,8 @@ var DocumentElementWrapper = function(documentElement) {
     }
 
     this.setDisplayStyle = function(displayStyle) {
-        documentElement.dom().css('display', displayStyle);
-        documentElement._container().css('display', displayStyle);
+        documentElement.dom().css('display', displayStyle || '');
+        documentElement._container().css('display', displayStyle || '');
     };
 
     this.tag = function() {
@@ -48,6 +48,8 @@ var getDisplayStyle = function(tag, klass) {
         return 'none';
     if(tag === 'span')
         return 'inline';
+    if(klass === 'item')
+        return null;
     return 'block';
 }
 
