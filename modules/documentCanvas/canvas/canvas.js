@@ -3,8 +3,9 @@ define([
 'libs/underscore-min',
 'libs/backbone-min',
 'modules/documentCanvas/canvas/documentElement',
+'modules/documentCanvas/canvas/keyboard',
 'modules/documentCanvas/canvas/utils'
-], function($, _, Backbone, documentElement, utils) {
+], function($, _, Backbone, documentElement, keyboard, utils) {
     
 'use strict';
 
@@ -141,176 +142,9 @@ $.extend(Canvas.prototype, {
             
             this.d = this.wrapper.children(0);
 
-            var KEYS = {
-                ENTER: 13,
-                ARROW_LEFT: 37,
-                ARROW_UP: 38,
-                ARROW_RIGHT: 39,
-                ARROW_DOWN: 40,
-                BACKSPACE: 8,
-                DELETE: 46,
-                X: 88
-            }
-
-            this.wrapper.on('keyup', function(e) {
-                if(e.which >= 37 && e.which <= 40) {
-                    var element = canvas.getCursor().getPosition().element,
-                        caretTo = false;
-                    if(!element) {
-                        // Chrome hack
-                        var direction;
-                        if(e.which === KEYS.ARROW_LEFT  || e.which === KEYS.ARROW_UP) {
-                            direction = 'above';
-                            caretTo = 'end';
-                        } else {
-                            direction = 'below';
-                            caretTo = 'start';
-                        }
-                        element = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]:visible', direction, window.getSelection().focusNode));
-                    }
-                    canvas.setCurrentElement(element, {caretTo: caretTo});
-                }
-            });
-         
-            this.wrapper.on('keydown', function(e) {
-                var cursor = canvas.getCursor(),
-                    position = canvas.getCursor().getPosition(),
-                    element = position.element;
-                if(e.which >= 37 && e.which <= 40) {
-
-                    if(element && (element instanceof documentElement.DocumentTextElement)) {
-                        if(element.isEmpty()) {
-                            var direction, caretTo;
-                            if(e.which === KEYS.ARROW_LEFT  || e.which === KEYS.ARROW_UP) {
-                                direction = 'above';
-                                caretTo = 'end';
-                            } else {
-                                direction = 'below';
-                                caretTo = 'start';
-                            }
-                            var el = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]', direction, element.dom()[0]));
-                            canvas.setCurrentElement(el, {caretTo: caretTo});
-                        } else {
-                            var txt = element.dom().contents()[0].data;
-                            if(e.which === KEYS.ARROW_LEFT && position.offset > 1 && txt.charAt(position.offset-2) === utils.unicode.ZWS) {
-                                e.preventDefault();
-                                canvas._moveCaretToTextElement(element, position.offset-2);
-                            }
-                            if(e.which === KEYS.ARROW_RIGHT && position.offset < txt.length - 1 && txt.charAt(position.offset+1) === utils.unicode.ZWS) {
-                                e.preventDefault();
-                                canvas._moveCaretToTextElement(element, position.offset+2);
-                            }
-                        }
-                    }
-
-
-                }
-
-                var selectsWholeTextElement = function() {
-                    if(cursor.isSelecting() && cursor.getSelectionStart().offsetAtBeginning && cursor.getSelectionEnd().offsetAtEnd)
-                        return true;
-                    return false;
-                }
-
-                if(e.which === KEYS.X && e.ctrlKey && selectsWholeTextElement()) {
-                    e.preventDefault();
-                }
-
-                if(e.which === KEYS.BACKSPACE || e.which === KEYS.DELETE) {
-                    if(cursor.isSelecting() && !cursor.isSelectingWithinElement()) {
-                        e.preventDefault();
-                        return;
-                    }
-                        
-                    var cursorAtOperationEdge = position.offsetAtBeginning;
-                    if(e.which === KEYS.DELETE) {
-                        cursorAtOperationEdge = position.offsetAtEnd;
-                    }
-
-                    var willDeleteWholeText = function() {
-                        return element.getText().length === 1 || selectsWholeTextElement();
-                    }
-
-                    if(willDeleteWholeText()) {
-                        e.preventDefault();
-                        element.setText('');
-                    }
-                    else if(element.isEmpty()) {
-
-                        var direction = 'above',
-                            caretTo = 'end';
-                            
-                        if(e.which === KEYS.DELETE) {
-                            direction = 'below';
-                            caretTo = 'start';
-                        }
-
-                        e.preventDefault();
-
-                        var parent = element.parent(),
-                            grandParent = parent ? parent.parent() : null,
-                            goto;
-                        if(parent.children().length === 1 && parent.children()[0].sameNode(element)) {
-                            if(grandParent && grandParent.children().length === 1) {
-                                goto = grandParent.append({text: ''});
-                            } else {
-                                goto = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]', direction, element.dom()[0]));
-                            }
-                            parent.detach();
-                        } else {
-                            goto = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]', direction, element.dom()[0]));
-                            element.detach();
-                        }
-                        canvas.setCurrentElement(goto, {caretTo: caretTo});
-                        canvas.publisher('contentChanged');
-                    }
-                    else if(cursorAtOperationEdge) {
-                        // todo
-                        e.preventDefault();
-                    }
-                }
-
-                if(e.which === KEYS.ENTER) {
-                    e.preventDefault();
-                    var cursor = canvas.getCursor(),
-                        position = cursor.getPosition(),
-                        element = position.element;
-
-                    if(!cursor.isSelecting()) {
-                        if(e.ctrlKey) {
-                            var added = element.after({tag: 'block'});
-                            added.append({text:''});
-                            canvas.setCurrentElement(added, {caretTo: 'start'});
-
-                        } else {
-
-                            if(!(element.parent().parent())) {
-                                return false; // top level element is unsplittable
-                            }
-
-                            var elements = position.element.split({offset: position.offset}),
-                                newEmpty,
-                                goto,
-                                gotoOptions;
-
-                            if(position.offsetAtBeginning)
-                                newEmpty = elements.first;
-                            else if(position.offsetAtEnd)
-                                newEmpty = elements.second;
-                            
-                            if(newEmpty) {
-                                goto = newEmpty.append(documentElement.DocumentTextElement.create({text: ''}, this));
-                                gotoOptions = {};
-                            } else {
-                                goto = elements.second;
-                                gotoOptions = {caretTo: 'start'};
-                            }
-
-                            canvas.setCurrentElement(goto, gotoOptions);
-                        }
-                    }
-                }
-            });
+            this.wrapper.on('keyup keydown keypress', function(e) {
+                keyboard.handleKey(e, this);
+            }.bind(this));
 
             this.wrapper.on('click', '[document-node-element], [document-text-element]', function(e) {
                 e.stopPropagation();
