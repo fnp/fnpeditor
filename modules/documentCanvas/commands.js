@@ -107,6 +107,9 @@ commands.register('newNodeRequested', function(canvas, params) {
                 });
             }
         }
+    } else if(canvas.getCurrentNodeElement()) {
+        var el = canvas.getCurrentNodeElement().wrapWithNodeElement({tag: params.wlxmlTag, klass: params.wlxmlClass});
+        canvas.setCurrentElement(el);
     }
 
 
