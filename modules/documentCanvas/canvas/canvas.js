@@ -227,7 +227,11 @@ $.extend(Canvas.prototype, {
                         cursorAtOperationEdge = position.offsetAtEnd;
                     }
 
-                    if(element.getText().length === 1 || selectsWholeTextElement()) {
+                    var willDeleteWholeText = function() {
+                        return element.getText().length === 1 || selectsWholeTextElement();
+                    }
+
+                    if(willDeleteWholeText()) {
                         e.preventDefault();
                         element.setText('');
                     }
