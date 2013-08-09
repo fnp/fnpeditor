@@ -42,7 +42,8 @@ $.extend(Canvas.prototype, {
                     klass: currentTag.attr('class'),
                     meta: meta,
                     others: others,
-                    rawChildren: currentTag.contents()
+                    rawChildren: currentTag.contents(),
+                    prepopulateOnEmpty: true
                 }, canvas);
 
                 ['orig-before', 'orig-after', 'orig-begin', 'orig-end'].forEach(function(attr) {
@@ -71,7 +72,7 @@ $.extend(Canvas.prototype, {
                         hasSpanBefore = el.prev().length > 0  && getNode($(el.prev()[0])).attr('wlxml-tag') === 'span',
                         hasSpanAfter = el.next().length > 0 && getNode($(el.next()[0])).attr('wlxml-tag') === 'span';
 
-                    if(el.parent().hasClass('canvas-widget'))
+                    if(el.parent().hasClass('canvas-widget') || elParent.attr('document-text-element') !== undefined)
                         return true; // continue
 
                     var addInfo = function(toAdd, where) {

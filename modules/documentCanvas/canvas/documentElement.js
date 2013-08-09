@@ -148,8 +148,10 @@ $.extend(DocumentNodeElement, {
         }
         element.data('other-attrs', params.others);
 
-        if(params.rawChildren) {
+        if(params.rawChildren && params.rawChildren.length) {
             container.append(params.rawChildren);
+        } else if(params.prepopulateOnEmpty) {
+            element.append(DocumentTextElement.create({text: ''}));
         }
         return dom;
     },

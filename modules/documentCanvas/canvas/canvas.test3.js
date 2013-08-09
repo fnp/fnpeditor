@@ -250,12 +250,24 @@ describe('Canvas', function() {
                         expect(children[2]).to.be.instanceOf(documentElement.DocumentTextElement);
                     });
             });
+
+            describe('empty nodes handling', function() {
+                it('says empty element node from XML source has one empty DocumentTextElement', function() {
+                    var c = canvas.fromXML('<section></section>');
+                    expect(c.doc().children()).to.have.length(1);
+                    expect(c.doc().children()[0].getText()).to.equal('');
+                });
+
+                it('allows creation of an empty element node', function() {
+                    var c = canvas.fromXML('<section></section>'),
+                        section = c.doc(),
+                        header = section.append({tag: 'header'});
+                    expect(header.children()).to.have.length(0);
+                });
+            });
             
             describe('white characters handling', function() {
-                it('says empty element node has no children', function() {
-                    var c = canvas.fromXML('<section></section>');
-                    expect(c.doc().children().length).to.equal(0);
-                });
+
                 it('says element node with one space has one DocumentTextElement', function() {
                     var c = canvas.fromXML('<section> </section>');
                     expect(c.doc().children().length).to.equal(1);
@@ -330,22 +342,22 @@ describe('Canvas', function() {
 
             describe('Basic Element inserting', function() {
                 it('can put new NodeElement at the end', function() {
-                    var c = canvas.fromXML('<section></section>'),
+                    var c = canvas.fromXML('<section><div></div></section>'),
                         appended = c.doc().append({tag: 'header', klass: 'some.class'}),
                         children = c.doc().children();
 
-                    expect(children.length).to.equal(1);
-                    expect(children[0].sameNode(appended)).to.be.true;
+                    expect(children.length).to.equal(2);
+                    expect(children[1].sameNode(appended)).to.be.true;
                 });
 
                 it('can put new TextElement at the end', function() {
-                    var c = canvas.fromXML('<section></section>'),
+                    var c = canvas.fromXML('<section><div><div></section>'),
                         appended = c.doc().append({text: 'Alice'}),
                         children = c.doc().children();
 
-                    expect(children.length).to.equal(1);
-                    expect(children[0].sameNode(appended)).to.be.true;
-                    expect(children[0].getText()).to.equal('Alice');
+                    expect(children.length).to.equal(2);
+                    expect(children[1].sameNode(appended)).to.be.true;
+                    expect(children[1].getText()).to.equal('Alice');
                 });
 
                 it('can put new NodeElement at the beginning', function() {
@@ -1350,8 +1362,9 @@ describe('Canvas', function() {
 
             it('keeps white space between XML nodes - inline case', function() {
                 var xmlIn = '<section>\n\n\n<span></span>\n\n\n<span></span>\n\n\n</section>',
-                c = canvas.fromXML(xmlIn),
-                xmlOut = c.toXML();
+                c = canvas.fromXML(xmlIn);
+                
+                var xmlOut = c.toXML();
 
                 var partsIn = xmlIn.split('\n\n\n'),
                     partsOut = xmlOut.split('\n\n\n');
