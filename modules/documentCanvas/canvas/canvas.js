@@ -188,8 +188,8 @@ $.extend(Canvas.prototype, {
                                 direction = 'below';
                                 caretTo = 'start';
                             }
-                            var el = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]', direction, window.getSelection().focusNode))
-                            canvas.setCurrentElement(element, {caretTo: caretTo});
+                            var el = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]', direction, element.dom()[0]));
+                            canvas.setCurrentElement(el, {caretTo: caretTo});
                         } else {
                             var txt = element.dom().contents()[0].data;
                             if(e.which === KEYS.ARROW_LEFT && position.offset > 1 && txt.charAt(position.offset-2) === utils.unicode.ZWS) {
