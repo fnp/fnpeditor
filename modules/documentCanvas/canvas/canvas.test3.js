@@ -13,6 +13,58 @@ var expect = chai.expect;
 
 describe('Canvas', function() {
 
+
+
+    describe('ZWS', function() {
+        var view, section, textElement;
+        
+        beforeEach(function() {
+            var c = canvas.fromXML('<section></section>');
+
+            section = c.doc();
+            textElement = section.children()[0];
+            view = c.view()[0];
+            document.getElementsByTagName('body')[0].appendChild(view);
+        });
+
+        afterEach(function() {
+            view.parentNode.removeChild(view);
+        });
+
+        var getTextContainerNode = function(textElement) {
+            return textElement.dom().contents()[0];
+        }
+
+        it('is set automatically on all empty DocumentTextElements', function() {
+            expect(getTextContainerNode(textElement).data).to.equal(utils.unicode.ZWS);
+
+            var header = section.append({tag: 'header'}),
+                newText = header.append({text: ''}),
+                textNode = getTextContainerNode(textElement);
+            
+            expect(textNode.data).to.equal(utils.unicode.ZWS);
+        });
+
+        it('is added automatically when whole text gets deleted', function() {
+            getTextContainerNode(textElement).data = '';
+            
+            window.setTimeout(function() {
+                expect(getTextContainerNode(textElement).data).to.equal(utils.unicode.ZWS);
+            }, 0)
+            
+            var header = section.append({tag: 'header'}),
+                newText = header.append({text: 'Alice'}),
+                textNode = getTextContainerNode(newText);
+
+            expect(textNode.data).to.have.length('Alice'.length);
+            textNode.data = '';
+
+            window.setTimeout(function() {
+                expect(textNode.data).to.equal(utils.unicode.ZWS);
+            }, 0)
+        });
+    });
+
     describe('Internal HTML representation of a DocumentNodeElement', function() {
         it('is always a div tag', function() {
             ['section', 'header', 'span', 'aside', 'figure'].forEach(function(tagName) {
@@ -1271,25 +1323,6 @@ describe('Canvas', function() {
             expect(cursor.isSelectingSiblings()).to.equal(false, '"has" and "big" are not children');
             
         })
-
-        describe('zero width space handling', function() {
-            it('position range includes ZWS at the boundries of text in case when native selection api doesn\'t', function() {
-                var c = canvas.fromXML("<section>Alice</section>"),
-                    dom = c.doc().dom(),
-                    textNode = findTextNode(dom, 'Alice'),
-                    cursor = c.getCursor();
-
-                textNode.data = utils.unicode.ZWS + 'Alice';
-                getSelection.returns({anchorNode: textNode, anchorOffset: 1, focusNode: textNode, focusOffset: 1});
-                expect(cursor.getPosition().offset).to.equal(0);
-                expect(cursor.getPosition().offsetAtBeginning).to.equal(true, 'offset at beginning');
-                
-                textNode.data = 'Alice' + utils.unicode.ZWS;
-                getSelection.returns({anchorNode: textNode, anchorOffset: 5, focusNode: textNode, focusOffset: 5});
-                expect(cursor.getPosition().offset).to.equal(6);
-                expect(cursor.getPosition().offsetAtEnd).to.equal(true, 'offset at end');
-            });
-        });
     });
 
     describe('Serializing document to WLXML', function() {

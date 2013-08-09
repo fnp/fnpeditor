@@ -320,8 +320,14 @@ $.extend(Canvas.prototype, {
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     if(documentElement.DocumentTextElement.isContentContainer(mutation.target)) {
+                        observer.disconnect();
                         if(mutation.target.data === '')
                             mutation.target.data = utils.unicode.ZWS;
+                        else if(mutation.oldValue === utils.unicode.ZWS) {
+                            mutation.target.data = mutation.target.data.replace(utils.unicode.ZWS, '');
+                            canvas._moveCaretToTextElement(canvas.getDocumentElement(mutation.target), 'end');
+                        }
+                        observer.observe(canvas.d[0], config);
                         canvas.publisher('contentChanged');
                     }
                 });
@@ -739,40 +745,23 @@ $.extend(Cursor.prototype, {
             anchorElement = this.canvas.getDocumentElement(selection.anchorNode),
             focusElement = this.canvas.getDocumentElement(selection.focusNode);
         
-        var getOffset = function(where) {
-            var toret, node;
-            if(where === 'anchor') {
-                node = selection.anchorNode;
-                toret = selection.anchorOffset;
-            } else {
-                node = selection.focusNode;
-                toret = selection.focusOffset;
-            }
-                        
-            if(toret === 1 && node.data.charAt(0) === utils.unicode.ZWS)
-                toret = 0;
-            else if((toret === node.data.length - 1) && (node.data.charAt(node.data.length - 1) === utils.unicode.ZWS))
-                toret++;
-            return toret;
-        }
-
         if((!anchorElement) || (anchorElement instanceof documentElement.DocumentNodeElement) || (!focusElement) || focusElement instanceof documentElement.DocumentNodeElement)
             return {};
 
         if(which === 'anchor') {
             return {
                 element: anchorElement,
-                offset: getOffset('anchor'),
-                offsetAtBeginning: getOffset('anchor') === 0,
-                offsetAtEnd: selection.anchorNode.data.length === getOffset('anchor')
+                offset: selection.anchorOffset,
+                offsetAtBeginning: selection.anchorOffset === 0,
+                offsetAtEnd: selection.anchorNode.data.length === selection.anchorOffset
             };
         }
         if(which === 'focus') {
             return {
                 element: focusElement,
-                offset: getOffset('focus'),
-                offsetAtBeginning: getOffset('focus') === 0,
-                offsetAtEnd: selection.focusNode.data.length === getOffset('focus')
+                offset: selection.focusOffset,
+                offsetAtBeginning: selection.focusOffset === 0,
+                offsetAtEnd: selection.focusNode.data.length === selection.focusOffset
             };
         }
         
@@ -785,30 +774,30 @@ $.extend(Cursor.prototype, {
             if(anchorFirst) {
                 if(which === 'start') {
                     element = anchorElement;
-                    offset = getOffset('anchor')
+                    offset = selection.anchorOffset
                 }
                 else if(which === 'end') {
                     element = focusElement,
-                    offset = getOffset('focus')
+                    offset = selection.focusOffset
                 }
             } else {
                 if(which === 'start') {
                     element = focusElement,
-                    offset = getOffset('focus')
+                    offset = selection.focusOffset
                 }
                 else if(which === 'end') {
                     element = anchorElement;
-                    offset = getOffset('anchor')
+                    offset = selection.anchorOffset
                 }
             }
         } else {
             // TODO: Handle order via https://developer.mozilla.org/en-US/docs/Web/API/Node.compareDocumentPosition
             if(which === 'start') {
                 element = anchorElement;
-                offset = getOffset('anchor')
+                offset = selection.anchorOffset
             } else {
                 element = focusElement;
-                offset = getOffset('focus')
+                offset = selection.focusOffset
             }
         }
 
