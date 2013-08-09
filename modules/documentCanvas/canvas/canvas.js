@@ -257,6 +257,7 @@ $.extend(Canvas.prototype, {
                             element.detach();
                         }
                         canvas.setCurrentElement(goto, {caretTo: caretTo});
+                        canvas.publisher('contentChanged');
                     }
                     else if(cursorAtOperationEdge) {
                         // todo
