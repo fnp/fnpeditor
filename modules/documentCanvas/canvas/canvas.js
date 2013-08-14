@@ -228,7 +228,7 @@ $.extend(Canvas.prototype, {
             suffixOutside = textNode2.getText().substr(params.offsetEnd)
         ;
         
-        var wrapperElement = documentElement.DocumentNodeElement.create({tag: params._with.tag, klass: params._with.klass});
+        var wrapperElement = documentElement.DocumentNodeElement.create({tag: params._with.tag, klass: params._with.klass}, this);
         textNode1.after(wrapperElement);
         textNode1.detach();
         
