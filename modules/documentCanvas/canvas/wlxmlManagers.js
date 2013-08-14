@@ -11,11 +11,11 @@ var DocumentElementWrapper = function(documentElement) {
     this.documentElement = documentElement;
 
     this.addWidget = function(widget) {
-        documentElement.dom().find('.canvas-widgets').append(widget);
+        documentElement.dom().children('.canvas-widgets').append(widget);
     };
 
     this.clearWidgets = function() {
-        documentElement.dom().find('.canvas-widgets').empty();
+        documentElement.dom().children('.canvas-widgets').empty();
     }
 
     this.setDisplayStyle = function(displayStyle) {
