@@ -38,14 +38,14 @@ $.extend(Canvas.prototype, {
                         others[attr.name] = attr.value;
                 }
 
-                var element = documentElement.DocumentNodeElement.create({
+                var element = canvas.createNodeElement({
                     tag: currentTag.prop('tagName').toLowerCase(),
                     klass: currentTag.attr('class'),
                     meta: meta,
                     others: others,
                     rawChildren: currentTag.contents(),
                     prepopulateOnEmpty: true
-                }, canvas);
+                });
 
                 ['orig-before', 'orig-after', 'orig-begin', 'orig-end'].forEach(function(attr) {
                     element.data(attr, '');
@@ -210,6 +210,10 @@ $.extend(Canvas.prototype, {
         return documentElement.DocumentNodeElement.fromHTMLElement(this.d.get(0), this); //{wlxmlTag: this.d.prop('tagName')};
     },
 
+    createNodeElement: function(params) {
+        return documentElement.DocumentNodeElement.create(params, this);
+    },
+
     wrapText: function(params) {
         params = _.extend({textNodeIdx: 0}, params);
         if(typeof params.textNodeIdx === 'number')
@@ -227,7 +231,7 @@ $.extend(Canvas.prototype, {
             suffixOutside = textNode2.getText().substr(params.offsetEnd)
         ;
         
-        var wrapperElement = documentElement.DocumentNodeElement.create({tag: params._with.tag, klass: params._with.klass}, this);
+        var wrapperElement = this.createNodeElement({tag: params._with.tag, klass: params._with.klass});
         textNode1.after(wrapperElement);
         textNode1.detach();
         
@@ -257,7 +261,7 @@ $.extend(Canvas.prototype, {
 
         var parent = params.element1.parent(),
             parentChildren = parent.children(),
-            wrapper = documentElement.DocumentNodeElement.create({
+            wrapper = this.createNodeElement({
                 tag: params._with.tag,
                 klass: params._with.klass}),
             idx1 = parent.childIndex(params.element1),
@@ -416,7 +420,8 @@ $.extend(Canvas.prototype.list, {
         if(!(params.element1.parent().sameNode(params.element2.parent())))
             return false;
             
-        var parent = params.element1.parent();
+        var parent = params.element1.parent(),
+            canvas = params.element1.canvas;
         
         if(parent.childIndex(params.element1) > parent.childIndex(params.element2)) {
             var tmp = params.element1;
@@ -427,7 +432,6 @@ $.extend(Canvas.prototype.list, {
         var elementsToWrap = [];
         
         var place = 'before';
-        var canvas = this;
         parent.children().some(function(element) {
             var _e = element;
             if(element.sameNode(params.element1))
@@ -445,8 +449,7 @@ $.extend(Canvas.prototype.list, {
                 return true;
         });
         
-        var listElement = documentElement.DocumentNodeElement.create({tag: 'div', klass: 'list-items' + (params.type === 'enum' ? '-enum' : '')});
-        
+        var listElement = canvas.createNodeElement({tag: 'div', klass: 'list-items' + (params.type === 'enum' ? '-enum' : '')});
         var toret;
         if(parent.is('list')) {
             var item = listElement.wrapWithNodeElement({tag: 'div', klass: 'item'});
@@ -476,6 +479,7 @@ $.extend(Canvas.prototype.list, {
             succeedingItems = [],
             items = list.children(),
             listIsNested = list.parent().getWlxmlClass() === 'item',
+            canvas = params.element1.canvas,
             i;
 
         if(idx1 > idx2) {
@@ -517,7 +521,7 @@ $.extend(Canvas.prototype.list, {
                     item.setWlxmlClass(null);
                 reference = item;
             });
-            var secondList = documentElement.DocumentNodeElement.create({tag: 'div', klass:'list-items'}, this),
+            var secondList = canvas.createNodeElement({tag: 'div', klass:'list-items'}),
                 toAdd = secondList;
             
             if(listIsNested) {
