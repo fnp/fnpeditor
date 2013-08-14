@@ -216,6 +216,44 @@ $.extend(DocumentNodeElement.prototype, {
         this.canvas = null;
         return this;
     },
+    unwrapContents: function() {
+        var parent = this.parent();
+        if(!parent)
+            return;
+
+        var parentChildren = parent.children(),
+            myChildren = this.children(),
+            myIdx = parent.childIndex(this);
+
+        if(myChildren.length === 0)
+            return this.detach();
+
+        var moveLeftRange, moveRightRange;
+
+        if(myIdx > 0 && (parentChildren[myIdx-1] instanceof DocumentTextElement) && (myChildren[0] instanceof DocumentTextElement)) {
+            parentChildren[myIdx-1].appendText(myChildren[0].getText());
+            myChildren[0].detach();
+            moveLeftRange = true;
+        }
+
+        if(myIdx < parentChildren.length - 1 && (parentChildren[parentChildren.length-1] instanceof DocumentTextElement) && (myChildren[myChildren.length-1] instanceof DocumentTextElement)) {
+            parentChildren[parentChildren.length-1].prependText(myChildren[myChildren.length-1].getText());
+            myChildren[myChildren.length-1].detach();
+            moveRightRange = true;
+        }
+
+        var childrenLength = this.children().length;
+        this.children().forEach(function(child) {
+            this.before(child);
+        }.bind(this));
+
+        this.detach();
+
+        return {
+            element1: parent.children()[myIdx + (moveLeftRange ? -1 : 0)],
+            element2: parent.children()[myIdx + childrenLength-1 + (moveRightRange ? 1 : 0)]
+        };
+    },
     data: function() {
         var dom = this.dom(),
             args = Array.prototype.slice.call(arguments, 0);
@@ -476,6 +514,9 @@ $.extend(DocumentTextElement.prototype, {
     },
     appendText: function(text) {
         this.dom().contents()[0].data += text;
+    },
+    prependText: function(text) {
+        this.dom().contents()[0].data = text + this.dom().contents()[0].data;
     },
     getText: function() {
         return this.dom().text().replace(utils.unicode.ZWS, '');

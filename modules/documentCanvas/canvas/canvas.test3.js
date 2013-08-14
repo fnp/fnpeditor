@@ -810,6 +810,44 @@ describe('Canvas', function() {
                     expect(sectionChildren[0].getText()).to.equal('Sometext');
                 });
             });
+
+            describe('unwrapping the whole content of a DocumentNodeElement', function() {
+                it('removes a DocumentNodeElement but keeps its content', function() {
+                    var c = canvas.fromXML('<section><div>Alice has<span>a</span> cat</div></section>'),
+                        section = c.doc(),
+                        div = c.doc().children()[0],
+                        span = div.children()[1];
+
+                    var range = div.unwrapContents(),
+                        sectionChildren = section.children();
+
+                    expect(sectionChildren).to.have.length(3);
+                    expect(sectionChildren[0].getText()).to.equal('Alice has');
+                    expect(sectionChildren[1].sameNode(span)).to.equal(true, 'span ok');
+                    expect(sectionChildren[2].getText()).to.equal(' cat');
+
+                    expect(range.element1.sameNode(sectionChildren[0])).to.equal(true, 'range start ok');
+                    expect(range.element2.sameNode(sectionChildren[2])).to.equal(true, 'range end ok');
+                });
+                it('merges text elements on the boundries', function() {
+                    var c = canvas.fromXML('<section>Alice<div>has a <span>cat</span>!</div>!!</section>'),
+                        section = c.doc(),
+                        div = c.doc().children()[1],
+                        span = div.children()[1];
+
+                    var range = div.unwrapContents(),
+                        sectionChildren = section.children();
+
+                    expect(sectionChildren).to.have.length(3);
+                    expect(sectionChildren[0].getText()).to.equal('Alicehas a ');
+                    expect(sectionChildren[1].sameNode(span)).to.equal(true, 'span ok');
+                    expect(sectionChildren[2].getText()).to.equal('!!!');
+
+                    expect(range.element1.sameNode(sectionChildren[0])).to.equal(true, 'range start ok');
+                    expect(range.element2.sameNode(sectionChildren[2])).to.equal(true, 'range end ok');
+                });
+            });
+            
         });
 
         describe('Lists api', function() {
