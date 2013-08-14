@@ -191,8 +191,7 @@ $.extend(Canvas.prototype, {
 
             this.eventBus.on('elementToggled', function(toggle, element) {
                 if(!toggle) {
-                    element = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]:visible', 'above', element.dom()[0]));
-                    canvas.setCurrentElement(element);
+                    canvas.setCurrentElement(element.getPreviousTextElement());
                 }
             })
 

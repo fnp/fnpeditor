@@ -173,11 +173,11 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
                 if(grandParent && grandParent.children().length === 1) {
                     goto = grandParent.append({text: ''});
                 } else {
-                    goto = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]:visible', direction, element.dom()[0]));
+                    goto = element.getNearestTextElement(direction);
                 }
                 parent.detach();
             } else {
-                goto = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]:visible', direction, element.dom()[0]));
+                goto = element.getNearestTextElement(direction);
                 element.detach();
             }
             canvas.setCurrentElement(goto, {caretTo: caretTo});

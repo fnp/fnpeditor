@@ -101,6 +101,20 @@ $.extend(DocumentElement.prototype, {
         return toret;
     },
 
+    getPreviousTextElement: function(includeInvisible) {
+        return this.getNearestTextElement('above', includeInvisible);
+    },
+
+    getNextTextElement: function(includeInvisible) {
+        return this.getNearestTextElement('below', includeInvisible);
+    },
+
+    getNearestTextElement: function(direction, includeInvisible) {
+        includeInvisible = includeInvisible !== undefined ? includeInvisible : false;
+        var selector = '[document-text-element]' + (includeInvisible ? '' : ':visible');
+        return this.canvas.getDocumentElement(utils.nearestInDocumentOrder(selector, direction, this.dom()[0]));
+    },
+
     isVisible: function() {
         return this instanceof DocumentTextElement || this.getWlxmlTag() !== 'metadata';
     },
