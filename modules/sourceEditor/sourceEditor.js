@@ -6,9 +6,12 @@ return function(sandbox) {
 
     var view = $(sandbox.getTemplate('main')());
     
-    var editor = ace.edit(view.find('#rng-sourceEditor-editor')[0]);
+    var editor = ace.edit(view.find('#rng-sourceEditor-editor')[0]),
+        session = editor.getSession();
     editor.setTheme("ace/theme/chrome");
-    editor.getSession().setMode("ace/mode/xml");
+    session.setMode("ace/mode/xml")
+    session.setUseWrapMode(true);
+    
     $('textarea', view).on('keyup', function() {
         sandbox.publish('xmlChanged');
     });
