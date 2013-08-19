@@ -228,18 +228,23 @@ $.extend(DocumentNodeElement.prototype, {
         if(myChildren.length === 0)
             return this.detach();
 
-        var moveLeftRange, moveRightRange;
+        var moveLeftRange, moveRightRange, leftMerged;
 
         if(myIdx > 0 && (parentChildren[myIdx-1] instanceof DocumentTextElement) && (myChildren[0] instanceof DocumentTextElement)) {
             parentChildren[myIdx-1].appendText(myChildren[0].getText());
             myChildren[0].detach();
             moveLeftRange = true;
+            leftMerged = true;
+        } else {
+            leftMerged = false;
         }
 
-        if(myIdx < parentChildren.length - 1 && (parentChildren[parentChildren.length-1] instanceof DocumentTextElement) && (myChildren[myChildren.length-1] instanceof DocumentTextElement)) {
-            parentChildren[parentChildren.length-1].prependText(myChildren[myChildren.length-1].getText());
-            myChildren[myChildren.length-1].detach();
-            moveRightRange = true;
+        if(!(leftMerged && myChildren.length === 1)) {
+            if(myIdx < parentChildren.length - 1 && (parentChildren[myIdx+1] instanceof DocumentTextElement) && (myChildren[myChildren.length-1] instanceof DocumentTextElement)) {
+                parentChildren[myIdx+1].prependText(myChildren[myChildren.length-1].getText());
+                myChildren[myChildren.length-1].detach();
+                moveRightRange = true;
+            }
         }
 
         var childrenLength = this.children().length;

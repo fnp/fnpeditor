@@ -846,6 +846,18 @@ describe('Canvas', function() {
                     expect(range.element1.sameNode(sectionChildren[0])).to.equal(true, 'range start ok');
                     expect(range.element2.sameNode(sectionChildren[2])).to.equal(true, 'range end ok');
                 });
+
+                it('merges text elements on the boundries - single child case', function() {
+                    var c = canvas.fromXML('<section>Alice <span>has</span> a cat</section>'),
+                        section = c.doc(),
+                        span = section.children()[1];
+
+                    var range = span.unwrapContents(),
+                        sectionChildren = section.children();
+
+                    expect(sectionChildren).to.have.length(1);
+                    expect(sectionChildren[0].getText()).to.equal('Alice has a cat');
+                });
             });
             
         });
