@@ -47,7 +47,7 @@ $.extend(DocumentElement.prototype, {
         this.$element = $(htmlElement);
     },
     bound: function() {
-        return this.canvas !== undefined;
+        return $.contains(document.documentElement, this.dom()[0]);
     },
     dom: function() {
         return this.$element;

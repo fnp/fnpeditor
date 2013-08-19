@@ -35,7 +35,7 @@ var DocumentElementWrapper = function(documentElement) {
         documentElement._container().toggle(toggle);
     }
 
-    var eventBus = documentElement.bound() ? documentElement.canvas.eventBus :
+    var eventBus = documentElement.canvas ? documentElement.canvas.eventBus :
         {trigger: function() {}};
     this.trigger = function() {
         eventBus.trigger.apply(eventBus, arguments);

@@ -132,6 +132,34 @@ commands.register('footnote', function(canvas, params) {
     canvas.setCurrentElement(asideElement);
 });
 
+commands.register('take-away-node', function(canvas) {
+    var position = canvas.getCursor().getPosition(),
+        element = position.element,
+        nodeElement = element ? element.parent() : canvas.getCurrentNodeElement();
+
+    if(!nodeElement || !(nodeElement.parent()))
+        return;
+
+
+    var range = nodeElement.unwrapContents();
+
+    if(element) {
+        var elementIsFirstChild = nodeElement.childIndex(element);
+        if(element.bound()) {
+            canvas.setCurrentElement(element, {caretTo: position.offset});
+        } else {
+            if(elementIsFirstChild) {
+                canvas.setCurrentElement(range.element1, {caretTo: 'end'});
+            } else {
+                canvas.setCurrentElement(range.element2, {caretTo: 'end'});
+            }
+        }
+    } else {
+        canvas.setCurrentElement(range.element1, {caretTo: 'start'});
+    }
+
+});
+
 
 return {
     run: function(name, params, canvas) {
