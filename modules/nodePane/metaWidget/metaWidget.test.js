@@ -8,8 +8,8 @@ define([
 
 var assert = chai.assert;
 
-suite('metaWidget', function() {
-    test('simple string field', function() {
+describe('metaWidget', function() {
+    it('calls calls registered callback on value change', function() {
         var dom = $('<div>');
         var widget = metaWidget.create({
                 el: dom,
