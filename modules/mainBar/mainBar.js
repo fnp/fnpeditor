@@ -1,6 +1,6 @@
 define([
-'libs/jquery-1.9.1.min',
-'libs/underscore-min',
+'libs/jquery',
+'libs/underscore',
 'libs/text!./template.html'], function($, _, template) {
 
 'use strict';

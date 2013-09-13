@@ -14,15 +14,15 @@
             'libs/jquery-1.9.1.min': {
                 exports: '$',
             },
-            'libs/underscore-min': {
+            'libs/underscore': {
                 exports: '_'
             },
             'libs/bootstrap/js/bootstrap.min': {
                 deps: ['libs/jquery-1.9.1.min']
             },
-            'libs/backbone-min': {
+            'libs/backbone': {
                 exports: 'Backbone',
-                deps: ['libs/jquery-1.9.1.min', 'libs/underscore-min']
+                deps: ['libs/jquery-1.9.1.min', 'libs/underscore']
             },
             'libs/sinon-1.7.3': {
                 exports: 'sinon'

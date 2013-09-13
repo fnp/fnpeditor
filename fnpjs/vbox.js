@@ -1,4 +1,4 @@
-define(['libs/jquery-1.9.1.min', './layout'], function($, layout) {
+define(['libs/jquery', './layout'], function($, layout) {
     
     var VBox = function() {};
     

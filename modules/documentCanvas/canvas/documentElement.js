@@ -1,6 +1,6 @@
 define([
-'libs/jquery-1.9.1.min',
-'libs/underscore-min',
+'libs/jquery',
+'libs/underscore',
 'modules/documentCanvas/classAttributes',
 'modules/documentCanvas/canvas/utils',
 'modules/documentCanvas/canvas/widgets',

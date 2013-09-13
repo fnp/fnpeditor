@@ -1,7 +1,7 @@
 define([
-'libs/jquery-1.9.1.min',
-'libs/underscore-min',
-'libs/backbone-min',
+'libs/jquery',
+'libs/underscore',
+'libs/backbone',
 'modules/documentCanvas/canvas/documentElement',
 'modules/documentCanvas/canvas/keyboard',
 'modules/documentCanvas/canvas/utils'

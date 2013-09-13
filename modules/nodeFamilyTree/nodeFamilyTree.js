@@ -1,6 +1,6 @@
 define([
-'libs/jquery-1.9.1.min',
-'libs/underscore-min',
+'libs/jquery',
+'libs/underscore',
 'utils/wlxml',
 'libs/text!./template.html'
 ], function($, _, wlxmlUtils, templateSrc) {

@@ -1,7 +1,7 @@
 // Module that implements main WYSIWIG edit area
 
 define([
-'libs/underscore-min',
+'libs/underscore',
 './canvas/canvas',
 './commands',
 'libs/text!./template.html'], function(_, canvas3, commands, template) {

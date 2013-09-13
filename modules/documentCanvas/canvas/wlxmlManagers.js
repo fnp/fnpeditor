@@ -1,5 +1,5 @@
 define([
-'libs/jquery-1.9.1.min',
+'libs/jquery',
 'modules/documentCanvas/canvas/widgets'
 ], function($, widgets) {
     

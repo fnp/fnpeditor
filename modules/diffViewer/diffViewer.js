@@ -1,6 +1,6 @@
 define([
-'libs/jquery-1.9.1.min',
-'libs/underscore-min',
+'libs/jquery',
+'libs/underscore',
 'views/tabs/tabs',
 'libs/text!./diff.html'
 ], function($, _, tabs, diffTemplateSrc) {

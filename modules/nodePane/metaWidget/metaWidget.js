@@ -1,7 +1,7 @@
 define([
-'libs/jquery-1.9.1.min',
-'libs/underscore-min',
-'libs/backbone-min',
+'libs/jquery',
+'libs/underscore',
+'libs/backbone',
 'libs/text!./stringField.html'
 ], function($, _, Backbone, stringFieldTpl) {
 

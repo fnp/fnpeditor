@@ -1,6 +1,6 @@
 define([
-'libs/jquery-1.9.1.min',
-'libs/underscore-min',
+'libs/jquery',
+'libs/underscore',
 './restoreDialog',
 'libs/text!./templates/main.html',
 'libs/text!./templates/item.html'

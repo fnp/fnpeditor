@@ -1,8 +1,8 @@
 define([
 'libs/text!./templates/main.html',
 'libs/text!./templates/handle.html',
-'libs/underscore-min',
-'libs/backbone-min',
+'libs/underscore',
+'libs/backbone'
 ], function(mainTemplate, handleTemplate, _, Backbone) {
     'use strict';
     

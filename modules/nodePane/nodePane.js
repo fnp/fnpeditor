@@ -1,7 +1,7 @@
 define([
 'libs/text!./template.html',
-'libs/jquery-1.9.1.min',
-'libs/underscore-min',
+'libs/jquery',
+'libs/underscore',
 'modules/nodePane/metaWidget/metaWidget',
 'utils/wlxml'
 ], function(templateSrc, $, _, metaWidget, wlxmlUtils) {

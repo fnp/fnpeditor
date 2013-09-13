@@ -1,8 +1,8 @@
 define([
 'libs/text!./saveDialog.html',
-'libs/underscore-min',
-'libs/backbone-min',
-'libs/jquery-1.9.1.min'
+'libs/underscore',
+'libs/backbone',
+'libs/jquery'
 ], function(saveDialogTemplate, _, Backbone, $) {
 
     var DialogView = Backbone.View.extend({

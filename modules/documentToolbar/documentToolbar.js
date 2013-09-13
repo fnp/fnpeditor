@@ -1,4 +1,4 @@
-define(['libs/jquery-1.9.1.min', 'libs/underscore-min', 'utils/wlxml', 'libs/text!./template.html'], function($, _, wlxmlUtils, template) {
+define(['libs/jquery', 'libs/underscore', 'utils/wlxml', 'libs/text!./template.html'], function($, _, wlxmlUtils, template) {
 
 'use strict';
 
