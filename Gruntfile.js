@@ -4,8 +4,8 @@ module.exports = function(grunt) {
         requirejs: {
           compile: {
             options: {
-              baseUrl: '',
-              mainConfigFile: 'entrypoint.js',
+              baseUrl: 'src/editor',
+              mainConfigFile: 'src/editor/entrypoint.js',
               out: 'build/rng.js',
               name: 'entrypoint',
               include: ['libs/require']
@@ -19,12 +19,12 @@ module.exports = function(grunt) {
                     yuicompress: true
                 },
                 files: {
-                    'build/rng.css': 'styles/main.less'
+                    'build/rng.css': 'src/editor/styles/main.less'
                 },
             },
         },
         jshint: {
-            all: ['Gruntfile.js', 'modules/**/*.js', 'views/**/*.js', 'fnpjs/**/*.js'],
+            all: ['Gruntfile.js', 'src/**/*.js'],
             options: {
                 jshintrc: '.jshintrc'
             }

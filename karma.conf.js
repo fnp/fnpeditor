@@ -8,14 +8,8 @@ files = [
   
   'vkbeautify.js',
   {pattern: 'libs/*.js', included: false},
-  {pattern: 'fnpjs/**/*.js', included: false},
-  {pattern: 'modules/**/*.js', included: false},
-  {pattern: 'utils/**/*.js', included: false},
-  {pattern: 'views/**/*.js', included: false},
-  {pattern: 'fnpjs/**/*.html', included: false},
-  {pattern: 'modules/**/*.html', included: false},
-  {pattern: 'views/**/*.html', included: false},
-
+  {pattern: 'src/**/*.js', included: false},
+  {pattern: 'src/**/*.html', included: false},
   'tests/main.js',
 ];
 

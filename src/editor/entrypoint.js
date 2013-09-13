@@ -2,29 +2,35 @@
     'use strict';
     
     requirejs.config({
-        baseUrl: '/static/editor',
+        baseUrl: '/static/editor/src/editor',
         
+        paths: {
+            'fnpjs': '../fnpjs',
+            'libs': '../../libs'
+        },
+
         map: {
             '*':
                 {
-                    'libs/jquery': 'libs/jquery-1.9.1.min',
-                    'libs/underscore': 'libs/underscore-min',
-                    'libs/bootstrap': 'libs/bootstrap/js/bootstrap.min',
-                    'libs/backbone': 'libs/backbone-min'
+                    'libs/jquery': '../../libs/jquery-1.9.1.min',
+                    'libs/underscore': '../../libs/underscore-min',
+                    'libs/bootstrap': '../../libs/bootstrap/js/bootstrap.min',
+                    'libs/backbone': '../../libs/backbone-min',
+
                 }
         },
 
         shim: {
-            'libs/jquery-1.9.1.min': {
+            '../../libs/jquery-1.9.1.min': {
                 exports: '$',
             },
-            'libs/underscore-min': {
+            '../../libs/underscore-min': {
                 exports: '_'
             },
-            'libs/bootstrap/js/bootstrap.min': {
+            '../../libs/bootstrap/js/bootstrap.min': {
                 deps: ['libs/jquery']
             },
-            'libs/backbone-min': {
+            '../../libs/backbone-min': {
                 exports: 'Backbone',
                 deps: ['libs/jquery', 'libs/underscore']
             }
@@ -34,7 +40,7 @@
     
     requirejs([
         'libs/jquery',
-        'fnpjs/runner',
+        '../fnpjs/runner',
         'rng',
         './modules',
         'libs/bootstrap'
