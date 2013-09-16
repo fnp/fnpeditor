@@ -1493,7 +1493,7 @@ describe('Canvas', function() {
                     c = canvas.fromXML(xmlIn);
 
             var xmlOut = c.toXML();
-            console.log(xmlOut);
+            
             expect(xmlOut).to.equal(xmlIn);
             });
 
