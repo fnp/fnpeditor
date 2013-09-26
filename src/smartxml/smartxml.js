@@ -23,6 +23,8 @@ var ElementNode = function(nativeNode) {
 };
 
 $.extend(ElementNode.prototype, {
+    nodeType: Node.ELEMENT_NODE,
+
     getTagName: function() {
         return this.nativeNode.tagName.toLowerCase();
     },
@@ -36,6 +38,8 @@ $.extend(ElementNode.prototype, {
         this._$.contents().each(function() {
             if(this.nodeType === Node.ELEMENT_NODE)
                 toret.push(new ElementNode(this));
+            else if(this.nodeType === Node.TEXT_NODE)
+                toret.push(new TextNode(this));
         });
         return toret;
     },
@@ -46,6 +50,16 @@ $.extend(ElementNode.prototype, {
     }
 
 });
+
+var TextNode = function(nativeNode) {
+    this.nativeNode = nativeNode;
+    this._$ = $(nativeNode);
+}
+
+$.extend(TextNode.prototype, {
+    nodeType: Node.TEXT_NODE
+})
+
 
 return {
     documentFromXML: function(xml) {

@@ -17,6 +17,10 @@ var elementNodeFromParams = function(params) {
     return smartxml.elementNodeFromXML('<' + params.tag + '></' + params.tag + '>');
 }
 
+var elementNodeFromXML = function(xml) {
+    return smartxml.elementNodeFromXML(xml);
+}
+
 
 describe.only('smartxml', function() {
 
@@ -26,6 +30,18 @@ describe.only('smartxml', function() {
             expect(doc.root.getTagName()).to.equal('div');
         });
     });
+
+    describe('Basic ElementNode properties', function() {
+        it('exposes node contents', function() {
+            var node = elementNodeFromXML('<node>Some<node>text</node>is here</node>'),
+                contents = node.contents();
+
+            expect(contents).to.have.length(3);
+            expect(contents[0].nodeType).to.equal(Node.TEXT_NODE, 'text node 1');
+            expect(contents[1].nodeType).to.equal(Node.ELEMENT_NODE, 'element node 1');
+            expect(contents[2].nodeType).to.equal(Node.TEXT_NODE, 'text node 2');
+        });
+    })
 
     describe('Manipulations', function() {
 
