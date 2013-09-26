@@ -9,20 +9,20 @@ var TEXT_NODE = Node.TEXT_NODE, ELEMENT_NODE = Node.ELEMENT_NODE;
 
 var parseXML = function(xml) {
     return $(xml)[0];
-}
+};
 
 var Document = function(nativeNode) {
     var $document = $(nativeNode);
 
 
-    Object.defineProperty(this, 'root', {get: function() { return new ElementNode($document[0])}}); 
-}
+    Object.defineProperty(this, 'root', {get: function() { return new ElementNode($document[0]);}});
+};
 
 
 var DocumentNode = function(nativeNode) {
     this.nativeNode = nativeNode;
     this._$ = $(nativeNode);
-}
+};
 
 $.extend(DocumentNode.prototype, {
     detach: function() { this._$.detach(); },
@@ -30,7 +30,7 @@ $.extend(DocumentNode.prototype, {
     sameNode: function(otherNode) {
         return this.nativeNode === otherNode.nativeNode;
     }
-})
+});
 
 var ElementNode = function(nativeNode) {
     DocumentNode.apply(this, arguments);
@@ -118,7 +118,7 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
 
 var TextNode = function(nativeNode) {
     DocumentNode.apply(this, arguments);
-}
+};
 
 $.extend(TextNode.prototype, DocumentNode.prototype, {
     nodeType: Node.TEXT_NODE,
@@ -134,7 +134,7 @@ $.extend(TextNode.prototype, DocumentNode.prototype, {
     prependText: function(text) {
         this.nativeNode.data = text + this.nativeNode.data;
     }
-})
+});
 
 
 return {

@@ -11,15 +11,15 @@ var expect = chai.expect;
 
 var getDocumentFromXML = function(xml) {
     return smartxml.documentFromXML(xml);
-}
+};
 
 var elementNodeFromParams = function(params) {
     return smartxml.elementNodeFromXML('<' + params.tag + '></' + params.tag + '>');
-}
+};
 
 var elementNodeFromXML = function(xml) {
     return smartxml.elementNodeFromXML(xml);
-}
+};
 
 
 describe.only('smartxml', function() {
@@ -41,7 +41,7 @@ describe.only('smartxml', function() {
             expect(contents[1].nodeType).to.equal(Node.ELEMENT_NODE, 'element node 1');
             expect(contents[2].nodeType).to.equal(Node.TEXT_NODE, 'text node 2');
         });
-    })
+    });
 
     describe('Manipulations', function() {
 
