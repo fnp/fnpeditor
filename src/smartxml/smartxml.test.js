@@ -52,6 +52,18 @@ describe.only('smartxml', function() {
             expect(node1.contents()[0].sameNode(node2)).to.be.true;
         });
 
+        it('unwraps element node contents', function() {
+            var node = elementNodeFromXML('<div>Alice <div>has <span>propably</span> a cat</div>!</div>'),
+                outerDiv = node.contents()[1];
+            
+            outerDiv.unwrapContent();
+
+            expect(node.contents().length).to.equal(3);
+            expect(node.contents()[0].getText()).to.equal('Alice has ');
+            expect(node.contents()[1].getTagName()).to.equal('span');
+            expect(node.contents()[2].getText()).to.equal(' a cat!');
+        });
+
     });
 
 });
