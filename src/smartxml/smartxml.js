@@ -19,12 +19,24 @@ var Document = function(nativeNode) {
 }
 
 
-var ElementNode = function(nativeNode) {
+var DocumentNode = function(nativeNode) {
     this.nativeNode = nativeNode;
     this._$ = $(nativeNode);
+}
+
+$.extend(DocumentNode.prototype, {
+    detach: function() { this._$.detach(); },
+
+    sameNode: function(otherNode) {
+        return this.nativeNode === otherNode.nativeNode;
+    }
+})
+
+var ElementNode = function(nativeNode) {
+    DocumentNode.apply(this, arguments);
 };
 
-$.extend(ElementNode.prototype, {
+$.extend(ElementNode.prototype, DocumentNode.prototype, {
     nodeType: Node.ELEMENT_NODE,
 
     getTagName: function() {
@@ -50,17 +62,8 @@ $.extend(ElementNode.prototype, {
         return toret;
     },
 
-
-    sameNode: function(otherNode) {
-        return this.nativeNode === otherNode.nativeNode;
-    },
-
     indexOf: function(node) {
         return this._$.contents().index(node._$);
-    },
-
-    detach: function() {
-        this._$.detach();
     },
 
     parent: function() {
@@ -114,16 +117,11 @@ $.extend(ElementNode.prototype, {
 });
 
 var TextNode = function(nativeNode) {
-    this.nativeNode = nativeNode;
-    this._$ = $(nativeNode);
+    DocumentNode.apply(this, arguments);
 }
 
-$.extend(TextNode.prototype, {
+$.extend(TextNode.prototype, DocumentNode.prototype, {
     nodeType: Node.TEXT_NODE,
-
-    detach: function() {
-        this._$.detach();
-    },
 
     getText: function() {
         return this.nativeNode.data;
