@@ -45,7 +45,7 @@ describe.only('smartxml', function() {
 
     describe('Manipulations', function() {
 
-        it('appende element node to another element node', function() {
+        it('appends element node to another element node', function() {
             var node1 = elementNodeFromParams({tag: 'div'}),
                 node2 = elementNodeFromParams({tag: 'a'});
             node1.append(node2);
