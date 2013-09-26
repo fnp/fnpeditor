@@ -20,8 +20,8 @@ var elementNodeFromParams = function(params) {
 
 describe.only('smartxml', function() {
 
-    describe('Basic use', function() {
-        it('exposes root element', function() {
+    describe('Basic Document properties', function() {
+        it('exposes its root element', function() {
             var doc = getDocumentFromXML('<div></div>');
             expect(doc.root.getTagName()).to.equal('div');
         });
