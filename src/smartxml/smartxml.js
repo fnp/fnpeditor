@@ -18,33 +18,34 @@ var Document = function(nativeNode) {
 
 
 var ElementNode = function(nativeNode) {
-    var myNode = nativeNode,
-        $myNode = $(nativeNode);
+    this.nativeNode = nativeNode;
+    this._$ = $(nativeNode);
+};
 
-    this._$myNode = $myNode;
-    this._myNode= myNode;
+$.extend(ElementNode.prototype, {
+    getTagName: function() {
+        return this.nativeNode.tagName.toLowerCase();
+    },
 
-    this.getTagName = function() {
-        return myNode.tagName.toLowerCase();
-    };
+    append: function(documentNode) {
+        this._$.append(documentNode.nativeNode);
+    },
 
-    this.append = function(documentNode) {
-        this._$myNode.append(documentNode._$myNode);
-    };
-
-    this.contents = function() {
+    contents: function() {
         var toret = [];
-        this._$myNode.contents().each(function() {
+        this._$.contents().each(function() {
             if(this.nodeType === Node.ELEMENT_NODE)
                 toret.push(new ElementNode(this));
         });
         return toret;
-    };
+    },
 
-    this.sameNode = function(otherNode) {
-        return this._myNode === otherNode._myNode;
+
+    sameNode: function(otherNode) {
+        return this.nativeNode === otherNode.nativeNode;
     }
-};
+
+});
 
 return {
     documentFromXML: function(xml) {
