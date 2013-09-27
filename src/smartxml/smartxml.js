@@ -62,6 +62,14 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
         return new ElementNode(this._$.parent());
     },
 
+    getAttr: function(name) {
+        return this._$.attr(name);
+    },
+
+    setAttr: function(name, value) {
+        this._$.attr(name, value);
+    },
+
     append: function(documentNode) {
         this._$.append(documentNode.nativeNode);
     },
