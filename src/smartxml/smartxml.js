@@ -43,14 +43,6 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
         return this.nativeNode.tagName.toLowerCase();
     },
 
-    append: function(documentNode) {
-        this._$.append(documentNode.nativeNode);
-    },
-
-    before: function(node) {
-        this._$.before(node.nativeNode);
-    },
-
     contents: function() {
         var toret = [];
         this._$.contents().each(function() {
@@ -68,6 +60,14 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
 
     parent: function() {
         return new ElementNode(this._$.parent());
+    },
+
+    append: function(documentNode) {
+        this._$.append(documentNode.nativeNode);
+    },
+
+    before: function(node) {
+        this._$.before(node.nativeNode);
     },
 
     unwrapContent: function() {
