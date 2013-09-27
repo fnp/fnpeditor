@@ -4,7 +4,7 @@ define([
 ], function(chai, smartxml) {
     
 'use strict';
-
+/*jshint expr:true */
 
 var expect = chai.expect;
 
