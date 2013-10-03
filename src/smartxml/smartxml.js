@@ -29,7 +29,21 @@ $.extend(DocumentNode.prototype, {
 
     sameNode: function(otherNode) {
         return this.nativeNode === otherNode.nativeNode;
-    }
+    },
+
+    parent: function() {
+        return this.nativeNode.parentNode ? new ElementNode(this.nativeNode.parentNode) : null;
+    },
+
+    before: function(node) {
+        this._$.before(node.nativeNode);
+    },
+
+    wrapWith: function(node) {
+        if(this.parent())
+            this.before(node);
+        node.append(this);
+    },
 });
 
 var ElementNode = function(nativeNode) {
@@ -58,10 +72,6 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
         return this._$.contents().index(node._$);
     },
 
-    parent: function() {
-        return new ElementNode(this._$.parent());
-    },
-
     getAttr: function(name) {
         return this._$.attr(name);
     },
@@ -72,10 +82,6 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
 
     append: function(documentNode) {
         this._$.append(documentNode.nativeNode);
-    },
-
-    before: function(node) {
-        this._$.before(node.nativeNode);
     },
 
     unwrapContent: function() {

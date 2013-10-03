@@ -52,6 +52,24 @@ describe.only('smartxml', function() {
             expect(node1.contents()[0].sameNode(node2)).to.be.true;
         });
 
+        it('wraps element node with another element node', function() {
+            var node = elementNodeFromXML('<div></div>'),
+                wrapper = elementNodeFromXML('<wrapper></wrapper>');
+
+            node.wrapWith(wrapper);
+            expect(node.parent().sameNode(wrapper)).to.be.true;
+        });
+
+        it('wraps text node with element node', function() {
+            var node = elementNodeFromXML('<div>Alice</div>'),
+                textNode = node.contents()[0],
+                wrapper = elementNodeFromXML('<wrapper></wrapper>');
+
+            textNode.wrapWith(wrapper);
+            expect(textNode.parent().sameNode(wrapper)).to.be.true;
+            expect(node.contents()).to.have.length(1);
+        });
+
         it('unwraps element node contents', function() {
             var node = elementNodeFromXML('<div>Alice <div>has <span>propably</span> a cat</div>!</div>'),
                 outerDiv = node.contents()[1];
