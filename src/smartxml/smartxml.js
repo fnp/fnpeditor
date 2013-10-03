@@ -71,6 +71,14 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
         this._$.attr(name, value);
     },
 
+    getAttrs: function() {
+        var toret = [];
+        for(var i = 0; i < this.nativeNode.attributes.length; i++) {
+            toret.push(this.nativeNode.attributes[i]);
+        }
+        return toret;
+    },
+
     append: function(documentNode) {
         this._$.append(documentNode.nativeNode);
     },
