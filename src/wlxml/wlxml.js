@@ -52,7 +52,11 @@ $.extend(WLXMLDocument.prototype, {
 return {
     WLXMLDocumentFromXML: function(xml) {
         return new WLXMLDocument(xml);
-    }  
+    },
+
+    WLXMLElementNodeFromXML: function(xml) {
+        return this.WLXMLDocumentFromXML(xml).root;
+    }
 };
 
 });

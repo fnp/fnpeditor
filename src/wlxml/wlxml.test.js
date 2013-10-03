@@ -7,11 +7,18 @@ define([
 
 var expect = chai.expect;
 
+var nodeFromXML = function(xml) {
+    return wlxml.WLXMLElementNodeFromXML(xml);
+};
 
-describe('how it works', function() {
-    it('does something', function() {
-        var doc = wlxml.WLXMLDocumentFromXML('<section class="class.subclass"></section>');
-        expect(doc.root.getClass()).to.equal('class.subclass');
+
+describe('WLXMLDocument', function() {
+    
+    describe('Basic wlxml element node properties', function() {
+        it('returns its class', function() {
+            var node = nodeFromXML('<header class="class.subclass"></header>');
+            expect(node.getClass()).to.equal('class.subclass');
+        });
     });
 });
 
