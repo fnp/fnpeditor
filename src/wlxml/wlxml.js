@@ -25,7 +25,7 @@ $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
         var toret = {};
         this.getAttrs().forEach(function(attr) {
             if(isMetaAttribute(attr.name))
-                meta[attr.name.substr(5)] = attr.value;
+                toret[attr.name.substr(5)] = attr.value;
         });
         return toret;
     },

@@ -19,7 +19,13 @@ describe('WLXMLDocument', function() {
             var node = nodeFromXML('<header class="class.subclass"></header>');
             expect(node.getClass()).to.equal('class.subclass');
         });
+
+        it('returns its attributes as dict', function() {
+            var node = nodeFromXML('<span meta-attr1="val1" meta-attr2="val2"></span>');
+            expect(node.getMetaAttributes()).to.eql({attr1: 'val1', attr2: 'val2'});
+        });
     });
+
 });
 
 });
