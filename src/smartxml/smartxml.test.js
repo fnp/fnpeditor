@@ -22,7 +22,7 @@ var elementNodeFromXML = function(xml) {
 };
 
 
-describe.only('smartxml', function() {
+describe('smartxml', function() {
 
     describe('Basic Document properties', function() {
         it('exposes its root element', function() {
