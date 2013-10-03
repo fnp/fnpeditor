@@ -7,19 +7,9 @@ define([
 
 var TEXT_NODE = Node.TEXT_NODE, ELEMENT_NODE = Node.ELEMENT_NODE;
 
-var parseXML = function(xml) {
-    return $(xml)[0];
-};
 
-var Document = function(nativeNode) {
-    var $document = $(nativeNode);
-
-
-    Object.defineProperty(this, 'root', {get: function() { return new ElementNode($document[0]);}});
-};
-
-
-var DocumentNode = function(nativeNode) {
+var DocumentNode = function(nativeNode, document) {
+    this.document = document;
     this.nativeNode = nativeNode;
     this._$ = $(nativeNode);
 };
@@ -32,7 +22,7 @@ $.extend(DocumentNode.prototype, {
     },
 
     parent: function() {
-        return this.nativeNode.parentNode ? new ElementNode(this.nativeNode.parentNode) : null;
+        return this.nativeNode.parentNode ? this.document.createElementNode(this.nativeNode.parentNode) : null;
     },
 
     before: function(node) {
@@ -58,12 +48,13 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
     },
 
     contents: function() {
-        var toret = [];
+        var toret = [],
+            document = this.document;
         this._$.contents().each(function() {
             if(this.nodeType === Node.ELEMENT_NODE)
-                toret.push(new ElementNode(this));
+                toret.push(document.createElementNode(this));
             else if(this.nodeType === Node.TEXT_NODE)
-                toret.push(new TextNode(this));
+                toret.push(document.createTextNode(this));
         });
         return toret;
     },
@@ -151,14 +142,44 @@ $.extend(TextNode.prototype, DocumentNode.prototype, {
 });
 
 
+var parseXML = function(xml) {
+    return $(xml)[0];
+};
+
+var Document = function(xml) {
+    var $document = $(parseXML(xml));
+
+    var doc = this;
+    Object.defineProperty(this, 'root', {get: function() {
+        return doc.createElementNode($document[0]);
+    }});
+};
+$.extend(Document.prototype, {
+    ElementNodeFactory: ElementNode,
+    TextNodeFactory: TextNode,
+
+    createElementNode: function(nativeNode) {
+        return new this.ElementNodeFactory(nativeNode, this);
+    },
+
+    createTextNode: function(nativeNode) {
+        return new this.TextNodeFactory(nativeNode, this);
+    }
+});
+
+
 return {
     documentFromXML: function(xml) {
         return new Document(parseXML(xml));
     },
 
     elementNodeFromXML: function(xml) {
-        return new ElementNode(parseXML(xml));
-    }
+        return this.documentFromXML(xml).root;
+    },
+
+    Document: Document,
+    DocumentNode: DocumentNode,
+    ElementNode: ElementNode
 };
 
 });
