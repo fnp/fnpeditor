@@ -24,16 +24,18 @@ $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
     getMetaAttributes: function() {
         var toret = {};
         this.getAttrs().forEach(function(attr) {
-            if(isMetaAttribute(attr.name))
+            if(isMetaAttribute(attr.name)) {
                 toret[attr.name.substr(5)] = attr.value;
+            }
         });
         return toret;
     },
     getOtherAttributes: function() {
         var toret = {};
         this.getAttrs().forEach(function(attr) {
-            if(attr.name != 'class' && !isMetaAttribute(attr.name))
+            if(attr.name !== 'class' && !isMetaAttribute(attr.name)) {
                 toret[attr.name] = attr.value;
+            }
         });
         return toret;
     }
