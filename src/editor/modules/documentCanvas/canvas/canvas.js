@@ -9,13 +9,45 @@ define([
     
 'use strict';
 
-var Canvas = function(wlxml, publisher) {
+var Canvas = function(wlxml, publisher, ver) {
     this.eventBus = _.extend({}, Backbone.Events);
-    this.loadWlxml(wlxml);
+    if(ver === 2) {
+        this.loadWlxmlDocument(wlxml);
+    } else {
+        this.loadWlxml(wlxml);
+    }
     this.publisher = publisher ? publisher : function() {};
 };
 
 $.extend(Canvas.prototype, {
+
+    loadWlxmlDocument: function(wlxmlDocument) {
+        var canvasDOM = this.generateCanvasDOM(wlxmlDocument.root);
+
+        this.wrapper = $('<div>').addClass('canvas-wrapper').attr('contenteditable', true);
+        this.wrapper.append(canvasDOM);
+        this.d = this.wrapper.children(0);
+        this.setupEventHandling();
+    },
+
+    generateCanvasDOM: function(wlxmlNode) {
+        // var element = this.createNodeElement2({
+        //     tag: wlxmlNode.getTagName(),
+        //     klass: wlxmlNode.getClass(), //currentTag.attr('class'),
+        //     meta: wlxmlNode.getMetaAttributes(), //meta,
+        //     others: wlxmlNode.getOtherAttributes(), // ~ //others,
+        //     rawChildren: wlxmlNode.contents(),
+        //     prepopulateOnEmpty: true
+        // }); //->create2
+
+        var element = documentElement.DocumentNodeElement.create2(wlxmlNode, this);
+
+
+        ['orig-before', 'orig-after', 'orig-begin', 'orig-end'].forEach(function(attr) {
+            element.data(attr, '');
+        });
+        return element.dom();
+    },
 
     loadWlxml: function(wlxml) {
         var d = wlxml ? $($.trim(wlxml)) : null;
@@ -142,62 +174,67 @@ $.extend(Canvas.prototype, {
             
             this.d = this.wrapper.children(0);
 
-            this.wrapper.on('keyup keydown keypress', function(e) {
-                keyboard.handleKey(e, this);
-            }.bind(this));
-
-            this.wrapper.on('click', '[document-node-element], [document-text-element]', function(e) {
-                e.stopPropagation();
-                canvas.setCurrentElement(canvas.getDocumentElement(e.currentTarget), {caretTo: false});
-            });
-
-            var observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if(documentElement.DocumentTextElement.isContentContainer(mutation.target)) {
-                        observer.disconnect();
-                        if(mutation.target.data === '')
-                            mutation.target.data = utils.unicode.ZWS;
-                        else if(mutation.oldValue === utils.unicode.ZWS) {
-                            mutation.target.data = mutation.target.data.replace(utils.unicode.ZWS, '');
-                            canvas._moveCaretToTextElement(canvas.getDocumentElement(mutation.target), 'end');
-                        }
-                        observer.observe(canvas.d[0], config);
-                        canvas.publisher('contentChanged');
-                    }
-                });
-            });
-            var config = { attributes: false, childList: false, characterData: true, subtree: true, characterDataOldValue: true};
-            observer.observe(this.d[0], config);
-
-
-            this.wrapper.on('mouseover', '[document-node-element], [document-text-element]', function(e) {
-                var el = canvas.getDocumentElement(e.currentTarget);
-                if(!el)
-                    return;
-                e.stopPropagation();
-                if(el instanceof documentElement.DocumentTextElement)
-                    el = el.parent();
-                el.toggleLabel(true);
-            });
-            this.wrapper.on('mouseout', '[document-node-element], [document-text-element]', function(e) {
-                var el = canvas.getDocumentElement(e.currentTarget);
-                if(!el)
-                    return;
-                e.stopPropagation();
-                if(el instanceof documentElement.DocumentTextElement)
-                    el = el.parent();
-                el.toggleLabel(false);
-            });
-
-            this.eventBus.on('elementToggled', function(toggle, element) {
-                if(!toggle) {
-                    canvas.setCurrentElement(element.getPreviousTextElement());
-                }
-            })
+            this.setupEventHandling();
 
         } else {
             this.d = null;
         }
+    },
+
+    setupEventHandling: function() {
+        var canvas = this;
+        this.wrapper.on('keyup keydown keypress', function(e) {
+            keyboard.handleKey(e, this);
+        }.bind(this));
+
+        this.wrapper.on('click', '[document-node-element], [document-text-element]', function(e) {
+            e.stopPropagation();
+            canvas.setCurrentElement(canvas.getDocumentElement(e.currentTarget), {caretTo: false});
+        });
+
+        var observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if(documentElement.DocumentTextElement.isContentContainer(mutation.target)) {
+                    observer.disconnect();
+                    if(mutation.target.data === '')
+                        mutation.target.data = utils.unicode.ZWS;
+                    else if(mutation.oldValue === utils.unicode.ZWS) {
+                        mutation.target.data = mutation.target.data.replace(utils.unicode.ZWS, '');
+                        canvas._moveCaretToTextElement(canvas.getDocumentElement(mutation.target), 'end');
+                    }
+                    observer.observe(canvas.d[0], config);
+                    canvas.publisher('contentChanged');
+                }
+            });
+        });
+        var config = { attributes: false, childList: false, characterData: true, subtree: true, characterDataOldValue: true};
+        observer.observe(this.d[0], config);
+
+
+        this.wrapper.on('mouseover', '[document-node-element], [document-text-element]', function(e) {
+            var el = canvas.getDocumentElement(e.currentTarget);
+            if(!el)
+                return;
+            e.stopPropagation();
+            if(el instanceof documentElement.DocumentTextElement)
+                el = el.parent();
+            el.toggleLabel(true);
+        });
+        this.wrapper.on('mouseout', '[document-node-element], [document-text-element]', function(e) {
+            var el = canvas.getDocumentElement(e.currentTarget);
+            if(!el)
+                return;
+            e.stopPropagation();
+            if(el instanceof documentElement.DocumentTextElement)
+                el = el.parent();
+            el.toggleLabel(false);
+        });
+
+        this.eventBus.on('elementToggled', function(toggle, element) {
+            if(!toggle) {
+                canvas.setCurrentElement(element.getPreviousTextElement());
+            }
+        });
     },
 
     view: function() {
@@ -651,6 +688,9 @@ $.extend(Cursor.prototype, {
 return {
     fromXML: function(xml, publisher) {
         return new Canvas(xml, publisher);
+    },
+    fromXML2: function(wlxmlNode, publisher) {
+        return new Canvas(wlxmlNode, publisher, 2);
     }
 };
 

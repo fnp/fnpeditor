@@ -6,7 +6,10 @@
         
         paths: {
             'fnpjs': '../fnpjs',
-            'libs': '../../libs'
+            'libs': '../../libs',
+            'smartxml': '../smartxml',
+            'wlxml': '../wlxml',
+
         },
 
         map: {

@@ -14,7 +14,8 @@
         paths: {
             'fnpjs': '../fnpjs',
             'libs': '../../libs',
-            'smartxml': '../smartxml'
+            'smartxml': '../smartxml',
+            'wlxml': '../wlxml'
         },
 
         map: {

@@ -1,4 +1,8 @@
-define(['./saveDialog'], function(saveDialog) {
+define([
+    './saveDialog',
+    'wlxml/wlxml'
+
+], function(saveDialog, wlxml) {
 
 'use strict';
 
@@ -9,6 +13,7 @@ return function(sandbox) {
     var document_version = sandbox.getBootstrappedData().version;
     var history = sandbox.getBootstrappedData().history;
 
+    var wlxmlDocument = wlxml.WLXMLDocumentFromXML(sandbox.getBootstrappedData().document);
     
     if(doc === '') {
         doc = '<section\n\
@@ -61,6 +66,9 @@ return function(sandbox) {
         },
         getDocument: function() {
             return doc;
+        },
+        getDocument2: function() {
+            return wlxmlDocument;
         },
         commitDocument: function(newDocument, reason) {
             doc = newDocument;

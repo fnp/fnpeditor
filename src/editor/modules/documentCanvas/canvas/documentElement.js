@@ -23,13 +23,21 @@ var elementTypeFromParams = function(params) {
 
 };
 
+var elementTypeFromNode = function(wlxmlNode) {
+    return wlxmlNode.nodeType === Node.TEXT_NODE ? DocumentTextElement : DocumentNodeElement;
+}
+
 $.extend(DocumentElement, {
     create: function(params, canvas) {
         return elementTypeFromParams(params).create(params);
     },
 
-    createDOM: function(params) {
-        return elementTypeFromParams(params).createDOM(params);
+    create2: function(node, canvas) {
+        return elementTypeFromNode(node).create2(node, canvas);
+    },
+
+    createDOM: function(wlxmlNode) {
+        return elementTypeFromParams(wlxmlNode).createDOM(params);
     },
 
     fromHTMLElement: function(htmlElement, canvas) {
@@ -175,6 +183,59 @@ $.extend(DocumentNodeElement, {
     },
 
     fromHTMLElement: function(htmlElement, canvas) {
+        return new this(htmlElement, canvas);
+    },
+
+    createDOM2: function(wlxmlNode, canvas) {
+        
+        //     tag: wlxmlNode.getTagName(),
+        //     klass: wlxmlNode.getClass(), //currentTag.attr('class'),
+        //     meta: wlxmlNode.getMetaAttributes(), //meta,
+        //     others: wlxmlNode.getOtherAttributes(), // ~ //others,
+        //     rawChildren: wlxmlNode.contents(),
+        //     prepopulateOnEmpty: true
+
+        var dom = $('<div>')
+                .attr('document-node-element', ''),
+            widgetsContainer = $('<div>')
+                .addClass('canvas-widgets')
+                .attr('contenteditable', false),
+            container = $('<div>')
+                .attr('document-element-content', '');
+        
+        dom.append(widgetsContainer, container);
+        // Make sure widgets aren't navigable with arrow keys
+        widgetsContainer.find('*').add(widgetsContainer).attr('tabindex', -1);
+
+        var element = this.fromHTMLElement(dom[0], canvas);
+
+        element.setWlxml({tag: wlxmlNode.getTagName(), klass: wlxmlNode.getClass()});
+
+        _.keys(wlxmlNode.getMetaAttributes()).forEach(function(key) {
+            element.setWlxmlMetaAttr(key, params.meta[key]);
+        });
+
+        //element.data('other-attrs', params.others);
+
+        // element.contents
+
+        wlxmlNode.contents().forEach((function(node) {
+            container.append(DocumentElement.create2(node).dom());
+        }).bind(this));
+
+        // if(params.rawChildren && params.rawChildren.length) {
+        //     container.append(params.rawChildren);
+        // } else if(params.prepopulateOnEmpty) {
+        //     element.append(DocumentTextElement.create({text: ''}));
+        // }
+        return dom;
+    },
+
+    create2: function(params, canvas) {
+        return this.fromHTMLElement2(this.createDOM2(params, canvas)[0], canvas);
+    },
+
+    fromHTMLElement2: function(htmlElement, canvas) {
         return new this(htmlElement, canvas);
     }
 });
@@ -484,8 +545,18 @@ $.extend(DocumentTextElement, {
             .text(params.text || utils.unicode.ZWS);
     },
 
+    createDOM2: function(wlxmlTextNode) {
+        return $('<div>')
+            .attr('document-text-element', '')
+            .text(wlxmlTextNode.getText() || utils.unicode.ZWS);
+    },
+
     create: function(params, canvas) {
         return this.fromHTMLElement(this.createDOM(params)[0]);
+    },
+
+    create2: function(wlxmlTextNode, canvas) {
+        return this.fromHTMLElement(this.createDOM2(wlxmlTextNode)[0]);
     },
 
     fromHTMLElement: function(htmlElement, canvas) {
