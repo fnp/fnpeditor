@@ -27,7 +27,7 @@ return function(sandbox) {
             return view;
         },
         setDocument: function(document) {
-            editor.setValue(document);
+            editor.setValue(document.toXML());
             editor.gotoLine(0);
             sandbox.publish('documentSet');
         },
