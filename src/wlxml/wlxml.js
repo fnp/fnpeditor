@@ -22,10 +22,10 @@ $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
         return this.getAttr('class');
     },
     getMetaAttributes: function() {
-        var toret = {};
+        var toret = [];
         this.getAttrs().forEach(function(attr) {
             if(isMetaAttribute(attr.name)) {
-                toret[attr.name.substr(5)] = attr.value;
+                toret.push({name: attr.name.substr(5), value: attr.value});
             }
         });
         return toret;

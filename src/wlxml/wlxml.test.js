@@ -24,7 +24,7 @@ describe('WLXMLDocument', function() {
 
         it('returns its attributes as dict', function() {
             var node = nodeFromXML('<span meta-attr1="val1" meta-attr2="val2"></span>');
-            expect(node.getMetaAttributes()).to.eql({attr1: 'val1', attr2: 'val2'});
+            expect(node.getMetaAttributes()).to.eql([{name: 'attr1', value: 'val1'}, {name: 'attr2', value: 'val2'}]);
         });
 
         it('returns attributes other than class and meta-* as other attributes', function() {
