@@ -190,7 +190,7 @@ return function(sandbox) {
     
     eventHandlers.documentCanvas = {
         ready: function() {
-            sandbox.getModule('documentCanvas').setDocument2(sandbox.getModule('data').getDocument2());
+            sandbox.getModule('documentCanvas').setDocument(sandbox.getModule('data').getDocument());
             views.visualEditing.setView('leftColumn', sandbox.getModule('documentCanvas').getView());
         },
         documentSet: function() {

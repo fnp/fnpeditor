@@ -9,13 +9,9 @@ define([
     
 'use strict';
 
-var Canvas = function(wlxml, publisher, ver) {
+var Canvas = function(wlxml, publisher) {
     this.eventBus = _.extend({}, Backbone.Events);
-    if(ver === 2) {
-        this.loadWlxmlDocument(wlxml);
-    } else {
-        this.loadWlxml(wlxml);
-    }
+    this.loadWlxmlDocument(wlxml);
     this.publisher = publisher ? publisher : function() {};
 };
 
@@ -40,145 +36,13 @@ $.extend(Canvas.prototype, {
         //     prepopulateOnEmpty: true
         // }); //->create2
 
-        var element = documentElement.DocumentNodeElement.create2(wlxmlNode, this);
+        var element = documentElement.DocumentNodeElement.create(wlxmlNode, this);
 
 
         ['orig-before', 'orig-after', 'orig-begin', 'orig-end'].forEach(function(attr) {
             element.data(attr, '');
         });
         return element.dom();
-    },
-
-    loadWlxml: function(wlxml) {
-        var d = wlxml ? $($.trim(wlxml)) : null;
-        if(d) {
-            this.wrapper = $('<div>').addClass('canvas-wrapper').attr('contenteditable', true);
-            this.wrapper.append(d);
-            var canvas = this;
-
-            this.wrapper.find('*').replaceWith(function() {
-                var currentTag = $(this);
-                if(currentTag.attr('wlxml-tag'))
-                    return;
-
-                var meta = {}, others = {};
-                for(var i = 0; i < this.attributes.length; i++) {
-                    var attr = this.attributes[i];
-                    if(attr.name.substr(0, 5) === 'meta-')
-                        meta[attr.name.substr(5)] = attr.value;
-                    else if(attr.name !== 'class')
-                        others[attr.name] = attr.value;
-                }
-
-                var element = canvas.createNodeElement({
-                    tag: currentTag.prop('tagName').toLowerCase(),
-                    klass: currentTag.attr('class'),
-                    meta: meta,
-                    others: others,
-                    rawChildren: currentTag.contents(),
-                    prepopulateOnEmpty: true
-                });
-
-                ['orig-before', 'orig-after', 'orig-begin', 'orig-end'].forEach(function(attr) {
-                    element.data(attr, '');
-                });
-                return element.dom();
-            });
-
-            var FIRST_CONTENT_INDEX = 0;
-
-            // @@ TODO - refactor!
-            var getNode = function(element) {
-                return element.children('[document-element-content]');
-            }
-
-            this.wrapper.find(':not(iframe)').addBack().contents()
-                .filter(function() {return this.nodeType === Node.TEXT_NODE})
-                .each(function() {
-
-                    // TODO: use DocumentElement API
-
-                    var el = $(this),
-                        text = {original: el.text(), trimmed: $.trim(el.text())},
-                        elParent = el.parent(),
-                        hasSpanParent = elParent.attr('wlxml-tag') === 'span',
-                        hasSpanBefore = el.prev().length > 0  && getNode($(el.prev()[0])).attr('wlxml-tag') === 'span',
-                        hasSpanAfter = el.next().length > 0 && getNode($(el.next()[0])).attr('wlxml-tag') === 'span';
-
-                    if(el.parent().hasClass('canvas-widget') || elParent.attr('document-text-element') !== undefined)
-                        return true; // continue
-
-                    var addInfo = function(toAdd, where) {
-                        var parentContents = elParent.contents(),
-                            idx = parentContents.index(el[0]),
-                            prev = idx > FIRST_CONTENT_INDEX ? parentContents[idx-1] : null,
-                            next = idx < parentContents.length - 1 ? parentContents[idx+1] : null,
-                            target, key;
-
-                        if(where === 'above') {
-                            target = prev ? $(prev) : elParent.parent();
-                            key = prev ? 'orig-after' : 'orig-begin';
-                        } else if(where === 'below') {
-                            target = next ? $(next) : elParent.parent();
-                            key = next ? 'orig-before' : 'orig-end';
-                        } else { throw new Object;}
-
-                        target.data(key, toAdd);
-                    }
-
-                    text.transformed = text.trimmed;
-                    
-                    if(hasSpanParent || hasSpanBefore || hasSpanAfter) {
-                        var startSpace = /\s/g.test(text.original.substr(0,1)),
-                            endSpace = /\s/g.test(text.original.substr(-1)) && text.original.length > 1;
-                        text.transformed = (startSpace && (hasSpanParent || hasSpanBefore) ? ' ' : '')
-                                    + text.trimmed
-                                    + (endSpace && (hasSpanParent || hasSpanAfter) ? ' ' : '');
-                    } else {
-                        if(text.trimmed.length === 0 && text.original.length > 0 && elParent.contents().length === 1)
-                            text.transformed = ' ';
-                    }
-
-                    if(!text.transformed) {
-                        addInfo(text.original, 'below');
-                        el.remove();
-                        return true; // continue
-                    }
-
-                    if(text.transformed !== text.original) {
-                        if(!text.trimmed) {
-                            addInfo(text.original, 'below');
-                        } else {
-                            var startingMatch = text.original.match(/^\s+/g),
-                                endingMatch = text.original.match(/\s+$/g),
-                                startingWhiteSpace = startingMatch ? startingMatch[0] : null,
-                                endingWhiteSpace = endingMatch ? endingMatch[0] : null;
-
-                            if(endingWhiteSpace) {
-                                if(text.transformed[text.transformed.length - 1] === ' ' && endingWhiteSpace[0] === ' ')
-                                    endingWhiteSpace = endingWhiteSpace.substr(1);
-                                addInfo(endingWhiteSpace, 'below');
-                            }
-
-                            if(startingWhiteSpace) {
-                                if(text.transformed[0] === ' ' && startingWhiteSpace[startingWhiteSpace.length-1] === ' ')
-                                    startingWhiteSpace = startingWhiteSpace.substr(0, startingWhiteSpace.length -1);
-                                addInfo(startingWhiteSpace, 'above');
-                            }
-                        }
-                    }
-
-                    var element = documentElement.DocumentTextElement.create({text: text.transformed});
-                    el.replaceWith(element.dom());
-                });
-            
-            this.d = this.wrapper.children(0);
-
-            this.setupEventHandling();
-
-        } else {
-            this.d = null;
-        }
     },
 
     setupEventHandling: function() {
@@ -686,11 +550,8 @@ $.extend(Cursor.prototype, {
 })
 
 return {
-    fromXML: function(xml, publisher) {
-        return new Canvas(xml, publisher);
-    },
-    fromXML2: function(wlxmlNode, publisher) {
-        return new Canvas(wlxmlNode, publisher, 2);
+    fromXML: function(wlxmlNode, publisher) {
+        return new Canvas(wlxmlNode, publisher);
     }
 };
 

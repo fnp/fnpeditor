@@ -37,12 +37,7 @@ return function(sandbox) {
         getView: function() { 
             return canvasWrapper;
         },
-        setDocument: function(xml) {
-            canvas.loadWlxml(xml);
-            canvasWrapper.find('#rng-module-documentCanvas-content').empty().append(canvas.view());
-            sandbox.publish('documentSet');
-        },
-        setDocument2: function(wlxmlDocument) {
+        setDocument: function(wlxmlDocument) {
             canvas.loadWlxmlDocument(wlxmlDocument);
             canvasWrapper.find('#rng-module-documentCanvas-content').empty().append(canvas.view());
             sandbox.publish('documentSet');

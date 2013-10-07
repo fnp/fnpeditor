@@ -8,26 +8,12 @@ define([
 
 return function(sandbox) {
 
-    var doc = sandbox.getBootstrappedData().document;
     var document_id = sandbox.getBootstrappedData().document_id;
     var document_version = sandbox.getBootstrappedData().version;
     var history = sandbox.getBootstrappedData().history;
 
     var wlxmlDocument = wlxml.WLXMLDocumentFromXML(sandbox.getBootstrappedData().document);
-    
-    if(doc === '') {
-        doc = '<section\n\
-        xmlns="http://nowoczesnapolska.org.pl/sst#"\n\
-        xmlns:xlink="http://www.w3.org/1999/xlink"\n\
-        xmlns:dc="http://purl.org/dc/elements/1.1/"\n\
-        xmlns:dcterms="http://purl.org/dc/terms/"\n\
-    >\n\
-        <metadata>\n\
-        </metadata>\n\
-        <div class="p"></div>\n\
-    </section>';
-    }
-    
+     
     
     function readCookie(name) {
         var nameEQ = escape(name) + "=";
@@ -65,14 +51,11 @@ return function(sandbox) {
             sandbox.publish('ready');
         },
         getDocument: function() {
-            return doc;
-        },
-        getDocument2: function() {
             return wlxmlDocument;
         },
         commitDocument: function(newDocument, reason) {
-            doc = newDocument;
-            sandbox.publish('documentChanged', doc, reason);
+            // doc = newDocument;
+            // sandbox.publish('documentChanged', doc, reason);
         },
         saveDocument: function() {
 

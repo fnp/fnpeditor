@@ -18,22 +18,14 @@ var DocumentElement = function(htmlElement, canvas) {
     this._setupDOMHandler(htmlElement);
 }
 
-var elementTypeFromParams = function(params) {
-    return params.text !== undefined ? DocumentTextElement : DocumentNodeElement;
 
-};
-
-var elementTypeFromNode = function(wlxmlNode) {
+var elementTypeFromWlxmlNode = function(wlxmlNode) {
     return wlxmlNode.nodeType === Node.TEXT_NODE ? DocumentTextElement : DocumentNodeElement;
 }
 
 $.extend(DocumentElement, {
-    create: function(params, canvas) {
-        return elementTypeFromParams(params).create(params);
-    },
-
-    create2: function(node, canvas) {
-        return elementTypeFromNode(node).create2(node, canvas);
+    create: function(node, canvas) {
+        return elementTypeFromWlxmlNode(node).create(node, canvas);
     },
 
     createDOM: function(wlxmlNode) {
@@ -147,54 +139,15 @@ var DocumentNodeElement = function(htmlElement, canvas) {
 };
 
 $.extend(DocumentNodeElement, {
-    createDOM: function(params, canvas) {
-        var dom = $('<div>')
-                .attr('document-node-element', ''),
-            widgetsContainer = $('<div>')
-                .addClass('canvas-widgets')
-                .attr('contenteditable', false),
-            container = $('<div>')
-                .attr('document-element-content', '');
-        
-        dom.append(widgetsContainer, container);
-        // Make sure widgets aren't navigable with arrow keys
-        widgetsContainer.find('*').add(widgetsContainer).attr('tabindex', -1);
-
-        var element = this.fromHTMLElement(dom[0], canvas);
-
-        element.setWlxml({tag: params.tag, klass: params.klass});
-        if(params.meta) {
-            _.keys(params.meta).forEach(function(key) {
-                element.setWlxmlMetaAttr(key, params.meta[key]);
-            });
-        }
-        element.data('other-attrs', params.others);
-
-        if(params.rawChildren && params.rawChildren.length) {
-            container.append(params.rawChildren);
-        } else if(params.prepopulateOnEmpty) {
-            element.append(DocumentTextElement.create({text: ''}));
-        }
-        return dom;
-    },
-
-    create: function(params, canvas) {
-        return this.fromHTMLElement(this.createDOM(params, canvas)[0], canvas);
+    create: function(wlxmlNode, canvas) {
+        return this.fromHTMLElement(this.createDOM(wlxmlNode, canvas)[0], canvas);
     },
 
     fromHTMLElement: function(htmlElement, canvas) {
         return new this(htmlElement, canvas);
     },
 
-    createDOM2: function(wlxmlNode, canvas) {
-        
-        //     tag: wlxmlNode.getTagName(),
-        //     klass: wlxmlNode.getClass(), //currentTag.attr('class'),
-        //     meta: wlxmlNode.getMetaAttributes(), //meta,
-        //     others: wlxmlNode.getOtherAttributes(), // ~ //others,
-        //     rawChildren: wlxmlNode.contents(),
-        //     prepopulateOnEmpty: true
-
+    createDOM: function(wlxmlNode, canvas) {
         var dom = $('<div>')
                 .attr('document-node-element', ''),
             widgetsContainer = $('<div>')
@@ -215,29 +168,13 @@ $.extend(DocumentNodeElement, {
             element.setWlxmlMetaAttr(key, params.meta[key]);
         });
 
-        //element.data('other-attrs', params.others);
-
-        // element.contents
-
         wlxmlNode.contents().forEach((function(node) {
-            container.append(DocumentElement.create2(node).dom());
+            container.append(DocumentElement.create(node).dom());
         }).bind(this));
 
-        // if(params.rawChildren && params.rawChildren.length) {
-        //     container.append(params.rawChildren);
-        // } else if(params.prepopulateOnEmpty) {
-        //     element.append(DocumentTextElement.create({text: ''}));
-        // }
         return dom;
-    },
-
-    create2: function(params, canvas) {
-        return this.fromHTMLElement2(this.createDOM2(params, canvas)[0], canvas);
-    },
-
-    fromHTMLElement2: function(htmlElement, canvas) {
-        return new this(htmlElement, canvas);
     }
+
 });
 
 var manipulate = function(e, params, action) {
@@ -539,24 +476,14 @@ var DocumentTextElement = function(htmlElement, canvas) {
 };
 
 $.extend(DocumentTextElement, {
-    createDOM: function(params) {
-        return $('<div>')
-            .attr('document-text-element', '')
-            .text(params.text || utils.unicode.ZWS);
-    },
-
-    createDOM2: function(wlxmlTextNode) {
+    createDOM: function(wlxmlTextNode) {
         return $('<div>')
             .attr('document-text-element', '')
             .text(wlxmlTextNode.getText() || utils.unicode.ZWS);
     },
 
-    create: function(params, canvas) {
-        return this.fromHTMLElement(this.createDOM(params)[0]);
-    },
-
-    create2: function(wlxmlTextNode, canvas) {
-        return this.fromHTMLElement(this.createDOM2(wlxmlTextNode)[0]);
+    create: function(wlxmlTextNode, canvas) {
+        return this.fromHTMLElement(this.createDOM(wlxmlTextNode)[0]);
     },
 
     fromHTMLElement: function(htmlElement, canvas) {
