@@ -5,7 +5,7 @@ define([
 'use strict';
 
 
-var TEXT_NODE = Node.TEXT_NODE, ELEMENT_NODE = Node.ELEMENT_NODE;
+var TEXT_NODE = Node.TEXT_NODE;
 
 
 var DocumentNode = function(nativeNode, document) {
@@ -30,14 +30,15 @@ $.extend(DocumentNode.prototype, {
     },
 
     wrapWith: function(node) {
-        if(this.parent())
+        if(this.parent()) {
             this.before(node);
+        }
         node.append(this);
     },
 });
 
-var ElementNode = function(nativeNode) {
-    DocumentNode.apply(this, arguments);
+var ElementNode = function(nativeNode, document) {
+    DocumentNode.call(this, nativeNode, document);
 };
 
 $.extend(ElementNode.prototype, DocumentNode.prototype, {
@@ -51,10 +52,12 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
         var toret = [],
             document = this.document;
         this._$.contents().each(function() {
-            if(this.nodeType === Node.ELEMENT_NODE)
+            if(this.nodeType === Node.ELEMENT_NODE) {
                 toret.push(document.createElementNode(this));
-            else if(this.nodeType === Node.TEXT_NODE)
+            }
+            else if(this.nodeType === Node.TEXT_NODE) {
                 toret.push(document.createTextNode(this));
+            }
         });
         return toret;
     },
@@ -85,15 +88,17 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
 
     unwrapContent: function() {
         var parent = this.parent();
-        if(!parent)
+        if(!parent) {
             return;
+        }
 
         var parentContents = parent.contents(),
             myContents = this.contents(),
             myIdx = parent.indexOf(this);
 
-        if(myContents.length === 0)
+        if(myContents.length === 0) {
             return this.detach();
+        }
 
         var moveLeftRange, moveRightRange, leftMerged;
 
@@ -129,8 +134,8 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
 
 });
 
-var TextNode = function(nativeNode) {
-    DocumentNode.apply(this, arguments);
+var TextNode = function(nativeNode, document) {
+    DocumentNode.call(this, nativeNode, document);
 };
 
 $.extend(TextNode.prototype, DocumentNode.prototype, {
