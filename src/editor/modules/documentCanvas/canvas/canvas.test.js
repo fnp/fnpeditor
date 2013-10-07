@@ -19,7 +19,7 @@ var nodeFromXML = function(xml) {
 describe('new Canvas', function() {
     it('abc', function() {
         var doc = wlxml.WLXMLDocumentFromXML('<section>Alice <span>has</span> a cat!</div>'),
-            c = canvas.fromXML(doc);
+            c = canvas.fromXMLDocument(doc);
 
         expect(c.doc().children()).to.have.length(3)
     });

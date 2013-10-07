@@ -10,7 +10,7 @@ define([
 
 return function(sandbox) {
 
-    var canvas = canvas3.fromXML('', sandbox.publish);
+    var canvas = canvas3.fromXMLDocument(null, sandbox.publish);
     var canvasWrapper = $(template);
     var shownAlready = false;
     var scrollbarPosition = 0,

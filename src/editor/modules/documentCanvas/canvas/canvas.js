@@ -9,15 +9,18 @@ define([
     
 'use strict';
 
-var Canvas = function(wlxml, publisher) {
+var Canvas = function(wlxmlDocument, publisher) {
     this.eventBus = _.extend({}, Backbone.Events);
-    this.loadWlxmlDocument(wlxml);
+    this.loadWlxmlDocument(wlxmlDocument);
     this.publisher = publisher ? publisher : function() {};
 };
 
 $.extend(Canvas.prototype, {
 
     loadWlxmlDocument: function(wlxmlDocument) {
+        if(!wlxmlDocument) {
+            return false;
+        }
         var canvasDOM = this.generateCanvasDOM(wlxmlDocument.root);
 
         this.wrapper = $('<div>').addClass('canvas-wrapper').attr('contenteditable', true);
@@ -550,8 +553,8 @@ $.extend(Cursor.prototype, {
 })
 
 return {
-    fromXML: function(wlxmlNode, publisher) {
-        return new Canvas(wlxmlNode, publisher);
+    fromXMLDocument: function(wlxmlDocument, publisher) {
+        return new Canvas(wlxmlDocument, publisher);
     }
 };
 
