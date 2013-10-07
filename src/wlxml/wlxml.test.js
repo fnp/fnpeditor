@@ -5,6 +5,8 @@ define([
     
 'use strict';
 
+/* global it, describe */
+
 var expect = chai.expect;
 
 var nodeFromXML = function(xml) {
