@@ -85,6 +85,20 @@ describe('smartxml', function() {
 
     });
 
+    describe('Serializing document to WLXML', function() {
+        it('keeps document intact when no changes have been made', function() {
+            var xmlIn = '<section>Alice<div>has</div>a <span class="uri" meta-uri="http://cat.com">cat</span>!</section>',
+                doc = getDocumentFromXML(xmlIn),
+                xmlOut = doc.toXML();
+
+            var parser = new DOMParser(),
+                input = parser.parseFromString(xmlIn, 'application/xml').childNodes[0],
+                output = parser.parseFromString(xmlOut, 'application/xml').childNodes[0];
+            
+            expect(input.isEqualNode(output)).to.be.true;
+        });
+    });
+
 });
 
 });

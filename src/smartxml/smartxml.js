@@ -133,8 +133,13 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
             element1: parent.contents()[myIdx + (moveLeftRange ? -1 : 0)],
             element2: parent.contents()[myIdx + childrenLength-1 + (moveRightRange ? 1 : 0)]
         };
-    }
+    },
 
+    toXML: function() {
+        var wrapper = $('<div>');
+        wrapper.append(this._$);
+        return wrapper.html();
+    }
 });
 
 var TextNode = function(nativeNode, document) {
@@ -180,6 +185,10 @@ $.extend(Document.prototype, {
 
     createTextNode: function(nativeNode) {
         return new this.TextNodeFactory(nativeNode, this);
+    },
+
+    toXML: function() {
+        return this.root.toXML();
     }
 });
 
