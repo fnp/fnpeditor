@@ -12,8 +12,8 @@ var isMetaAttribute = function(attrName) {
 
 //
 
-var WLXMLElementNode = function(nativeNode) {
-    smartxml.ElementNode.call(this, nativeNode);
+var WLXMLElementNode = function(nativeNode, document) {
+    smartxml.ElementNode.call(this, nativeNode, document);
 };
 WLXMLElementNode.prototype = Object.create(smartxml.ElementNode.prototype);
 

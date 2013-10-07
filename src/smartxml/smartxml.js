@@ -9,6 +9,9 @@ var TEXT_NODE = Node.TEXT_NODE;
 
 
 var DocumentNode = function(nativeNode, document) {
+    if(!document) {
+        throw new Error('undefined document for a node');
+    }
     this.document = document;
     this.nativeNode = nativeNode;
     this._$ = $(nativeNode);
