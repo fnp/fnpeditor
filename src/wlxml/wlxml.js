@@ -21,6 +21,9 @@ $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
     getClass: function() {
         return this.getAttr('class');
     },
+    setClass: function(klass) {
+        return this.setAttr('class', klass);
+    },
     getMetaAttributes: function() {
         var toret = [];
         this.getAttrs().forEach(function(attr) {
