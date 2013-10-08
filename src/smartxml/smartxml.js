@@ -174,6 +174,9 @@ var Document = function(xml) {
     Object.defineProperty(this, 'root', {get: function() {
         return doc.createElementNode($document[0]);
     }});
+    Object.defineProperty(this, 'dom', {get: function() {
+        return $document[0];
+    }});
 };
 $.extend(Document.prototype, {
     ElementNodeFactory: ElementNode,
