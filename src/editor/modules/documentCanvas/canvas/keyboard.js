@@ -46,7 +46,7 @@ handlers.push({key: KEYS.ENTER,
 
         if(!cursor.isSelecting()) {
             if(event.ctrlKey) {
-                var added = element.after({tag: 'block'});
+                var added = element.after({tag: element.getWlxmlTag() || 'div', klass: element.getWlxmlClass() || 'p'});
                 added.append({text:''});
                 canvas.setCurrentElement(added, {caretTo: 'start'});
 
