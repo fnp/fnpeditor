@@ -44,6 +44,16 @@ handlers.push({key: KEYS.ENTER,
             position = cursor.getPosition(),
             element = position.element;
 
+        if(Object.keys(cursor.getPosition()).length === 0) {
+            var currentElement = canvas.getCurrentNodeElement();
+            if(currentElement) {
+                var added = currentElement.after({tag: currentElement.getWlxmlTag() || 'div', klass: currentElement.getWlxmlClass() || 'p'});
+                added.append({text:''});
+                canvas.setCurrentElement(added, {caretTo: 'start'});
+            }
+            return;
+        }
+
         if(!cursor.isSelecting()) {
             if(event.ctrlKey) {
                 var added = element.after({tag: element.getWlxmlTag() || 'div', klass: element.getWlxmlClass() || 'p'});
