@@ -54,6 +54,13 @@ var ElementNode = function(nativeNode, document) {
 $.extend(ElementNode.prototype, DocumentNode.prototype, {
     nodeType: Node.ELEMENT_NODE,
 
+    setData: function(key, value) {
+        this._$.data(key, value);
+    },
+    getData: function(key) {
+        return this._$.data(key);
+    },
+
     getTagName: function() {
         return this.nativeNode.tagName.toLowerCase();
     },
