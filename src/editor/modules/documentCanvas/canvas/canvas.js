@@ -31,21 +31,10 @@ $.extend(Canvas.prototype, {
     },
 
     generateCanvasDOM: function(wlxmlNode) {
-        // var element = this.createNodeElement2({
-        //     tag: wlxmlNode.getTagName(),
-        //     klass: wlxmlNode.getClass(), //currentTag.attr('class'),
-        //     meta: wlxmlNode.getMetaAttributes(), //meta,
-        //     others: wlxmlNode.getOtherAttributes(), // ~ //others,
-        //     rawChildren: wlxmlNode.contents(),
-        //     prepopulateOnEmpty: true
-        // }); //->create2
 
         var element = documentElement.DocumentNodeElement.create(wlxmlNode, this);
 
 
-        ['orig-before', 'orig-after', 'orig-begin', 'orig-end'].forEach(function(attr) {
-            element.data(attr, '');
-        });
         return element.dom();
     },
 
