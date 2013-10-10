@@ -169,6 +169,9 @@ $.extend(DocumentNodeElement, {
 
         var element = this.fromHTMLElement(dom[0], canvas);
 
+        element.data('wlxmlNode', wlxmlNode);
+        wlxmlNode.setData('canvasElement', element);
+
         element.setWlxml({tag: wlxmlNode.getTagName(), klass: wlxmlNode.getClass()});
 
         _.keys(wlxmlNode.getMetaAttributes()).forEach(function(key) {
@@ -477,9 +480,12 @@ var DocumentTextElement = function(htmlElement, canvas) {
 
 $.extend(DocumentTextElement, {
     createDOM: function(wlxmlTextNode) {
-        return $('<div>')
+        var dom = $('<div>')
             .attr('document-text-element', '')
-            .text(wlxmlTextNode.getText() || utils.unicode.ZWS);
+            .text(wlxmlTextNode.getText() || utils.unicode.ZWS),
+        element = this.fromHTMLElement(dom[0], this);
+        element.data('wlxmlNode', wlxmlTextNode);
+        return dom;
     },
 
     create: function(wlxmlTextNode, canvas) {
