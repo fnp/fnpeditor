@@ -4,8 +4,9 @@ define([
 'libs/backbone',
 'modules/documentCanvas/canvas/documentElement',
 'modules/documentCanvas/canvas/keyboard',
-'modules/documentCanvas/canvas/utils'
-], function($, _, Backbone, documentElement, keyboard, utils) {
+'modules/documentCanvas/canvas/utils',
+'modules/documentCanvas/canvas/wlxmlListener'
+], function($, _, Backbone, documentElement, keyboard, utils, wlxmlListener) {
     
 'use strict';
 
@@ -14,15 +15,16 @@ var Canvas = function(wlxmlDocument, publisher) {
     this.wrapper = $('<div>').addClass('canvas-wrapper').attr('contenteditable', true);
     this.loadWlxmlDocument(wlxmlDocument);
     this.publisher = publisher ? publisher : function() {};
+    this.wlxmlListener = wlxmlListener.create(this);
 };
 
 $.extend(Canvas.prototype, {
 
     loadWlxmlDocument: function(wlxmlDocument) {
-        wlxmlDocument = wlxmlDocument || this.wlxmlDocument;
         if(!wlxmlDocument) {
             return false;
         }
+
         var canvasDOM = this.generateCanvasDOM(wlxmlDocument.root);
 
         this.wrapper.empty();
@@ -30,18 +32,7 @@ $.extend(Canvas.prototype, {
         this.d = this.wrapper.children(0);
         this.setupEventHandling();
 
-        var canvas = this;
-
-        if(this.wlxmlDocument !== wlxmlDocument) {
-            wlxmlDocument.on('change', function(event) {
-                var canvasNode = utils.findCanvasElement(event.meta.node);
-                if(event.type === 'nodeAttrChange' && event.meta.attr === 'class') {
-                    canvasNode.setWlxmlClass(event.meta.newVal);
-                }
-
-            });
-        }
-        this.wlxmlDocument = wlxmlDocument;
+        this.wlxmlListener.listenTo(wlxmlDocument);
     },
 
     generateCanvasDOM: function(wlxmlNode) {
