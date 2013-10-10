@@ -1,6 +1,8 @@
 define([
-    'libs/jquery'
-], function($) {
+    'libs/jquery',
+    'libs/backbone',
+    'smartxml/events'
+], function($, Backbone, events) {
     
 'use strict';
 
@@ -38,6 +40,11 @@ $.extend(DocumentNode.prototype, {
         }
         node.append(this);
     },
+
+    triggerChangeEvent: function(type, metaData) {
+        var event = new events.ChangeEvent(type, $.extend({node: this}, metaData || {}));
+        this.document.trigger('change', event);
+    },
 });
 
 var ElementNode = function(nativeNode, document) {
@@ -74,7 +81,9 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
     },
 
     setAttr: function(name, value) {
+        var oldVal = this.getAttr(name);
         this._$.attr(name, value);
+        this.triggerChangeEvent('nodeAttrChange', {attr: name, oldVal: oldVal, newVal: value});
     },
 
     getAttrs: function() {
@@ -178,7 +187,7 @@ var Document = function(xml) {
         return $document[0];
     }});
 };
-$.extend(Document.prototype, {
+$.extend(Document.prototype, Backbone.Events, {
     ElementNodeFactory: ElementNode,
     TextNodeFactory: TextNode,
 
