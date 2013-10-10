@@ -52,6 +52,13 @@ $.extend(DocumentElement.prototype, {
     dom: function() {
         return this.$element;
     },
+    data: function() {
+        var dom = this.dom(),
+            args = Array.prototype.slice.call(arguments, 0);
+        if(args.length === 2 && args[1] === undefined)
+            return dom.removeData(args[0]);
+        return dom.data.apply(dom, arguments);
+    },
     parent: function() {
         var parents = this.$element.parents('[document-node-element]');
         if(parents.length)
@@ -256,13 +263,6 @@ $.extend(DocumentNodeElement.prototype, {
             element1: parent.children()[myIdx + (moveLeftRange ? -1 : 0)],
             element2: parent.children()[myIdx + childrenLength-1 + (moveRightRange ? 1 : 0)]
         };
-    },
-    data: function() {
-        var dom = this.dom(),
-            args = Array.prototype.slice.call(arguments, 0);
-        if(args.length === 2 && args[1] === undefined)
-            return dom.removeData(args[0]);
-        return dom.data.apply(dom, arguments);
     },
     toXML: function(level) {
         var node = $('<' + this.getWlxmlTag() + '>');
