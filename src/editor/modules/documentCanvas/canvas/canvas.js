@@ -19,6 +19,7 @@ var Canvas = function(wlxmlDocument, publisher) {
 $.extend(Canvas.prototype, {
 
     loadWlxmlDocument: function(wlxmlDocument) {
+        wlxmlDocument = wlxmlDocument || this.wlxmlDocument;
         if(!wlxmlDocument) {
             return false;
         }
@@ -28,13 +29,40 @@ $.extend(Canvas.prototype, {
         this.wrapper.append(canvasDOM);
         this.d = this.wrapper.children(0);
         this.setupEventHandling();
+
+        var canvas = this;
+
+        var findCanvasElement = function(node) {
+            if(node.nodeType === Node.ELEMENT_NODE) {
+                return node.getData('canvasElement');
+            }
+            if(node.nodeType === Node.TEXT_NODE) {
+                var parent = node.parent(),
+                    toret;
+
+                parent.children().forEach(function(child) {
+                    if(child.data('wlxmlNode').sameNode(node))
+                        toret = child;
+                });
+                if(toret)
+                    return toret;
+            }
+        }
+
+        if(this.wlxmlDocument !== wlxmlDocument) {
+            wlxmlDocument.on('change', function(event) {
+                var canvasNode = findCanvasElement(event.meta.node);
+                if(event.type === 'nodeAttrChange' && event.meta.attr === 'class') {
+                    canvasNode.setWlxmlClass(event.meta.newVal);
+                }
+
+            });
+        }
+        this.wlxmlDocument = wlxmlDocument;
     },
 
     generateCanvasDOM: function(wlxmlNode) {
-
         var element = documentElement.DocumentNodeElement.create(wlxmlNode, this);
-
-
         return element.dom();
     },
 
