@@ -32,26 +32,9 @@ $.extend(Canvas.prototype, {
 
         var canvas = this;
 
-        var findCanvasElement = function(node) {
-            if(node.nodeType === Node.ELEMENT_NODE) {
-                return node.getData('canvasElement');
-            }
-            if(node.nodeType === Node.TEXT_NODE) {
-                var parent = node.parent(),
-                    toret;
-
-                parent.children().forEach(function(child) {
-                    if(child.data('wlxmlNode').sameNode(node))
-                        toret = child;
-                });
-                if(toret)
-                    return toret;
-            }
-        }
-
         if(this.wlxmlDocument !== wlxmlDocument) {
             wlxmlDocument.on('change', function(event) {
-                var canvasNode = findCanvasElement(event.meta.node);
+                var canvasNode = utils.findCanvasElement(event.meta.node);
                 if(event.type === 'nodeAttrChange' && event.meta.attr === 'class') {
                     canvasNode.setWlxmlClass(event.meta.newVal);
                 }

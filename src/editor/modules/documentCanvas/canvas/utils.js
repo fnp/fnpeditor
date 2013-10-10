@@ -19,8 +19,26 @@ var nearestInDocumentOrder = function(selector, direction, element) {
     return null;
 }
 
+var findCanvasElement = function(node) {
+    if(node.nodeType === Node.ELEMENT_NODE) {
+        return node.getData('canvasElement');
+    }
+    if(node.nodeType === Node.TEXT_NODE) {
+        var parent = node.parent(),
+            toret;
+
+        parent.children().forEach(function(child) {
+            if(child.data('wlxmlNode').sameNode(node))
+                toret = child;
+        });
+        if(toret)
+            return toret;
+    }
+};
+
 return {
     nearestInDocumentOrder: nearestInDocumentOrder,
+    findCanvasElement: findCanvasElement,
     unicode: {
         ZWS: '\u200B'
     }
