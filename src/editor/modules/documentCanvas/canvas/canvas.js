@@ -298,7 +298,7 @@ $.extend(Canvas.prototype, {
         if(!(currentNodeElement && currentNodeElement.sameNode(nodeElementToLand))) {
             _markAsCurrent(nodeElementToLand);
 
-            this.publisher('currentNodeElementSet', nodeElementToLand);
+            this.publisher('currentNodeElementSet', nodeElementToLand.data('wlxmlNode'));
         }
     },
 
