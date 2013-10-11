@@ -13,9 +13,9 @@ define([
 var Canvas = function(wlxmlDocument, publisher) {
     this.eventBus = _.extend({}, Backbone.Events);
     this.wrapper = $('<div>').addClass('canvas-wrapper').attr('contenteditable', true);
+    this.wlxmlListener = wlxmlListener.create(this);
     this.loadWlxmlDocument(wlxmlDocument);
     this.publisher = publisher ? publisher : function() {};
-    this.wlxmlListener = wlxmlListener.create(this);
 };
 
 $.extend(Canvas.prototype, {
