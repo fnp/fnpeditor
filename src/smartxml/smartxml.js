@@ -214,16 +214,9 @@ var parseXML = function(xml) {
 };
 
 var Document = function(xml) {
-    var $document = $(parseXML(xml));
-
-    var doc = this;
-    Object.defineProperty(this, 'root', {get: function() {
-        return doc.createElementNode($document[0]);
-    }});
-    Object.defineProperty(this, 'dom', {get: function() {
-        return $document[0];
-    }});
+    this.loadXML(xml);
 };
+
 $.extend(Document.prototype, Backbone.Events, {
     ElementNodeFactory: ElementNode,
     TextNodeFactory: TextNode,
@@ -237,6 +230,20 @@ $.extend(Document.prototype, Backbone.Events, {
 
     createTextNode: function(nativeNode) {
         return new this.TextNodeFactory(nativeNode, this);
+    },
+
+    loadXML: function(xml) {
+        var $document = $(parseXML(xml));
+
+        var doc = this;
+        Object.defineProperty(this, 'root', {get: function() {
+            return doc.createElementNode($document[0]);
+        }, configurable: true});
+        Object.defineProperty(this, 'dom', {get: function() {
+            return $document[0];
+        }, configurable: true});
+        
+        this.trigger('contentSet');
     },
 
     toXML: function() {

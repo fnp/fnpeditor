@@ -30,6 +30,15 @@ describe('smartxml', function() {
             var doc = getDocumentFromXML('<div></div>');
             expect(doc.root.getTagName()).to.equal('div');
         });
+
+        it('can resets its content entirely', function() {
+            var doc = getDocumentFromXML('<div></div>');
+
+            expect(doc.root.getTagName()).to.equal('div');
+
+            doc.loadXML('<header></header>');
+            expect(doc.root.getTagName()).to.equal('header');
+        });
     });
 
     describe('Basic ElementNode properties', function() {
