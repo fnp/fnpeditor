@@ -107,6 +107,9 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
         });
         node.setData(this.getData());
 
+        if(this.sameNode(this.document.root)) {
+            defineDocumentProperties(this.document, node._$);
+        }
         this._$.replaceWith(node._$);
         this._setNativeNode(node._$[0]);
         this.triggerChangeEvent('nodeTagChange', {oldTagName: oldTagName, newTagName: this.getTagName()});
@@ -234,15 +237,7 @@ $.extend(Document.prototype, Backbone.Events, {
     },
 
     loadXML: function(xml) {
-        var $document = $(parseXML(xml));
-
-        var doc = this;
-        Object.defineProperty(this, 'root', {get: function() {
-            return doc.createElementNode($document[0]);
-        }, configurable: true});
-        Object.defineProperty(this, 'dom', {get: function() {
-            return $document[0];
-        }, configurable: true});
+        defineDocumentProperties(this, $(parseXML(xml)));
         
         this.trigger('contentSet');
     },
@@ -252,6 +247,14 @@ $.extend(Document.prototype, Backbone.Events, {
     }
 });
 
+var defineDocumentProperties = function(doc, $document) {
+    Object.defineProperty(doc, 'root', {get: function() {
+        return doc.createElementNode($document[0]);
+    }, configurable: true});
+    Object.defineProperty(doc, 'dom', {get: function() {
+        return $document[0];
+    }, configurable: true});
+};
 
 return {
     documentFromXML: function(xml) {

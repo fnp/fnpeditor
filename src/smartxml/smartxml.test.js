@@ -105,6 +105,12 @@ describe('smartxml', function() {
                     expect(node.getTagName()).to.equal('header');
                     expect(node.getData()).to.eql({key: 'value'});
                 });
+
+                it('can change document root tag name', function() {
+                    var doc = getDocumentFromXML('<div></div>');
+                    doc.root.setTag('span');
+                    expect(doc.root.getTagName()).to.equal('span');
+                });
             });
 
 
