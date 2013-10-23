@@ -66,6 +66,18 @@ describe('smartxml', function() {
                 expect(node.getData()).to.eql({key1: 'value1', key2: 'value2'});
             });
         });
+
+        describe('Changing node tag', function() {
+            it('keeps custom data', function() {
+                var node = elementNodeFromXML('<div></div>');
+
+                node.setData('key', 'value');
+                node.setTag('header');
+                
+                expect(node.getTagName()).to.equal('header');
+                expect(node.getData()).to.eql({key: 'value'});
+            });
+        });
     });
 
     describe('Manipulations', function() {

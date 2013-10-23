@@ -16,11 +16,16 @@ var DocumentNode = function(nativeNode, document) {
         throw new Error('undefined document for a node');
     }
     this.document = document;
-    this.nativeNode = nativeNode;
-    this._$ = $(nativeNode);
+    this._setNativeNode(nativeNode);
+
 };
 
 $.extend(DocumentNode.prototype, {
+    _setNativeNode: function(nativeNode) {
+        this.nativeNode = nativeNode;
+        this._$ = $(nativeNode);
+    },
+
     detach: function() { this._$.detach(); },
 
     sameNode: function(otherNode) {
@@ -93,14 +98,29 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
         return this._$.contents().index(node._$);
     },
 
+    setTag: function(tagName) {
+        var node = this.document.createElementNode({tagName: tagName}),
+            oldTagName = this.getTagName();
+
+        this.getAttrs().forEach(function(attribute) {
+            node.setAttr(attribute.name, attribute.value, true);
+        });
+        node.setData(this.getData());
+
+        this._setNativeNode(node._$[0]);
+        this.triggerChangeEvent('nodeTagChange', {oldTagName: oldTagName, newTagName: this.getTagName()});
+    },
+
     getAttr: function(name) {
         return this._$.attr(name);
     },
 
-    setAttr: function(name, value) {
+    setAttr: function(name, value, silent) {
         var oldVal = this.getAttr(name);
         this._$.attr(name, value);
-        this.triggerChangeEvent('nodeAttrChange', {attr: name, oldVal: oldVal, newVal: value});
+        if(!silent) {
+            this.triggerChangeEvent('nodeAttrChange', {attr: name, oldVal: oldVal, newVal: value});
+        }
     },
 
     getAttrs: function() {
@@ -208,8 +228,11 @@ $.extend(Document.prototype, Backbone.Events, {
     ElementNodeFactory: ElementNode,
     TextNodeFactory: TextNode,
 
-    createElementNode: function(nativeNode) {
-        return new this.ElementNodeFactory(nativeNode, this);
+    createElementNode: function(from) {
+        if(!(from instanceof HTMLElement)) {
+            from = $('<' + from.tagName + '>');
+        }
+        return new this.ElementNodeFactory(from, this);
     },
 
     createTextNode: function(nativeNode) {
