@@ -13,6 +13,10 @@ var nodeFromXML = function(xml) {
     return wlxml.WLXMLElementNodeFromXML(xml);
 };
 
+var getDocumentFromXML = function(xml) {
+    return wlxml.WLXMLDocumentFromXML(xml);
+};
+
 
 describe('WLXMLDocument', function() {
     
@@ -65,6 +69,120 @@ describe('WLXMLDocument', function() {
             var node = nodeFromXML('<div>Alice has <span>a</span>  cat</div>');
             expect(node.contents()[2].getText()).to.equal(' cat');
         });
+    });
+
+    describe('formatting output xml', function() {
+        it('keeps white space between XML nodes', function() {
+            var xmlIn = '<section>\n\n\n<div></div>\n\n\n<div></div>\n\n\n</section>',
+            doc = getDocumentFromXML(xmlIn),
+            xmlOut = doc.toXML();
+
+            var partsIn = xmlIn.split('\n\n\n'),
+                partsOut = xmlOut.split('\n\n\n');
+
+            expect(partsIn).to.deep.equal(partsOut);
+        });
+
+        it('keeps white space between XML nodes - inline case', function() {
+            var xmlIn = '<section>\n\n\n<span></span>\n\n\n<span></span>\n\n\n</section>',
+                doc = getDocumentFromXML(xmlIn),
+                xmlOut = doc.toXML();
+
+            var partsIn = xmlIn.split('\n\n\n'),
+                partsOut = xmlOut.split('\n\n\n');
+            console.log(xmlIn);
+            console.log(xmlOut);
+            expect(partsIn).to.deep.equal(partsOut);
+        });
+
+        it('keeps white space at the beginning of text', function() {
+            var xmlIn = '<section>    abc<div>some div</div>    abc</section>',
+                doc = getDocumentFromXML(xmlIn),
+                xmlOut = doc.toXML();
+
+            expect(xmlOut).to.equal(xmlIn);
+        });
+
+        // it('nests new children block elements', function() {
+        //     var doc = getDocumentFromXML('<section></section>');
+    
+        //     doc.root.append({tag: 'header'});
+
+        //     var xmlOut = doc.toXML();
+        //     expect(xmlOut.split('\n  ')[0]).to.equal('<section>', 'nesting start ok');
+        //     expect(xmlOut.split('\n').slice(-1)[0]).to.equal('</section>', 'nesting end ok');
+
+        // });
+
+        // it('doesn\'t nest new children inline elements', function() {
+        //     var doc = getDocumentFromXML('<section></section>');
+    
+        //     doc.root.append({tag: 'span'});
+
+        //     var xmlOut = doc.toXML();
+        //     expect(xmlOut).to.equal('<section><span></span></section>');
+        // });
+
+        it('keeps original white space at the end of text', function() {
+            
+            var xmlIn = '<header>    Some text ended with white space \
+            \
+            <span class="uri">Some text</span> some text\
+        \
+        </header>',
+                doc = getDocumentFromXML(xmlIn),
+                xmlOut = doc.toXML();
+        
+            expect(xmlOut).to.equal(xmlIn);
+        });
+
+        it('keeps white space around text node', function() {
+            var xmlIn = '<section>\
+            <header>header1</header>\
+            Some text surrounded by white space\
+            <header>header2</header>\
+        </section>',
+                doc = getDocumentFromXML(xmlIn),
+                xmlOut = doc.toXML();
+            expect(xmlOut).to.equal(xmlIn);
+        });
+
+        it('keeps white space around text node - last node case', function() {
+            var xmlIn = '<section>\
+            <header>header</header>\
+                \
+            Some text surrounded by white space\
+                \
+        </section>',
+                doc = getDocumentFromXML(xmlIn),
+                xmlOut = doc.toXML();
+
+            expect(xmlOut).to.equal(xmlIn);
+        });
+
+        it('keeps white space after detaching text element', function() {
+            var xmlIn = '<section><header>header</header>\n\
+                \n\
+            text1\n\
+                \n\
+        </section>',
+                expectedXmlOut = '<section><header>header</header>\n\
+                \n\
+            \n\
+                \n\
+        </section>',
+                doc = getDocumentFromXML(xmlIn),
+                contents = doc.root.contents(),
+                text = contents[contents.length-1];
+            
+            expect(text.getText()).to.equal('text1');
+
+            text.detach();
+
+            var xmlOut = doc.toXML();
+            expect(xmlOut).to.equal(expectedXmlOut);
+        });
+
     });
 
 });

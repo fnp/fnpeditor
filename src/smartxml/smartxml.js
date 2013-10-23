@@ -189,8 +189,12 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
 
     toXML: function() {
         var wrapper = $('<div>');
-        wrapper.append(this._$);
+        wrapper.append(this._getXMLDOMToDump());
         return wrapper.html();
+    },
+    
+    _getXMLDOMToDump: function() {
+        return this._$;
     }
 });
 
