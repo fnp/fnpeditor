@@ -176,6 +176,19 @@ describe('smartxml', function() {
             
             expect(input.isEqualNode(output)).to.be.true;
         });
+
+        it('keeps entities intact', function() {
+            var xmlIn = '<section>&lt; &gt;</section>',
+                doc = getDocumentFromXML(xmlIn),
+                xmlOut = doc.toXML();
+            expect(xmlOut).to.equal(xmlIn);
+        });
+        it('keeps entities intact when they form html/xml', function() {
+            var xmlIn = '<section>&lt;abc&gt;</section>',
+                doc = getDocumentFromXML(xmlIn),
+                xmlOut = doc.toXML();
+            expect(xmlOut).to.equal(xmlIn);
+        });
     });
 
 });
