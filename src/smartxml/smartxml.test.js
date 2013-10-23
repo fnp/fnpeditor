@@ -77,6 +77,19 @@ describe('smartxml', function() {
         });
 
         describe('Changing node tag', function() {
+            it('can change tag name', function() {
+                var doc = getDocumentFromXML('<div><header></header></div>'),
+                    header = doc.root.contents()[0];
+                header.setTag('span');
+                expect(header.getTagName()).to.equal('span');
+                
+                // DOM specifies ElementNode tag as a read-only property, so
+                // changing it in a seamless way is a little bit tricky. For this reason
+                // the folowing expectations are required, despite the fact that they actually are
+                // motivated by implemetation detail.
+                expect(header.parent().sameNode(doc.root)).to.equal(true, 'ensure we stayed in a document');
+            });
+
             it('keeps custom data', function() {
                 var node = elementNodeFromXML('<div></div>');
 

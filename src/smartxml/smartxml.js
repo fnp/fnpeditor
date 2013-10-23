@@ -107,6 +107,7 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
         });
         node.setData(this.getData());
 
+        this._$.replaceWith(node._$);
         this._setNativeNode(node._$[0]);
         this.triggerChangeEvent('nodeTagChange', {oldTagName: oldTagName, newTagName: this.getTagName()});
     },
