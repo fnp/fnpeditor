@@ -4,7 +4,26 @@ define(function() {
 
 return function(sandbox) {
 
-    var view = $(sandbox.getTemplate('main')());
+    var view = $(sandbox.getTemplate('main')()),
+        documentIsDirty = true,
+        documentEditedHere = false,
+        wlxmlDocument;
+
+    view.onShow = function() {
+        if(documentIsDirty) {
+            editor.setValue(wlxmlDocument.toXML());
+            editor.gotoLine(0);
+            sandbox.publish('documentSet');
+            documentIsDirty = false;
+        }
+    }
+
+    view.onHide = function() {
+        if(documentEditedHere) {
+            documentEditedHere = false;
+            wlxmlDocument.loadXML(editor.getValue());
+        }
+    }
     
     var editor = ace.edit(view.find('#rng-sourceEditor-editor')[0]),
         session = editor.getSession();
@@ -13,11 +32,11 @@ return function(sandbox) {
     session.setUseWrapMode(true);
     
     $('textarea', view).on('keyup', function() {
-        sandbox.publish('xmlChanged');
+        documentEditedHere = true;
     });
     
     editor.getSession().on('change', function() {
-        sandbox.publish('xmlChanged');
+        documentEditedHere = true;
     });
     return {
         start: function() {
@@ -27,9 +46,10 @@ return function(sandbox) {
             return view;
         },
         setDocument: function(document) {
-            editor.setValue(document.toXML());
-            editor.gotoLine(0);
-            sandbox.publish('documentSet');
+            wlxmlDocument = document;
+            wlxmlDocument.on('change', function() {
+                documentIsDirty = true;
+            });
         },
         getDocument: function() {
             return editor.getValue();

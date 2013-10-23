@@ -21,6 +21,10 @@ $.extend(Listener.prototype, {
                 handler.bind(this)(event);
             }
         }, this);
+
+        wlxmlDocument.on('contentSet', function() {
+            this.canvas.loadWlxmlDocument(wlxmlDocument);
+        }, this);
     }
 });
 
