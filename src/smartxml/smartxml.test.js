@@ -111,6 +111,12 @@ describe('smartxml', function() {
                     doc.root.setTag('span');
                     expect(doc.root.getTagName()).to.equal('span');
                 });
+
+                it('keeps contents', function() {
+                    var node = elementNodeFromXML('<div><div></div></div>');
+                    node.setTag('header');
+                    expect(node.contents()).to.have.length(1);
+                });
             });
 
 

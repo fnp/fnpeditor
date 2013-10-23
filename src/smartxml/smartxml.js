@@ -100,7 +100,8 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
 
     setTag: function(tagName) {
         var node = this.document.createElementNode({tagName: tagName}),
-            oldTagName = this.getTagName();
+            oldTagName = this.getTagName(),
+            myContents = this._$.contents();
 
         this.getAttrs().forEach(function(attribute) {
             node.setAttr(attribute.name, attribute.value, true);
@@ -112,6 +113,7 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
         }
         this._$.replaceWith(node._$);
         this._setNativeNode(node._$[0]);
+        this._$.append(myContents);
         this.triggerChangeEvent('nodeTagChange', {oldTagName: oldTagName, newTagName: this.getTagName()});
     },
 
