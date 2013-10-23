@@ -5,7 +5,7 @@ define([
     
 'use strict';
 /*jshint expr:true */
-/* global describe, it */
+/* global describe, it, beforeEach */
 
 var expect = chai.expect;
 
@@ -41,6 +41,30 @@ describe('smartxml', function() {
             expect(contents[0].nodeType).to.equal(Node.TEXT_NODE, 'text node 1');
             expect(contents[1].nodeType).to.equal(Node.ELEMENT_NODE, 'element node 1');
             expect(contents[2].nodeType).to.equal(Node.TEXT_NODE, 'text node 2');
+        });
+
+        describe('Storing custom data', function() {
+            var node;
+
+            beforeEach(function() {
+                node = elementNodeFromXML('<div></div>');
+            });
+
+            it('can append single value', function() {
+                node.setData('key', 'value');
+                expect(node.getData('key')).to.equal('value');
+            });
+
+            it('can overwrite the whole data', function() {
+                node.setData('key1', 'value1');
+                node.setData({key2: 'value2'});
+                expect(node.getData('key2')).to.equal('value2');
+            });
+
+            it('can fetch the whole data at once', function() {
+                node.setData({key1: 'value1', key2: 'value2'});
+                expect(node.getData()).to.eql({key1: 'value1', key2: 'value2'});
+            });
         });
     });
 

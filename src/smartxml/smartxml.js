@@ -1,8 +1,9 @@
 define([
     'libs/jquery',
+    'libs/underscore',
     'libs/backbone',
     'smartxml/events'
-], function($, Backbone, events) {
+], function($, _, Backbone, events) {
     
 'use strict';
 
@@ -55,10 +56,19 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
     nodeType: Node.ELEMENT_NODE,
 
     setData: function(key, value) {
-        this._$.data(key, value);
+        if(value !== undefined) {
+            this._$.data(key, value);
+        } else {
+            this._$.removeData(_.keys(this._$.data()));
+            this._$.data(key);
+        }
     },
+
     getData: function(key) {
-        return this._$.data(key);
+        if(key) {
+            return this._$.data(key);
+        }
+        return this._$.data();
     },
 
     getTagName: function() {
