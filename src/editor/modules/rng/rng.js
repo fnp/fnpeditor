@@ -14,41 +14,7 @@ return function(sandbox) {
     function addMainTab(title, slug, view) {
         views.mainTabs.addTab(title, slug, view);
     }
-    
-    var dirty = {
-        sourceEditor: false,
-        documentCanvas: false,
-        metadataEditor: false,
-    };
-    
-    var synchronizeTab = function(slug) {
-        function tabIsDirty(slug) {
-            if(slug === 'editor' && (dirty.documentCanvas || dirty.metadataEditor))
-                return true;
-            if(slug === 'sourceEditor' && dirty.sourceEditor)
-                return true;
-            return false;
-        }
-    
-        if(tabIsDirty(slug)) {
-            var reason, doc;
-            if(slug === 'sourceEditor') {
-                doc = sandbox.getModule('sourceEditor').getDocument();
-                reason = 'source_edit';
-                dirty.sourceEditor = false;
-            }
-            if(slug === 'editor') {
-                doc = dirty.documentCanvas ? sandbox.getModule('documentCanvas').getDocument() : sandbox.getModule('data').getDocument();
-                if(dirty.metadataEditor) {
-                    doc = sandbox.getModule('metadataEditor').attachMetadata(doc);
-                }
-                reason = 'edit';
-                dirty.documentCanvas = dirty.metadataEditor = false;
-            }
-            sandbox.getModule('data').commitDocument(doc, reason);
-        }
-    };
-    
+     
     var commands = {
         highlightDocumentElement: function(element, origin) {
             ///'nodeBreadCrumbs', 'nodeFamilyTree'
@@ -109,11 +75,6 @@ return function(sandbox) {
     
     views.visualEditingSidebar.addTab({icon: 'pencil'}, 'edit', views.currentNodePaneLayout.getAsView());
 
-    views.mainTabs.on('tabSelected', function(event) {
-        if(event.prevSlug) {
-            synchronizeTab(event.prevSlug);
-        }
-    });
     
     /* Events handling */
     
@@ -123,12 +84,6 @@ return function(sandbox) {
         ready: function() {
             addMainTab(gettext('Source'), 'sourceEditor',  sandbox.getModule('sourceEditor').getView());
             sandbox.getModule('sourceEditor').setDocument(sandbox.getModule('data').getDocument());
-        },
-        xmlChanged: function() {
-            dirty.sourceEditor = true;
-        },
-        documentSet: function() {
-            dirty.sourceEditor = false;
         }
     };
     
@@ -193,9 +148,6 @@ return function(sandbox) {
             sandbox.getModule('documentCanvas').setDocument(sandbox.getModule('data').getDocument());
             views.visualEditing.setView('leftColumn', sandbox.getModule('documentCanvas').getView());
         },
-        documentSet: function() {
-            dirty.documentCanvas = false;
-        },
         
         currentTextElementSet: function(textElement) {
             commands.updateCurrentTextElement(textElement);
@@ -207,11 +159,6 @@ return function(sandbox) {
         
         currentNodeElementChanged: function(nodeElement) {
             commands.updateCurrentNodeElement(nodeElement);
-            dirty.documentCanvas = true;
-        },
-
-        contentChanged: function() {
-            dirty.documentCanvas = true;
         },
 
         nodeHovered: function(canvasNode) {
@@ -237,13 +184,7 @@ return function(sandbox) {
         ready: function() {
             sandbox.getModule('metadataEditor').setDocument(sandbox.getModule('data').getDocument());
             views.visualEditingSidebar.addTab({icon: 'info-sign'}, 'metadataEditor', sandbox.getModule('metadataEditor').getView());
-        },
-        metadataChanged: function(metadata) {
-            dirty.metadataEditor = true;
-        },
-        metadataSet: function() {
-            dirty.metadataEditor = false;
-        },
+        }
     };
     
     eventHandlers.nodeFamilyTree = {

@@ -40,7 +40,6 @@ return function(sandbox) {
         setDocument: function(wlxmlDocument) {
             canvas.loadWlxmlDocument(wlxmlDocument);
             canvasWrapper.find('#rng-module-documentCanvas-content').empty().append(canvas.view());
-            sandbox.publish('documentSet');
         },
         getDocument: function() {
             return canvas.toXML();
