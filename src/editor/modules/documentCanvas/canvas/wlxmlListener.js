@@ -30,6 +30,10 @@ var handlers = {
             var canvasNode = utils.findCanvasElement(event.meta.node);
             canvasNode.setWlxmlClass(event.meta.newVal);
         }
+    },
+    nodeTagChange: function(event) {
+        var canvasNode = utils.findCanvasElement(event.meta.node);
+        canvasNode.setWlxmlTag(event.meta.newTagName);
     }
 };
 
