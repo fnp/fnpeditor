@@ -105,7 +105,7 @@ $.extend(WLXMLDocument.prototype, {
     ElementNodeFactory: WLXMLElementNode,
 
     loadXML: function(xml) {
-        smartxml.Document.prototype.loadXML.call(this, xml);
+        smartxml.Document.prototype.loadXML.call(this, xml, {silent: true});
         $(this.dom).find(':not(iframe)').addBack().contents()
             .filter(function() {return this.nodeType === Node.TEXT_NODE;})
             .each(function() {
