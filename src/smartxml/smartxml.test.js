@@ -166,6 +166,18 @@ describe('smartxml', function() {
             textNode.setText('Cat');
             expect(textNode.getText()).to.equal('Cat');
         });
+
+        it('emits nodeTextChange', function() {
+            var node = elementNodeFromXML('<div>Alice</div>'),
+                textNode = node.contents()[0],
+                spy = sinon.spy();
+
+            textNode.document.on('change', spy);
+            textNode.setText('Cat');
+
+            var event = spy.args[0][0];
+            expect(event.type).to.equal('nodeTextChange');
+        });
     });
 
     describe('Manipulations', function() {

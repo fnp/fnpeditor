@@ -211,14 +211,22 @@ $.extend(TextNode.prototype, DocumentNode.prototype, {
 
     setText: function(text) {
         this.nativeNode.data = text;
+        this.triggerTextChangeEvent();
     },
 
     appendText: function(text) {
         this.nativeNode.data = this.nativeNode.data + text;
+        this.triggerTextChangeEvent();
     },
 
     prependText: function(text) {
         this.nativeNode.data = text + this.nativeNode.data;
+        this.triggerTextChangeEvent();
+    },
+
+    triggerTextChangeEvent: function() {
+        var event = new events.ChangeEvent('nodeTextChange', {node: this});
+        this.document.trigger('change', event);
     }
 });
 
