@@ -242,10 +242,12 @@ $.extend(Document.prototype, Backbone.Events, {
         return new this.TextNodeFactory(nativeNode, this);
     },
 
-    loadXML: function(xml) {
+    loadXML: function(xml, options) {
+        options = options || {};
         defineDocumentProperties(this, $(parseXML(xml)));
-        
-        this.trigger('contentSet');
+        if(!options.silent) {
+            this.trigger('contentSet');
+        }
     },
 
     toXML: function() {
