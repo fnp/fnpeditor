@@ -41,10 +41,13 @@ $.extend(DocumentNode.prototype, {
     },
 
     wrapWith: function(node) {
+        node = node instanceof ElementNode ? node : this.document.createElementNode(node);
+
         if(this.parent()) {
             this.before(node);
         }
         node.append(this);
+        return node;
     },
 
     triggerChangeEvent: function(type, metaData) {
@@ -245,7 +248,7 @@ $.extend(Document.prototype, Backbone.Events, {
 
     createElementNode: function(from) {
         if(!(from instanceof HTMLElement)) {
-            from = $('<' + from.tagName + '>');
+            from = $('<' + from.tagName + '>')[0];
         }
         return new this.ElementNodeFactory(from, this);
     },

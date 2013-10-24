@@ -178,6 +178,23 @@ describe('smartxml', function() {
             var event = spy.args[0][0];
             expect(event.type).to.equal('nodeTextChange');
         });
+
+        describe('Wrapping TextNode contents', function() {
+
+            it('wraps DocumentTextElement', function() {
+                var node = elementNodeFromXML('<section>Alice</section>'),
+                    textNode = node.contents()[0];
+                
+                var returned = textNode.wrapWith({tagName: 'header'}),
+                    parent = textNode.parent(),
+                    parent2 = node.contents()[0];
+
+                expect(returned.sameNode(parent)).to.be.equal(true, 'wrapper is a parent');
+                expect(returned.sameNode(parent2)).to.be.equal(true, 'wrapper has a correct parent');
+                expect(returned.getTagName()).to.equal('header');
+            });
+        });
+
     });
 
     describe('Manipulations', function() {
@@ -195,16 +212,6 @@ describe('smartxml', function() {
 
             node.wrapWith(wrapper);
             expect(node.parent().sameNode(wrapper)).to.be.true;
-        });
-
-        it('wraps text node with element node', function() {
-            var node = elementNodeFromXML('<div>Alice</div>'),
-                textNode = node.contents()[0],
-                wrapper = elementNodeFromXML('<wrapper></wrapper>');
-
-            textNode.wrapWith(wrapper);
-            expect(textNode.parent().sameNode(wrapper)).to.be.true;
-            expect(node.contents()).to.have.length(1);
         });
 
         it('unwraps element node contents', function() {
