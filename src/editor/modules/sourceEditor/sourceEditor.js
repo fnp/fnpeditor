@@ -13,6 +13,8 @@ return function(sandbox) {
         if(documentIsDirty) {
             editor.setValue(wlxmlDocument.toXML());
             editor.gotoLine(0);
+            documentEditedHere = false;
+
             sandbox.publish('documentSet');
             documentIsDirty = false;
         }
