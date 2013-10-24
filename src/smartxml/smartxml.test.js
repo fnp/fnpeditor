@@ -158,6 +158,16 @@ describe('smartxml', function() {
         });
     });
 
+    describe('Basic TextNode properties', function() {
+        it('can have its text set', function() {
+            var node = elementNodeFromXML('<div>Alice</div>'),
+                textNode = node.contents()[0];
+
+            textNode.setText('Cat');
+            expect(textNode.getText()).to.equal('Cat');
+        });
+    });
+
     describe('Manipulations', function() {
 
         it('appends element node to another element node', function() {

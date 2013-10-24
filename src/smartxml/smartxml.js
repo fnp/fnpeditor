@@ -209,6 +209,10 @@ $.extend(TextNode.prototype, DocumentNode.prototype, {
         return this.nativeNode.data;
     },
 
+    setText: function(text) {
+        this.nativeNode.data = text;
+    },
+
     appendText: function(text) {
         this.nativeNode.data = this.nativeNode.data + text;
     },
