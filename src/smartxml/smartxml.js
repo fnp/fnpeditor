@@ -29,7 +29,7 @@ $.extend(DocumentNode.prototype, {
     detach: function() { this._$.detach(); },
 
     sameNode: function(otherNode) {
-        return this.nativeNode === otherNode.nativeNode;
+        return otherNode && this.nativeNode === otherNode.nativeNode;
     },
 
     parent: function() {
