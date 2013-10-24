@@ -9,10 +9,20 @@ define([
 
 return function(sandbox) {
     
-    var template = _.template(templateSrc);
+    var template = _.template(templateSrc),
+        listens = false;
     
+    var startListening = function(document) {
+        listens = true;
+        document.on('change', function(event) {
+            if(event.type === 'nodeTextChange' && event.meta.node.parent().sameNode(view.currentNodeElement)) {
+                view.setElement();
+            }
+        }, this);
+    }
+
     var view = {
-        dom: $('<div>' + template({children: null, parent: null}) + '</div>'),
+        dom: $('<div>' + template({contents: null, parent: null}) + '</div>'),
         setup: function() {
             var view = this;
             this.dom.on('click', 'a', function(e) {
@@ -30,6 +40,7 @@ return function(sandbox) {
             });
         },
         setElement: function(element) {
+            element = element || this.currentNodeElement;
             console.log('familyTree sets node');
             var textElement = element.getText ? element : null,
                 nodeElement = element.getText ? element.parent() : element, // TODO: better type detection
@@ -40,13 +51,13 @@ return function(sandbox) {
 
             if(nodeElementParent) {
                 parent = {
-                    repr: wlxmlUtils.wlxmlTagNames[nodeElementParent.getWlxmlTag()] + (nodeElementParent.getWlxmlClass() ? ' / ' + wlxmlUtils.wlxmlClassNames[nodeElementParent.getWlxmlClass()] : '')
+                    repr: wlxmlUtils.wlxmlTagNames[nodeElementParent.getTagName()] + (nodeElementParent.getClass() ? ' / ' + wlxmlUtils.wlxmlClassNames[nodeElementParent.getClass()] : '')
                 };
             }
         
-            var nodeChildren = nodeElement.children(),
-                children = [];
-            nodeChildren.forEach(function(child) {
+            var nodeContents = nodeElement.contents(),
+                contents = [];
+            nodeContents.forEach(function(child) {
                 if(child.getText) {
                     var text = child.getText();
                     if(!text)
@@ -57,19 +68,19 @@ return function(sandbox) {
                         }
                         text = '"' + text + '"';
                     }
-                    children.push({repr: _.escape(text), bold: child.sameNode(textElement)});
+                    contents.push({repr: _.escape(text), bold: child.sameNode(textElement)});
                 } else {
-                    children.push({repr: wlxmlUtils.wlxmlTagNames[child.getWlxmlTag()] + (child.getWlxmlClass() ? ' / ' + wlxmlUtils.wlxmlClassNames[child.getWlxmlClass()] : '')});
+                    contents.push({repr: wlxmlUtils.wlxmlTagNames[child.getTagName()] + (child.getClass() ? ' / ' + wlxmlUtils.wlxmlClassNames[child.getClass()] : '')});
                 }
             });
             this.dom.empty();
-            this.dom.append($(template({parent: parent, children: children})));
+            this.dom.append($(template({parent: parent, contents: contents})));
 
             if(parent) {
                 this.dom.find('.rng-module-nodeFamilyTree-parent').data('element', nodeElementParent)
             }
             this.dom.find('li a').each(function(idx, a) {
-                $(a).data('element', nodeChildren[idx]);
+                $(a).data('element', nodeContents[idx]);
             });
         },
         highlightNode: function(canvasNode) {
@@ -87,6 +98,9 @@ return function(sandbox) {
             sandbox.publish('ready');
         },
         setElement: function(element) {
+            if(!listens) {
+                startListening(element.document);
+            }
             if(!(element.sameNode(view.currentNodeElement)))
                 view.setElement(element);
         },

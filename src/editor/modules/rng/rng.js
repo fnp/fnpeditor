@@ -35,7 +35,7 @@ return function(sandbox) {
         },
         updateCurrentNodeElement: function(nodeElement) {
             sandbox.getModule('nodePane').setNodeElement(nodeElement);
-            //sandbox.getModule('nodeFamilyTree').setElement(nodeElement);
+            sandbox.getModule('nodeFamilyTree').setElement(nodeElement);
             //sandbox.getModule('nodeBreadCrumbs').setNodeElement(nodeElement);
         },
         updateCurrentTextElement: function(textElement) {

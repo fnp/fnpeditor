@@ -267,7 +267,7 @@ $.extend(Canvas.prototype, {
             if(params.caretTo || !textElementToLand.sameNode(this.getCursor().getPosition().element))
                 this._moveCaretToTextElement(textElementToLand, params.caretTo); // as method on element?
             if(!(textElementToLand.sameNode(currentTextElement)))
-                this.publisher('currentTextElementSet', textElementToLand);
+                this.publisher('currentTextElementSet', textElementToLand.data('wlxmlNode'));
         } else {
             document.getSelection().removeAllRanges();
         }

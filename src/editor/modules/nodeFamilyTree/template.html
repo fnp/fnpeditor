@@ -8,9 +8,9 @@
             <td rowspan="0">poniżej</td>
             <td>
                 <ul>
-                <% if(!children || children.length === 0) { %>-<% } else { %>
-                    <% children.forEach(function(child) { %>
-                        <li><% if(child.bold) { %><strong><% } %><a href="#"><%= child.repr %></a><% if(child.bold) { %></strong><% } %></li>
+                <% if(!contents || contents.length === 0) { %>-<% } else { %>
+                    <% contents.forEach(function(element) { %>
+                        <li><% if(element.bold) { %><strong><% } %><a href="#"><%= element.repr %></a><% if(element.bold) { %></strong><% } %></li>
                     <% }); %>
                 <% } %>
                 </ul>
