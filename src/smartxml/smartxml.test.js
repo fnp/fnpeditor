@@ -133,6 +133,27 @@ describe('smartxml', function() {
                 });
             });
 
+        describe('Setting node attributes', function() {
+            it('can set node attribute', function() {
+                var node = elementNodeFromXML('<div></div>');
+
+                node.setAttr('key', 'value');
+                expect(node.getAttr('key')).to.equal('value');
+            });
+            it('emits nodeAttrChange event', function() {
+                var node = elementNodeFromXML('<div key="value1"></div>'),
+                    spy = sinon.spy();
+
+                node.document.on('change', spy);
+                node.setAttr('key', 'value2');
+                var event = spy.args[0][0];
+
+                expect(event.type).to.equal('nodeAttrChange');
+                expect(event.meta.node.sameNode(node)).to.be.true;
+                expect(event.meta.attr).to.equal('key');
+                expect(event.meta.oldVal).to.equal('value1');
+            });
+        });
 
         });
     });
