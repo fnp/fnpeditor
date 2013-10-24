@@ -36,8 +36,16 @@ $.extend(DocumentNode.prototype, {
         return this.nativeNode.parentNode ? this.document.createElementNode(this.nativeNode.parentNode) : null;
     },
 
+    after: function(node) {
+        node = node instanceof ElementNode ? node : this.document.createElementNode(node);
+        this._$.after(node.nativeNode);
+        return node;
+    },
+
     before: function(node) {
+        node = node instanceof ElementNode ? node : this.document.createElementNode(node);
         this._$.before(node.nativeNode);
+        return node;
     },
 
     wrapWith: function(node) {
@@ -248,7 +256,11 @@ $.extend(Document.prototype, Backbone.Events, {
 
     createElementNode: function(from) {
         if(!(from instanceof HTMLElement)) {
-            from = $('<' + from.tagName + '>')[0];
+            if(from.text) {
+                from = document.createTextNode(from.text);
+            } else {
+                from = $('<' + from.tagName + '>')[0];
+            }
         }
         return new this.ElementNodeFactory(from, this);
     },

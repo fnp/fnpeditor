@@ -179,6 +179,20 @@ describe('smartxml', function() {
             expect(event.type).to.equal('nodeTextChange');
         });
 
+        it('puts NodeElement after itself', function() {
+            var node = elementNodeFromXML('<div>Alice</div>'),
+                textNode = node.contents()[0],
+                returned = textNode.after({tagName:'div'});
+            expect(returned.sameNode(node.contents()[1])).to.be.true;
+        });
+
+        it('puts NodeElement before itself', function() {
+            var node = elementNodeFromXML('<div>Alice</div>'),
+                textNode = node.contents()[0],
+                returned = textNode.before({tagName:'div'});
+            expect(returned.sameNode(node.contents()[0])).to.be.true;
+        });
+
         describe('Wrapping TextNode contents', function() {
 
             it('wraps DocumentTextElement', function() {
