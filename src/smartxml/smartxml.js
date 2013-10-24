@@ -67,8 +67,9 @@ $.extend(DocumentNode.prototype, {
 var ElementNode = function(nativeNode, document) {
     DocumentNode.call(this, nativeNode, document);
 };
+ElementNode.prototype = Object.create(DocumentNode.prototype);
 
-$.extend(ElementNode.prototype, DocumentNode.prototype, {
+$.extend(ElementNode.prototype, {
     nodeType: Node.ELEMENT_NODE,
 
     setData: function(key, value) {
@@ -212,8 +213,9 @@ $.extend(ElementNode.prototype, DocumentNode.prototype, {
 var TextNode = function(nativeNode, document) {
     DocumentNode.call(this, nativeNode, document);
 };
+TextNode.prototype = Object.create(DocumentNode.prototype);
 
-$.extend(TextNode.prototype, DocumentNode.prototype, {
+$.extend(TextNode.prototype, {
     nodeType: Node.TEXT_NODE,
 
     getText: function() {
