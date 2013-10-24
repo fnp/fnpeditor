@@ -1,7 +1,8 @@
 define([
     'libs/chai',
+    'libs/sinon',
     './smartxml.js'
-], function(chai, smartxml) {
+], function(chai, sinon, smartxml) {
     
 'use strict';
 /*jshint expr:true */
@@ -82,6 +83,19 @@ describe('smartxml', function() {
                 var node = elementNodeFromXML('<div></div>');
                 node.setTag('span');
                 expect(node.getTagName()).to.equal('span');
+            });
+
+            it('emits nodeTagChange event', function() {
+                var node = elementNodeFromXML('<div></div>'),
+                    spy = sinon.spy();
+
+                node.document.on('change', spy);
+                node.setTag('span');
+                var event = spy.args[0][0];
+
+                expect(event.type).to.equal('nodeTagChange');
+                expect(event.meta.node.sameNode(node)).to.be.true;
+                expect(event.meta.oldTagName).to.equal('div');
             });
 
             describe('Implementation specific expectations', function() {
