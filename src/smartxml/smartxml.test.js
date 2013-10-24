@@ -207,6 +207,44 @@ describe('smartxml', function() {
                 expect(returned.sameNode(parent2)).to.be.equal(true, 'wrapper has a correct parent');
                 expect(returned.getTagName()).to.equal('header');
             });
+
+            describe('wrapping part of DocumentTextElement', function() {
+                [{start: 5, end: 12}, {start: 12, end: 5}].forEach(function(offsets) {
+                    it('wraps in the middle ' + offsets.start + '/' + offsets.end, function() {
+                        var node = elementNodeFromXML('<section>Alice has a cat</section>'),
+                            textNode = node.contents()[0];
+                        
+                        var returned = textNode.wrapWith({tagName: 'header', attrs: {'attr1': 'value1'}, start: offsets.start, end: offsets.end}),
+                            contents = node.contents();
+
+                        expect(contents.length).to.equal(3);
+                        
+                        expect(contents[0].nodeType).to.be.equal(Node.TEXT_NODE, 'first node is text node');
+                        expect(contents[0].getText()).to.equal('Alice');
+
+                        expect(contents[1].sameNode(returned)).to.be.true;
+                        expect(returned.getTagName()).to.equal('header');
+                        expect(returned.getAttr('attr1')).to.equal('value1');
+                        expect(contents[1].contents().length).to.equal(1, 'wrapper has one node inside');
+                        expect(contents[1].contents()[0].getText()).to.equal(' has a ');
+
+                        expect(contents[2].nodeType).to.be.equal(Node.TEXT_NODE, 'third node is text node');
+                        expect(contents[2].getText()).to.equal('cat');
+                    });
+                });
+
+                it('wraps whole text inside DocumentTextElement if offsets span entire content', function() {
+                    var node = elementNodeFromXML('<section>Alice has a cat</section>'),
+                         textNode = node.contents()[0];
+                     
+                    textNode.wrapWith({tagName: 'header', start: 0, end: 15});
+                    
+                    var contents = node.contents();
+                    expect(contents.length).to.equal(1);
+                    expect(contents[0].getTagName()).to.equal('header');
+                    expect(contents[0].contents()[0].getText()).to.equal('Alice has a cat');
+                });
+            });
         });
 
     });

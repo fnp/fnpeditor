@@ -149,8 +149,9 @@ $.extend(ElementNode.prototype, {
         return toret;
     },
 
-    append: function(documentNode) {
-        this._$.append(documentNode.nativeNode);
+    append: function(node) {
+        node = node instanceof DocumentNode ? node : this.document.createElementNode(node);
+        this._$.append(node.nativeNode);
     },
 
     unwrapContent: function() {
@@ -237,6 +238,20 @@ $.extend(TextNode.prototype, {
         this.triggerTextChangeEvent();
     },
 
+    wrapWith: function(desc) {
+        if(typeof desc.start === 'number' && typeof desc.end === 'number') {
+            return this.document._wrapText({
+                inside: this.parent(),
+                textNodeIdx: this.parent().indexOf(this),
+                offsetStart: Math.min(desc.start, desc.end),
+                offsetEnd: Math.max(desc.start, desc.end),
+                _with: {tag: desc.tagName, attrs: desc.attrs}
+            });
+        } else {
+            return DocumentNode.prototype.wrapWith.call(this, desc);
+        }
+    },
+
     triggerTextChangeEvent: function() {
         var event = new events.ChangeEvent('nodeTextChange', {node: this});
         this.document.trigger('change', event);
@@ -261,7 +276,13 @@ $.extend(Document.prototype, Backbone.Events, {
             if(from.text) {
                 from = document.createTextNode(from.text);
             } else {
-                from = $('<' + from.tagName + '>')[0];
+                var node = $('<' + from.tagName + '>');
+
+                _.keys(from.attrs || {}).forEach(function(key) {
+                    node.attr(key, from.attrs[key]);
+                });
+
+                from = node[0];
             }
         }
         return new this.ElementNodeFactory(from, this);
@@ -281,6 +302,52 @@ $.extend(Document.prototype, Backbone.Events, {
 
     toXML: function() {
         return this.root.toXML();
+    },
+
+    _wrapText: function(params) {
+        params = _.extend({textNodeIdx: 0}, params);
+        if(typeof params.textNodeIdx === 'number') {
+            params.textNodeIdx = [params.textNodeIdx];
+        }
+        
+        var contentsInside = params.inside.contents(),
+            idx1 = Math.min.apply(Math, params.textNodeIdx),
+            idx2 = Math.max.apply(Math, params.textNodeIdx),
+            textNode1 = contentsInside[idx1],
+            textNode2 = contentsInside[idx2],
+            sameNode = textNode1.sameNode(textNode2),
+            prefixOutside = textNode1.getText().substr(0, params.offsetStart),
+            prefixInside = textNode1.getText().substr(params.offsetStart),
+            suffixInside = textNode2.getText().substr(0, params.offsetEnd),
+            suffixOutside = textNode2.getText().substr(params.offsetEnd)
+        ;
+        
+        var wrapperElement = this.createElementNode({tagName: params._with.tag, attrs: params._with.attrs});
+        textNode1.after(wrapperElement);
+        textNode1.detach();
+        
+        if(prefixOutside.length > 0) {
+            wrapperElement.before({text:prefixOutside});
+        }
+        if(sameNode) {
+            var core = textNode1.getText().substr(params.offsetStart, params.offsetEnd - params.offsetStart);
+            wrapperElement.append({text: core});
+        } else {
+            textNode2.detach();
+            if(prefixInside.length > 0) {
+                wrapperElement.append({text: prefixInside});
+            }
+            for(var i = idx1 + 1; i < idx2; i++) {
+                wrapperElement.append(contentsInside[i]);
+            }
+            if(suffixInside.length > 0) {
+                wrapperElement.append({text: suffixInside});
+            }
+        }
+        if(suffixOutside.length > 0) {
+            wrapperElement.after({text: suffixOutside});
+        }
+        return wrapperElement;
     }
 });
 
