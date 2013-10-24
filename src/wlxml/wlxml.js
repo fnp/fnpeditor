@@ -130,7 +130,7 @@ $.extend(WLXMLDocument.prototype, {
                     } else if(where === 'below') {
                         target = next ? $(next) : elParent;
                         key = next ? 'orig_before' : 'orig_end';
-                    } else { throw new Object;}
+                    } else { throw new Error();}
 
                     target.data(formatter_prefix + key, toAdd);
                     if(transformed !== undefined) {
@@ -139,7 +139,7 @@ $.extend(WLXMLDocument.prototype, {
                     if(original !== undefined) {
                         target.data(formatter_prefix + key + '_original', original);
                     }
-                }
+                };
 
                 text.transformed = text.trimmed;
 
@@ -171,14 +171,16 @@ $.extend(WLXMLDocument.prototype, {
                             endingWhiteSpace = endingMatch ? endingMatch[0] : null;
 
                         if(endingWhiteSpace) {
-                            if(text.transformed[text.transformed.length - 1] === ' ' && endingWhiteSpace[0] === ' ')
+                            if(text.transformed[text.transformed.length - 1] === ' ' && endingWhiteSpace[0] === ' ') {
                                 endingWhiteSpace = endingWhiteSpace.substr(1);
+                            }
                             addInfo(endingWhiteSpace, 'below', !text.trimmed ? text.transformed : undefined, !text.trimmed ? text.original : undefined);
                         }
 
                         if(startingWhiteSpace && text.trimmed) {
-                            if(text.transformed[0] === ' ' && startingWhiteSpace[startingWhiteSpace.length-1] === ' ')
+                            if(text.transformed[0] === ' ' && startingWhiteSpace[startingWhiteSpace.length-1] === ' ') {
                                 startingWhiteSpace = startingWhiteSpace.substr(0, startingWhiteSpace.length -1);
+                            }
                             addInfo(startingWhiteSpace, 'above', !text.trimmed ? text.transformed : undefined, !text.trimmed ? text.original : undefined);
                         }
                     //}

@@ -72,6 +72,9 @@ describe('WLXMLDocument', function() {
     });
 
     describe('formatting output xml', function() {
+
+        /*jshint multistr: true */
+
         it('keeps white space between XML nodes', function() {
             var xmlIn = '<section>\n\n\n<div></div>\n\n\n<div></div>\n\n\n</section>',
             doc = getDocumentFromXML(xmlIn),
@@ -90,8 +93,6 @@ describe('WLXMLDocument', function() {
 
             var partsIn = xmlIn.split('\n\n\n'),
                 partsOut = xmlOut.split('\n\n\n');
-            console.log(xmlIn);
-            console.log(xmlOut);
             expect(partsIn).to.deep.equal(partsOut);
         });
 
