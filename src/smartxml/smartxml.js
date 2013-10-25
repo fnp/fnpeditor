@@ -26,7 +26,10 @@ $.extend(DocumentNode.prototype, {
         this._$ = $(nativeNode);
     },
 
-    detach: function() { this._$.detach(); },
+    detach: function() {
+        this._$.detach();
+        return this;
+    },
 
     sameNode: function(otherNode) {
         return otherNode && this.nativeNode === otherNode.nativeNode;
@@ -311,6 +314,42 @@ $.extend(Document.prototype, Backbone.Events, {
 
     toXML: function() {
         return this.root.toXML();
+    },
+
+    wrapNodes: function(params) {
+        if(!(params.element1.parent().sameNode(params.element2.parent()))) {
+            throw new Error('Wrapping non-sibling nodes not supported.');
+        }
+
+        var parent = params.element1.parent(),
+            parentContents = parent.contents(),
+            wrapper = this.createElementNode({
+                tagName: params._with.tagName,
+                attrs: params._with.attrs}),
+            idx1 = parent.indexOf(params.element1),
+            idx2 = parent.indexOf(params.element2);
+
+        if(idx1 > idx2) {
+            var tmp = idx1;
+            idx1 = idx2;
+            idx2 = tmp;
+        }
+
+        var insertingMethod, insertingTarget;
+        if(idx1 === 0) {
+            insertingMethod = 'prepend';
+            insertingTarget = parent;
+        } else {
+            insertingMethod = 'after';
+            insertingTarget = parentContents[idx1-1];
+        }
+
+        for(var i = idx1; i <= idx2; i++) {
+            wrapper.append(parentContents[i].detach());
+        }
+
+        insertingTarget[insertingMethod](wrapper);
+        return wrapper;
     },
 
     _wrapText: function(params) {

@@ -317,6 +317,55 @@ describe('smartxml', function() {
                 expect(wrapperContents[1].contents()[0].getText()).to.equal('small');
             });
         });
+
+        describe('Wrapping Nodes', function() {
+            it('wraps multiple sibling nodes', function() {
+                var section = elementNodeFromXML('<section>Alice<div>has</div><div>a cat</div></section>'),
+                    aliceText = section.contents()[0],
+                    firstDiv = section.contents()[1],
+                    lastDiv = section.contents()[section.contents().length -1];
+
+                var returned = section.document.wrapNodes({
+                        element1: aliceText,
+                        element2: lastDiv,
+                        _with: {tagName: 'header'}
+                    });
+
+                var sectionContents = section.contents(),
+                    header = sectionContents[0],
+                    headerContents = header.contents();
+
+                expect(sectionContents).to.have.length(1);
+                expect(header.sameNode(returned)).to.equal(true, 'wrapper returned');
+                expect(header.parent().sameNode(section)).to.be.true;
+                expect(headerContents).to.have.length(3);
+                expect(headerContents[0].sameNode(aliceText)).to.equal(true, 'first node wrapped');
+                expect(headerContents[1].sameNode(firstDiv)).to.equal(true, 'second node wrapped');
+                expect(headerContents[2].sameNode(lastDiv)).to.equal(true, 'third node wrapped');
+            });
+
+            it('wraps multiple sibling Elements - middle case', function() {
+                var section = elementNodeFromXML('<section><div></div><div></div><div></div><div></div></section>'),
+                    div2 = section.contents()[1],
+                    div3 = section.contents()[2];
+
+                section.document.wrapNodes({
+                        element1: div2,
+                        element2: div3,
+                        _with: {tagName: 'header'}
+                    });
+
+                var sectionContents = section.contents(),
+                    header = sectionContents[1],
+                    headerChildren = header.contents();
+
+                expect(sectionContents).to.have.length(3);
+                expect(headerChildren).to.have.length(2);
+                expect(headerChildren[0].sameNode(div2)).to.equal(true, 'first node wrapped');
+                expect(headerChildren[1].sameNode(div3)).to.equal(true, 'second node wrapped');
+            });
+        });
+
     });
 
     describe('Serializing document to WLXML', function() {
