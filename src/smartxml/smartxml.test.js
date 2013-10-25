@@ -258,6 +258,16 @@ describe('smartxml', function() {
             expect(node1.contents()[0].sameNode(node2)).to.be.true;
         });
 
+        it('prepends element node to another element node', function() {
+            var node1 = elementNodeFromParams({tag: 'div'}),
+                node2 = elementNodeFromParams({tag: 'a'}),
+                node3 = elementNodeFromParams({tag: 'p'});
+            node1.prepend(node2);
+            node1.prepend(node3);
+            expect(node1.contents()[0].sameNode(node3)).to.be.true;
+            expect(node1.contents()[1].sameNode(node2)).to.be.true;
+        });
+
         it('wraps element node with another element node', function() {
             var node = elementNodeFromXML('<div></div>'),
                 wrapper = elementNodeFromXML('<wrapper></wrapper>');

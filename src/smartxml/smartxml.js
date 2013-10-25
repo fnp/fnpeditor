@@ -154,6 +154,11 @@ $.extend(ElementNode.prototype, {
         this._$.append(node.nativeNode);
     },
 
+    prepend: function(node) {
+        node = node instanceof DocumentNode ? node : this.document.createElementNode(node);
+        this._$.prepend(node.nativeNode);
+    },
+
     unwrapContent: function() {
         var parent = this.parent();
         if(!parent) {
