@@ -368,6 +368,92 @@ describe('smartxml', function() {
 
     });
 
+    describe('Events', function() {
+        it('emits nodeAdded event when appending new node', function() {
+            var node = elementNodeFromXML('<div></div>'),
+                spy = sinon.spy();
+            node.document.on('change', spy);
+            
+            var appended = node.append({tagName:'div'}),
+                event = spy.args[0][0];
+            expect(event.type).to.equal('nodeAdded');
+            expect(event.meta.node.sameNode(appended)).to.be.true;
+        });
+        
+        it('doesn\'t emit nodeAdded when appending aready existing node', function() {
+            var node = elementNodeFromXML('<div><a></a><b></b></div>'),
+                a = node.contents()[0],
+                b = node.contents()[1],
+                spy = sinon.spy();
+            node.document.on('change', spy);
+            a.append(b);
+            expect(spy.callCount).to.equal(0);
+        });
+        
+        it('emits nodeAdded event when prepending new node', function() {
+            var node = elementNodeFromXML('<div></div>'),
+                spy = sinon.spy();
+            node.document.on('change', spy);
+            
+            var prepended = node.prepend({tagName:'div'}),
+                event = spy.args[0][0];
+            expect(event.type).to.equal('nodeAdded');
+            expect(event.meta.node.sameNode(prepended)).to.be.true;
+        });
+        
+        it('doesn\'t emit nodeAdded when prepending aready existing node', function() {
+            var node = elementNodeFromXML('<div><a></a><b></b></div>'),
+                a = node.contents()[0],
+                b = node.contents()[1],
+                spy = sinon.spy();
+            node.document.on('change', spy);
+            a.prepend(b);
+            expect(spy.callCount).to.equal(0);
+        });
+        
+        it('emits nodeAdded event when inserting node after another', function() {
+            var node = elementNodeFromXML('<div><a></a></div>').contents()[0],
+                spy = sinon.spy();
+            node.document.on('change', spy);
+            
+            var inserted = node.after({tagName:'div'}),
+                event = spy.args[0][0];
+            expect(event.type).to.equal('nodeAdded');
+            expect(event.meta.node.sameNode(inserted)).to.be.true;
+        });
+        
+        it('doesn\'t emit nodeAdded when inserting aready existing node after another', function() {
+            var node = elementNodeFromXML('<div><a></a><b></b></div>'),
+                a = node.contents()[0],
+                b = node.contents()[1],
+                spy = sinon.spy();
+            node.document.on('change', spy);
+            b.after(a);
+            expect(spy.callCount).to.equal(0);
+        });
+
+        it('emits nodeAdded event when inserting node before another', function() {
+            var node = elementNodeFromXML('<div><a></a></div>').contents()[0],
+                spy = sinon.spy();
+            node.document.on('change', spy);
+            
+            var inserted = node.before({tagName:'div'}),
+                event = spy.args[0][0];
+            expect(event.type).to.equal('nodeAdded');
+            expect(event.meta.node.sameNode(inserted)).to.be.true;
+        });
+        
+        it('doesn\'t emit nodeAdded when inserting aready existing node before another', function() {
+            var node = elementNodeFromXML('<div><a></a><b></b></div>'),
+                a = node.contents()[0],
+                b = node.contents()[1],
+                spy = sinon.spy();
+            node.document.on('change', spy);
+            a.before(b);
+            expect(spy.callCount).to.equal(0);
+        });
+    });
+
     describe('Serializing document to WLXML', function() {
         it('keeps document intact when no changes have been made', function() {
             var xmlIn = '<section>Alice<div>has</div>a <span class="uri" meta-uri="http://cat.com">cat</span>!</section>',

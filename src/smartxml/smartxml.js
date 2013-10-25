@@ -40,15 +40,21 @@ $.extend(DocumentNode.prototype, {
     },
 
     after: function(node) {
-        node = node instanceof ElementNode ? node : this.document.createElementNode(node);
-        this._$.after(node.nativeNode);
-        return node;
+        var insertion = this.getNodeInsertion(node);
+        this._$.after(insertion.ofNode.nativeNode);
+        if(insertion.insertsNew) {
+            this.triggerChangeEvent('nodeAdded', {node: insertion.ofNode});
+        }
+        return insertion.ofNode;
     },
 
     before: function(node) {
-        node = node instanceof ElementNode ? node : this.document.createElementNode(node);
-        this._$.before(node.nativeNode);
-        return node;
+        var insertion = this.getNodeInsertion(node);
+        this._$.before(insertion.ofNode.nativeNode);
+        if(insertion.insertsNew) {
+            this.triggerChangeEvent('nodeAdded', {node: insertion.ofNode});
+        }
+        return insertion.ofNode;
     },
 
     wrapWith: function(node) {
@@ -65,6 +71,18 @@ $.extend(DocumentNode.prototype, {
         var event = new events.ChangeEvent(type, $.extend({node: this}, metaData || {}));
         this.document.trigger('change', event);
     },
+    
+    getNodeInsertion: function(node) {
+        var insertion = {};
+        if(node instanceof DocumentNode) {
+            insertion.ofNode = node;
+            insertion.insertsNew = !this.document.containsNode(node);
+        } else {
+          insertion.ofNode = this.document.createElementNode(node);
+          insertion.insertsNew = true;
+        }
+        return insertion;
+    }
 });
 
 var ElementNode = function(nativeNode, document) {
@@ -153,13 +171,21 @@ $.extend(ElementNode.prototype, {
     },
 
     append: function(node) {
-        node = node instanceof DocumentNode ? node : this.document.createElementNode(node);
-        this._$.append(node.nativeNode);
+        var insertion = this.getNodeInsertion(node);
+        this._$.append(insertion.ofNode.nativeNode);
+        if(insertion.insertsNew) {
+            this.triggerChangeEvent('nodeAdded', {node: insertion.ofNode});
+        }
+        return insertion.ofNode;
     },
 
     prepend: function(node) {
-        node = node instanceof DocumentNode ? node : this.document.createElementNode(node);
-        this._$.prepend(node.nativeNode);
+        var insertion = this.getNodeInsertion(node);
+        this._$.prepend(insertion.ofNode.nativeNode);
+        if(insertion.insertsNew) {
+            this.triggerChangeEvent('nodeAdded', {node: insertion.ofNode});
+        }
+        return insertion.ofNode;
     },
 
     unwrapContent: function() {
@@ -314,6 +340,10 @@ $.extend(Document.prototype, Backbone.Events, {
 
     toXML: function() {
         return this.root.toXML();
+    },
+
+    containsNode: function(node) {
+        return node._$.parents().index(this.root._$) !== -1;
     },
 
     wrapNodes: function(params) {
