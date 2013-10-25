@@ -42,18 +42,14 @@ $.extend(DocumentNode.prototype, {
     after: function(node) {
         var insertion = this.getNodeInsertion(node);
         this._$.after(insertion.ofNode.nativeNode);
-        if(insertion.insertsNew) {
-            this.triggerChangeEvent('nodeAdded', {node: insertion.ofNode});
-        }
+        this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode});
         return insertion.ofNode;
     },
 
     before: function(node) {
         var insertion = this.getNodeInsertion(node);
         this._$.before(insertion.ofNode.nativeNode);
-        if(insertion.insertsNew) {
-            this.triggerChangeEvent('nodeAdded', {node: insertion.ofNode});
-        }
+        this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode});
         return insertion.ofNode;
     },
 
@@ -173,18 +169,14 @@ $.extend(ElementNode.prototype, {
     append: function(node) {
         var insertion = this.getNodeInsertion(node);
         this._$.append(insertion.ofNode.nativeNode);
-        if(insertion.insertsNew) {
-            this.triggerChangeEvent('nodeAdded', {node: insertion.ofNode});
-        }
+        this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode});
         return insertion.ofNode;
     },
 
     prepend: function(node) {
         var insertion = this.getNodeInsertion(node);
         this._$.prepend(insertion.ofNode.nativeNode);
-        if(insertion.insertsNew) {
-            this.triggerChangeEvent('nodeAdded', {node: insertion.ofNode});
-        }
+        this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode});
         return insertion.ofNode;
     },
 

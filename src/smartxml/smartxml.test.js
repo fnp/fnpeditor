@@ -380,14 +380,19 @@ describe('smartxml', function() {
             expect(event.meta.node.sameNode(appended)).to.be.true;
         });
         
-        it('doesn\'t emit nodeAdded when appending aready existing node', function() {
+        it('emits nodeMoved when appending aready existing node', function() {
             var node = elementNodeFromXML('<div><a></a><b></b></div>'),
                 a = node.contents()[0],
                 b = node.contents()[1],
                 spy = sinon.spy();
             node.document.on('change', spy);
-            a.append(b);
-            expect(spy.callCount).to.equal(0);
+            
+            var appended = a.append(b),
+                event = spy.args[0][0];
+
+            expect(spy.callCount).to.equal(1);
+            expect(event.type).to.equal('nodeMoved');
+            expect(event.meta.node.sameNode(appended)).to.be.true;
         });
         
         it('emits nodeAdded event when prepending new node', function() {
@@ -401,14 +406,18 @@ describe('smartxml', function() {
             expect(event.meta.node.sameNode(prepended)).to.be.true;
         });
         
-        it('doesn\'t emit nodeAdded when prepending aready existing node', function() {
+        it('emits nodeMoved when prepending aready existing node', function() {
             var node = elementNodeFromXML('<div><a></a><b></b></div>'),
                 a = node.contents()[0],
                 b = node.contents()[1],
                 spy = sinon.spy();
             node.document.on('change', spy);
-            a.prepend(b);
-            expect(spy.callCount).to.equal(0);
+            
+            var prepended = a.prepend(b),
+                event = spy.args[0][0];
+            expect(spy.callCount).to.equal(1);
+            expect(event.type).to.equal('nodeMoved');
+            expect(event.meta.node.sameNode(prepended)).to.be.true;
         });
         
         it('emits nodeAdded event when inserting node after another', function() {
@@ -422,14 +431,18 @@ describe('smartxml', function() {
             expect(event.meta.node.sameNode(inserted)).to.be.true;
         });
         
-        it('doesn\'t emit nodeAdded when inserting aready existing node after another', function() {
+        it('emits nodeMoved when inserting aready existing node after another', function() {
             var node = elementNodeFromXML('<div><a></a><b></b></div>'),
                 a = node.contents()[0],
                 b = node.contents()[1],
                 spy = sinon.spy();
             node.document.on('change', spy);
-            b.after(a);
-            expect(spy.callCount).to.equal(0);
+            var inserted = b.after(a),
+                event = spy.args[0][0];
+
+            expect(spy.callCount).to.equal(1);
+            expect(event.type).to.equal('nodeMoved');
+            expect(event.meta.node.sameNode(inserted)).to.be.true;
         });
 
         it('emits nodeAdded event when inserting node before another', function() {
@@ -443,14 +456,18 @@ describe('smartxml', function() {
             expect(event.meta.node.sameNode(inserted)).to.be.true;
         });
         
-        it('doesn\'t emit nodeAdded when inserting aready existing node before another', function() {
+        it('emits nodeAdded when inserting aready existing node before another', function() {
             var node = elementNodeFromXML('<div><a></a><b></b></div>'),
                 a = node.contents()[0],
                 b = node.contents()[1],
                 spy = sinon.spy();
             node.document.on('change', spy);
-            a.before(b);
-            expect(spy.callCount).to.equal(0);
+            var inserted = a.before(b),
+                event = spy.args[0][0];
+
+            expect(spy.callCount).to.equal(1);
+            expect(event.type).to.equal('nodeMoved');
+            expect(event.meta.node.sameNode(inserted)).to.be.true;
         });
     });
 
