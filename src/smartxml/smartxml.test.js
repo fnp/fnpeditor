@@ -295,7 +295,7 @@ describe('smartxml', function() {
             it('wraps text spanning multiple sibling TextNodes', function() {
                 var section = elementNodeFromXML('<section>Alice has a <span>small</span> cat</section>'),
                     wrapper = section.wrapText({
-                        _with: {tag: 'span', attrs: {'attr1': 'value1'}},
+                        _with: {tagName: 'span', attrs: {'attr1': 'value1'}},
                         offsetStart: 6,
                         offsetEnd: 4,
                         textNodeIdx: [0,2]
@@ -307,6 +307,7 @@ describe('smartxml', function() {
 
                 var wrapper2 = section.contents()[1];
                 expect(wrapper2.sameNode(wrapper)).to.be.true;
+                expect(wrapper.getTagName()).to.equal('span');
 
                 var wrapperContents = wrapper.contents();
                 expect(wrapperContents.length).to.equal(3);

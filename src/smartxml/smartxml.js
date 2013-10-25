@@ -275,7 +275,7 @@ $.extend(TextNode.prototype, {
                 textNodeIdx: this.parent().indexOf(this),
                 offsetStart: Math.min(desc.start, desc.end),
                 offsetEnd: Math.max(desc.start, desc.end),
-                _with: {tag: desc.tagName, attrs: desc.attrs}
+                _with: {tagName: desc.tagName, attrs: desc.attrs}
             });
         } else {
             return DocumentNode.prototype.wrapWith.call(this, desc);
@@ -396,7 +396,7 @@ $.extend(Document.prototype, Backbone.Events, {
             throw new Error('Wrapping text in non-sibling text nodes not supported.');
         }
         
-        var wrapperElement = this.createElementNode({tagName: params._with.tag, attrs: params._with.attrs});
+        var wrapperElement = this.createElementNode({tagName: params._with.tagName, attrs: params._with.attrs});
         textNode1.after(wrapperElement);
         textNode1.detach();
         
