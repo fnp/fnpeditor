@@ -27,7 +27,9 @@ $.extend(DocumentNode.prototype, {
     },
 
     detach: function() {
+        var parent = this.parent();
         this._$.detach();
+        this.triggerChangeEvent('nodeDetached', {parent: parent});
         return this;
     },
 

@@ -370,6 +370,20 @@ describe('smartxml', function() {
     });
 
     describe('Events', function() {
+        it('emits nodeDetached event on node detach', function() {
+            var node = elementNodeFromXML('<div><div></div></div>'),
+                innerNode = node.contents()[0],
+                spy = sinon.spy();
+            node.document.on('change', spy);
+            
+            var detached = innerNode.detach(),
+                event = spy.args[0][0];
+
+            expect(event.type).to.equal('nodeDetached');
+            expect(event.meta.node.sameNode(detached, 'detached node in event meta'));
+            expect(event.meta.parent.sameNode(node), 'original parent node in event meta');
+        }),
+
         it('emits nodeAdded event when appending new node', function() {
             var node = elementNodeFromXML('<div></div>'),
                 spy = sinon.spy();
