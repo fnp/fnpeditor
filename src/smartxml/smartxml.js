@@ -78,6 +78,10 @@ $.extend(DocumentNode.prototype, {
           insertion.insertsNew = true;
         }
         return insertion;
+    },
+
+    getIndex: function() {
+        return this.parent().indexOf(this);
     }
 });
 
