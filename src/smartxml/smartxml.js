@@ -319,7 +319,13 @@ $.extend(Document.prototype, Backbone.Events, {
                 from = node[0];
             }
         }
-        return new this.ElementNodeFactory(from, this);
+        var Factory;
+        if(from.nodeType === Node.TEXT_NODE) {
+            Factory = this.TextNodeFactory;
+        } else if(from.nodeType === Node.ELEMENT_NODE) {
+            Factory = this.ElementNodeFactory;
+        }
+        return new Factory(from, this);
     },
 
     createTextNode: function(nativeNode) {
