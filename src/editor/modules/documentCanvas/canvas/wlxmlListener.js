@@ -14,6 +14,7 @@ $.extend(Listener.prototype, {
         if(wlxmlDocument === this.wlxmlDocument) {
             return;
         }
+        this.wlxmlDocument = wlxmlDocument;
 
         wlxmlDocument.on('change', function(event) {
             var handler = handlers[event.type];
