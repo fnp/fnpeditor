@@ -278,6 +278,32 @@ describe('smartxml', function() {
             expect(node.contents()[2].getText()).to.equal(' a cat!');
         });
 
+        describe('Wrapping text', function() {
+            it('wraps text spanning multiple sibling TextNodes', function() {
+                var section = elementNodeFromXML('<section>Alice has a <span>small</span> cat</section>'),
+                    wrapper = section.wrapText({
+                        _with: {tag: 'span', attrs: {'attr1': 'value1'}},
+                        offsetStart: 6,
+                        offsetEnd: 4,
+                        textNodeIdx: [0,2]
+                    });
+
+                expect(section.contents().length).to.equal(2);
+                expect(section.contents()[0].nodeType).to.equal(Node.TEXT_NODE);
+                expect(section.contents()[0].getText()).to.equal('Alice ');
+
+                var wrapper2 = section.contents()[1];
+                expect(wrapper2.sameNode(wrapper)).to.be.true;
+
+                var wrapperContents = wrapper.contents();
+                expect(wrapperContents.length).to.equal(3);
+                expect(wrapperContents[0].getText()).to.equal('has a ');
+
+                expect(wrapperContents[1].nodeType).to.equal(Node.ELEMENT_NODE);
+                expect(wrapperContents[1].contents().length).to.equal(1);
+                expect(wrapperContents[1].contents()[0].getText()).to.equal('small');
+            });
+        });
     });
 
     describe('Serializing document to WLXML', function() {

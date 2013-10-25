@@ -200,6 +200,10 @@ $.extend(ElementNode.prototype, {
         };
     },
 
+    wrapText: function(params) {
+        return this.document._wrapText(_.extend({inside: this}, params));
+    },
+
     toXML: function() {
         var wrapper = $('<div>');
         wrapper.append(this._getXMLDOMToDump());
@@ -321,6 +325,10 @@ $.extend(Document.prototype, Backbone.Events, {
             suffixInside = textNode2.getText().substr(0, params.offsetEnd),
             suffixOutside = textNode2.getText().substr(params.offsetEnd)
         ;
+
+        if(!(textNode1.parent().sameNode(textNode2.parent()))) {
+            throw new Error('Wrapping text in non-sibling text nodes not supported.');
+        }
         
         var wrapperElement = this.createElementNode({tagName: params._with.tag, attrs: params._with.attrs});
         textNode1.after(wrapperElement);
