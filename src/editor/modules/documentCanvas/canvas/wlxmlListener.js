@@ -39,6 +39,28 @@ var handlers = {
     nodeTagChange: function(event) {
         var canvasNode = utils.findCanvasElement(event.meta.node);
         canvasNode.setWlxmlTag(event.meta.newTagName);
+    },
+    nodeAdded: function(event) {
+        var parentElement = utils.findCanvasElement(event.meta.node.parent()),
+            nodeIndex = event.meta.node.getIndex(),
+            referenceElement, referenceAction;
+
+        if(nodeIndex === 0) {
+            referenceElement = parentElement;
+            referenceAction = 'prepend';
+        } else {
+            referenceElement = parentElement.children()[nodeIndex-1];
+            referenceAction = 'after';
+        }
+
+        referenceElement[referenceAction](event.meta.node);
+    },
+    nodeMoved: function(event) {
+        return handlers.nodeAdded(event);
+    },
+    nodeDetached: function(event) {
+        var canvasNode = utils.findCanvasElementInParent(event.meta.node, event.meta.parent);
+        canvasNode.detach();
     }
 };
 
