@@ -486,6 +486,19 @@ describe('smartxml', function() {
         });
     });
 
+    describe('Traversing', function() {
+        describe('Basic', function() {
+            it('can access node parent', function() {
+                var doc = getDocumentFromXML('<a><b></b></a>'),
+                    a = doc.root,
+                    b = a.contents()[0];
+
+                expect(a.parent()).to.equal(null, 'parent of a root is null');
+                expect(b.parent().sameNode(a)).to.be.true;
+            });
+        });
+    });
+
     describe('Serializing document to WLXML', function() {
         it('keeps document intact when no changes have been made', function() {
             var xmlIn = '<section>Alice<div>has</div>a <span class="uri" meta-uri="http://cat.com">cat</span>!</section>',

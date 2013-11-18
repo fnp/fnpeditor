@@ -38,7 +38,11 @@ $.extend(DocumentNode.prototype, {
     },
 
     parent: function() {
-        return this.nativeNode.parentNode ? this.document.createElementNode(this.nativeNode.parentNode) : null;
+        var parentNode = this.nativeNode.parentNode;
+        if(parentNode && parentNode.nodeType === Node.ELEMENT_NODE) {
+            return this.document.createElementNode(parentNode);
+        }
+        return null;
     },
 
     after: function(node) {
