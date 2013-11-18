@@ -45,6 +45,15 @@ $.extend(DocumentNode.prototype, {
         return null;
     },
 
+    parents: function() {
+        var parent = this.parent(),
+            parents = parent ? parent.parents() : [];
+        if(parent) {
+            parents.unshift(parent);
+        }
+        return parents;
+    },
+
     after: function(node) {
         var insertion = this.getNodeInsertion(node);
         this._$.after(insertion.ofNode.nativeNode);

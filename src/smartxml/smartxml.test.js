@@ -496,6 +496,15 @@ describe('smartxml', function() {
                 expect(a.parent()).to.equal(null, 'parent of a root is null');
                 expect(b.parent().sameNode(a)).to.be.true;
             });
+            it('can access node parents', function() {
+                var doc = getDocumentFromXML('<a><b><c></c></b></a>'),
+                    a = doc.root,
+                    b = a.contents()[0],
+                    c = b.contents()[0];
+
+                var parents = c.parents();
+                expect(parents).to.eql([b,a]);
+            });
         });
     });
 
