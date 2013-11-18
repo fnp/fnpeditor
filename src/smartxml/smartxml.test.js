@@ -506,6 +506,32 @@ describe('smartxml', function() {
                 expect(parents).to.eql([b,a]);
             });
         });
+
+        describe('finding sibling parents of two elements', function() {
+            it('returns elements themself if they have direct common parent', function() {
+                var doc = getDocumentFromXML('<section><div><div>A</div><div>B</div></div></section>'),
+                    wrappingDiv = doc.root.contents()[0],
+                    divA = wrappingDiv.contents()[0],
+                    divB = wrappingDiv.contents()[1];
+
+                var siblingParents = doc.getSiblingParents({node1: divA, node2: divB});
+
+                expect(siblingParents.node1.sameNode(divA)).to.equal(true, 'divA');
+                expect(siblingParents.node2.sameNode(divB)).to.equal(true, 'divB');
+            });
+
+            it('returns sibling parents - example 1', function() {
+                var doc = getDocumentFromXML('<section>Alice <span>has a cat</span></section>'),
+                    aliceText = doc.root.contents()[0],
+                    span = doc.root.contents()[1],
+                    spanText = span.contents()[0];
+
+                var siblingParents = doc.getSiblingParents({node1: aliceText, node2: spanText});
+
+                expect(siblingParents.node1.sameNode(aliceText)).to.equal(true, 'aliceText');
+                expect(siblingParents.node2.sameNode(span)).to.equal(true, 'span');
+            });
+        });
     });
 
     describe('Serializing document to WLXML', function() {

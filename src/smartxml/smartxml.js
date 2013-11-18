@@ -399,6 +399,25 @@ $.extend(Document.prototype, Backbone.Events, {
         return wrapper;
     },
 
+    getSiblingParents: function(params) {
+        var parents1 = [params.node1].concat(params.node1.parents()).reverse(),
+            parents2 = [params.node2].concat(params.node2.parents()).reverse(),
+            noSiblingParents = null;
+
+        if(parents1.length === 0 || parents2.length === 0 || !(parents1[0].sameNode(parents2[0]))) {
+            return noSiblingParents;
+        }
+
+        var i;
+        for(i = 0; i < Math.min(parents1.length, parents2.length); i++) {
+            if(parents1[i].sameNode(parents2[i])) {
+                continue;
+            }
+            break;
+        }
+        return {node1: parents1[i], node2: parents2[i]};
+    },
+
     _wrapText: function(params) {
         params = _.extend({textNodeIdx: 0}, params);
         if(typeof params.textNodeIdx === 'number') {
@@ -447,6 +466,11 @@ $.extend(Document.prototype, Backbone.Events, {
             wrapperElement.after({text: suffixOutside});
         }
         return wrapperElement;
+    },
+
+    trigger: function() {
+        //console.log('trigger: ' + arguments[0] + (arguments[1] ? ', ' + arguments[1].type : ''));
+        Backbone.Events.trigger.apply(this, arguments);
     }
 });
 
