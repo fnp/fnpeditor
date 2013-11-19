@@ -11,6 +11,16 @@ define([
 var TEXT_NODE = Node.TEXT_NODE;
 
 
+var INSERTION = function(implementation) {
+    var toret = function(node) {
+        var insertion = this.getNodeInsertion(node);
+        implementation.call(this, insertion.ofNode.nativeNode);
+        this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode});
+        return insertion.ofNode;
+    };
+    return toret;
+};
+
 var DocumentNode = function(nativeNode, document) {
     if(!document) {
         throw new Error('undefined document for a node');
@@ -54,19 +64,13 @@ $.extend(DocumentNode.prototype, {
         return parents;
     },
 
-    after: function(node) {
-        var insertion = this.getNodeInsertion(node);
-        this._$.after(insertion.ofNode.nativeNode);
-        this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode});
-        return insertion.ofNode;
-    },
+    after: INSERTION(function(nativeNode) {
+        return this._$.after(nativeNode);
+    }),
 
-    before: function(node) {
-        var insertion = this.getNodeInsertion(node);
-        this._$.before(insertion.ofNode.nativeNode);
-        this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode});
-        return insertion.ofNode;
-    },
+    before: INSERTION(function(nativeNode) {
+        return this._$.before(nativeNode);
+    }),
 
     wrapWith: function(node) {
         node = node instanceof ElementNode ? node : this.document.createElementNode(node);
@@ -185,19 +189,13 @@ $.extend(ElementNode.prototype, {
         return toret;
     },
 
-    append: function(node) {
-        var insertion = this.getNodeInsertion(node);
-        this._$.append(insertion.ofNode.nativeNode);
-        this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode});
-        return insertion.ofNode;
-    },
+    append: INSERTION(function(nativeNode) {
+        this._$.append(nativeNode);
+    }),
 
-    prepend: function(node) {
-        var insertion = this.getNodeInsertion(node);
-        this._$.prepend(insertion.ofNode.nativeNode);
-        this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode});
-        return insertion.ofNode;
-    },
+    prepend: INSERTION(function(nativeNode) {
+        this._$.prepend(nativeNode);
+    }),
 
     unwrapContent: function() {
         var parent = this.parent();
