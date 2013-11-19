@@ -253,8 +253,7 @@ $.extend(ElementNode.prototype, {
             return;
         }
 
-        var parentContents = parent.contents(),
-            myContents = this.contents(),
+        var myContents = this.contents(),
             myIdx = parent.indexOf(this);
 
 
@@ -262,10 +261,12 @@ $.extend(ElementNode.prototype, {
             return this.detach();
         }
 
-        var moveLeftRange, moveRightRange, leftMerged;
+        var prev = this.prev(),
+            next = this.next(),
+            moveLeftRange, moveRightRange, leftMerged;
 
-        if(myIdx > 0 && (parentContents[myIdx-1].nodeType === TEXT_NODE) && (myContents[0].nodeType === TEXT_NODE)) {
-            parentContents[myIdx-1].appendText(myContents[0].getText());
+        if(prev && (prev.nodeType === TEXT_NODE) && (myContents[0].nodeType === TEXT_NODE)) {
+            prev.appendText(myContents[0].getText());
             myContents[0].detach();
             moveLeftRange = true;
             leftMerged = true;
@@ -274,9 +275,10 @@ $.extend(ElementNode.prototype, {
         }
 
         if(!(leftMerged && myContents.length === 1)) {
-            if(myIdx < parentContents.length - 1 && (parentContents[myIdx+1].nodeType === TEXT_NODE) && (myContents[myContents.length-1].nodeType === TEXT_NODE)) {
-                parentContents[myIdx+1].prependText(myContents[myContents.length-1].getText());
-                myContents[myContents.length-1].detach();
+            var lastContents = _.last(myContents);
+            if(next && (next.nodeType === TEXT_NODE) && (lastContents.nodeType === TEXT_NODE)) {
+                next.prependText(lastContents.getText());
+                lastContents.detach();
                 moveRightRange = true;
             }
         }
