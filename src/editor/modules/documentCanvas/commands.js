@@ -27,27 +27,29 @@ commands.register('unwrap-node', function(canvas) {
         parent2 = selectionEnd.element.parent() || undefined;
 
     if(canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
-        var selectionAnchor = cursor.getSelectionAnchor();
-        canvas.list.extractItems({element1: parent1, element2: parent2});
-        canvas.setCurrentElement(selectionAnchor.element, {caretTo: selectionAnchor.offset});
+        return;
+        // TODO
+        // var selectionAnchor = cursor.getSelectionAnchor();
+        // canvas.list.extractItems({element1: parent1, element2: parent2});
+        // canvas.setCurrentElement(selectionAnchor.element, {caretTo: selectionAnchor.offset});
     } else if(!cursor.isSelecting()) {
-        var toUnwrap = cursor.getPosition().element,
-            parent = toUnwrap.unwrap();
-        canvas.setCurrentElement(parent);
+        var nodeToUnwrap = cursor.getPosition().element.data('wlxmlNode'),
+            parentNode = nodeToUnwrap.unwrap();
+        canvas.setCurrentElement(utils.findCanvasElement(parentNode));
     }
 });
 
-commands.register('wrap-node', function(canvas) {
-    var cursor = canvas.getCursor(),
-        selectionStart = cursor.getSelectionStart(),
-        selectionEnd = cursor.getSelectionEnd(),
-        parent1 = selectionStart.element.parent() || undefined,
-        parent2 = selectionEnd.element.parent() || undefined;
+// commands.register('wrap-node', function(canvas) {
+//     var cursor = canvas.getCursor(),
+//         selectionStart = cursor.getSelectionStart(),
+//         selectionEnd = cursor.getSelectionEnd(),
+//         parent1 = selectionStart.element.parent() || undefined,
+//         parent2 = selectionEnd.element.parent() || undefined;
 
-    if(canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
-        canvas.list.create({element1: parent1, element2: parent2});
-    }
-});
+//     if(canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
+//         canvas.list.create({element1: parent1, element2: parent2});
+//     }
+// });
 
 commands.register('list', function(canvas, params) {
     var cursor = canvas.getCursor(),
