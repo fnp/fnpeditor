@@ -151,7 +151,7 @@ commands.register('take-away-node', function(canvas) {
         return;
 
 
-    var range = nodeElement.unwrapContents();
+    var range = nodeElement.data('wlxmlNode').unwrapContent();
 
     if(element) {
         var elementIsFirstChild = nodeElement.childIndex(element);
@@ -159,13 +159,13 @@ commands.register('take-away-node', function(canvas) {
             canvas.setCurrentElement(element, {caretTo: position.offset});
         } else {
             if(elementIsFirstChild) {
-                canvas.setCurrentElement(range.element1, {caretTo: 'end'});
+                canvas.setCurrentElement(findCanvasElement(range.element1), {caretTo: 'end'});
             } else {
-                canvas.setCurrentElement(range.element2, {caretTo: 'end'});
+                canvas.setCurrentElement(findCanvasElement(range.element2), {caretTo: 'end'});
             }
         }
     } else {
-        canvas.setCurrentElement(range.element1, {caretTo: 'start'});
+        canvas.setCurrentElement(findCanvasElement(range.element1), {caretTo: 'start'});
     }
 
 });
