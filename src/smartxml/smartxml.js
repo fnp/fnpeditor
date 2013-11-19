@@ -358,7 +358,7 @@ $.extend(Document.prototype, Backbone.Events, {
     },
 
     containsNode: function(node) {
-        return node._$.parents().index(this.root._$) !== -1;
+        return this.root && (node.nativeNode === this.root.nativeNode || node._$.parents().index(this.root._$) !== -1);
     },
 
     wrapNodes: function(params) {

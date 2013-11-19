@@ -40,6 +40,17 @@ describe('smartxml', function() {
             doc.loadXML('<header></header>');
             expect(doc.root.getTagName()).to.equal('header');
         });
+
+        it('knows if it contains an ElementNode in its tree', function() {
+            var doc = getDocumentFromXML('<root><a></a>text</root>'),
+                root = doc.root,
+                a = root.contents()[0],
+                text = root.contents()[1];
+
+            expect(doc.containsNode(root)).to.equal(true, 'contains its root');
+            expect(doc.containsNode(a)).to.equal(true, 'contains Element Node');
+            expect(doc.containsNode(text)).to.equal(true, 'contains Text Node');
+        });
     });
 
     describe('Basic ElementNode properties', function() {
