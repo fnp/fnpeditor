@@ -262,6 +262,17 @@ describe('smartxml', function() {
 
     describe('Manipulations', function() {
 
+        it('merges adjacent text nodes resulting from detaching an element node in between', function() {
+            var doc = getDocumentFromXML('<div>Alice <span>has</span>a cat</div>'),
+                span = doc.root.contents()[1];
+
+            span.detach();
+
+            var rootContents = doc.root.contents();
+            expect(rootContents).to.have.length(1, 'one child left');
+            expect(rootContents[0].getText()).to.equal('Alice a cat');
+        });
+
         it('appends element node to another element node', function() {
             var node1 = elementNodeFromParams({tag: 'div'}),
                 node2 = elementNodeFromParams({tag: 'a'}),

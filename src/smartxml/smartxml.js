@@ -68,6 +68,20 @@ $.extend(DocumentNode.prototype, {
         return parents;
     },
 
+    prev: function() {
+        var myIdx = this.getIndex();
+        return myIdx > 0 ? this.parent().contents()[myIdx-1] : null;
+    },
+
+    next: function() {
+        if(this.isRoot()) {
+            return null;
+        }
+        var myIdx = this.getIndex(),
+            parentContents = this.parent().contents();
+        return myIdx < parentContents.length - 1 ? parentContents[myIdx+1] : null;
+    },
+
     after: INSERTION(function(nativeNode) {
         return this._$.after(nativeNode);
     }),
@@ -117,6 +131,18 @@ ElementNode.prototype = Object.create(DocumentNode.prototype);
 
 $.extend(ElementNode.prototype, {
     nodeType: Node.ELEMENT_NODE,
+
+    detach: function() {
+        var prev = this.prev(),
+            next = this.next();
+        if(parent) {
+            if(prev && prev.nodeType === Node.TEXT_NODE && next && next.nodeType === Node.TEXT_NODE) {
+                prev.appendText(next.getText());
+                next.detach();
+            }
+        }
+        return DocumentNode.prototype.detach.call(this);
+    },
 
     setData: function(key, value) {
         if(value !== undefined) {
