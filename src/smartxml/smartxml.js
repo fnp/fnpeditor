@@ -136,6 +136,9 @@ $.extend(DocumentNode.prototype, {
     },
 
     getIndex: function() {
+        if(this.isRoot()) {
+            return 0;
+        }
         return this.parent().indexOf(this);
     }
 });
@@ -254,6 +257,7 @@ $.extend(ElementNode.prototype, {
         var parentContents = parent.contents(),
             myContents = this.contents(),
             myIdx = parent.indexOf(this);
+
 
         if(myContents.length === 0) {
             return this.detach();
