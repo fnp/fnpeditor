@@ -35,7 +35,9 @@ commands.register('unwrap-node', function(canvas) {
     } else if(!cursor.isSelecting()) {
         var nodeToUnwrap = cursor.getPosition().element.data('wlxmlNode'),
             parentNode = nodeToUnwrap.unwrap();
-        canvas.setCurrentElement(utils.findCanvasElement(parentNode));
+        if(parentNode) {
+            canvas.setCurrentElement(utils.findCanvasElement(parentNode));
+        }
     }
 });
 
