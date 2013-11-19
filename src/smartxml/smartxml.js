@@ -54,7 +54,7 @@ $.extend(DocumentNode.prototype, {
     parent: function() {
         var parentNode = this.nativeNode.parentNode;
         if(parentNode && parentNode.nodeType === Node.ELEMENT_NODE) {
-            return this.document.createElementNode(parentNode);
+            return this.document.createDocumentNode(parentNode);
         }
         return null;
     },
@@ -134,7 +134,7 @@ $.extend(DocumentNode.prototype, {
             insertion.ofNode = node;
             insertion.insertsNew = !this.document.containsNode(node);
         } else {
-          insertion.ofNode = this.document.createElementNode(node);
+          insertion.ofNode = this.document.createDocumentNode(node);
           insertion.insertsNew = true;
         }
         return insertion;
@@ -190,12 +190,7 @@ $.extend(ElementNode.prototype, {
         var toret = [],
             document = this.document;
         this._$.contents().each(function() {
-            if(this.nodeType === Node.ELEMENT_NODE) {
-                toret.push(document.createElementNode(this));
-            }
-            else if(this.nodeType === Node.TEXT_NODE) {
-                toret.push(document.createTextNode(this));
-            }
+            toret.push(document.createDocumentNode(this));
         });
         return toret;
     },
@@ -205,7 +200,7 @@ $.extend(ElementNode.prototype, {
     },
 
     setTag: function(tagName) {
-        var node = this.document.createElementNode({tagName: tagName}),
+        var node = this.document.createDocumentNode({tagName: tagName}),
             oldTagName = this.getTagName(),
             myContents = this._$.contents();
 
@@ -375,7 +370,7 @@ $.extend(Document.prototype, Backbone.Events, {
     ElementNodeFactory: ElementNode,
     TextNodeFactory: TextNode,
 
-    createElementNode: function(from) {
+    createDocumentNode: function(from) {
         if(!(from instanceof Node)) {
             if(from.text) {
                 from = document.createTextNode(from.text);
@@ -396,10 +391,6 @@ $.extend(Document.prototype, Backbone.Events, {
             Factory = this.ElementNodeFactory;
         }
         return new Factory(from, this);
-    },
-
-    createTextNode: function(nativeNode) {
-        return new this.TextNodeFactory(nativeNode, this);
     },
 
     loadXML: function(xml, options) {
@@ -425,7 +416,7 @@ $.extend(Document.prototype, Backbone.Events, {
 
         var parent = params.element1.parent(),
             parentContents = parent.contents(),
-            wrapper = this.createElementNode({
+            wrapper = this.createDocumentNode({
                 tagName: params._with.tagName,
                 attrs: params._with.attrs}),
             idx1 = parent.indexOf(params.element1),
@@ -495,7 +486,7 @@ $.extend(Document.prototype, Backbone.Events, {
             throw new Error('Wrapping text in non-sibling text nodes not supported.');
         }
         
-        var wrapperElement = this.createElementNode({tagName: params._with.tagName, attrs: params._with.attrs});
+        var wrapperElement = this.createDocumentNode({tagName: params._with.tagName, attrs: params._with.attrs});
         textNode1.after(wrapperElement);
         textNode1.detach();
         
@@ -531,7 +522,7 @@ $.extend(Document.prototype, Backbone.Events, {
 
 var defineDocumentProperties = function(doc, $document) {
     Object.defineProperty(doc, 'root', {get: function() {
-        return doc.createElementNode($document[0]);
+        return doc.createDocumentNode($document[0]);
     }, configurable: true});
     Object.defineProperty(doc, 'dom', {get: function() {
         return $document[0];
