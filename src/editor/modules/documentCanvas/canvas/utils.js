@@ -46,7 +46,7 @@ var findCanvasElementInParent = function(wlxmlChildNode, wlxmlParentNode) {
 return {
     nearestInDocumentOrder: nearestInDocumentOrder,
     findCanvasElement: findCanvasElement,
-    findTextElementInParent: findTextElementInParent,
+    findCanvasElementInParent: findCanvasElementInParent,
     unicode: {
         ZWS: '\u200B'
     }

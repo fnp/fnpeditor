@@ -1,6 +1,7 @@
 define([
-'modules/documentCanvas/canvas/documentElement'
-], function(documentElement) {
+'modules/documentCanvas/canvas/documentElement',
+'./canvas/utils'
+], function(documentElement, utils) {
     
 'use strict';
 
@@ -79,37 +80,42 @@ commands.register('newNodeRequested', function(canvas, params) {
     if(cursor.isSelecting()) {
         if(cursor.isSelectingSiblings()) {
             if(cursor.isSelectingWithinElement()) {
-                var newElement = selectionStart.element.wrapWithNodeElement({tag: params.wlxmlTag, klass: params.wlxmlClass, start: selectionStart.offset, end: selectionEnd.offset}),
-                    caretTo = selectionStart.offset < selectionEnd.offset ? 'start' : 'end';
-                canvas.setCurrentElement(newElement.children()[0], {caretTo: caretTo});
+                var wlxmlNode = selectionStart.element.data('wlxmlNode'),
+                    caretTo = selectionStart.offset < selectionEnd.offset ? 'start' : 'end',
+                    wrapper = wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}, start: selectionStart.offset, end: selectionEnd.offset}),
+                    wrapperCanvasElement = utils.findCanvasElement(wrapper);
+                canvas.setCurrentElement(wrapperCanvasElement.children()[0], {caretTo: caretTo});
             }
             else {
-                var parent = selectionStart.element.parent(),
+                var wlxmlNode = selectionStart.element.data('wlxmlNode').parent(),
                     caretTo = selectionStart.element.sameNode(cursor.getSelectionAnchor().element) ? 'end' : 'start';
 
-                var wrapper = canvas.wrapText({
-                    inside: parent,
-                    _with: {tag: params.wlxmlTag, klass: params.wlxmlClass},
+                var wrapper = wlxmlNode.wrapText({
+                    _with: {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}},
                     offsetStart: selectionStart.offset,
                     offsetEnd: selectionEnd.offset,
-                    textNodeIdx: [parent.childIndex(selectionStart.element), parent.childIndex(selectionEnd.element)]
-                });
-
-                canvas.setCurrentElement(wrapper.children()[caretTo === 0 ? 0 : wrapper.children().length - 1], {caretTo: caretTo});
+                    textNodeIdx: [wlxmlNode.indexOf(selectionStart.element.data('wlxmlNode')), wlxmlNode.indexOf(selectionEnd.element.data('wlxmlNode'))] //parent.childIndex(selectionEnd.element)]
+                }),
+                wrapperCanvasElement = utils.findCanvasElement(wrapper);
+                canvas.setCurrentElement(wrapperCanvasElement.children()[caretTo === 0 ? 0 : wrapperCanvasElement.children().length - 1], {caretTo: caretTo});
             }
         } else {
-            var siblingParents = canvas.getSiblingParents({element1: selectionStart.element, element2: selectionEnd.element})
+            var node1 = selectionStart.element.data('wlxmlNode'),
+                node2 = selectionEnd.element.data('wlxmlNode'),
+                siblingParents = canvas.wlxmlDocument.getSiblingParents({node1: node1, node2: node2});
+
             if(siblingParents) {
-                canvas.wrapElements({
-                    element1: siblingParents.element1,
-                    element2: siblingParents.element2,
-                    _with: {tag: params.wlxmlTag, klass: params.wlxmlClass}
+                canvas.wlxmlDocument.wrapNodes({
+                    element1: siblingParents.node1,
+                    element2: siblingParents.node2,
+                    _with: {tagName: params.wlxmlTag, attrs: {klass: params.wlxmlClass}}
                 });
             }
         }
     } else if(canvas.getCurrentNodeElement()) {
-        var el = canvas.getCurrentNodeElement().wrapWithNodeElement({tag: params.wlxmlTag, klass: params.wlxmlClass});
-        canvas.setCurrentElement(el);
+        var node = findCanvasElement(canvas.getCurrentNodeElement),
+            wrapper = node.wrapWith({tagName: params.wlxmlTag, attrs: {klass: params.wlxmlClass}});
+        canvas.setCurrentElement(findCanvasElement(wrapper));
     }
 
 

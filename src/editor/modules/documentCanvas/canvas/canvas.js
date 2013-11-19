@@ -33,6 +33,7 @@ $.extend(Canvas.prototype, {
         this.setupEventHandling();
 
         this.wlxmlListener.listenTo(wlxmlDocument);
+        this.wlxmlDocument = wlxmlDocument;
     },
 
     generateCanvasDOM: function(wlxmlNode) {
