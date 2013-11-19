@@ -61,6 +61,10 @@ var handlers = {
     nodeDetached: function(event) {
         var canvasNode = utils.findCanvasElementInParent(event.meta.node, event.meta.parent);
         canvasNode.detach();
+    },
+    nodeTextChange: function(event) {
+        var canvasElement = utils.findCanvasElement(event.meta.node);
+        canvasElement.setText(event.meta.node.getText());
     }
 };
 
