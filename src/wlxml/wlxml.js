@@ -1,6 +1,7 @@
 define([
+    'libs/jquery',
     'smartxml/smartxml'
-], function(smartxml) {
+], function($, smartxml) {
     
 'use strict';
 
