@@ -302,6 +302,19 @@ describe('smartxml', function() {
             expect(node.contents()[2].getText()).to.equal(' a cat!');
         });
 
+        it('unwrap single node from its parent', function() {
+            var doc = getDocumentFromXML('<div><a><b></b></a></div>'),
+                div = doc.root,
+                a = div.contents()[0],
+                b = a.contents()[0];
+
+            var parent = b.unwrap();
+
+            expect(parent.sameNode(div)).to.equal(true, 'returns new parent');
+            expect(div.contents()).to.have.length(1, 'root contains only one node');
+            expect(div.contents()[0].sameNode(b)).to.equal(true, 'node got unwrapped');
+        });
+
         describe('Wrapping text', function() {
             it('wraps text spanning multiple sibling TextNodes', function() {
                 var section = elementNodeFromXML('<section>Alice has a <span>small</span> cat</section>'),

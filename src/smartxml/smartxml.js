@@ -36,6 +36,10 @@ $.extend(DocumentNode.prototype, {
         this._$ = $(nativeNode);
     },
 
+    isRoot: function() {
+        return this.document.root.sameNode(this);
+    },
+
     detach: function() {
         var parent = this.parent();
         this._$.detach();
@@ -243,6 +247,22 @@ $.extend(ElementNode.prototype, {
             element1: parent.contents()[myIdx + (moveLeftRange ? -1 : 0)],
             element2: parent.contents()[myIdx + childrenLength-1 + (moveRightRange ? 1 : 0)]
         };
+    },
+
+    /**
+    * Removes parent of a node if node has no siblings.
+    */
+    unwrap: function() {
+        if(this.isRoot()) {
+            return;
+        }
+        var parent = this.parent(),
+            grandParent;
+        if(parent.contents().length === 1) {
+            grandParent = parent.parent();
+            parent.unwrapContent();
+            return grandParent;
+        }
     },
 
     wrapText: function(params) {
