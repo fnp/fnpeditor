@@ -91,13 +91,12 @@ $.extend(DocumentNode.prototype, {
     }),
 
     wrapWith: function(node) {
-        node = node instanceof ElementNode ? node : this.document.createElementNode(node);
-
+        var insertion = this.getNodeInsertion(node);
         if(this.parent()) {
-            this.before(node);
+            this.before(insertion.ofNode);
         }
-        node.append(this);
-        return node;
+        insertion.ofNode.append(this);
+        return insertion.ofNode;
     },
 
     /**
