@@ -84,7 +84,9 @@ $.extend(DocumentNode.prototype, {
 
     triggerChangeEvent: function(type, metaData) {
         var event = new events.ChangeEvent(type, $.extend({node: this}, metaData || {}));
-        this.document.trigger('change', event);
+        if(type === 'nodeDetached' || this.document.containsNode(event.meta.node)) {
+            this.document.trigger('change', event);
+        }
     },
     
     getNodeInsertion: function(node) {
