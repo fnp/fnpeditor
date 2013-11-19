@@ -376,7 +376,7 @@ $.extend(Document.prototype, Backbone.Events, {
     TextNodeFactory: TextNode,
 
     createElementNode: function(from) {
-        if(!(from instanceof HTMLElement)) {
+        if(!(from instanceof Node)) {
             if(from.text) {
                 from = document.createTextNode(from.text);
             } else {
