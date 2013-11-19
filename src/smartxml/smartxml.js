@@ -82,6 +82,12 @@ $.extend(DocumentNode.prototype, {
         return myIdx < parentContents.length - 1 ? parentContents[myIdx+1] : null;
     },
 
+    isSurroundedByTextElements: function() {
+        var prev = this.prev(),
+            next = this.next();
+        return prev && (prev.nodeType === Node.TEXT_NODE) && next && (next.nodeType === Node.TEXT_NODE);
+    },
+
     after: INSERTION(function(nativeNode) {
         return this._$.after(nativeNode);
     }),
@@ -151,13 +157,11 @@ $.extend(ElementNode.prototype, {
     nodeType: Node.ELEMENT_NODE,
 
     detach: function() {
-        var prev = this.prev(),
+        var next;
+        if(parent && this.isSurroundedByTextElements()) {
             next = this.next();
-        if(parent) {
-            if(prev && prev.nodeType === Node.TEXT_NODE && next && next.nodeType === Node.TEXT_NODE) {
-                prev.appendText(next.getText());
-                next.detach();
-            }
+            this.prev().appendText(next.getText());
+            next.detach();
         }
         return DocumentNode.prototype.detach.call(this);
     },
