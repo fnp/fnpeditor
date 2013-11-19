@@ -313,7 +313,7 @@ describe('smartxml', function() {
             expect(node.contents()[2].getText()).to.equal(' a cat!');
         });
 
-        it('unwrap single node from its parent', function() {
+        it('unwrap single element node from its parent', function() {
             var doc = getDocumentFromXML('<div><a><b></b></a></div>'),
                 div = doc.root,
                 a = div.contents()[0],
@@ -324,6 +324,19 @@ describe('smartxml', function() {
             expect(parent.sameNode(div)).to.equal(true, 'returns new parent');
             expect(div.contents()).to.have.length(1, 'root contains only one node');
             expect(div.contents()[0].sameNode(b)).to.equal(true, 'node got unwrapped');
+        });
+
+        it('unwrap single text node from its parent', function() {
+            var doc = getDocumentFromXML('<div>Some <span>text</span>!</div>'),
+                div = doc.root,
+                span = div.contents()[1],
+                text = span.contents()[0];
+
+            var parent = text.unwrap();
+
+            expect(parent.sameNode(div)).to.equal(true, 'returns new parent');
+            expect(div.contents()).to.have.length(1, 'root contains only one node');
+            expect(div.contents()[0].getText()).to.equal('Some text!');
         });
 
         describe('Wrapping text', function() {

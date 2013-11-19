@@ -100,6 +100,22 @@ $.extend(DocumentNode.prototype, {
         return node;
     },
 
+    /**
+    * Removes parent of a node if node has no siblings.
+    */
+    unwrap: function() {
+        if(this.isRoot()) {
+            return;
+        }
+        var parent = this.parent(),
+            grandParent;
+        if(parent.contents().length === 1) {
+            grandParent = parent.parent();
+            parent.unwrapContent();
+            return grandParent;
+        }
+    },
+
     triggerChangeEvent: function(type, metaData) {
         var event = new events.ChangeEvent(type, $.extend({node: this}, metaData || {}));
         if(type === 'nodeDetached' || this.document.containsNode(event.meta.node)) {
@@ -273,22 +289,6 @@ $.extend(ElementNode.prototype, {
             element1: parent.contents()[myIdx + (moveLeftRange ? -1 : 0)],
             element2: parent.contents()[myIdx + childrenLength-1 + (moveRightRange ? 1 : 0)]
         };
-    },
-
-    /**
-    * Removes parent of a node if node has no siblings.
-    */
-    unwrap: function() {
-        if(this.isRoot()) {
-            return;
-        }
-        var parent = this.parent(),
-            grandParent;
-        if(parent.contents().length === 1) {
-            grandParent = parent.parent();
-            parent.unwrapContent();
-            return grandParent;
-        }
     },
 
     wrapText: function(params) {
