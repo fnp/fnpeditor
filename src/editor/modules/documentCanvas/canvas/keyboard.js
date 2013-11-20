@@ -47,9 +47,12 @@ handlers.push({key: KEYS.ENTER,
         if(Object.keys(cursor.getPosition()).length === 0) {
             var currentElement = canvas.getCurrentNodeElement();
             if(currentElement) {
-                var added = currentElement.after({tag: currentElement.getWlxmlTag() || 'div', klass: currentElement.getWlxmlClass() || 'p'});
+                var added = currentElement.data('wlxmlNode').after({
+                    tag: currentElement.getWlxmlTag() || 'div',
+                    attrs: {'class': currentElement.getWlxmlClass() || 'p'}
+                });
                 added.append({text:''});
-                canvas.setCurrentElement(added, {caretTo: 'start'});
+                canvas.setCurrentElement(utils.findCanvasElement(added), {caretTo: 'start'});
             }
             return;
         }
@@ -71,25 +74,25 @@ handlers.push({key: KEYS.ENTER,
                     return false; // top level element is unsplittable
                 }
 
-                var elements = position.element.split({offset: position.offset}),
+                var nodes = position.element.data('wlxmlNode').split({offset: position.offset}),
                     newEmpty,
                     goto,
                     gotoOptions;
 
                 if(position.offsetAtBeginning)
-                    newEmpty = elements.first;
+                    newEmpty = nodes.first;
                 else if(position.offsetAtEnd)
-                    newEmpty = elements.second;
+                    newEmpty = nodes.second;
                 
                 if(newEmpty) {
-                    goto = newEmpty.append(documentElement.DocumentTextElement.create({text: ''}, this));
+                    goto = newEmpty.append({text: ''});
                     gotoOptions = {};
                 } else {
-                    goto = elements.second;
+                    goto = nodes.second;
                     gotoOptions = {caretTo: 'start'};
                 }
 
-                canvas.setCurrentElement(goto, gotoOptions);
+                canvas.setCurrentElement(utils.findCanvasElement(goto), gotoOptions);
             }
         }
     }
