@@ -1,10 +1,14 @@
 define([
+'libs/jquery',
 'libs/chai',
 'modules/documentCanvas/canvas/utils'
 
-], function(chai, utils) {
+], function($, chai, utils) {
 
 'use strict';
+/* jshint multistr:true */
+/* global describe, it */
+
 
 var expect = chai.expect;
 

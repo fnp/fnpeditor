@@ -1,19 +1,17 @@
 define([
+'libs/jquery',
 'libs/chai',
+'libs/sinon',
 'modules/documentCanvas/canvas/canvas',
 'modules/documentCanvas/canvas/documentElement',
 'modules/documentCanvas/canvas/utils',
 'wlxml/wlxml'
-], function(chai, canvas, documentElement, utils, wlxml) {
+], function($, chai, sinon, canvas, documentElement, utils, wlxml) {
     
 'use strict';
+/* global describe, it, beforeEach, afterEach */
 
 var expect = chai.expect;
-
-
-var nodeFromXML = function(xml) {
-    return wlxml.WLXMLElementNodeFromXML(xml);
-};
 
 var getCanvasFromXML = function(xml) {
     return canvas.fromXMLDocument(wlxml.WLXMLDocumentFromXML(xml));
@@ -21,16 +19,17 @@ var getCanvasFromXML = function(xml) {
 
 var wait = function(callback, timeout) {
     return window.setTimeout(callback, timeout || 0.5);
-}
+};
+
 
 describe('new Canvas', function() {
     it('abc', function() {
         var doc = wlxml.WLXMLDocumentFromXML('<section>Alice <span>has</span> a cat!</div>'),
             c = canvas.fromXMLDocument(doc);
 
-        expect(c.doc().children()).to.have.length(3)
+        expect(c.doc().children()).to.have.length(3);
     });
-})
+});
 
 describe('Handling empty text nodes', function() {
     it('puts zero width space into node with about to be remove text', function(done) {
@@ -55,10 +54,11 @@ describe('Cursor', function() {
         var nodes = inside.find(':not(iframe)').addBack().contents().filter(function() {
             return this.nodeType === Node.TEXT_NODE && this.data === text;
         });
-        if(nodes.length)
+        if(nodes.length) {
             return nodes[0];
+        }
         return null;
-    }
+    };
 
     beforeEach(function() {
         getSelection = sinon.stub(window, 'getSelection');

@@ -1,10 +1,11 @@
 // Module that implements main WYSIWIG edit area
 
 define([
+'libs/jquery',
 'libs/underscore',
 './canvas/canvas',
 './commands',
-'libs/text!./template.html'], function(_, canvas3, commands, template) {
+'libs/text!./template.html'], function($, _, canvas3, commands, template) {
 
 'use strict';
 
@@ -34,7 +35,7 @@ return function(sandbox) {
     /* public api */
     return {
         start: function() { sandbox.publish('ready'); },
-        getView: function() { 
+        getView: function() {
             return canvasWrapper;
         },
         setDocument: function(wlxmlDocument) {

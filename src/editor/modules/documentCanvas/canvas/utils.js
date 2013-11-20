@@ -10,6 +10,7 @@ var nearestInDocumentOrder = function(selector, direction, element) {
         parent = parents.length ? $(parents[parents.length-1]) : element;
 
     var adj = parent.find(selector).filter(function() {
+        /*jshint bitwise: false*/
         return this.compareDocumentPosition(element) & (direction === 'above' ? Node.DOCUMENT_POSITION_FOLLOWING : Node.DOCUMENT_POSITION_PRECEDING);
     });
 
@@ -17,14 +18,14 @@ var nearestInDocumentOrder = function(selector, direction, element) {
         return adj[direction === 'above' ? adj.length-1 : 0];
     }
     return null;
-}
+};
 
 var findCanvasElement = function(node) {
     if(node.nodeType === Node.ELEMENT_NODE) {
         return node.getData('canvasElement');
     }
     if(node.nodeType === Node.TEXT_NODE) {
-        return findCanvasElementInParent(node, node.parent())
+        return findCanvasElementInParent(node, node.parent());
     }
 };
 
@@ -37,11 +38,12 @@ var findCanvasElementInParent = function(wlxmlChildNode, wlxmlParentNode) {
     var parentElement = findCanvasElement(wlxmlParentNode),
         toret;
     parentElement.children().forEach(function(child) {
-        if(child.data('wlxmlNode').sameNode(wlxmlChildNode))
+        if(child.data('wlxmlNode').sameNode(wlxmlChildNode)) {
             toret = child;
+        }
     });
     return toret;
-}
+};
 
 return {
     nearestInDocumentOrder: nearestInDocumentOrder,
