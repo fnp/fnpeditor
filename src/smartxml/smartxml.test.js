@@ -388,11 +388,11 @@ describe('smartxml', function() {
                         _with: {tagName: 'header'}
                     });
 
-                var sectionContents = section.contents(),
-                    header = sectionContents[0],
+                var sectionContentss = section.contents(),
+                    header = sectionContentss[0],
                     headerContents = header.contents();
 
-                expect(sectionContents).to.have.length(1);
+                expect(sectionContentss).to.have.length(1);
                 expect(header.sameNode(returned)).to.equal(true, 'wrapper returned');
                 expect(header.parent().sameNode(section)).to.be.true;
                 expect(headerContents).to.have.length(3);
@@ -412,17 +412,96 @@ describe('smartxml', function() {
                         _with: {tagName: 'header'}
                     });
 
-                var sectionContents = section.contents(),
-                    header = sectionContents[1],
+                var sectionContentss = section.contents(),
+                    header = sectionContentss[1],
                     headerChildren = header.contents();
 
-                expect(sectionContents).to.have.length(3);
+                expect(sectionContentss).to.have.length(3);
                 expect(headerChildren).to.have.length(2);
                 expect(headerChildren[0].sameNode(div2)).to.equal(true, 'first node wrapped');
                 expect(headerChildren[1].sameNode(div3)).to.equal(true, 'second node wrapped');
             });
         });
 
+    });
+
+    describe('Splitting text', function() {
+    
+        it('splits TextNode\'s parent into two ElementNodes', function() {
+            var doc = getDocumentFromXML('<section><header>Some header</header></section>'),
+                section = doc.root,
+                text = section.contents()[0].contents()[0];
+
+            var returnedValue = text.split({offset: 5});
+            expect(section.contents().length).to.equal(2, 'section has two children');
+            
+            var header1 = section.contents()[0];
+            var header2 = section.contents()[1];
+
+            expect(header1.getTagName()).to.equal('header', 'first section child ok');
+            expect(header1.contents().length).to.equal(1, 'first header has one child');
+            expect(header1.contents()[0].getText()).to.equal('Some ', 'first header has correct content');
+            expect(header2.getTagName()).to.equal('header', 'second section child ok');
+            expect(header2.contents().length).to.equal(1, 'second header has one child');
+            expect(header2.contents()[0].getText()).to.equal('header', 'second header has correct content');
+
+            expect(returnedValue.first.sameNode(header1)).to.equal(true, 'first node returned');
+            expect(returnedValue.second.sameNode(header2)).to.equal(true, 'second node returned');
+        });
+
+        it('leaves empty copy of ElementNode if splitting at the very beginning', function() {
+                var doc = getDocumentFromXML('<section><header>Some header</header></section>'),
+                section = doc.root,
+                text = section.contents()[0].contents()[0];
+
+                text.split({offset: 0});
+                
+                var header1 = section.contents()[0];
+                var header2 = section.contents()[1];
+
+                expect(header1.contents().length).to.equal(0);
+                expect(header2.contents()[0].getText()).to.equal('Some header');
+        });
+
+        it('leaves empty copy of ElementNode if splitting at the very end', function() {
+                var doc = getDocumentFromXML('<section><header>Some header</header></section>'),
+                section = doc.root,
+                text = section.contents()[0].contents()[0];
+
+                text.split({offset: 11});
+                
+                var header1 = section.contents()[0];
+                var header2 = section.contents()[1];
+
+                expect(header1.contents()[0].getText()).to.equal('Some header');
+                expect(header2.contents().length).to.equal(0);
+        });
+
+        it('keeps TextNodes\'s parent\'s children elements intact', function() {
+            var doc = getDocumentFromXML('<section><header>A <span>fancy</span> and <span>nice</span> header</header></section>'),
+                section = doc.root,
+                header = section.contents()[0],
+                textAnd = header.contents()[2];
+
+            textAnd.split({offset: 2});
+            
+            var sectionContents = section.contents();
+            expect(sectionContents.length).to.equal(2, 'Section has two children');
+            expect(sectionContents[0].getTagName()).to.equal('header', 'First section node is a header');
+            expect(sectionContents[1].getTagName()).to.equal('header', 'Second section node is a header');
+
+            var firstHeaderContents = sectionContents[0].contents();
+            expect(firstHeaderContents.length).to.equal(3, 'First header has three children');
+            expect(firstHeaderContents[0].getText()).to.equal('A ', 'First header starts with a text');
+            expect(firstHeaderContents[1].getTagName()).to.equal('span', 'First header has span in the middle');
+            expect(firstHeaderContents[2].getText()).to.equal(' a', 'First header ends with text');
+
+            var secondHeaderContents = sectionContents[1].contents();
+            expect(secondHeaderContents.length).to.equal(3, 'Second header has three children');
+            expect(secondHeaderContents[0].getText()).to.equal('nd ', 'Second header starts with text');
+            expect(secondHeaderContents[1].getTagName()).to.equal('span', 'Second header has span in the middle');
+            expect(secondHeaderContents[2].getText()).to.equal(' header', 'Second header ends with text');
+        });
     });
 
     describe('Events', function() {

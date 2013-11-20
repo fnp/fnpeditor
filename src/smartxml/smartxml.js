@@ -351,6 +351,44 @@ $.extend(TextNode.prototype, {
         }
     },
 
+    split: function(params) {
+        var parentElement = this.parent(),
+            passed = false,
+            succeedingChildren = [],
+            prefix = this.getText().substr(0, params.offset),
+            suffix = this.getText().substr(params.offset);
+
+        parentElement.contents().forEach(function(child) {
+            if(passed) {
+                succeedingChildren.push(child);
+            }
+            if(child.sameNode(this)) {
+                passed = true;
+            }
+        }.bind(this));
+
+        if(prefix.length > 0) {
+            this.setText(prefix);
+        }
+        else {
+            this.detach();
+        }
+
+        var attrs = {};
+        parentElement.getAttrs().forEach(function(attr) {attrs[attr.name] = attr.value; });
+        var newElement = this.document.createDocumentNode({tagName: parentElement.getTagName(), attrs: attrs});
+        parentElement.after(newElement);
+
+        if(suffix.length > 0) {
+            newElement.append({text: suffix});
+        }
+        succeedingChildren.forEach(function(child) {
+            newElement.append(child);
+        });
+
+        return {first: parentElement, second: newElement};
+    },
+
     triggerTextChangeEvent: function() {
         var event = new events.ChangeEvent('nodeTextChange', {node: this});
         this.document.trigger('change', event);
@@ -359,7 +397,7 @@ $.extend(TextNode.prototype, {
 
 
 var parseXML = function(xml) {
-    return $(xml)[0];
+    return $($.trim(xml))[0];
 };
 
 var Document = function(xml) {
@@ -531,7 +569,7 @@ var defineDocumentProperties = function(doc, $document) {
 
 return {
     documentFromXML: function(xml) {
-        return new Document(parseXML(xml));
+        return new Document(xml);
     },
 
     elementNodeFromXML: function(xml) {
