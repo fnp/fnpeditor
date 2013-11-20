@@ -189,14 +189,14 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
                 goto;
             if(parent.children().length === 1 && parent.children()[0].sameNode(element)) {
                 if(grandParent && grandParent.children().length === 1) {
-                    goto = grandParent.append({text: ''});
+                    goto = grandParent.data('wlxmlNode').append({text: ''});
                 } else {
                     goto = element.getNearestTextElement(direction);
                 }
-                parent.detach();
+                parent.data('wlxmlNode').detach();
             } else {
                 goto = element.getNearestTextElement(direction);
-                element.detach();
+                element.data('wlxmlNode').detach();
             }
             canvas.setCurrentElement(goto, {caretTo: caretTo});
             canvas.publisher('contentChanged');
