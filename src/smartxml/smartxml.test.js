@@ -51,6 +51,14 @@ describe('smartxml', function() {
             expect(doc.containsNode(a)).to.equal(true, 'contains Element Node');
             expect(doc.containsNode(text)).to.equal(true, 'contains Text Node');
         });
+
+        it('creates text nodes', function() {
+            var doc = getDocumentFromXML('<div></div>'),
+                emptyTextNode = doc.createDocumentNode({text:''}),
+                nonEmptyTextNode = doc.createDocumentNode({text: 'alice'});
+            expect(emptyTextNode.getText()).to.equal('', 'empty ok');
+            expect(nonEmptyTextNode.getText()).to.equal('alice', 'non empty ok');
+        });
     });
 
     describe('Basic ElementNode properties', function() {

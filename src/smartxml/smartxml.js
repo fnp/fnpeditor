@@ -372,7 +372,7 @@ $.extend(Document.prototype, Backbone.Events, {
 
     createDocumentNode: function(from) {
         if(!(from instanceof Node)) {
-            if(from.text) {
+            if(from.text !== undefined) {
                 from = document.createTextNode(from.text);
             } else {
                 var node = $('<' + from.tagName + '>');
