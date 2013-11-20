@@ -18,14 +18,14 @@ return function(sandbox) {
     var commands = {
         highlightDocumentElement: function(element, origin) {
             ///'nodeBreadCrumbs', 'nodeFamilyTree'
-            ['documentCanvas', ].forEach(function(moduleName) {
+            ['documentCanvas', 'nodeFamilyTree'].forEach(function(moduleName) {
                 if(!origin || moduleName != origin)
                     sandbox.getModule(moduleName).highlightElement(element);
             });
         },
         dimDocumentElement: function(element, origin) {
             //'nodeBreadCrumbs', 'nodeFamilyTree'
-            ['documentCanvas'].forEach(function(moduleName) {
+            ['documentCanvas', 'nodeFamilyTree'].forEach(function(moduleName) {
                 if(!origin || moduleName != origin)
                     sandbox.getModule(moduleName).dimElement(element);
             });
@@ -36,7 +36,7 @@ return function(sandbox) {
         updateCurrentNodeElement: function(nodeElement) {
             sandbox.getModule('nodePane').setNodeElement(nodeElement);
             sandbox.getModule('nodeFamilyTree').setElement(nodeElement);
-            //sandbox.getModule('nodeBreadCrumbs').setNodeElement(nodeElement);
+            sandbox.getModule('nodeBreadCrumbs').setNodeElement(nodeElement);
         },
         updateCurrentTextElement: function(textElement) {
             sandbox.getModule('nodeFamilyTree').setElement(textElement);

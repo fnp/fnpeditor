@@ -10,7 +10,20 @@ define([
 return function(sandbox) {
     
     var template = _.template(templateSrc),
-        listens = false;
+        listens = false,
+        items = [];
+
+    var getItemId = function(item) {
+        var idx = -1;
+        var found = _.find(items, function(i) {
+            idx += 1;
+            return item.sameNode(i);
+        });
+        if(found) {
+            return idx;
+        }
+        return -1;
+    }
     
     var startListening = function(document) {
         listens = true;
@@ -48,11 +61,15 @@ return function(sandbox) {
                 parent;
             
             this.currentNodeElement = nodeElement;
+            items = [];
 
             if(nodeElementParent) {
+                items.push(nodeElementParent);
                 parent = {
+                    id: items.length - 1,
                     repr: wlxmlUtils.wlxmlTagNames[nodeElementParent.getTagName()] + (nodeElementParent.getClass() ? ' / ' + wlxmlUtils.wlxmlClassNames[nodeElementParent.getClass()] : '')
                 };
+                
             }
         
             var nodeContents = nodeElement.contents(),
@@ -68,10 +85,17 @@ return function(sandbox) {
                         }
                         text = '"' + text + '"';
                     }
-                    contents.push({repr: _.escape(text), bold: child.sameNode(textElement)});
+                    contents.push({
+                        id: items.length,
+                        repr: _.escape(text), bold: child.sameNode(textElement)
+                    });
                 } else {
-                    contents.push({repr: wlxmlUtils.wlxmlTagNames[child.getTagName()] + (child.getClass() ? ' / ' + wlxmlUtils.wlxmlClassNames[child.getClass()] : '')});
+                    contents.push({
+                        id: items.length,
+                        repr: wlxmlUtils.wlxmlTagNames[child.getTagName()] + (child.getClass() ? ' / ' + wlxmlUtils.wlxmlClassNames[child.getClass()] : '')
+                    });
                 }
+                items.push(child);
             });
             this.dom.empty();
             this.dom.append($(template({parent: parent, contents: contents})));
@@ -84,10 +108,12 @@ return function(sandbox) {
             });
         },
         highlightNode: function(canvasNode) {
-            this.dom.find('a[data-id="'+canvasNode.getId()+'"]').addClass('rng-common-hoveredNode');
+            var id = getItemId(canvasNode);
+            this.dom.find('a[rng-module-nodeFamilyTree-item-id="'+id+'"]').addClass('rng-common-hoveredNode');
         },
         dimNode: function(canvasNode) {
-            this.dom.find('a[data-id="'+canvasNode.getId()+'"]').removeClass('rng-common-hoveredNode');
+            var id = getItemId(canvasNode);
+            this.dom.find('a[rng-module-nodeFamilyTree-item-id="'+id+'"]').removeClass('rng-common-hoveredNode');
         }
     };
     
@@ -107,10 +133,10 @@ return function(sandbox) {
         getView: function() {
             return view.dom;
         },
-        highlightNode: function(canvasNode) {
+        highlightElement: function(canvasNode) {
             view.highlightNode(canvasNode);
         },
-        dimNode: function(canvasNode) {
+        dimElement: function(canvasNode) {
             view.dimNode(canvasNode);
         }
     };
