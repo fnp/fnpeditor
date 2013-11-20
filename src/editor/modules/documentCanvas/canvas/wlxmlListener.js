@@ -63,8 +63,12 @@ var handlers = {
         canvasNode.detach();
     },
     nodeTextChange: function(event) {
-        var canvasElement = utils.findCanvasElement(event.meta.node);
-        canvasElement.setText(event.meta.node.getText());
+        var canvasElement = utils.findCanvasElement(event.meta.node),
+            toSet = event.meta.node.getText();
+        if(toSet === '') {
+            toSet = utils.unicode.ZWS;
+        }
+        canvasElement.setText(toSet);
     }
 };
 

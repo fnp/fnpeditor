@@ -527,8 +527,13 @@ $.extend(DocumentTextElement.prototype, {
     prependText: function(text) {
         this.dom().contents()[0].data = text + this.dom().contents()[0].data;
     },
-    getText: function() {
-        return this.dom().text().replace(utils.unicode.ZWS, '');
+    getText: function(options) {
+        options = _.extend({raw: false}, options || {});
+        var toret = this.dom().text();
+        if(!options.raw) {
+            toret = toret.replace(utils.unicode.ZWS, '');
+        }
+        return toret;
     },
     isEmpty: function() {
         // Having at least Zero Width Space is guaranteed be Content Observer

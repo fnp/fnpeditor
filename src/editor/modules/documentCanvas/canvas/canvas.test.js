@@ -19,6 +19,9 @@ var getCanvasFromXML = function(xml) {
     return canvas.fromXMLDocument(wlxml.WLXMLDocumentFromXML(xml));
 };
 
+var wait = function(callback, timeout) {
+    return window.setTimeout(callback, timeout || 0.5);
+}
 
 describe('new Canvas', function() {
     it('abc', function() {
@@ -28,6 +31,21 @@ describe('new Canvas', function() {
         expect(c.doc().children()).to.have.length(3)
     });
 })
+
+describe('Handling empty text nodes', function() {
+    it('puts zero width space into node with about to be remove text', function(done) {
+        var c = getCanvasFromXML('<section>Alice</section>'),
+            textElement = c.doc().children()[0];
+        textElement.setText('');
+
+        /* Wait for MutationObserver to kick in. */
+        wait(function() {
+            expect(textElement.getText({raw:true})).to.equal(utils.unicode.ZWS, 'ZWS in canvas');
+            expect(c.wlxmlDocument.root.contents()[0].getText()).to.equal('', 'empty string in a document');
+            done();
+        });
+    });
+});
 
 describe('Cursor', function() {
 

@@ -65,8 +65,10 @@ $.extend(Canvas.prototype, {
                     observer.observe(canvas.d[0], config);
                     canvas.publisher('contentChanged');
 
-                    var textElement = canvas.getDocumentElement(mutation.target);
-                    textElement.data('wlxmlNode').setText(mutation.target.data);
+                    var textElement = canvas.getDocumentElement(mutation.target),
+                        toSet = mutation.target.data !== utils.unicode.ZWS ? mutation.target.data : '';
+
+                    textElement.data('wlxmlNode').setText(toSet);
                 }
             });
         });
