@@ -56,9 +56,14 @@ handlers.push({key: KEYS.ENTER,
 
         if(!cursor.isSelecting()) {
             if(event.ctrlKey) {
-                var added = element.after({tag: element.getWlxmlTag() || 'div', klass: element.getWlxmlClass() || 'p'});
-                added.append({text:''});
-                canvas.setCurrentElement(added, {caretTo: 'start'});
+                if(element instanceof documentElement.DocumentTextElement) {
+                    element = element.parent();
+                }
+                var added = element.data('wlxmlNode').after(
+                    {tagName: element.getWlxmlTag() || 'div', attrs: {'class': element.getWlxmlClass() || 'p'}}
+                );
+                added.append({text: ''});
+                canvas.setCurrentElement(utils.findCanvasElement(added), {caretTo: 'start'});
 
             } else {
 
