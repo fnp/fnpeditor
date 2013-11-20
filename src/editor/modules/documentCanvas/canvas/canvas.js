@@ -110,6 +110,11 @@ $.extend(Canvas.prototype, {
         return documentElement.DocumentNodeElement.fromHTMLElement(this.d.get(0), this); //{wlxmlTag: this.d.prop('tagName')};
     },
 
+    toggleElementHighlight: function(node, toggle) {
+        var element = utils.findCanvasElement(node);
+        element.toggleHighlight(toggle);
+    },
+
     createNodeElement: function(params) {
         return documentElement.DocumentNodeElement.create(params, this);
     },
@@ -230,6 +235,10 @@ $.extend(Canvas.prototype, {
 
 
     setCurrentElement: function(element, params) {
+        if(!(element instanceof documentElement.DocumentElement)) {
+            element = utils.findCanvasElement(element);
+        }
+
         params = _.extend({caretTo: 'end'}, params);
         var findFirstDirectTextChild = function(e, nodeToLand) {
             var byBrowser = this.getCursor().getPosition().element;

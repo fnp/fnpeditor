@@ -191,14 +191,14 @@ return function(sandbox) {
         ready: function() {
             views.currentNodePaneLayout.appendView(sandbox.getModule('nodeFamilyTree').getView());
         },
-        elementEntered: function(element) {
-            commands.highlightDocumentElement(element, 'nodeFamilyTree');
+        nodeEntered: function(node) {
+            commands.highlightDocumentElement(node, 'nodeFamilyTree');
         },
-        elementLeft: function(element) {
-            commands.dimDocumentElement(element, 'nodeFamilyTree');
+        nodeLeft: function(node) {
+            commands.dimDocumentElement(node, 'nodeFamilyTree');
         },
-        elementClicked: function(element) {
-            commands.jumpToDocumentElement(element);
+        nodeClicked: function(node) {
+            commands.jumpToDocumentElement(node);
         }
     };
     

@@ -53,14 +53,14 @@ return function(sandbox) {
             }
             sandbox.publish('currentNodeElementChanged', currentNodeElement);
         },
-        highlightElement: function(element) {
-            element.toggleHighlight(true);
+        highlightElement: function(node) {
+            canvas.toggleElementHighlight(node, true);
         },
-        dimElement: function(element) {
-            element.toggleHighlight(false);
+        dimElement: function(node) {
+            canvas.toggleElementHighlight(node, false);
         },
-        jumpToElement: function(element) {
-            canvas.setCurrentElement(element);
+        jumpToElement: function(node) {
+            canvas.setCurrentElement(node);
         },
         command: function(command, params) {
             commands.run(command, params, canvas);

@@ -27,16 +27,16 @@ return function(sandbox) {
             var view = this;
             this.dom.on('click', 'a', function(e) {
                 var target = $(e.target);
-                sandbox.publish('elementClicked', target.data('element'));
+                sandbox.publish('nodeClicked', target.data('element'));
             });
             
             this.dom.on('mouseenter', 'a', function(e) {
                 var target = $(e.target);
-                sandbox.publish('elementEntered', target.data('element'));
+                sandbox.publish('nodeEntered', target.data('element'));
             });
             this.dom.on('mouseleave', 'a', function(e) {
                 var target = $(e.target);
-                sandbox.publish('elementLeft', target.data('element'));
+                sandbox.publish('nodeLeft', target.data('element'));
             });
         },
         setElement: function(element) {
