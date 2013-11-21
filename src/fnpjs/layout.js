@@ -8,14 +8,16 @@ define(['libs/jquery', 'libs/underscore'], function($ ,_) {
         
         this.dom.onShow = function() {
             _.values(layout.views).forEach(function(view) {
-                if(view.onShow)
+                if(view.onShow) {
                     view.onShow();
+                }
             });
         };
         this.dom.onHide = function() {
             _.values(layout.views).forEach(function(view) {
-                if(view.onHide)
+                if(view.onHide) {
                     view.onHide();
+                }
             });
         };
         

@@ -1,5 +1,7 @@
 define(['libs/jquery', 'libs/underscore'], function($, _) {
 
+'use strict';
+
 var Runner = function(app, modules) {
 
     function getModuleInstance(moduleName) {
@@ -33,7 +35,6 @@ var Runner = function(app, modules) {
         };
         
         this.publish = function(eventName) {
-            console.log(moduleName + ': ' + eventName);
             var eventArgs = Array.prototype.slice.call(arguments, 1);
             _.each(eventListeners, function(listenerModuleName) {
                 var listener = moduleInstances[listenerModuleName];
