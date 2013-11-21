@@ -66,7 +66,7 @@ return function(sandbox) {
                 $.ajax({
                     method: 'post',
                     url: '/' + gettext('editor') + '/' + document_id,
-                    data: JSON.stringify({document:doc, description: event.data.description}),
+                    data: JSON.stringify({document:wlxmlDocument.toXML(), description: event.data.description}),
                     success: function() {
                         event.success();
                         sandbox.publish('savingEnded', 'success');
@@ -104,7 +104,6 @@ return function(sandbox) {
                     url: '/' + gettext('editor') + '/' + document_id + '/revert',
                     data: JSON.stringify(options),
                     success: function(data) {
-                        doc = data.document;
                         document_version = data.version;
                         reloadHistory();
                         sandbox.publish('documentReverted', data);

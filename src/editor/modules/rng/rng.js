@@ -130,7 +130,6 @@ return function(sandbox) {
             views.mainLayout.setView('topPanel', sandbox.getModule('mainBar').getView());
         },
         'cmd.save': function() {
-            synchronizeTab(views.mainTabs.getCurrentSlug());
             sandbox.getModule('data').saveDocument();
         }
     };
