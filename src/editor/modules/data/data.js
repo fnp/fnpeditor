@@ -106,7 +106,7 @@ return function(sandbox) {
                     url: '/' + gettext('editor') + '/' + document_id + '/revert',
                     data: JSON.stringify(options),
                     success: function(data) {
-                        document_version = data.version;
+                        document_version = data.current_version;
                         reloadHistory();
                         sandbox.publish('documentReverted', data);
                     },
