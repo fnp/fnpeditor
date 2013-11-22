@@ -5,6 +5,7 @@ define([
     
 'use strict';
 
+/* jshint expr:true */
 /* global it, describe */
 
 var expect = chai.expect;
@@ -13,8 +14,8 @@ var nodeFromXML = function(xml) {
     return wlxml.WLXMLElementNodeFromXML(xml);
 };
 
-var getDocumentFromXML = function(xml) {
-    return wlxml.WLXMLDocumentFromXML(xml);
+var getDocumentFromXML = function(xml, options) {
+    return wlxml.WLXMLDocumentFromXML(xml, options || {});
 };
 
 
@@ -26,14 +27,78 @@ describe('WLXMLDocument', function() {
             expect(node.getClass()).to.equal('class.subclass');
         });
 
-        it('returns its attributes as dict', function() {
-            var node = nodeFromXML('<span meta-attr1="val1" meta-attr2="val2"></span>');
-            expect(node.getMetaAttributes()).to.eql([{name: 'attr1', value: 'val1'}, {name: 'attr2', value: 'val2'}]);
-        });
-
         it('returns attributes other than class and meta-* as other attributes', function() {
             var node = nodeFromXML('<span class="uri" meta-attr="val" attr1="val1" attr2="val2"></span>');
             expect(node.getOtherAttributes()).to.eql({attr1: 'val1', attr2: 'val2'});
+        });
+    });
+
+    describe('WLXML node meta attributes', function() {
+
+        it('inherits keys from super classes', function() {
+            var testClasses = {
+                    '': {
+                        attrs: {'common': {type: 'string'}}
+                    },
+                    'a': {
+                        attrs: {'a_attr': {type: 'string'}}
+                    },
+                    'a.b': {
+                        attrs: {'a_b_attr': {type: 'string'}}
+                    },
+                    'a.b.c': {
+                        attrs: {'a_b_c_attr': {type: 'string'}}
+                    }
+                },
+                doc = getDocumentFromXML('<section></section>', {wlxmlClasses: testClasses}),
+                section = doc.root;
+
+            expect(section.getMetaAttributes().keys()).to.eql(['common']);
+
+            section.setClass('a');
+            expect(section.getMetaAttributes().keys().sort()).to.eql(['common', 'a_attr'].sort());
+
+            section.setClass('a.b');
+            expect(section.getMetaAttributes().keys().sort()).to.eql(['common', 'a_attr', 'a_b_attr'].sort());
+
+            section.setClass('a.b.c');
+            expect(section.getMetaAttributes().keys().sort()).to.eql(['common', 'a_attr', 'a_b_attr', 'a_b_c_attr'].sort());
+        });
+
+        describe('api', function() {
+            it('returns meta attributes as a dict', function() {
+                var testClasses = {
+                        'test': {
+                            attrs: {
+                                attr1: {type: 'string'},
+                                attr2: {type: 'date'}
+                            }
+                        }
+                    },
+                    node = getDocumentFromXML(
+                        '<span class="test" meta-attr1="val1" meta-attr2="2014-01-01"></span>',
+                        {wlxmlClasses: testClasses}
+                    ).root,
+                    attrs = node.getMetaAttributes();
+
+                expect(attrs.keys().sort()).to.eql(['attr1', 'attr2'].sort());
+                expect(attrs.attr1.value).to.equal('val1');
+                expect(attrs.attr1.type).to.equal('string');
+                expect(attrs.attr2.value).to.equal('2014-01-01');
+                expect(attrs.attr2.type).to.equal('date');
+            });
+            it('returns undefined value if attribute is missing', function() {
+                var testClasses = {
+                        'test': {
+                            attrs: {
+                                attr1: {type: 'string'},
+                            }
+                        }
+                    },
+                    node = getDocumentFromXML('<span class="test"></span>', {wlxmlClasses: testClasses}).root,
+                    attrs = node.getMetaAttributes();
+                    expect(attrs.attr1.value).to.be.undefined;
+            });
         });
     });
 

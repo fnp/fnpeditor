@@ -1,7 +1,8 @@
 define([
     'libs/jquery',
+    'libs/underscore',
     'smartxml/smartxml'
-], function($, smartxml) {
+], function($, _, smartxml) {
     
 'use strict';
 
@@ -13,6 +14,13 @@ var isMetaAttribute = function(attrName) {
 
 //
 
+var AttributesList = function() {};
+AttributesList.prototype = Object.create({});
+AttributesList.prototype.keys = function() {
+    return _.keys(this);
+};
+
+
 var WLXMLElementNode = function(nativeNode, document) {
     smartxml.ElementNode.call(this, nativeNode, document);
 };
@@ -20,18 +28,25 @@ WLXMLElementNode.prototype = Object.create(smartxml.ElementNode.prototype);
 
 $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
     getClass: function() {
-        return this.getAttr('class');
+        return this.getAttr('class') || '';
     },
     setClass: function(klass) {
         return this.setAttr('class', klass);
     },
     getMetaAttributes: function() {
-        var toret = [];
-        this.getAttrs().forEach(function(attr) {
-            if(isMetaAttribute(attr.name)) {
-                toret.push({name: attr.name.substr(5), value: attr.value});
+        var toret = new AttributesList(),
+            classParts = [''].concat(this.getClass().split('.')),
+            classCurrent, classDesc;
+
+        classParts.forEach(function(part) {
+            classCurrent = classCurrent ? classCurrent + '.' + part : part;
+            classDesc = this.document.options.wlxmlClasses[classCurrent];
+            if(classDesc) {
+                _.keys(classDesc.attrs).forEach(function(attrName) {
+                    toret[attrName] = _.extend({value: this.getAttr('meta-' + attrName)}, classDesc.attrs[attrName]);
+                }.bind(this));
             }
-        });
+        }.bind(this));
         return toret;
     },
     getOtherAttributes: function() {
@@ -95,8 +110,9 @@ $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
 
 
 
-var WLXMLDocument = function(xml) {
+var WLXMLDocument = function(xml, options) {
     smartxml.Document.call(this, xml);
+    this.options = options;
 };
 
 var formatter_prefix = '_wlxml_formatter_';
@@ -194,10 +210,16 @@ $.extend(WLXMLDocument.prototype, {
 
 });
 
+var wlxmlClasses = {
+    'uri': {
+        attrs: {uri: {type: 'string'}}
+    }
+};
 
 return {
-    WLXMLDocumentFromXML: function(xml) {
-        return new WLXMLDocument(xml);
+    WLXMLDocumentFromXML: function(xml, options) {
+        options = _.extend({wlxmlClasses: wlxmlClasses}, options);
+        return new WLXMLDocument(xml, options);
     },
 
     WLXMLElementNodeFromXML: function(xml) {
