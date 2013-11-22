@@ -49,6 +49,9 @@ $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
         }.bind(this));
         return toret;
     },
+    setMetaAttribute: function(key, value) {
+        this.setAttr('meta-'+key, value);
+    },
     getOtherAttributes: function() {
         var toret = {};
         this.getAttrs().forEach(function(attr) {
