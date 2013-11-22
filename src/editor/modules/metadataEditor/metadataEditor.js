@@ -29,8 +29,7 @@ return function(sandbox) {
             });
             
             this.metaTable.on('keydown', '[contenteditable]', function(e) {
-                console.log(e.which);
-                if(e.which === 13) { 
+                if(e.which === 13) {
                     if($(document.activeElement).hasClass('rng-module-metadataEditor-metaItemKey')) {
                         metaTable.find('.rng-module-metadataEditor-metaItemValue').focus();
                     } else {
@@ -45,15 +44,15 @@ return function(sandbox) {
             
             
             var onKeyUp = function(e) {
-                if(e.which !== 13)
+                if(e.which !== 13) {
                     sandbox.publish('metadataChanged', view.getMetadata());
+                }
             };
             this.metaTable.on('keyup', '[contenteditable]', _.throttle(onKeyUp, 500));
         },
         getMetadata: function() {
             var toret = {};
             this.node.find('tr').each(function() {
-                var tr = $(this);
                 var inputs = $(this).find('td [contenteditable]');
                 var key = $(inputs[0]).text();
                 var value = $(inputs[1]).text();
@@ -64,7 +63,7 @@ return function(sandbox) {
         setMetadata: function(metadata) {
             var view = this;
             this.metaTable.find('tr').remove();
-            _.each(_.keys(metadata), function(key) {    
+            _.each(_.keys(metadata), function(key) {
                 view._addMetaRow(key, metadata[key]);
             });
         },

@@ -1,9 +1,10 @@
 define([
 'libs/text!./saveDialog.html',
 'libs/underscore',
-'libs/backbone',
-'libs/jquery'
-], function(saveDialogTemplate, _, Backbone, $) {
+'libs/backbone'
+], function(saveDialogTemplate, _, Backbone) {
+
+    'use strict';
 
     var DialogView = Backbone.View.extend({
         template: _.template(saveDialogTemplate),
@@ -16,7 +17,7 @@ define([
             _.bindAll(this);
             this.actionsDisabled = false;
         },
-        show: function() {           
+        show: function() {
             this.setElement(this.template());
             this.$el.modal({backdrop: 'static'});
             this.$el.modal('show');
@@ -33,8 +34,9 @@ define([
             });
         },
         close: function(e) {
-            if(e)
+            if(e) {
                 e.preventDefault();
+            }
             if(!this.actionsDisabled) {
                 this.$el.modal('hide');
                 this.$el.remove();

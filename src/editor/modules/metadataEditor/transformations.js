@@ -1,4 +1,4 @@
-define(['libs/jquery'], function($) {
+define(['libs/jquery', 'libs/underscore'], function($, _) {
 
     'use strict';
 
@@ -17,6 +17,7 @@ define(['libs/jquery'], function($) {
                 meta.append('\n\t<dc:'+key+'>' + metadata[key] + '</dc:'+key+'>');
             });
             meta.append('\n');
+            /* globals vkbeautify */
             return vkbeautify.xml(meta.html());
         }
     };

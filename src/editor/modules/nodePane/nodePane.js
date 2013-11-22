@@ -31,7 +31,7 @@ return function(sandbox) {
         setNodeElement: function(wlxmlNodeElement) {
             view.find('.rng-module-nodePane-tagSelect').val(wlxmlNodeElement.getTagName());
 
-            var escapedClassName = (wlxmlNodeElement.getClass() || '').replace(/\./g, '-')
+            var escapedClassName = (wlxmlNodeElement.getClass() || '').replace(/\./g, '-');
             view.find('.rng-module-nodePane-classSelect').val(escapedClassName);
 
             var widget = metaWidget.create({attrs:wlxmlNodeElement.getMetaAttributes()});

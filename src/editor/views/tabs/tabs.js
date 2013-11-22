@@ -1,9 +1,10 @@
 define([
+'libs/jquery',
 'libs/text!./templates/main.html',
 'libs/text!./templates/handle.html',
 'libs/underscore',
 'libs/backbone'
-], function(mainTemplate, handleTemplate, _, Backbone) {
+], function($, mainTemplate, handleTemplate, _, Backbone) {
     'use strict';
     
     var View = Backbone.View.extend({
@@ -47,10 +48,12 @@ define([
             var text = (typeof title === 'string') ? title : (title.text || '');
             var icon = title.icon || null;
             
-            if(!this.tabExists(slug))
+            if(!this.tabExists(slug)) {
                 this.nodes.tabBar.append(this.handleTemplate({text: text, icon: icon, slug: slug}));
-            if(!this.selectedTab)
+            }
+            if(!this.selectedTab) {
                 this.selectTab(slug);
+            }
         },
         
         selectTab: function(slug) {
@@ -59,8 +62,9 @@ define([
                 
                 if(this.selectedTab) {
                     var toDetach = this.contents[this.selectedTab];
-                    if(toDetach.onHide)
+                    if(toDetach.onHide) {
                         toDetach.onHide();
+                    }
                     toDetach.detach();
                 }
                 this.nodes.content.append(this.contents[slug]);
@@ -93,8 +97,9 @@ define([
         _onTabTitleClicked: function(e) {
             e.preventDefault();
             var target = $(e.target);
-            if(target.is('i'))
+            if(target.is('i')) {
                 target = target.parent();
+            }
             var slug = target.attr('href').substr(1);
             this.selectTab(slug);
         }

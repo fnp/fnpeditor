@@ -3,12 +3,12 @@ define(function() {
 'use strict';
     
 return {
-    modules: {}, 
+    modules: {},
     initModules: ['rng'],
     permissions: {
         'skelton': ['getDOM'],
         'rng': ['getModule', 'handleEvents', 'getDOM']
     }
-}
+};
 
 });

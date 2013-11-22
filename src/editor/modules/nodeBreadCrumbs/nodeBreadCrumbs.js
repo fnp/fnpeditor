@@ -13,7 +13,6 @@ return function(sandbox) {
     var view = {
         dom: $('<div>' + template({node:null, parents: null}) + '</div>'),
         setup: function() {
-            var view = this;
             this.dom.on('mouseenter', 'a', function(e) {
                 var target = $(e.target);
                 sandbox.publish('elementEntered', target.data('element'));

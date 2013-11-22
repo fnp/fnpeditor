@@ -23,7 +23,7 @@ return function(sandbox) {
             return idx;
         }
         return -1;
-    }
+    };
     
     var startListening = function(document) {
         listens = true;
@@ -32,12 +32,11 @@ return function(sandbox) {
                 view.setElement();
             }
         }, this);
-    }
+    };
 
     var view = {
         dom: $('<div>' + template({contents: null, parent: null}) + '</div>'),
         setup: function() {
-            var view = this;
             this.dom.on('click', 'a', function(e) {
                 var target = $(e.target);
                 sandbox.publish('nodeClicked', target.data('element'));
@@ -54,7 +53,6 @@ return function(sandbox) {
         },
         setElement: function(element) {
             element = element || this.currentNodeElement;
-            console.log('familyTree sets node');
             var textElement = element.getText ? element : null,
                 nodeElement = element.getText ? element.parent() : element, // TODO: better type detection
                 nodeElementParent = nodeElement.parent(),
@@ -77,8 +75,9 @@ return function(sandbox) {
             nodeContents.forEach(function(child) {
                 if(child.getText) {
                     var text = child.getText();
-                    if(!text)
+                    if(!text) {
                         text = '<pusty tekst>';
+                    }
                     else {
                         if(text.length > 13) {
                             text = text.substr(0,13) + '...';
@@ -101,7 +100,7 @@ return function(sandbox) {
             this.dom.append($(template({parent: parent, contents: contents})));
 
             if(parent) {
-                this.dom.find('.rng-module-nodeFamilyTree-parent').data('element', nodeElementParent)
+                this.dom.find('.rng-module-nodeFamilyTree-parent').data('element', nodeElementParent);
             }
             this.dom.find('li a').each(function(idx, a) {
                 $(a).data('element', nodeContents[idx]);
@@ -127,8 +126,9 @@ return function(sandbox) {
             if(!listens) {
                 startListening(element.document);
             }
-            if(!(element.sameNode(view.currentNodeElement)))
+            if(!(element.sameNode(view.currentNodeElement))) {
                 view.setElement(element);
+            }
         },
         getView: function() {
             return view.dom;

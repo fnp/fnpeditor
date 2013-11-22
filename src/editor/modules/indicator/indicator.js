@@ -9,10 +9,7 @@ define([
 return function(sandbox) {
 
     var view = {
-        dom: $(_.template(template)()),
-        setup: function() {
-        
-        }
+        dom: $(_.template(template)())
     };
 
     return {

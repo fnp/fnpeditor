@@ -17,12 +17,12 @@ return function(sandbox) {
     var itemViews = [];
     
     
-    dom.find('.btn.compare').click(function(e) {
+    dom.find('.btn.compare').click(function() {
         var selected = historyItems.getSelected();
         sandbox.publish('compare', selected[0], selected[1]);
     });
     
-    dom.find('.btn.restore').click(function(e) {
+    dom.find('.btn.restore').click(function() {
         var dialog = restoreDialog.create();
         dialog.on('restore', function(event) {
             sandbox.publish('restoreVersion', {version: historyItems.getSelected()[0], description: event.data.description});
@@ -31,7 +31,7 @@ return function(sandbox) {
         dialog.show();
     });
     
-    dom.find('.btn.display').click(function(e) {
+    dom.find('.btn.display').click(function() {
         sandbox.publish('displayVersion', {version: historyItems.getSelected()[0]});
     });
         
@@ -47,8 +47,9 @@ return function(sandbox) {
     
     var toggleItemViews = function(toggle) {
         itemViews.forEach(function(view) {
-            if(!historyItems.isSelected(view.item))
+            if(!historyItems.isSelected(view.item)) {
                 view.toggle(toggle);
+            }
         });
     };
     
@@ -116,7 +117,7 @@ return function(sandbox) {
             this.dimItem();
         } else if(historyItems.select(this.item)) {
             this.highlightItem();
-        }            
+        }
     };
     ItemView.prototype.highlightItem = function() {
         this.dom.addClass('highlighted');

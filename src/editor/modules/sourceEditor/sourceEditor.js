@@ -1,4 +1,4 @@
-define(function() {
+define(['libs/jquery'], function($) {
 
 'use strict';
 
@@ -18,19 +18,20 @@ return function(sandbox) {
             sandbox.publish('documentSet');
             documentIsDirty = false;
         }
-    }
+    };
 
     view.onHide = function() {
         if(documentEditedHere) {
             documentEditedHere = false;
             wlxmlDocument.loadXML(editor.getValue());
         }
-    }
+    };
     
+    /* globals ace */
     var editor = ace.edit(view.find('#rng-sourceEditor-editor')[0]),
         session = editor.getSession();
-    editor.setTheme("ace/theme/chrome");
-    session.setMode("ace/mode/xml")
+    editor.setTheme('ace/theme/chrome');
+    session.setMode('ace/mode/xml');
     session.setUseWrapMode(true);
     
     $('textarea', view).on('keyup', function() {

@@ -1,6 +1,8 @@
 (function() {
     'use strict';
     
+    /* globals requirejs, RNG_BOOTSTRAP_DATA */
+
     requirejs.config({
         baseUrl: '/static/editor/src/editor',
         

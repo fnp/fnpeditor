@@ -1,15 +1,18 @@
 define([
+'libs/underscore',
 'fnpjs/layout',
 'fnpjs/vbox',
 'views/tabs/tabs',
 'libs/text!./mainLayout.html',
 'libs/text!./editingLayout.html',
 'libs/text!./diffLayout.html',
-], function(layout, vbox, tabs, mainLayoutTemplate, visualEditingLayoutTemplate, diffLayoutTemplate) {
+], function(_, layout, vbox, tabs, mainLayoutTemplate, visualEditingLayoutTemplate, diffLayoutTemplate) {
 
 'use strict';
 
 return function(sandbox) {
+
+    /* globals gettext */
     
     function addMainTab(title, slug, view) {
         views.mainTabs.addTab(title, slug, view);
@@ -19,15 +22,17 @@ return function(sandbox) {
         highlightDocumentElement: function(element, origin) {
             ///'nodeBreadCrumbs', 'nodeFamilyTree'
             ['documentCanvas', 'nodeFamilyTree'].forEach(function(moduleName) {
-                if(!origin || moduleName != origin)
+                if(!origin || moduleName !== origin) {
                     sandbox.getModule(moduleName).highlightElement(element);
+                }
             });
         },
         dimDocumentElement: function(element, origin) {
             //'nodeBreadCrumbs', 'nodeFamilyTree'
             ['documentCanvas', 'nodeFamilyTree'].forEach(function(moduleName) {
-                if(!origin || moduleName != origin)
+                if(!origin || moduleName !== origin) {
                     sandbox.getModule(moduleName).dimElement(element);
+                }
             });
         },
         jumpToDocumentElement: function(element) {
@@ -43,12 +48,15 @@ return function(sandbox) {
         },
         resetDocument: function(document, reason) {
             var modules = [];
-            if(reason === 'source_edit')
+            if(reason === 'source_edit') {
                 modules = ['documentCanvas', 'metadataEditor'];
-            else if (reason === 'edit')
+            }
+            else if (reason === 'edit') {
                 modules = ['sourceEditor'];
-            else if (reason === 'revert')
+            }
+            else if (reason === 'revert') {
                 modules = ['documentCanvas', 'metadataEditor', 'sourceEditor'];
+            }
                 
             modules.forEach(function(moduleName) {
                 sandbox.getModule(moduleName).setDocument(document);
@@ -103,6 +111,7 @@ return function(sandbox) {
             sandbox.getModule('indicator').showMessage(gettext('Saving...'));
         },
         savingEnded: function(status) {
+            void(status);
             sandbox.getModule('mainBar').setCommandEnabled('save', true);
             sandbox.getModule('indicator').clearMessage({message:'Dokument zapisany'});
         },
@@ -222,7 +231,7 @@ return function(sandbox) {
         },
         elementClicked: function(element) {
             commands.jumpToDocumentElement(element);
-        }        
+        }
     };
     
     eventHandlers.documentHistory = {
@@ -254,9 +263,7 @@ return function(sandbox) {
             sandbox.getModule('data').start();
         },
         handleEvent: function(moduleName, eventName, args) {
-            if('')
-                wysiwigHandler.handleEvent(moduleName, eventName, args);
-            else if(eventHandlers[moduleName] && eventHandlers[moduleName][eventName]) {
+            if(eventHandlers[moduleName] && eventHandlers[moduleName][eventName]) {
                 eventHandlers[moduleName][eventName].apply(eventHandlers, args);
             }
         }

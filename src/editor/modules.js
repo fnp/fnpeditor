@@ -24,5 +24,5 @@ define(function(require) {
         documentHistory: require('modules/documentHistory/documentHistory'),
         diffViewer: require('modules/diffViewer/diffViewer')
         
-    }
+    };
 });
