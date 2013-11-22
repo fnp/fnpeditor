@@ -1,11 +1,10 @@
 define([
 'libs/jquery',
 'libs/underscore',
-'modules/documentCanvas/classAttributes',
 'modules/documentCanvas/canvas/utils',
 'modules/documentCanvas/canvas/widgets',
 'modules/documentCanvas/canvas/wlxmlManagers'
-], function($, _, classAttributes, utils, widgets, wlxmlManagers) {
+], function($, _, utils, widgets, wlxmlManagers) {
     
 'use strict';
 
@@ -174,10 +173,6 @@ $.extend(DocumentNodeElement, {
 
         element.setWlxml({tag: wlxmlNode.getTagName(), klass: wlxmlNode.getClass()});
 
-        _.keys(wlxmlNode.getMetaAttributes()).forEach(function(key) {
-            element.setWlxmlMetaAttr(key, params.meta[key]);
-        });
-
         wlxmlNode.contents().forEach((function(node) {
             container.append(DocumentElement.create(node).dom());
         }).bind(this));
@@ -335,12 +330,6 @@ $.extend(DocumentNodeElement.prototype, {
     setWlxmlClass: function(klass) {
         if(klass === this.getWlxmlClass())
             return;
-
-        this.getWlxmlMetaAttrs().forEach(function(attr) {
-            if(!classAttributes.hasMetaAttr(klass, attr.name))
-                this.dom().removeAttr('wlxml-meta-' + attr.name);
-        }, this);
-
         if(klass)
             this._container().attr('wlxml-class', klass.replace(/\./g, '-'));
         else
@@ -367,24 +356,6 @@ $.extend(DocumentNodeElement.prototype, {
             return true;
         return false;
     },
-
-    getWlxmlMetaAttr: function(attr) {
-        return this.dom().attr('wlxml-meta-'+attr);
-    },
-
-    getWlxmlMetaAttrs: function() {
-        var toret = [];
-        var attrList = classAttributes.getMetaAttrsList(this.getWlxmlClass());
-        attrList.all.forEach(function(attr) {
-            toret.push({name: attr.name, value: this.getWlxmlMetaAttr(attr.name) || ''});
-        }, this);
-        return toret;
-    },
-
-    setWlxmlMetaAttr: function(attr, value) {
-        this.dom().attr('wlxml-meta-'+attr, value);
-    },
-    
     toggleLabel: function(toggle) {
         var displayCss = toggle ? 'inline-block' : 'none';
         var label = this.dom().children('.canvas-widgets').find('.canvas-widget-label');
