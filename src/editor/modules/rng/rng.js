@@ -48,16 +48,9 @@ return function(sandbox) {
         },
         resetDocument: function(document, reason) {
             var modules = [];
-            if(reason === 'source_edit') {
-                modules = ['documentCanvas', 'metadataEditor'];
-            }
-            else if (reason === 'edit') {
-                modules = ['sourceEditor'];
-            }
-            else if (reason === 'revert') {
+            if (reason === 'revert') {
                 modules = ['documentCanvas', 'metadataEditor', 'sourceEditor'];
             }
-                
             modules.forEach(function(moduleName) {
                 sandbox.getModule(moduleName).setDocument(document);
             });
@@ -102,9 +95,6 @@ return function(sandbox) {
             _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'nodePane', 'metadataEditor', 'nodeFamilyTree', 'nodeBreadCrumbs', 'mainBar', 'indicator', 'documentHistory', 'diffViewer'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
-        },
-        documentChanged: function(document, reason) {
-            commands.resetDocument(document, reason);
         },
         savingStarted: function() {
             sandbox.getModule('mainBar').setCommandEnabled('save', false);
