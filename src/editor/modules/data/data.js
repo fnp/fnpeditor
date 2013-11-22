@@ -108,6 +108,7 @@ return function(sandbox) {
                     success: function(data) {
                         document_version = data.current_version;
                         reloadHistory();
+                        wlxmlDocument.loadXML(data.document);
                         sandbox.publish('documentReverted', data);
                     },
                 });

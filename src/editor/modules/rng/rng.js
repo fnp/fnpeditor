@@ -45,15 +45,6 @@ return function(sandbox) {
         },
         updateCurrentTextElement: function(textElement) {
             sandbox.getModule('nodeFamilyTree').setElement(textElement);
-        },
-        resetDocument: function(document, reason) {
-            var modules = [];
-            if (reason === 'revert') {
-                modules = ['documentCanvas', 'metadataEditor', 'sourceEditor'];
-            }
-            modules.forEach(function(moduleName) {
-                sandbox.getModule(moduleName).setDocument(document);
-            });
         }
     };
     
@@ -116,7 +107,6 @@ return function(sandbox) {
             sandbox.getModule('diffViewer').setDiff(diff);
         },
         documentReverted: function(event) {
-            commands.resetDocument(event.document, 'revert');
             sandbox.getModule('mainBar').setCommandEnabled('save', true);
             sandbox.getModule('indicator').clearMessage({message:'Wersja ' + event.reverted_version + ' przywrócona'});
             sandbox.getModule('mainBar').setVersion(event.current_version);
