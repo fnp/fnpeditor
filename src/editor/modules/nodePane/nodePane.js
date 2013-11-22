@@ -36,7 +36,7 @@ return function(sandbox) {
 
             var widget = metaWidget.create({attrs:wlxmlNodeElement.getMetaAttributes()});
             widget.on('valueChanged', function(key, value) {
-                sandbox.publish('nodeElementChange', key, value);
+                wlxmlNodeElement.setMetaAttribute(key, value);
             });
             view.find('.metaFields').empty().append(widget.el);
 

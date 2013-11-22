@@ -13,7 +13,7 @@ describe('metaWidget', function() {
         var dom = $('<div>');
         var widget = metaWidget.create({
                 el: dom,
-                attrs: [{name: 'uri', type: 'string', value: 'test string'}],
+                attrs: {'uri': {type: 'string', value: 'test string'}},
             });
 
         var spy = sinon.spy();
