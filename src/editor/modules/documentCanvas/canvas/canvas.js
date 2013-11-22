@@ -316,13 +316,6 @@ $.extend(Canvas.prototype, {
     setCursorPosition: function(position) {
         if(position.element)
             this._moveCaretToTextElement(position.element, position.offset);
-    },
-
-    toXML: function() {
-        var parent = $('<div>'),
-            parts = this.doc().toXML(0);
-        parent.append(parts);
-        return parent.html();
     }
 });
 

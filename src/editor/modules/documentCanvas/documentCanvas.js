@@ -42,9 +42,6 @@ return function(sandbox) {
             canvas.loadWlxmlDocument(wlxmlDocument);
             canvasWrapper.find('#rng-module-documentCanvas-content').empty().append(canvas.view());
         },
-        getDocument: function() {
-            return canvas.toXML();
-        },
         modifyCurrentNodeElement: function(attr, value) {
             var currentNodeElement = canvas.getCurrentNodeElement();
             if(attr === 'class' || attr === 'tag') {
