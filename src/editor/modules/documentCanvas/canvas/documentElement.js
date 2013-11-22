@@ -79,13 +79,6 @@ $.extend(DocumentElement.prototype, {
         return other && (typeof other === typeof this) && other.dom()[0] === this.dom()[0];
     },
 
-    wrapWithNodeElement: function(wlxmlNode) {
-        var wrapper = DocumentNodeElement.create({tag: wlxmlNode.tag, klass: wlxmlNode.klass}, this);
-        this.dom().replaceWith(wrapper.dom());
-        wrapper.append(this);
-        return wrapper;
-    },
-
     markAsCurrent: function() {
         this.canvas.markAsCurrent(this);
     },
@@ -218,49 +211,6 @@ $.extend(DocumentNodeElement.prototype, {
         this.dom().detach();
         this.canvas = null;
         return this;
-    },
-    unwrapContents: function() {
-        var parent = this.parent();
-        if(!parent)
-            return;
-
-        var parentChildren = parent.children(),
-            myChildren = this.children(),
-            myIdx = parent.childIndex(this);
-
-        if(myChildren.length === 0)
-            return this.detach();
-
-        var moveLeftRange, moveRightRange, leftMerged;
-
-        if(myIdx > 0 && (parentChildren[myIdx-1] instanceof DocumentTextElement) && (myChildren[0] instanceof DocumentTextElement)) {
-            parentChildren[myIdx-1].appendText(myChildren[0].getText());
-            myChildren[0].detach();
-            moveLeftRange = true;
-            leftMerged = true;
-        } else {
-            leftMerged = false;
-        }
-
-        if(!(leftMerged && myChildren.length === 1)) {
-            if(myIdx < parentChildren.length - 1 && (parentChildren[myIdx+1] instanceof DocumentTextElement) && (myChildren[myChildren.length-1] instanceof DocumentTextElement)) {
-                parentChildren[myIdx+1].prependText(myChildren[myChildren.length-1].getText());
-                myChildren[myChildren.length-1].detach();
-                moveRightRange = true;
-            }
-        }
-
-        var childrenLength = this.children().length;
-        this.children().forEach(function(child) {
-            this.before(child);
-        }.bind(this));
-
-        this.detach();
-
-        return {
-            element1: parent.children()[myIdx + (moveLeftRange ? -1 : 0)],
-            element2: parent.children()[myIdx + childrenLength-1 + (moveRightRange ? 1 : 0)]
-        };
     },
     append: function(params) {
         if(params.tag !== 'span')
@@ -467,84 +417,7 @@ $.extend(DocumentTextElement.prototype, {
         this.dom().unwrap();
         return element;
     },
-    wrapWithNodeElement: function(wlxmlNode) {
-        if(typeof wlxmlNode.start === 'number' && typeof wlxmlNode.end === 'number') {
-            return this.canvas.wrapText({
-                inside: this.parent(),
-                textNodeIdx: this.parent().childIndex(this),
-                offsetStart: Math.min(wlxmlNode.start, wlxmlNode.end),
-                offsetEnd: Math.max(wlxmlNode.start, wlxmlNode.end),
-                _with: {tag: wlxmlNode.tag, klass: wlxmlNode.klass}
-            });
-        } else {
-            return DocumentElement.prototype.wrapWithNodeElement.call(this, wlxmlNode);
-        }
-    },
-    unwrap: function() {
-        var parent = this.parent(),
-            toret;
-        if(parent.children().length === 1) {
-            toret = parent.parent();
-            var grandParent = parent.parent();
-            if(grandParent) {
-                var grandParentChildren = grandParent.children(),
-                    idx = grandParent.childIndex(parent),
-                    prev = idx - 1 > -1 ? grandParentChildren[idx-1] : null,
-                    next = idx + 1 < grandParentChildren.length ? grandParentChildren[idx+1] : null;
-                
-                prev = (prev instanceof DocumentTextElement) ? prev : null;
-                next = (next instanceof DocumentTextElement) ? next : null;
 
-                if(prev && next) {
-                    prev.setText(prev.getText() + this.getText() + next.getText());
-                    next.detach();
-                } else if (prev || next) {
-                    var target = prev ? prev : next,
-                        newText = prev ? target.getText() + this.getText() : this.getText() + target.getText();
-                    target.setText(newText);
-                } else {
-                    parent.after(this);
-                }
-            } else {
-                parent.after(this);
-            }
-            parent.detach();
-            return toret;
-        }
-    },
-    split: function(params) {
-        var parentElement = this.parent(),
-            myIdx = parentElement.childIndex(this),
-            myCanvas = this.canvas,
-            passed = false,
-            succeedingChildren = [],
-            thisElement = this,
-            prefix = this.getText().substr(0, params.offset),
-            suffix = this.getText().substr(params.offset);
-
-        parentElement.children().forEach(function(child) {
-            if(passed)
-                succeedingChildren.push(child);
-            if(child.sameNode(thisElement))
-                passed = true;
-        });
-
-        if(prefix.length > 0)
-            this.setText(prefix);
-        else
-            this.detach();
-        
-        var newElement = DocumentNodeElement.create({tag: parentElement.getWlxmlTag(), klass: parentElement.getWlxmlClass()}, myCanvas);
-        parentElement.after(newElement);
-
-        if(suffix.length > 0)
-            newElement.append({text: suffix});
-        succeedingChildren.forEach(function(child) {
-            newElement.append(child);
-        });
-
-        return {first: parentElement, second: newElement};
-    },
     divide: function(params) {
         var myText = this.getText();
 
