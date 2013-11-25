@@ -82,7 +82,7 @@ $.extend(DocumentNode.prototype, {
     },
 
     sameNode: function(otherNode) {
-        return otherNode && this.nativeNode === otherNode.nativeNode;
+        return !!(otherNode) && this.nativeNode === otherNode.nativeNode;
     },
 
     parent: function() {
