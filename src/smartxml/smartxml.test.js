@@ -438,8 +438,8 @@ describe('smartxml', function() {
                     lastDiv = section.contents()[section.contents().length -1];
 
                 var returned = section.document.wrapNodes({
-                        element1: aliceText,
-                        element2: lastDiv,
+                        node1: aliceText,
+                        node2: lastDiv,
                         _with: {tagName: 'header'}
                     });
 
@@ -462,8 +462,8 @@ describe('smartxml', function() {
                     div3 = section.contents()[2];
 
                 section.document.wrapNodes({
-                        element1: div2,
-                        element2: div3,
+                        node1: div2,
+                        node2: div3,
                         _with: {tagName: 'header'}
                     });
 

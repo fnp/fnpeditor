@@ -474,17 +474,17 @@ $.extend(Document.prototype, Backbone.Events, {
     },
 
     wrapNodes: function(params) {
-        if(!(params.element1.parent().sameNode(params.element2.parent()))) {
+        if(!(params.node1.parent().sameNode(params.node2.parent()))) {
             throw new Error('Wrapping non-sibling nodes not supported.');
         }
 
-        var parent = params.element1.parent(),
+        var parent = params.node1.parent(),
             parentContents = parent.contents(),
             wrapper = this.createDocumentNode({
                 tagName: params._with.tagName,
                 attrs: params._with.attrs}),
-            idx1 = parent.indexOf(params.element1),
-            idx2 = parent.indexOf(params.element2);
+            idx1 = parent.indexOf(params.node1),
+            idx2 = parent.indexOf(params.node2);
 
         if(idx1 > idx2) {
             var tmp = idx1;
