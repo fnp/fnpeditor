@@ -71,6 +71,16 @@ $.extend(DocumentNode.prototype, {
         return this;
     },
 
+    replaceWith: function(node) {
+        var toret;
+        if(this.isRoot()) {
+            return this.document.replaceRoot(node);
+        }
+        toret = this.after(node);
+        this.detach();
+        return toret;
+    },
+
     sameNode: function(otherNode) {
         return otherNode && this.nativeNode === otherNode.nativeNode;
     },
@@ -153,15 +163,7 @@ $.extend(DocumentNode.prototype, {
     },
     
     getNodeInsertion: function(node) {
-        var insertion = {};
-        if(node instanceof DocumentNode) {
-            insertion.ofNode = node;
-            insertion.insertsNew = !this.document.containsNode(node);
-        } else {
-          insertion.ofNode = this.document.createDocumentNode(node);
-          insertion.insertsNew = true;
-        }
-        return insertion;
+        return this.document.getNodeInsertion(node);
     },
 
     getIndex: function() {
@@ -579,6 +581,26 @@ $.extend(Document.prototype, Backbone.Events, {
     trigger: function() {
         //console.log('trigger: ' + arguments[0] + (arguments[1] ? ', ' + arguments[1].type : ''));
         Backbone.Events.trigger.apply(this, arguments);
+    },
+
+    getNodeInsertion: function(node) {
+        var insertion = {};
+        if(node instanceof DocumentNode) {
+            insertion.ofNode = node;
+            insertion.insertsNew = !this.containsNode(node);
+        } else {
+          insertion.ofNode = this.createDocumentNode(node);
+          insertion.insertsNew = true;
+        }
+        return insertion;
+    },
+
+    replaceRoot: function(node) {
+        var insertion = this.getNodeInsertion(node);
+        this.root.detach();
+        defineDocumentProperties(this, insertion.ofNode._$);
+        insertion.ofNode.triggerChangeEvent('nodeAdded');
+        return insertion.ofNode;
     }
 });
 

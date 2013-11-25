@@ -304,6 +304,27 @@ describe('smartxml', function() {
 
     describe('Manipulations', function() {
 
+        describe('replacing node with another one', function() {
+            it('replaces node with another one', function() {
+                var doc = getDocumentFromXML('<div><a></a></div>'),
+                    a = doc.root.contents()[0];
+
+                var c = a.replaceWith({tagName: 'b', attrs: {b:'1'}});
+
+                expect(doc.root.contents()[0].sameNode(c));
+                expect(c.getTagName()).to.equal('b');
+                expect(c.getAttr('b')).to.equal('1');
+            });
+            it('can replace document root', function() {
+                var doc = getDocumentFromXML('<div></div>');
+
+                var header = doc.root.replaceWith({tagName: 'header'});
+
+                expect(doc.root.sameNode(header)).to.be.true;
+                expect(doc.containsNode(header)).to.be.true;
+            });
+        });
+
         it('merges adjacent text nodes resulting from detaching an element node in between', function() {
             var doc = getDocumentFromXML('<div>Alice <span>has</span>a cat</div>'),
                 span = doc.root.contents()[1];
@@ -652,6 +673,26 @@ describe('smartxml', function() {
             expect(spy.callCount).to.equal(1);
             expect(event.type).to.equal('nodeMoved');
             expect(event.meta.node.sameNode(inserted)).to.be.true;
+        });
+
+        it('emits nodeDetached and nodeAdded when replacing root node with another', function() {
+            var doc = getDocumentFromXML('<a></a>'),
+                oldRoot = doc.root,
+                spy = sinon.spy();
+
+            doc.on('change', spy);
+
+            doc.root.replaceWith({tagName: 'b'});
+
+            expect(spy.callCount).to.equal(2);
+
+            var event1 = spy.args[0][0],
+                event2 = spy.args[1][0];
+
+            expect(event1.type).to.equal('nodeDetached');
+            expect(event1.meta.node.sameNode(oldRoot)).to.equal(true, 'root node in nodeDetached event metadata');
+            expect(event2.type).to.equal('nodeAdded');
+            expect(event2.meta.node.sameNode(doc.root)).to.equal(true, 'new root node in nodelAdded event meta');
         });
     });
 
