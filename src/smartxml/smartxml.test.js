@@ -75,6 +75,24 @@ describe('smartxml', function() {
                 expect(node.nativeNode.isEqualNode(clone.nativeNode)).to.equal(true, 'clone is identical as its originator' + suffix);
             });
         });
+
+        it('knows its path in the document tree', function() {
+            var doc = getDocumentFromXML('<root><a><b><c></c>text</b></a></root>'),
+                root = doc.root,
+                a = root.contents()[0],
+                b = a.contents()[0],
+                text = b.contents()[1];
+
+            expect(root.getPath()).to.eql([], 'path of the root element is empty');
+            expect(a.getPath()).to.eql([0]);
+            expect(b.getPath()).to.eql([0, 0]);
+            expect(text.getPath()).to.eql([0,0,1]);
+
+            /* Paths relative to a given ancestor */
+            expect(text.getPath(root)).to.eql([0,0,1]);
+            expect(text.getPath(a)).to.eql([0,1]);
+            expect(text.getPath(b)).to.eql([1]);
+        });
     });
 
     describe('Basic ElementNode properties', function() {

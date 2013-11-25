@@ -40,6 +40,26 @@ $.extend(DocumentNode.prototype, {
         return this.document.createDocumentNode(this._$.clone(true, true)[0]);
     },
 
+    getPath: function(ancestor) {
+        var nodePath = [this].concat(this.parents()),
+            toret, idx;
+        ancestor = ancestor || this.document.root;
+
+        nodePath.some(function(node, i) {
+            if(node.sameNode(ancestor)) {
+                idx = i;
+                return true;
+            }
+        });
+
+        if(idx !== 'undefined') {
+            nodePath = nodePath.slice(0, idx);
+        }
+        toret = nodePath.map(function(node) {return node.getIndex(); });
+        toret.reverse();
+        return toret;
+    },
+
     isRoot: function() {
         return this.document.root.sameNode(this);
     },
