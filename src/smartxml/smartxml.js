@@ -25,6 +25,14 @@ var INSERTION = function(implementation) {
     return toret;
 };
 
+// var TRANSFORMATION = function(name, implementation) {
+//     //implementation._isTransformation = true;
+
+//     createDumbTransformation(name, implementation, )
+
+//     return implementation;
+// };
+
 var DocumentNode = function(nativeNode, document) {
     if(!document) {
         throw new Error('undefined document for a node');
@@ -446,6 +454,8 @@ var parseXML = function(xml) {
 
 var Document = function(xml) {
     this.loadXML(xml);
+    this.undoStack = [];
+    this.redoStack = [];
 };
 
 $.extend(Document.prototype, Backbone.Events, {
@@ -620,6 +630,40 @@ $.extend(Document.prototype, Backbone.Events, {
         defineDocumentProperties(this, insertion.ofNode._$);
         insertion.ofNode.triggerChangeEvent('nodeAdded');
         return insertion.ofNode;
+    },
+
+    transform: function(transformationName, args) {
+        var Transformation = transformations[transformationName],
+            transformation;
+        if(Transformation) {
+            transformation = new Transformation(args);
+            transformation.run();
+            this.undoStack.push(transformation);
+        } else {
+            throw new Error('Transformation ' + transformationName + ' doesn\'t exist!');
+        }
+    },
+    undo: function() {
+        var transformation = this.undoStack.pop();
+        if(transformation) {
+            transformation.undo();
+            this.redoStack.push(transformation);
+        }
+    },
+    redo: function() {
+        var transformation = this.redoStack.pop();
+        if(transformation) {
+            transformation.run();
+            this.undoStack.push(transformation);
+        }
+    },
+
+    getNodeByPath: function(path) {
+        var toret = this.root;
+        path.forEach(function(idx) {
+            toret = toret.contents()[idx];
+        });
+        return toret;
     }
 });
 
@@ -631,6 +675,113 @@ var defineDocumentProperties = function(doc, $document) {
         return $document[0];
     }, configurable: true});
 };
+
+
+// var registerTransformationsFromObject = function(object) {
+//     _.values(object).filter(function(val) {
+//         return typeof val === 'function' && val._isTransformation;
+//     })
+//     .forEach(function(val) {
+//         registerTransformation(val._transformationName, val, object);
+//     });
+// };
+// registerTransformationsFromObject(ElementNode.prototype);
+// registerTransformationsFromObject(TextNode.prototype);
+// registerTransformationsFromObject(Document.prototype);
+
+// var Transformation = function() {
+// };
+// $.extend(Transformation.prototype, {
+
+// });
+
+
+// var createDumbTransformation = function(impl, contextObject) {
+//     var DumbTransformation = function(args) {
+//         this.args = this.args;
+//     };
+//     DumbTransformation.prototype = Object.create(Transformation.prototype);
+//     $.extend(DumbTransformation.prototype, {
+//         run: function() {
+//             impl.apply(contextObject, this.args);
+//         }
+//     });
+
+//     return DumbTransformation;
+
+
+// };
+
+var transformations = {};
+// var registerTransformation = function(name, impl, contextObject) {
+//     if(typeof impl === 'function') {
+//         transformations[name] = createDumbTransformation(impl, contextObject);
+//     }
+// };
+
+// registerTransformation('detachx', DocumentNode.prototype.detach,  )
+
+
+// 1. detach via totalny fallback
+var DetachNodeTransformation = function(args) {
+    this.node = args.node;
+    this.document = this.node.document;
+};
+$.extend(DetachNodeTransformation.prototype, {
+    run: function() {
+        this.oldRoot = this.node.document.root.clone();
+        this.path = this.node.getPath();
+        this.node.detach(); // @TS
+        
+    },
+    undo: function() {
+        this.document.root.replaceWith(this.oldRoot); // this.getDocument?
+        this.node = this.document.getNodeByPath(this.path);
+    }
+});
+transformations['detach'] = DetachNodeTransformation;
+
+//2. detach via wskazanie changeroot
+
+var Detach2NodeTransformation = function(args) {
+    this.node = args.node;
+    this.document = this.node.document;
+};
+$.extend(Detach2NodeTransformation.prototype, {
+    run: function() {
+        this.root = this.node.parent() ? this.node.parent() : this.node.document.root;
+        this.oldRoot = (this.root).clone();
+        this.path = this.node.getPath();
+        this.node.detach();
+        
+    },
+    undo: function() {
+        this.root.replaceWith(this.oldRoot); // this.getDocument?
+        this.node = this.document.getNodeByPath(this.path);
+    }
+});
+transformations['detach2'] = Detach2NodeTransformation;
+
+//3. detach z pełnym własnym redo
+
+var Detach3NodeTransformation = function(args) {
+    this.node = args.node;
+    this.document = this.node.document;
+};
+$.extend(Detach3NodeTransformation.prototype, {
+    run: function() {
+        this.index = this.node.getIndex();
+        this.parent = this.node.parent();
+        this.node.detach();
+    },
+    undo: function() {
+        var contents = this.parent.contents();
+        if(contents.length === 0) {
+            this.parent.append(this.node)
+        }
+    }
+});
+transformations['detach3'] = Detach3NodeTransformation;
 
 return {
     documentFromXML: function(xml) {

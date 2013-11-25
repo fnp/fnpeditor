@@ -814,6 +814,31 @@ describe('smartxml', function() {
         });
     });
 
+    describe('Undo/redo', function() {
+        it('does work', function() {
+            var doc = getDocumentFromXML('<section><span>Alice</span></section>'),
+                span = doc.root.contents()[0];
+
+            doc.transform('detach3', {node: span});
+
+
+            doc.undo();
+
+            expect(doc.root.contents()).to.have.length(1);
+            expect(doc.root.contents()[0].getTagName()).to.equal('span');
+            expect(doc.root.contents()[0].contents()[0].getText()).to.equal('Alice');
+
+            doc.redo();
+            expect(doc.root.contents()).to.have.length(0);
+
+            doc.undo();
+            expect(doc.root.contents()).to.have.length(1);
+            expect(doc.root.contents()[0].getTagName()).to.equal('span');
+            expect(doc.root.contents()[0].contents()[0].getText()).to.equal('Alice');
+
+        });
+    });
+
 });
 
 });
