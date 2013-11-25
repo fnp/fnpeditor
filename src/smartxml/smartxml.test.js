@@ -61,6 +61,22 @@ describe('smartxml', function() {
         });
     });
 
+    describe('DocumentNode', function() {
+        it('can be cloned', function() {
+            var doc = getDocumentFromXML('<div>Alice</div>'),
+                text = doc.root.contents()[0],
+                clone, suffix;
+
+            [doc.root, text].forEach(function(node) {
+                suffix = ' (' + (node.nodeType === Node.TEXT_NODE ? 'text' : 'element')  + ')';
+                clone = node.clone();
+                expect(doc.containsNode(clone)).to.equal(false, 'clone is not contained in a document' + suffix);
+                expect(node.sameNode(clone)).to.equal(false, 'clone is not same node as its originator' + suffix);
+                expect(node.nativeNode.isEqualNode(clone.nativeNode)).to.equal(true, 'clone is identical as its originator' + suffix);
+            });
+        });
+    });
+
     describe('Basic ElementNode properties', function() {
         it('exposes node contents', function() {
             var node = elementNodeFromXML('<node>Some<node>text</node>is here</node>'),

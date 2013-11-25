@@ -36,6 +36,10 @@ $.extend(DocumentNode.prototype, {
         this._$ = $(nativeNode);
     },
 
+    clone: function() {
+        return this.document.createDocumentNode(this._$.clone(true, true)[0]);
+    },
+
     isRoot: function() {
         return this.document.root.sameNode(this);
     },
