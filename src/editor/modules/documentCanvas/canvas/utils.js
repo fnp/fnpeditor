@@ -35,13 +35,21 @@ var findCanvasElement = function(node) {
  * and it lost reference to its parent (but we may still have it on canvas).
 */
 var findCanvasElementInParent = function(wlxmlChildNode, wlxmlParentNode) {
-    var parentElement = findCanvasElement(wlxmlParentNode),
-        toret;
-    parentElement.children().forEach(function(child) {
-        if(child.data('wlxmlNode').sameNode(wlxmlChildNode)) {
-            toret = child;
+    var parentElement, toret;
+
+    if(wlxmlParentNode === null) {
+        toret = wlxmlChildNode.getData('canvasElement');
+        if(toret.parent()) {
+            throw new Error('This should never happen: root canvas element doesn\'t render root document node!');
         }
-    });
+    } else {
+        parentElement = findCanvasElement(wlxmlParentNode);
+        parentElement.children().forEach(function(child) {
+            if(child.data('wlxmlNode').sameNode(wlxmlChildNode)) {
+                toret = child;
+            }
+        });
+    }
     return toret;
 };
 
