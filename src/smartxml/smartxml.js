@@ -184,7 +184,7 @@ $.extend(ElementNode.prototype, {
 
     detach: function() {
         var next;
-        if(parent && this.isSurroundedByTextElements()) {
+        if(this.parent() && this.isSurroundedByTextElements()) {
             next = this.next();
             this.prev().appendText(next.getText());
             next.detach();
