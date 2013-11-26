@@ -53,7 +53,7 @@
     "validthis"     : false,
 
     // Environments
-    "browser"       : true,
+    "browser"       : false,
     "couch"         : false,
     "devel"         : false,
     "dojo"          : false,
