@@ -272,6 +272,13 @@ $.extend(ElementNode.prototype, {
         this._$.prepend(nativeNode);
     }),
 
+    insertAtIndex: function(nativeNode, index) {
+        var contents = this.contents();
+        if(contents[index]) {
+            return contents[index].before(nativeNode);
+        }
+    },
+
     unwrapContent: function() {
         var parent = this.parent();
         if(!parent) {

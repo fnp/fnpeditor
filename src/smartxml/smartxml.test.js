@@ -336,6 +336,16 @@ describe('smartxml', function() {
             expect(rootContents[0].getText()).to.equal('Alice a cat');
         });
 
+        it('inserts node at index', function() {
+            var doc = getDocumentFromXML('<div><a></a><b></b><c></c></div>'),
+                b = doc.root.contents()[1];
+
+            var inserted = doc.root.insertAtIndex({tagName: 'test'}, 1);
+
+            expect(doc.root.contents()[1].sameNode(inserted)).to.equal(true, 'inserted node returned');
+            expect(b.getIndex()).to.equal(2, 'b node shifted right');
+        });
+
         it('appends element node to another element node', function() {
             var node1 = elementNodeFromParams({tag: 'div'}),
                 node2 = elementNodeFromParams({tag: 'a'}),
