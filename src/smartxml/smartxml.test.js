@@ -6,7 +6,7 @@ define([
     
 'use strict';
 /*jshint expr:true */
-/* global describe, it, beforeEach */
+/* global describe, it, beforeEach, Node, DOMParser */
 
 var expect = chai.expect;
 

@@ -6,7 +6,7 @@ define([
 ], function($, _, Backbone, events) {
     
 'use strict';
-
+/* globals Node */
 
 var TEXT_NODE = Node.TEXT_NODE;
 
@@ -437,6 +437,7 @@ $.extend(Document.prototype, Backbone.Events, {
     createDocumentNode: function(from) {
         if(!(from instanceof Node)) {
             if(from.text !== undefined) {
+                /* globals document */
                 from = document.createTextNode(from.text);
             } else {
                 var node = $('<' + from.tagName + '>');
