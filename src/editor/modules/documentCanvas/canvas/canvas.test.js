@@ -14,8 +14,12 @@ define([
 var expect = chai.expect;
 
 var getCanvasFromXML = function(xml) {
-    return canvas.fromXMLDocument(wlxml.WLXMLDocumentFromXML(xml));
+    return canvas.fromXMLDocument(getDocumentFromXML(xml));
 };
+
+var getDocumentFromXML = function(xml) {
+    return wlxml.WLXMLDocumentFromXML(xml);
+}
 
 var wait = function(callback, timeout) {
     return window.setTimeout(callback, timeout || 0.5);
@@ -43,6 +47,16 @@ describe('Handling empty text nodes', function() {
             expect(c.wlxmlDocument.root.contents()[0].getText()).to.equal('', 'empty string in a document');
             done();
         });
+    });
+});
+
+describe('Handling changes to the document', function() {
+    it('replaces the whole canvas content when document root node replaced', function() {
+        var doc = getDocumentFromXML('<section></section>'),
+            c = canvas.fromXMLDocument(doc);
+
+        var header = doc.root.replaceWith({tagName: 'header'});
+        expect(c.doc().data('wlxmlNode').sameNode(header)).to.be.true;
     });
 });
 

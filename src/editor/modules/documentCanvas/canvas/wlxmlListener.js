@@ -41,6 +41,10 @@ var handlers = {
         canvasNode.setWlxmlTag(event.meta.newTagName);
     },
     nodeAdded: function(event) {
+        if(event.meta.node.isRoot()) {
+            this.canvas.reloadRoot();
+            return;
+        }
         var parentElement = utils.findCanvasElement(event.meta.node.parent()),
             nodeIndex = event.meta.node.getIndex(),
             referenceElement, referenceAction;

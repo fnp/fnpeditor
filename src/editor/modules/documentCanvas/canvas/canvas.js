@@ -25,15 +25,17 @@ $.extend(Canvas.prototype, {
             return false;
         }
 
-        var canvasDOM = this.generateCanvasDOM(wlxmlDocument.root);
+        this.wlxmlListener.listenTo(wlxmlDocument);
+        this.wlxmlDocument = wlxmlDocument;
+        this.reloadRoot();
+        this.setupEventHandling();
+    },
 
+    reloadRoot: function() {
+        var canvasDOM = this.generateCanvasDOM(this.wlxmlDocument.root);
         this.wrapper.empty();
         this.wrapper.append(canvasDOM);
         this.d = this.wrapper.children(0);
-        this.setupEventHandling();
-
-        this.wlxmlListener.listenTo(wlxmlDocument);
-        this.wlxmlDocument = wlxmlDocument;
     },
 
     generateCanvasDOM: function(wlxmlNode) {
