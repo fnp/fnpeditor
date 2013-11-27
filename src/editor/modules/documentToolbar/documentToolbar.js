@@ -36,6 +36,12 @@ return function(sandbox) {
                     params.meta = meta;
                 }
 
+                if(command === 'undo' || command === 'redo') {
+                    params.callback = function(disable) {
+                        btn.attr('disabled', !disable);
+                    }
+                }
+
                 sandbox.publish('command', command, params);
             });
         },

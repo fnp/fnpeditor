@@ -74,7 +74,8 @@ handlers.push({key: KEYS.ENTER,
                     return false; // top level element is unsplittable
                 }
 
-                var nodes = position.element.data('wlxmlNode').split({offset: position.offset}),
+                //var nodes = position.element.data('wlxmlNode').split({offset: position.offset}),
+                var nodes = position.element.data('wlxmlNode').transform('split', {offset: position.offset}),
                     newEmpty,
                     goto,
                     gotoOptions;
@@ -85,7 +86,7 @@ handlers.push({key: KEYS.ENTER,
                     newEmpty = nodes.second;
                 
                 if(newEmpty) {
-                    goto = newEmpty.append({text: ''});
+                    //goto = newEmpty.append({text: ''});
                     gotoOptions = {};
                 } else {
                     goto = nodes.second;

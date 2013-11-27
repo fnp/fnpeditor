@@ -18,7 +18,11 @@ return function(sandbox) {
         var attr = target.attr('class').split('-')[3] === 'tagSelect' ? 'Tag' : 'Class',
             value = target.val().replace(/-/g, '.');
                 
-        currentNode['set' + attr](value);
+        if(attr === 'Class') {
+            //currentNode.document.transform('setClass', {node: currentNode, klass: value});
+            currentNode.transform('setAttr', {name: 'class', value: value});
+        }
+        //currentNode['set' + attr](value);
     });
     
     return {

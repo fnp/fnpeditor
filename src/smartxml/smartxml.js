@@ -43,6 +43,16 @@ var DocumentNode = function(nativeNode, document) {
 };
 
 $.extend(DocumentNode.prototype, {
+
+    transform: function(name, args) {
+        var Transformation = contextTransformations[name],
+            transformation;
+        if(Transformation) {
+            transformation = new Transformation(this.document, this, args);
+        }
+        return this.document.transform(transformation);
+    },
+
     _setNativeNode: function(nativeNode) {
         this.nativeNode = nativeNode;
         this._$ = $(nativeNode);
@@ -643,14 +653,21 @@ $.extend(Document.prototype, Backbone.Events, {
 
     transform: function(transformationName, args) {
         console.log('transform');
-        var Transformation = transformations[transformationName],
-            transformation;
-        if(Transformation) {
-            transformation = new Transformation(args);
-            transformation.run();
+        var Transformation, transformation, toret;
+        if(typeof transformationName === 'string') {
+            Transformation = transformations[transformationName];
+            if(Transformation) {
+                transformation = new Transformation(args);
+            }
+        } else {
+            transformation = transformationName;
+        }
+        if(transformation) {
+            toret = transformation.run();
             this.undoStack.push(transformation);
             console.log('clearing redo stack');
             this.redoStack = [];
+            return toret;
         } else {
             throw new Error('Transformation ' + transformationName + ' doesn\'t exist!');
         }
@@ -806,6 +823,111 @@ var createTransformation = function(desc) {
     return NodeTransformation;
 }
 
+///
+var Transformation = function(args) {
+    this.args = args;
+};
+$.extend(Transformation.prototype, {
+    run: function() {
+        throw new Error('not implemented');
+    },
+    undo: function() {
+        throw new Error('not implemented');
+    },
+});
+
+var createGenericTransformation = function(desc) {
+    var GenericTransformation = function(document, args) {
+        //document.getNodeByPath(contextPath).call(this, args);
+        this.args = args;
+        this.document = document;
+    };
+    $.extend(GenericTransformation.prototype, {
+        run: function() {
+            var changeRoot = desc.getChangeRoot ? desc.getChangeRoot.call(this) : this.document.root;
+            this.snapshot = changeRoot.clone();
+            this.changeRootPath = changeRoot.getPath();
+            return desc.impl.call(this.context, this.args); // a argumenty do metody?
+        },
+        undo: function() {
+            this.document.getNodeByPath(this.changeRootPath).replaceWith(this.snapshot);
+        },
+    });
+
+    return GenericTransformation;
+};
+
+// var T = createGenericTransformation({impl: function() {}});
+// var t = T(doc, {a:1,b:2,c3:3});
+
+
+var createContextTransformation = function(desc) {
+    // mozna sie pozbyc przez przeniesienie object/context na koniec argumentow konstruktora generic transformation
+    var GenericTransformation = createGenericTransformation(desc);
+
+    var ContextTransformation = function(document, object, args) {
+        var contextPath = object.getPath();
+
+        GenericTransformation.call(this, document, args);
+        
+        Object.defineProperty(this, 'context', {
+            get: function() {
+                return document.getNodeByPath(contextPath);
+            }
+        });
+    }
+    ContextTransformation.prototype = Object.create(GenericTransformation.prototype);
+    return ContextTransformation;
+}
+// var T = createContextTransformation({impl: function() {}});
+// var t = T(doc, node, {a:1,b:2,c3:3});
+///
+
+var contextTransformations = {};
+contextTransformations['setText'] = createContextTransformation({
+    impl: function(args) {
+        this.setText(args.text);
+    },
+    getChangeRoot: function() {
+        return this.context;
+    }
+});
+
+contextTransformations['setAttr'] = createContextTransformation({
+    impl: function(args) {
+        this.setAttr(args.name, args.value);
+    },
+    getChangeRoot: function() {
+        return this.context;
+    }
+});
+
+contextTransformations['split'] = createContextTransformation({
+    impl: function(args) {
+        return this.split({offset: args.offset});
+    }//,
+    // getChangeRoot: function() {
+    //     return this.context.parent().parent();
+    // }
+});
+
+// var TRANSFORMATION2 = function(f, getChangeRoot, undo) {
+//     var context = this,
+
+
+//     var transformation = createContextTransformation({
+//         impl: f,
+//         getChangeRoot: getChangeRoot,
+
+//     });
+
+//     var toret = function() {
+//         var 
+//         f.apply(context, createArgs ? createArgs(arguments) : arguments)
+//     };
+//     return toret;
+// }
+
 transformations['detach2'] = createTransformation({
     // impl: function() {
     //     //this.setAttr('class', 'cite'); //  
@@ -817,7 +939,7 @@ transformations['detach2'] = createTransformation({
 
 });
 
-transformations['setText'] = createTransformation({
+transformations['setText-old'] = createTransformation({
     impl: function(args) {
         this.setText(args.text)
     },
@@ -826,6 +948,15 @@ transformations['setText'] = createTransformation({
     }
 
 });
+
+transformations['setClass-old'] = createTransformation({
+    impl: function(args) {
+        this.setClass(args.klass);
+    },
+    getRoot: function(node) {
+        return node;
+    }
+})
 
 //3. detach z pełnym własnym redo
 
@@ -866,6 +997,22 @@ $.extend(Detach3NodeTransformation.prototype, {
     }
 });
 transformations['detach3'] = Detach3NodeTransformation;
+
+
+var registerTransformationsFromObject = function(object) {
+    _.pairs(object).filter(function(pair) {
+        var property = pair[1];
+        return typeof property === 'function' && property._isTransformation;
+    })
+    .forEach(function(pair) {
+        var name = pair[0],
+            method = pair[1];
+        object.registerTransformation(name, createContextTransformation(method));
+    });
+};
+registerTransformationsFromObject(ElementNode.prototype);
+registerTransformationsFromObject(TextNode.prototype);
+registerTransformationsFromObject(Document.prototype);
 
 return {
     documentFromXML: function(xml) {

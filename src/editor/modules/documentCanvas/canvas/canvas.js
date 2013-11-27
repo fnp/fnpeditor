@@ -38,7 +38,8 @@ $.extend(TextHandler.prototype, {
         }
     },
     setText: function(text, node) {
-        this.canvas.wlxmlDocument.transform('setText', {node:node, text: text});
+        //this.canvas.wlxmlDocument.transform('setText', {node:node, text: text});
+        node.transform('setText', {text: text});
 
     }
 
@@ -104,7 +105,7 @@ $.extend(Canvas.prototype, {
                         mutation.target.data = mutation.target.data.replace(utils.unicode.ZWS, '');
                         canvas._moveCaretToTextElement(canvas.getDocumentElement(mutation.target), 'end');
                     }
-                    observer.observe(canvas.d[0], config);
+                    observer.observe(canvas.wrapper[0], config);
                     canvas.publisher('contentChanged');
 
                     var textElement = canvas.getDocumentElement(mutation.target),
@@ -119,7 +120,7 @@ $.extend(Canvas.prototype, {
             });
         });
         var config = { attributes: false, childList: false, characterData: true, subtree: true, characterDataOldValue: true};
-        observer.observe(this.d[0], config);
+        observer.observe(this.wrapper[0], config);
 
 
         this.wrapper.on('mouseover', '[document-node-element], [document-text-element]', function(e) {
