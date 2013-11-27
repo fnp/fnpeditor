@@ -848,7 +848,7 @@ describe('smartxml', function() {
             doc.undo();
 
             expect(doc.root.contents().length).to.equal(3);
-            console.log(doc.toXML());
+            //console.log(doc.toXML());
             expect(doc.root.contents()[1].contents()[0].getText()).to.equal('has');
 
         });

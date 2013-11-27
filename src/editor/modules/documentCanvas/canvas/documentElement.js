@@ -396,7 +396,7 @@ $.extend(DocumentTextElement.prototype, {
         if(params instanceof DocumentNodeElement) {
             element = params;
         } else {
-            element = DocumentNodeElement.create(params, this.canvas);
+            element = DocumentElement.create(params, this.canvas);
         }
         this.dom().wrap('<div>');
         this.dom().parent().after(element.dom());

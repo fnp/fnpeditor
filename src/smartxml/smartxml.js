@@ -383,6 +383,7 @@ $.extend(TextNode.prototype, {
     },
 
     setText: function(text) {
+        console.log('smartxml: ' + text);
         this.nativeNode.data = text;
         this.triggerTextChangeEvent();
     },
@@ -641,12 +642,14 @@ $.extend(Document.prototype, Backbone.Events, {
     },
 
     transform: function(transformationName, args) {
+        console.log('transform');
         var Transformation = transformations[transformationName],
             transformation;
         if(Transformation) {
             transformation = new Transformation(args);
             transformation.run();
             this.undoStack.push(transformation);
+            console.log('clearing redo stack');
             this.redoStack = [];
         } else {
             throw new Error('Transformation ' + transformationName + ' doesn\'t exist!');
@@ -769,7 +772,60 @@ $.extend(Detach2NodeTransformation.prototype, {
         this.document.getNodeByPath(this.rootPath).replaceWith(this.oldRoot);
     }
 });
-transformations['detach2'] = Detach2NodeTransformation;
+//transformations['detach2'] = Detach2NodeTransformation;
+
+//2a. generyczna transformacja
+
+var createTransformation = function(desc) {
+
+    var NodeTransformation = function(args) {
+        this.nodePath = args.node.getPath();
+        this.document = args.node.document;
+        this.args = args;
+    };
+    $.extend(NodeTransformation.prototype, {
+        run: function() {
+            var node = this.document.getNodeByPath(this.nodePath),
+                root;
+
+            if(desc.getRoot) {
+                root = desc.getRoot(node);
+            } else {
+                root = this.document.root;
+            }
+            
+            this.rootPath = root.getPath();
+            this.oldRoot = (root).clone();
+            desc.impl.call(node, this.args);
+        },
+        undo: function() {
+            this.document.getNodeByPath(this.rootPath).replaceWith(this.oldRoot);
+        }
+    });
+
+    return NodeTransformation;
+}
+
+transformations['detach2'] = createTransformation({
+    // impl: function() {
+    //     //this.setAttr('class', 'cite'); //  
+    // },
+    impl: ElementNode.prototype.detach,
+    getRoot: function(node) {
+        return node.parent();
+    }
+
+});
+
+transformations['setText'] = createTransformation({
+    impl: function(args) {
+        this.setText(args.text)
+    },
+    getRoot: function(node) {
+        return node;
+    }
+
+});
 
 //3. detach z pełnym własnym redo
 

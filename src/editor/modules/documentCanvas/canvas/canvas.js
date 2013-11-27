@@ -10,12 +10,48 @@ define([
     
 'use strict';
 
+var TextHandler = function(canvas) {this.canvas = canvas; this.buffer = null};
+$.extend(TextHandler.prototype, {
+    handle: function(node, text) {
+        console.log('canvas text handler: ' + text);
+        this.setText(text, node);
+        return;
+        if(!this.node) {
+            this.node = node;
+        }
+        if(this.node.sameNode(node)) {
+            this._ping(text);
+        } else {
+            this.flush();
+            this.node = node;
+            this._ping(text);
+        }
+    },
+    _ping: _.throttle(function(text) {
+        this.buffer = text;
+        this.flush();
+    }, 1000),
+    flush: function() {
+        if(this.buffer != null) {
+            this.setText(this.buffer, this.node);
+            this.buffer = null;
+        }
+    },
+    setText: function(text, node) {
+        this.canvas.wlxmlDocument.transform('setText', {node:node, text: text});
+
+    }
+
+});
+
+
 var Canvas = function(wlxmlDocument, publisher) {
     this.eventBus = _.extend({}, Backbone.Events);
     this.wrapper = $('<div>').addClass('canvas-wrapper').attr('contenteditable', true);
     this.wlxmlListener = wlxmlListener.create(this);
     this.loadWlxmlDocument(wlxmlDocument);
     this.publisher = publisher ? publisher : function() {};
+    this.textHandler = new TextHandler(this);
 };
 
 $.extend(Canvas.prototype, {
@@ -56,6 +92,8 @@ $.extend(Canvas.prototype, {
             canvas.setCurrentElement(canvas.getDocumentElement(e.currentTarget), {caretTo: false});
         });
 
+
+
         var observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 if(documentElement.DocumentTextElement.isContentContainer(mutation.target)) {
@@ -72,7 +110,11 @@ $.extend(Canvas.prototype, {
                     var textElement = canvas.getDocumentElement(mutation.target),
                         toSet = mutation.target.data !== utils.unicode.ZWS ? mutation.target.data : '';
 
-                    textElement.data('wlxmlNode').setText(toSet);
+                    //textElement.data('wlxmlNode').setText(toSet);
+                    //textElement.data('wlxmlNode').document.transform('setText', {node: textElement.data('wlxmlNode'), text: toSet});
+                    if(textElement.data('wlxmlNode').getText() != toSet) {
+                        canvas.textHandler.handle(textElement.data('wlxmlNode'), toSet);
+                    }
                 }
             });
         });
