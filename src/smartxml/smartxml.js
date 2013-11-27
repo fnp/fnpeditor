@@ -49,7 +49,15 @@ $.extend(DocumentNode.prototype, {
     },
 
     clone: function() {
-        return this.document.createDocumentNode(this._$.clone(true, true)[0]);
+        var clone = this._$.clone(true, true);
+        // clone.find('*').addBack().each(function() {
+        //     var n = $(this);
+        //     if(n.data('canvasElement')) {
+        //         n.data('canvasElement', $.extend(true, {}, n.data('canvasElement')));
+        //         n.data('canvasElement').$element = n.data('canvasElement').$element.clone(true, true);
+        //     }
+        // });
+        return this.document.createDocumentNode(clone[0]);
     },
 
     getPath: function(ancestor) {
@@ -639,6 +647,7 @@ $.extend(Document.prototype, Backbone.Events, {
             transformation = new Transformation(args);
             transformation.run();
             this.undoStack.push(transformation);
+            this.redoStack = [];
         } else {
             throw new Error('Transformation ' + transformationName + ' doesn\'t exist!');
         }
@@ -744,20 +753,20 @@ transformations['detach'] = DetachNodeTransformation;
 //2. detach via wskazanie changeroot
 
 var Detach2NodeTransformation = function(args) {
-    this.node = args.node;
-    this.document = this.node.document;
+    this.nodePath = args.node.getPath();
+    this.document = args.node.document;
 };
 $.extend(Detach2NodeTransformation.prototype, {
     run: function() {
-        this.root = this.node.parent() ? this.node.parent() : this.node.document.root;
-        this.oldRoot = (this.root).clone();
-        this.path = this.node.getPath();
-        this.node.detach();
+        var node = this.document.getNodeByPath(this.nodePath),
+            root = node.parent() ? node.parent() : this.document.root;
         
+        this.rootPath = root.getPath();
+        this.oldRoot = (root).clone();
+        node.detach();
     },
     undo: function() {
-        this.root.replaceWith(this.oldRoot); // this.getDocument?
-        this.node = this.document.getNodeByPath(this.path);
+        this.document.getNodeByPath(this.rootPath).replaceWith(this.oldRoot);
     }
 });
 transformations['detach2'] = Detach2NodeTransformation;
@@ -770,14 +779,33 @@ var Detach3NodeTransformation = function(args) {
 };
 $.extend(Detach3NodeTransformation.prototype, {
     run: function() {
-        this.index = this.node.getIndex();
-        this.parent = this.node.parent();
+        //this.index = this.node.getIndex();
+        //this.parent = this.node.parent();
+        
+        this.path = this.node.getPath();
+        if(this.node.isSurroundedByTextElements()) {
+            this.prevText = this.node.prev().getText();
+            this.nextText = this.node.next().getText();
+            this.merge = true;
+        } else {
+            this.prevText = this.nextText = null;
+            this.merge = false;
+        }
+
         this.node.detach();
     },
     undo: function() {
-        var contents = this.parent.contents();
-        if(contents.length === 0) {
-            this.parent.append(this.node)
+        var parent = this.document.getNodeByPath(this.path.slice(0,-1)),
+            idx = _.last(this.path);
+        var inserted = parent.insertAtIndex(this.node, idx);
+        if(this.merge) {
+            if(inserted.next()) {
+                inserted.before({text: this.prevText});
+                inserted.next().setText(this.nextText);
+            } else {
+                inserted.prev().setText(this.prevText);
+                inserted.after({text: this.nextText});
+            }
         }
     }
 });

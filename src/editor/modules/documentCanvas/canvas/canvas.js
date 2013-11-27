@@ -33,6 +33,8 @@ $.extend(Canvas.prototype, {
 
     reloadRoot: function() {
         var canvasDOM = this.generateCanvasDOM(this.wlxmlDocument.root);
+        //var canvasDOM = this.wlxmlDocument.root.getData('canvasElement') ? this.wlxmlDocument.root.getData('canvasElement').dom() : this.generateCanvasDOM(this.wlxmlDocument.root);
+
         this.wrapper.empty();
         this.wrapper.append(canvasDOM);
         this.d = this.wrapper.children(0);

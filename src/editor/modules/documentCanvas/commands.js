@@ -19,6 +19,28 @@ var commands = {
     }
 };
 
+commands.register('undo', function(canvas) {
+    var doc = canvas.wlxmlDocument;
+
+    doc.undo();
+});
+
+commands.register('redo', function(canvas) {
+    var doc = canvas.wlxmlDocument;
+
+    doc.redo();
+});
+
+commands.register('remove-node', function(canvas) {
+    var cursor = canvas.getCursor(),
+        selectionStart = cursor.getSelectionStart(),
+        selectionEnd = cursor.getSelectionEnd(),
+        parent1 = selectionStart.element.parent() || undefined,
+        parent2 = selectionEnd.element.parent() || undefined;
+
+    canvas.wlxmlDocument.transform('detach2', {node:canvas.getCurrentNodeElement().data('wlxmlNode')});
+});
+
 commands.register('unwrap-node', function(canvas) {
     var cursor = canvas.getCursor(),
         selectionStart = cursor.getSelectionStart(),

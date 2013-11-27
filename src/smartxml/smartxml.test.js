@@ -815,11 +815,12 @@ describe('smartxml', function() {
     });
 
     describe('Undo/redo', function() {
+
         it('does work', function() {
             var doc = getDocumentFromXML('<section><span>Alice</span></section>'),
                 span = doc.root.contents()[0];
 
-            doc.transform('detach3', {node: span});
+            doc.transform('detach2', {node: span});
 
 
             doc.undo();
@@ -835,6 +836,38 @@ describe('smartxml', function() {
             expect(doc.root.contents()).to.have.length(1);
             expect(doc.root.contents()[0].getTagName()).to.equal('span');
             expect(doc.root.contents()[0].contents()[0].getText()).to.equal('Alice');
+
+        });
+        it('does work - merged text nodes case', function() {
+            var doc = getDocumentFromXML('<section>Alice <span>has</span> a cat.</section>'),
+                span = doc.root.contents()[1];
+
+            doc.transform('detach2', {node: span});
+
+
+            doc.undo();
+
+            expect(doc.root.contents().length).to.equal(3);
+            console.log(doc.toXML());
+            expect(doc.root.contents()[1].contents()[0].getText()).to.equal('has');
+
+        });
+        it('dbg - don not store nodes in tranformation state!', function() {
+            var doc = getDocumentFromXML('<section><a></a><b></b></section>'),
+                a = doc.root.contents()[0],
+                b = doc.root.contents()[1];
+
+            doc.transform('detach2', {node: a});
+            doc.transform('detach2', {node: b});
+            doc.undo();
+            doc.undo();
+            expect(doc.root.contents().length).to.equal(2);
+            expect(doc.root.contents()[0].getTagName()).to.equal('a');
+            expect(doc.root.contents()[1].getTagName()).to.equal('b');
+
+            doc.redo();
+            doc.redo();
+            expect(doc.root.contents().length).to.equal(0);
 
         });
     });
