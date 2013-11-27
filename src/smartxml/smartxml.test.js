@@ -346,6 +346,17 @@ describe('smartxml', function() {
             expect(b.getIndex()).to.equal(2, 'b node shifted right');
         });
 
+        it('appends node when inserting node at index out of range', function() {
+            var doc = getDocumentFromXML('<div></div>');
+
+            var test1 = doc.root.insertAtIndex({tagName: 'test1'}, 0),
+                test2 = doc.root.insertAtIndex({tagName: 'test1'}, 10);
+
+            expect(doc.root.contents()[0].sameNode(test1)).to.equal(true, 'inserting at index 0 of empty nodes appends node');
+            expect(doc.root.contents().length).to.equal(1, 'inserting at index out of range does nothing');
+            expect(test2).to.equal(undefined, 'inserting at index out of range returns undefined');
+        });
+
         it('appends element node to another element node', function() {
             var node1 = elementNodeFromParams({tag: 'div'}),
                 node2 = elementNodeFromParams({tag: 'a'}),

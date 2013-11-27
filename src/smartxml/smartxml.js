@@ -274,8 +274,10 @@ $.extend(ElementNode.prototype, {
 
     insertAtIndex: function(nativeNode, index) {
         var contents = this.contents();
-        if(contents[index]) {
+        if(index < contents.length) {
             return contents[index].before(nativeNode);
+        } else if(index === contents.length) {
+            return this.append(nativeNode);
         }
     },
 
