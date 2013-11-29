@@ -40,7 +40,7 @@ var handlers = {
         var canvasNode = utils.findCanvasElement(event.meta.node);
         canvasNode.setWlxmlTag(event.meta.newTagName);
     },
-    nodeAdded: function(event) {
+    nodeAdded: function(event, checkForExistence) {
         if(event.meta.node.isRoot()) {
             this.canvas.reloadRoot();
             return;
@@ -57,11 +57,11 @@ var handlers = {
             referenceAction = 'after';
         }
 
-        actionArg = utils.findCanvasElement(event.meta.node) || event.meta.node;
+        actionArg = (checkForExistence && utils.findCanvasElement(event.meta.node)) || event.meta.node;
         referenceElement[referenceAction](actionArg);
     },
     nodeMoved: function(event) {
-        return handlers.nodeAdded(event);
+        return handlers.nodeAdded(event, true);
     },
     nodeDetached: function(event) {
         var canvasNode = utils.findCanvasElementInParent(event.meta.node, event.meta.parent);
