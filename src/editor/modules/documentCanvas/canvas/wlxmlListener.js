@@ -47,7 +47,7 @@ var handlers = {
         }
         var parentElement = utils.findCanvasElement(event.meta.node.parent()),
             nodeIndex = event.meta.node.getIndex(),
-            referenceElement, referenceAction;
+            referenceElement, referenceAction, actionArg;
 
         if(nodeIndex === 0) {
             referenceElement = parentElement;
@@ -57,7 +57,8 @@ var handlers = {
             referenceAction = 'after';
         }
 
-        referenceElement[referenceAction](event.meta.node);
+        actionArg = utils.findCanvasElement(event.meta.node) || event.meta.node;
+        referenceElement[referenceAction](actionArg);
     },
     nodeMoved: function(event) {
         return handlers.nodeAdded(event);

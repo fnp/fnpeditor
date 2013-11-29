@@ -60,6 +60,33 @@ describe('Handling changes to the document', function() {
     });
 });
 
+describe('Listening to document changes', function() {
+    it('Handling element node moved', function() {
+        var doc = getDocumentFromXML('<section><a></a><b></b></section>'),
+            a = doc.root.contents()[0],
+            b = doc.root.contents()[1],
+            c = canvas.fromXMLDocument(doc);
+
+        a.before(b);
+        var sectionChildren = c.doc().children();
+        expect(sectionChildren.length).to.equal(2);
+        expect(sectionChildren[0].getWlxmlTag()).to.equal('b');
+        expect(sectionChildren[1].getWlxmlTag()).to.equal('a');
+    });
+    it('Handling text node moved', function() {
+        var doc = getDocumentFromXML('<section><a></a>Alice</section>'),
+            a = doc.root.contents()[0],
+            textNode = doc.root.contents()[1],
+            c = canvas.fromXMLDocument(doc);
+
+        a.before(textNode);
+        var sectionChildren = c.doc().children();
+        expect(sectionChildren.length).to.equal(2);
+        expect(sectionChildren[0].getText()).to.equal('Alice');
+        expect(sectionChildren[1].getWlxmlTag()).to.equal('a');
+    });
+});
+
 describe('Cursor', function() {
 
     var getSelection;
