@@ -75,22 +75,32 @@ handlers.push({key: KEYS.ENTER,
                 }
 
                 //var nodes = position.element.data('wlxmlNode').split({offset: position.offset}),
-                var nodes = position.element.data('wlxmlNode').transform('split', {offset: position.offset}),
-                    newEmpty,
-                    goto,
-                    gotoOptions;
+                // var nodes = position.element.data('wlxmlNode').transform('split', {offset: position.offset}),
+                //     newEmpty,
+                //     goto,
+                //     gotoOptions;
 
-                if(position.offsetAtBeginning)
-                    newEmpty = nodes.first;
-                else if(position.offsetAtEnd)
-                    newEmpty = nodes.second;
+                // if(position.offsetAtBeginning)
+                //     newEmpty = nodes.first;
+                // else if(position.offsetAtEnd)
+                //     newEmpty = nodes.second;
                 
-                if(newEmpty) {
-                    //goto = newEmpty.append({text: ''});
+                // if(newEmpty) {
+                //     //goto = newEmpty.append({text: ''});
+                //     gotoOptions = {};
+                // } else {
+                //     goto = nodes.second;
+                //     gotoOptions = {caretTo: 'start'};
+                // }
+
+                var result = position.element.data('wlxmlNode').transform('rng.breakContent', {offset: position.offset}),
+                    goto, gotoOptions;
+                if(result.emptyText) {
+                    goto = result.createdEmpty;
                     gotoOptions = {};
                 } else {
-                    goto = nodes.second;
-                    gotoOptions = {caretTo: 'start'};
+                    goto = result.second;
+                    gotoOptions = {caretTo: 'start'};   
                 }
 
                 canvas.setCurrentElement(utils.findCanvasElement(goto), gotoOptions);

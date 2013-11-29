@@ -2,8 +2,9 @@ define([
     'libs/jquery',
     'libs/underscore',
     'libs/backbone',
-    'smartxml/events'
-], function($, _, Backbone, events) {
+    'smartxml/events',
+    'smartxml/transformations'
+], function($, _, Backbone, events, transformations) {
     
 'use strict';
 /* globals Node */
@@ -25,14 +26,6 @@ var INSERTION = function(implementation) {
     return toret;
 };
 
-// var TRANSFORMATION = function(name, implementation) {
-//     //implementation._isTransformation = true;
-
-//     createDumbTransformation(name, implementation, )
-
-//     return implementation;
-// };
-
 var DocumentNode = function(nativeNode, document) {
     if(!document) {
         throw new Error('undefined document for a node');
@@ -44,8 +37,10 @@ var DocumentNode = function(nativeNode, document) {
 
 $.extend(DocumentNode.prototype, {
 
+    transformations: new transformations.TransformationStorage(),
+
     transform: function(name, args) {
-        var Transformation = contextTransformations[name],
+        var Transformation = this.transformations.get(name),
             transformation;
         if(Transformation) {
             transformation = new Transformation(this.document, this, args);
@@ -380,6 +375,52 @@ $.extend(ElementNode.prototype, {
     }
 });
 
+// trans
+
+// todo - split+append
+
+ElementNode.prototype.transformations.register(transformations.createContextTransformation({
+    name: 'smartxml.setAttr',
+    impl: function(args) {
+        this.setAttr(args.name, args.value);
+    },
+    getChangeRoot: function() {
+        return this.context;
+    }
+}));
+
+DocumentNode.prototype.transformations.register(transformations.createContextTransformation({
+    name: 'smartxml.wrapWith',
+    getChangeRoot: function() {
+        return this.context.parent();
+    },
+    impl: function(args) {
+        return this.wrapWith(args);
+    }
+}));
+
+DocumentNode.prototype.transformations.register(transformations.createContextTransformation({
+    name: 'smartxml.wrapText',
+    getChangeRoot: function() {
+        return this.context;
+    },
+    impl: function(args) {
+        return this.wrapText(args);
+    }
+}));
+
+DocumentNode.prototype.transformations.register(transformations.createContextTransformation({
+    name: 'smartxml.detach',
+    getChangeRoot: function() {
+        return this.context.parent();
+    },
+    impl: function(args) {
+        return this.detach();
+    }
+}));
+
+///
+
 var TextNode = function(nativeNode, document) {
     DocumentNode.call(this, nativeNode, document);
 };
@@ -467,6 +508,49 @@ $.extend(TextNode.prototype, {
 });
 
 
+TextNode.prototype.transformations.register(transformations.createContextTransformation({
+    name: 'rng.breakContent',
+    // impl: function(args) {
+    //     var node = this.context,
+    //         newNodes, emptyNode, emptyText;
+    //     newNodes = node.transform('smartxml.split', {offset: args.offset});
+    //     [newNodes.first, newNodes.second].some(function(newNode) {
+    //         if(!(newNode.contents().length)) {
+    //             newNode.transform('smartxml.append', {text: ''});
+    //             return true; // break
+    //         }
+    //     });
+    //     return _.extend(newNodes, {emptyText: emptyText});
+    // },
+    impl: function(args) {
+        var node = this,
+            newNodes, emptyNode, emptyText;
+        newNodes = node.split({offset: args.offset});
+        [newNodes.first, newNodes.second].some(function(newNode) {
+            if(!(newNode.contents().length)) {
+                newNode.append({text: ''});
+                return true; // break
+            }
+        });
+        return _.extend(newNodes, {emptyText: emptyText});
+    },
+    getChangeRoot: function() {
+        return this.context.parent().parent();
+    }
+}));
+
+
+ElementNode.prototype.transformations.register(transformations.createContextTransformation({
+    name: 'smartxml.setText',
+    impl: function(args) {
+        this.setText(args.text);
+    },
+    getChangeRoot: function() {
+        return this.context;
+    }
+}));
+
+
 var parseXML = function(xml) {
     return $($.trim(xml))[0];
 };
@@ -480,6 +564,7 @@ var Document = function(xml) {
 $.extend(Document.prototype, Backbone.Events, {
     ElementNodeFactory: ElementNode,
     TextNodeFactory: TextNode,
+    transformations: new transformations.TransformationStorage(),
 
     createDocumentNode: function(from) {
         if(!(from instanceof Node)) {
@@ -651,17 +736,15 @@ $.extend(Document.prototype, Backbone.Events, {
         return insertion.ofNode;
     },
 
-    transform: function(transformationName, args) {
+    transform: function(transformation, args) {
         console.log('transform');
-        var Transformation, transformation, toret;
-        if(typeof transformationName === 'string') {
-            Transformation = transformations[transformationName];
+        var Transformation, toret;
+        if(typeof transformation === 'string') {
+            Transformation = this.transformations.get(transformation);
             if(Transformation) {
-                transformation = new Transformation(args);
+                transformation = new Transformation(this, this, args);
             }
-        } else {
-            transformation = transformationName;
-        }
+        } 
         if(transformation) {
             toret = transformation.run();
             this.undoStack.push(transformation);
@@ -669,7 +752,7 @@ $.extend(Document.prototype, Backbone.Events, {
             this.redoStack = [];
             return toret;
         } else {
-            throw new Error('Transformation ' + transformationName + ' doesn\'t exist!');
+            throw new Error('Transformation ' + transformation + ' doesn\'t exist!');
         }
     },
     undo: function() {
@@ -705,314 +788,20 @@ var defineDocumentProperties = function(doc, $document) {
     }, configurable: true});
 };
 
+Document.prototype.transformations.register(transformations.createContextTransformation({
+    name: 'smartxml.wrapNodes',
+    // init: function() {
 
-// var registerTransformationsFromObject = function(object) {
-//     _.values(object).filter(function(val) {
-//         return typeof val === 'function' && val._isTransformation;
-//     })
-//     .forEach(function(val) {
-//         registerTransformation(val._transformationName, val, object);
-//     });
-// };
-// registerTransformationsFromObject(ElementNode.prototype);
-// registerTransformationsFromObject(TextNode.prototype);
-// registerTransformationsFromObject(Document.prototype);
-
-// var Transformation = function() {
-// };
-// $.extend(Transformation.prototype, {
-
-// });
-
-
-// var createDumbTransformation = function(impl, contextObject) {
-//     var DumbTransformation = function(args) {
-//         this.args = this.args;
-//     };
-//     DumbTransformation.prototype = Object.create(Transformation.prototype);
-//     $.extend(DumbTransformation.prototype, {
-//         run: function() {
-//             impl.apply(contextObject, this.args);
-//         }
-//     });
-
-//     return DumbTransformation;
-
-
-// };
-
-var transformations = {};
-// var registerTransformation = function(name, impl, contextObject) {
-//     if(typeof impl === 'function') {
-//         transformations[name] = createDumbTransformation(impl, contextObject);
-//     }
-// };
-
-// registerTransformation('detachx', DocumentNode.prototype.detach,  )
-
-
-// 1. detach via totalny fallback
-var DetachNodeTransformation = function(args) {
-    this.node = args.node;
-    this.document = this.node.document;
-};
-$.extend(DetachNodeTransformation.prototype, {
-    run: function() {
-        this.oldRoot = this.node.document.root.clone();
-        this.path = this.node.getPath();
-        this.node.detach(); // @TS
-        
-    },
-    undo: function() {
-        this.document.root.replaceWith(this.oldRoot); // this.getDocument?
-        this.node = this.document.getNodeByPath(this.path);
-    }
-});
-transformations['detach'] = DetachNodeTransformation;
-
-//2. detach via wskazanie changeroot
-
-var Detach2NodeTransformation = function(args) {
-    this.nodePath = args.node.getPath();
-    this.document = args.node.document;
-};
-$.extend(Detach2NodeTransformation.prototype, {
-    run: function() {
-        var node = this.document.getNodeByPath(this.nodePath),
-            root = node.parent() ? node.parent() : this.document.root;
-        
-        this.rootPath = root.getPath();
-        this.oldRoot = (root).clone();
-        node.detach();
-    },
-    undo: function() {
-        this.document.getNodeByPath(this.rootPath).replaceWith(this.oldRoot);
-    }
-});
-//transformations['detach2'] = Detach2NodeTransformation;
-
-//2a. generyczna transformacja
-
-var createTransformation = function(desc) {
-
-    var NodeTransformation = function(args) {
-        this.nodePath = args.node.getPath();
-        this.document = args.node.document;
-        this.args = args;
-    };
-    $.extend(NodeTransformation.prototype, {
-        run: function() {
-            var node = this.document.getNodeByPath(this.nodePath),
-                root;
-
-            if(desc.getRoot) {
-                root = desc.getRoot(node);
-            } else {
-                root = this.document.root;
-            }
-            
-            this.rootPath = root.getPath();
-            this.oldRoot = (root).clone();
-            desc.impl.call(node, this.args);
-        },
-        undo: function() {
-            this.document.getNodeByPath(this.rootPath).replaceWith(this.oldRoot);
-        }
-    });
-
-    return NodeTransformation;
-}
-
-///
-var Transformation = function(args) {
-    this.args = args;
-};
-$.extend(Transformation.prototype, {
-    run: function() {
-        throw new Error('not implemented');
-    },
-    undo: function() {
-        throw new Error('not implemented');
-    },
-});
-
-var createGenericTransformation = function(desc) {
-    var GenericTransformation = function(document, args) {
-        //document.getNodeByPath(contextPath).call(this, args);
-        this.args = args;
-        this.document = document;
-    };
-    $.extend(GenericTransformation.prototype, {
-        run: function() {
-            var changeRoot = desc.getChangeRoot ? desc.getChangeRoot.call(this) : this.document.root;
-            this.snapshot = changeRoot.clone();
-            this.changeRootPath = changeRoot.getPath();
-            return desc.impl.call(this.context, this.args); // a argumenty do metody?
-        },
-        undo: function() {
-            this.document.getNodeByPath(this.changeRootPath).replaceWith(this.snapshot);
-        },
-    });
-
-    return GenericTransformation;
-};
-
-// var T = createGenericTransformation({impl: function() {}});
-// var t = T(doc, {a:1,b:2,c3:3});
-
-
-var createContextTransformation = function(desc) {
-    // mozna sie pozbyc przez przeniesienie object/context na koniec argumentow konstruktora generic transformation
-    var GenericTransformation = createGenericTransformation(desc);
-
-    var ContextTransformation = function(document, object, args) {
-        var contextPath = object.getPath();
-
-        GenericTransformation.call(this, document, args);
-        
-        Object.defineProperty(this, 'context', {
-            get: function() {
-                return document.getNodeByPath(contextPath);
-            }
-        });
-    }
-    ContextTransformation.prototype = Object.create(GenericTransformation.prototype);
-    return ContextTransformation;
-}
-// var T = createContextTransformation({impl: function() {}});
-// var t = T(doc, node, {a:1,b:2,c3:3});
-///
-
-var contextTransformations = {};
-contextTransformations['setText'] = createContextTransformation({
-    impl: function(args) {
-        this.setText(args.text);
-    },
-    getChangeRoot: function() {
-        return this.context;
-    }
-});
-
-contextTransformations['setAttr'] = createContextTransformation({
-    impl: function(args) {
-        this.setAttr(args.name, args.value);
-    },
-    getChangeRoot: function() {
-        return this.context;
-    }
-});
-
-contextTransformations['split'] = createContextTransformation({
-    impl: function(args) {
-        return this.split({offset: args.offset});
-    }//,
-    // getChangeRoot: function() {
-    //     return this.context.parent().parent();
-    // }
-});
-
-// var TRANSFORMATION2 = function(f, getChangeRoot, undo) {
-//     var context = this,
-
-
-//     var transformation = createContextTransformation({
-//         impl: f,
-//         getChangeRoot: getChangeRoot,
-
-//     });
-
-//     var toret = function() {
-//         var 
-//         f.apply(context, createArgs ? createArgs(arguments) : arguments)
-//     };
-//     return toret;
-// }
-
-transformations['detach2'] = createTransformation({
-    // impl: function() {
-    //     //this.setAttr('class', 'cite'); //  
     // },
-    impl: ElementNode.prototype.detach,
-    getRoot: function(node) {
-        return node.parent();
-    }
-
-});
-
-transformations['setText-old'] = createTransformation({
+    // getChangeRoot: function() {
+    //     return this.context;
+    // },
     impl: function(args) {
-        this.setText(args.text)
+        this.wrapNodes(args);
     },
-    getRoot: function(node) {
-        return node;
-    }
 
-});
+}));
 
-transformations['setClass-old'] = createTransformation({
-    impl: function(args) {
-        this.setClass(args.klass);
-    },
-    getRoot: function(node) {
-        return node;
-    }
-})
-
-//3. detach z pełnym własnym redo
-
-var Detach3NodeTransformation = function(args) {
-    this.node = args.node;
-    this.document = this.node.document;
-};
-$.extend(Detach3NodeTransformation.prototype, {
-    run: function() {
-        //this.index = this.node.getIndex();
-        //this.parent = this.node.parent();
-        
-        this.path = this.node.getPath();
-        if(this.node.isSurroundedByTextElements()) {
-            this.prevText = this.node.prev().getText();
-            this.nextText = this.node.next().getText();
-            this.merge = true;
-        } else {
-            this.prevText = this.nextText = null;
-            this.merge = false;
-        }
-
-        this.node.detach();
-    },
-    undo: function() {
-        var parent = this.document.getNodeByPath(this.path.slice(0,-1)),
-            idx = _.last(this.path);
-        var inserted = parent.insertAtIndex(this.node, idx);
-        if(this.merge) {
-            if(inserted.next()) {
-                inserted.before({text: this.prevText});
-                inserted.next().setText(this.nextText);
-            } else {
-                inserted.prev().setText(this.prevText);
-                inserted.after({text: this.nextText});
-            }
-        }
-    }
-});
-transformations['detach3'] = Detach3NodeTransformation;
-
-
-var registerTransformationsFromObject = function(object) {
-    _.pairs(object).filter(function(pair) {
-        var property = pair[1];
-        return typeof property === 'function' && property._isTransformation;
-    })
-    .forEach(function(pair) {
-        var name = pair[0],
-            method = pair[1];
-        object.registerTransformation(name, createContextTransformation(method));
-    });
-};
-registerTransformationsFromObject(ElementNode.prototype);
-registerTransformationsFromObject(TextNode.prototype);
-registerTransformationsFromObject(Document.prototype);
 
 return {
     documentFromXML: function(xml) {

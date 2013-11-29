@@ -1,8 +1,9 @@
 define([
     'libs/jquery',
     'libs/underscore',
-    'smartxml/smartxml'
-], function($, _, smartxml) {
+    'smartxml/smartxml',
+    'smartxml/transformations'
+], function($, _, smartxml, transformations) {
     
 'use strict';
 
@@ -109,7 +110,15 @@ $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
     }
 });
 
-
+WLXMLElementNode.prototype.transformations.register(transformations.createContextTransformation({
+    name: 'wlxml.setMetaAttribute',
+    impl: function(args) {
+        this.setMetaAttribute(args.name, args.value);
+    },
+    getChangeRoot: function() {
+        return this.context;
+    }
+}));
 
 
 

@@ -38,7 +38,9 @@ commands.register('remove-node', function(canvas) {
         parent1 = selectionStart.element.parent() || undefined,
         parent2 = selectionEnd.element.parent() || undefined;
 
-    canvas.wlxmlDocument.transform('detach2', {node:canvas.getCurrentNodeElement().data('wlxmlNode')});
+//    canvas.wlxmlDocument.transform('detach2', {node:canvas.getCurrentNodeElement().data('wlxmlNode')});
+    canvas.getCurrentNodeElement().data('wlxmlNode').transform('smartxml.detach');
+
 });
 
 commands.register('unwrap-node', function(canvas) {
@@ -108,15 +110,23 @@ commands.register('newNodeRequested', function(canvas, params) {
             if(cursor.isSelectingWithinElement()) {
                 var wlxmlNode = selectionStart.element.data('wlxmlNode'),
                     caretTo = selectionStart.offset < selectionEnd.offset ? 'start' : 'end',
-                    wrapper = wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}, start: selectionStart.offset, end: selectionEnd.offset}),
-                    wrapperCanvasElement = utils.findCanvasElement(wrapper);
+                    //wrapper = wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}, start: selectionStart.offset, end: selectionEnd.offset}),
+                    wrapper = wlxmlNode.transform('smartxml.wrapWith', {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}, start: selectionStart.offset, end: selectionEnd.offset})
+                    ;
+                var wrapperCanvasElement = utils.findCanvasElement(wrapper);
                 canvas.setCurrentElement(wrapperCanvasElement.children()[0], {caretTo: caretTo});
             }
             else {
                 var wlxmlNode = selectionStart.element.data('wlxmlNode').parent(),
                     caretTo = selectionStart.element.sameNode(cursor.getSelectionAnchor().element) ? 'end' : 'start';
 
-                var wrapper = wlxmlNode.wrapText({
+                // var wrapper = wlxmlNode.wrapText({
+                //     _with: {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}},
+                //     offsetStart: selectionStart.offset,
+                //     offsetEnd: selectionEnd.offset,
+                //     textNodeIdx: [wlxmlNode.indexOf(selectionStart.element.data('wlxmlNode')), wlxmlNode.indexOf(selectionEnd.element.data('wlxmlNode'))] //parent.childIndex(selectionEnd.element)]
+                // }),
+                var wrapper = wlxmlNode.transform('smartxml.wrapText', {
                     _with: {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}},
                     offsetStart: selectionStart.offset,
                     offsetEnd: selectionEnd.offset,
@@ -131,17 +141,23 @@ commands.register('newNodeRequested', function(canvas, params) {
                 siblingParents = canvas.wlxmlDocument.getSiblingParents({node1: node1, node2: node2});
 
             if(siblingParents) {
-                canvas.wlxmlDocument.wrapNodes({
-                    element1: siblingParents.node1,
-                    element2: siblingParents.node2,
+                // canvas.wlxmlDocument.wrapNodes({
+                //     element1: siblingParents.node1,
+                //     element2: siblingParents.node2,
+                //     _with: {tagName: params.wlxmlTag, attrs: {klass: params.wlxmlClass}}
+                // });
+                canvas.wlxmlDocument.transform('smartxml.wrapNodes', {
+                    node1: siblingParents.node1,
+                    node2: siblingParents.node2,
                     _with: {tagName: params.wlxmlTag, attrs: {klass: params.wlxmlClass}}
                 });
             }
         }
     } else if(canvas.getCurrentNodeElement()) {
-        var node = findCanvasElement(canvas.getCurrentNodeElement),
-            wrapper = node.wrapWith({tagName: params.wlxmlTag, attrs: {klass: params.wlxmlClass}});
-        canvas.setCurrentElement(findCanvasElement(wrapper));
+        var node = canvas.getCurrentNodeElement().data('wlxmlNode'),
+            // wrapper = node.wrapWith({tagName: params.wlxmlTag, attrs: {klass: params.wlxmlClass}});
+            wrapper = node.transform('smartxml.wrapWith', {tagName: params.wlxmlTag, attrs: {klass: params.wlxmlClass}});
+        canvas.setCurrentElement(utils.findCanvasElement(wrapper));
     }
 
 

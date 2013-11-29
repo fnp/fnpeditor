@@ -20,11 +20,11 @@ return function(sandbox) {
                 
         if(attr === 'Class') {
             //currentNode.document.transform('setClass', {node: currentNode, klass: value});
-            currentNode.transform('setAttr', {name: 'class', value: value});
+            currentNode.transform('smartxml.setAttr', {name: 'class', value: value});
         }
         //currentNode['set' + attr](value);
     });
-    
+   
     return {
         start: function() {
             sandbox.publish('ready');
@@ -33,6 +33,15 @@ return function(sandbox) {
             return view;
         },
         setNodeElement: function(wlxmlNodeElement) {
+            var module = this;
+            if(!currentNode) {
+                wlxmlNodeElement.document.on('change', function(event) {
+                    if(event.type === 'nodeAttrChange' && event.meta.node.sameNode(currentNode)) {
+                        module.setNodeElement(currentNode);
+                    }
+                });
+            }
+
             view.find('.rng-module-nodePane-tagSelect').val(wlxmlNodeElement.getTagName());
 
             var escapedClassName = (wlxmlNodeElement.getClass() || '').replace(/\./g, '-');
@@ -40,7 +49,8 @@ return function(sandbox) {
 
             var widget = metaWidget.create({attrs:wlxmlNodeElement.getMetaAttributes()});
             widget.on('valueChanged', function(key, value) {
-                wlxmlNodeElement.setMetaAttribute(key, value);
+                wlxmlNodeElement.transform('wlxml.setMetaAttribute', {name: key, value: value});
+                //wlxmlNodeElement.setMetaAttribute(key, value);
             });
             view.find('.metaFields').empty().append(widget.el);
 
