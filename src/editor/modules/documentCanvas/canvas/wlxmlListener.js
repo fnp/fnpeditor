@@ -73,7 +73,9 @@ var handlers = {
         if(toSet === '') {
             toSet = utils.unicode.ZWS;
         }
-        canvasElement.setText(toSet);
+        if(toSet !== canvasElement.getText()) {
+            canvasElement.setText(toSet);
+        }
     }
 };
 
