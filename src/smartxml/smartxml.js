@@ -13,9 +13,13 @@ var TEXT_NODE = Node.TEXT_NODE;
 
 var INSERTION = function(implementation) {
     var toret = function(node) {
-        var insertion = this.getNodeInsertion(node);
+        var insertion = this.getNodeInsertion(node),
+            nodeParent;
+        if(!(this.document.containsNode(this))) {
+            nodeParent = insertion.ofNode.parent();
+        }
         implementation.call(this, insertion.ofNode.nativeNode);
-        this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode});
+        this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode}, nodeParent);
         return insertion.ofNode;
     };
     return toret;
@@ -155,10 +159,15 @@ $.extend(DocumentNode.prototype, {
         }
     },
 
-    triggerChangeEvent: function(type, metaData) {
-        var event = new events.ChangeEvent(type, $.extend({node: this}, metaData || {}));
+    triggerChangeEvent: function(type, metaData, origParent) {
+        var node = (metaData && metaData.node) ? metaData.node : this,
+            event = new events.ChangeEvent(type, $.extend({node: node}, metaData || {}));
         if(type === 'nodeDetached' || this.document.containsNode(event.meta.node)) {
             this.document.trigger('change', event);
+        }
+        if((type === 'nodeAdded' || type === 'nodeMoved') && !(this.document.containsNode(this))) {
+             event = new events.ChangeEvent('nodeDetached', {node: node, parent: origParent});
+             this.document.trigger('change', event);
         }
     },
     

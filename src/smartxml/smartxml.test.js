@@ -715,6 +715,28 @@ describe('smartxml', function() {
             expect(event2.type).to.equal('nodeAdded');
             expect(event2.meta.node.sameNode(doc.root)).to.equal(true, 'new root node in nodelAdded event meta');
         });
+
+
+        ['append', 'prepend', 'before', 'after'].forEach(function(insertionMethod) {
+            it('emits nodeDetached for node moved from a document tree to out of document node ' + insertionMethod, function() {
+                var doc = getDocumentFromXML('<div><a></a></div>'),
+                    a = doc.root.contents()[0],
+                    spy = sinon.spy();
+
+                doc.on('change', spy);
+
+                var newNode = doc.createDocumentNode({tagName: 'b'}),
+                    newNodeInner = newNode.append({tagName:'c'});
+
+                newNodeInner[insertionMethod](a);
+
+                var event = spy.args[0][0];
+                expect(event.type).to.equal('nodeDetached');
+                expect(event.meta.node.sameNode(a));
+            });
+        });
+
+
     });
 
     describe('Traversing', function() {
