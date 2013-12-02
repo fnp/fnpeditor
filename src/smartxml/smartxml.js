@@ -565,6 +565,7 @@ var Document = function(xml) {
     this.loadXML(xml);
     this.undoStack = [];
     this.redoStack = [];
+    this._transformationLevel = 0;
 };
 
 $.extend(Document.prototype, Backbone.Events, {
@@ -752,8 +753,12 @@ $.extend(Document.prototype, Backbone.Events, {
             }
         } 
         if(transformation) {
+            this._transformationLevel++;
             toret = transformation.run();
-            this.undoStack.push(transformation);
+            if(this._transformationLevel === 1) {
+                this.undoStack.push(transformation);
+            }
+            this._transformationLevel--;
             console.log('clearing redo stack');
             this.redoStack = [];
             return toret;
