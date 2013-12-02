@@ -23,7 +23,7 @@ var breakContentTransformation = {
 };
 
 
-var breakContentAction = function(document, context) {
+var breakContentAction = function(document, context) { //@ editor.getDocument(); editor.getContext('...')
     var textNode = context.cursor.currentNode;
     if(textNode) {
         var result, goto;

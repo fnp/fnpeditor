@@ -395,6 +395,17 @@ ElementNode.prototype.transformations.register(transformations.createContextTran
     }
 }));
 
+ElementNode.prototype.transformations.register(transformations.createContextTransformation({
+    name: 'smartxml.setAttr2',
+    impl: function(args) {
+        this.prevAttr = this.getAttr(args.name);
+        this.setAttr(args.name, args.value);
+    },
+    undo: function(args) {
+        this.setAttr(args.name, this.prevAttr);
+    }
+}));
+
 DocumentNode.prototype.transformations.register(transformations.createContextTransformation({
     name: 'smartxml.wrapWith',
     getChangeRoot: function() {
@@ -542,6 +553,10 @@ TextNode.prototype.transformations.register(transformations.createContextTransfo
     },
     getChangeRoot: function() {
         return this.context.parent().parent();
+    },
+    isAllowed: function(args) {
+        var parent = this.parent();
+        return !!(parent && parent.parent());
     }
 }));
 
