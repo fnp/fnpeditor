@@ -242,12 +242,18 @@ $.extend(ElementNode.prototype, {
         return this.nativeNode.tagName.toLowerCase();
     },
 
-    contents: function() {
+    contents: function(selector) {
         var toret = [],
             document = this.document;
-        this._$.contents().each(function() {
-            toret.push(document.createDocumentNode(this));
-        });
+        if(selector) {
+            this._$.children(selector).each(function() {
+                toret.push(document.createDocumentNode(this));
+            });
+        } else {
+            this._$.contents().each(function() {
+                toret.push(document.createDocumentNode(this));
+            });
+        }
         return toret;
     },
 

@@ -21,9 +21,19 @@ AttributesList.prototype.keys = function() {
     return _.keys(this);
 };
 
+var installObject = function(instance, klass) {
+    var methods = classMethods[klass];
+    if(methods) {
+        instance.object = Object.create(methods);
+        _.keys(methods).forEach(function(key) {
+            instance.object[key] = _.bind(instance.object[key], instance);
+        });
+    }
+}
 
 var WLXMLElementNode = function(nativeNode, document) {
     smartxml.ElementNode.call(this, nativeNode, document);
+    installObject(this, this.getClass());
 };
 WLXMLElementNode.prototype = Object.create(smartxml.ElementNode.prototype);
 
@@ -32,7 +42,14 @@ $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
         return this.getAttr('class') || '';
     },
     setClass: function(klass) {
-        return this.setAttr('class', klass);
+        var methods, object;
+        if(klass !== this.klass) {
+            installObject(this, klass);
+            return this.setAttr('class', klass);
+        }
+    },
+    is: function(klass) {
+        return this.getClass().substr(0, klass.length) === klass;
     },
     getMetaAttributes: function() {
         var toret = new AttributesList(),
@@ -228,6 +245,8 @@ var wlxmlClasses = {
     }
 };
 
+var classMethods = {};
+
 return {
     WLXMLDocumentFromXML: function(xml, options) {
         options = _.extend({wlxmlClasses: wlxmlClasses}, options);
@@ -236,7 +255,27 @@ return {
 
     WLXMLElementNodeFromXML: function(xml) {
         return this.WLXMLDocumentFromXML(xml).root;
+    },
+
+    registerExtension: function(extension) {
+        extension.documentTransformations.forEach(function(method) {
+            WLXMLDocument.prototype.transformations.register(transformations.createContextTransformation(method));
+        });
+
+        _.pairs(extension.classMethods).forEach(function(pair) {
+            var className = pair[0],
+                methods = pair[1];
+            _.pairs(methods).forEach(function(pair) {
+                var methodName = pair[0],
+                    method = pair[1];
+                classMethods[className] = classMethods[className] || {};
+                classMethods[className][methodName] = method;
+            });
+            
+        });
+
     }
+
 };
 
 });
