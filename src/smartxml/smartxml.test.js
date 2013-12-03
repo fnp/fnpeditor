@@ -820,7 +820,7 @@ describe('smartxml', function() {
             var doc = getDocumentFromXML('<section><span>Alice</span></section>'),
                 span = doc.root.contents()[0];
 
-            doc.transform('detach2', {node: span});
+            span.transform('smartxml.detach');
 
 
             doc.undo();
@@ -842,7 +842,7 @@ describe('smartxml', function() {
             var doc = getDocumentFromXML('<section>Alice <span>has</span> a cat.</section>'),
                 span = doc.root.contents()[1];
 
-            doc.transform('detach2', {node: span});
+            span.transform('smartxml.detach');
 
 
             doc.undo();
@@ -857,8 +857,8 @@ describe('smartxml', function() {
                 a = doc.root.contents()[0],
                 b = doc.root.contents()[1];
 
-            doc.transform('detach2', {node: a});
-            doc.transform('detach2', {node: b});
+            a.transform('smartxml.detach');
+            b.transform('smartxml.detach');
             doc.undo();
             doc.undo();
             expect(doc.root.contents().length).to.equal(2);
