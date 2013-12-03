@@ -19,10 +19,10 @@ toret.createGenericTransformation = function(desc) {
                 Object.defineProperty(transformation.args, key, {
                     get: function() {
                         if(transformation.hasRun) {
-                            console.log('returning via path');
+                            //console.log('returning via path');
                             return transformation.document.getNodeByPath(path);
                         } else {
-                            console.log('returning original arg');
+                            //console.log('returning original arg');
                             return value;
 
                         }

@@ -451,7 +451,7 @@ $.extend(TextNode.prototype, {
     },
 
     setText: function(text) {
-        console.log('smartxml: ' + text);
+        //console.log('smartxml: ' + text);
         this.nativeNode.data = text;
         this.triggerTextChangeEvent();
     },
@@ -761,7 +761,7 @@ $.extend(Document.prototype, Backbone.Events, {
     },
 
     transform: function(transformation, args) {
-        console.log('transform');
+        //console.log('transform');
         var Transformation, toret;
         if(typeof transformation === 'string') {
             Transformation = this.transformations.get(transformation);
@@ -776,7 +776,7 @@ $.extend(Document.prototype, Backbone.Events, {
                 this.undoStack.push(transformation);
             }
             this._transformationLevel--;
-            console.log('clearing redo stack');
+            //console.log('clearing redo stack');
             this.redoStack = [];
             return toret;
         } else {

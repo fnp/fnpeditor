@@ -13,7 +13,7 @@ define([
 var TextHandler = function(canvas) {this.canvas = canvas; this.buffer = null};
 $.extend(TextHandler.prototype, {
     handle: function(node, text) {
-        console.log('canvas text handler: ' + text);
+        //console.log('canvas text handler: ' + text);
         this.setText(text, node);
         return;
         if(!this.node) {

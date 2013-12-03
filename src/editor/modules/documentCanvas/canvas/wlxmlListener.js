@@ -68,7 +68,7 @@ var handlers = {
         canvasNode.detach();
     },
     nodeTextChange: function(event) {
-        console.log('wlxmlListener: ' + event.meta.node.getText());
+        //console.log('wlxmlListener: ' + event.meta.node.getText());
         var canvasElement = utils.findCanvasElement(event.meta.node),
             toSet = event.meta.node.getText();
         if(toSet === '') {
