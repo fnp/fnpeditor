@@ -50,12 +50,17 @@ commands.register('unwrap-node', function(canvas) {
         parent1 = selectionStart.element.parent() || undefined,
         parent2 = selectionEnd.element.parent() || undefined;
 
-    if(canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
-        return;
-        // TODO
-        // var selectionAnchor = cursor.getSelectionAnchor();
-        // canvas.list.extractItems({element1: parent1, element2: parent2});
-        // canvas.setCurrentElement(selectionAnchor.element, {caretTo: selectionAnchor.offset});
+    var selectionAnchor = cursor.getSelectionAnchor(),
+        node1 = parent1.data('wlxmlNode'),
+        node2 = parent2.data('wlxmlNode'),
+        doc = node1.document;
+    if(doc.areItemsOfSameList({node1: node1, node2: node2})) {
+
+
+        doc.transform('extractItems', {item1: node1, item2: node2});
+
+        //canvas.list.extractItems({element1: parent1, element2: parent2});
+        canvas.setCurrentElement(selectionAnchor.element, {caretTo: selectionAnchor.offset});
     } else if(!cursor.isSelecting()) {
         var nodeToUnwrap = cursor.getPosition().element.data('wlxmlNode'),
             parentNode = nodeToUnwrap.unwrap();
@@ -65,17 +70,22 @@ commands.register('unwrap-node', function(canvas) {
     }
 });
 
-// commands.register('wrap-node', function(canvas) {
-//     var cursor = canvas.getCursor(),
-//         selectionStart = cursor.getSelectionStart(),
-//         selectionEnd = cursor.getSelectionEnd(),
-//         parent1 = selectionStart.element.parent() || undefined,
-//         parent2 = selectionEnd.element.parent() || undefined;
+commands.register('wrap-node', function(canvas) {
+    var cursor = canvas.getCursor(),
+        selectionStart = cursor.getSelectionStart(),
+        selectionEnd = cursor.getSelectionEnd(),
+        parent1 = selectionStart.element.parent() || undefined,
+        parent2 = selectionEnd.element.parent() || undefined;
 
-//     if(canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
-//         canvas.list.create({element1: parent1, element2: parent2});
-//     }
-// });
+    var node1 = parent1.data('wlxmlNode'),
+        node2 = parent2.data('wlxmlNode'),
+        doc = node1.document;
+
+    if(canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
+        //canvas.list.create({element1: parent1, element2: parent2});
+        doc.transform('createList', {node1: node1, node2: node2});
+    }
+});
 
 commands.register('list', function(canvas, params) {
     var cursor = canvas.getCursor(),
@@ -90,7 +100,11 @@ commands.register('list', function(canvas, params) {
         return;
     }
 
-    canvas.list.create({element1: parent1, element2: parent2});
+    var node1 = parent1.data('wlxmlNode'),
+        node2 = parent2.data('wlxmlNode'),
+        doc = node1.document;
+    
+    doc.transform('createList', {node1: node1, node2: node2});
 
     canvas.setCurrentElement(selectionFocus.element, {caretTo: selectionFocus.offset});
 });

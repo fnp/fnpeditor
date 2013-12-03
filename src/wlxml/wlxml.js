@@ -274,6 +274,8 @@ return {
             
         });
 
+        _.extend(WLXMLDocument.prototype, extension.documentMethods);
+
     }
 
 };

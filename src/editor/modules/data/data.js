@@ -1,7 +1,8 @@
 define([
     'libs/jquery',
     './saveDialog',
-    'wlxml/wlxml'
+    'wlxml/wlxml',
+    'wlxml/extensions/list/list'
 
 ], function($, saveDialog, wlxml) {
 

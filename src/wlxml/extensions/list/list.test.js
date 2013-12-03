@@ -28,7 +28,7 @@ var removeEmptyTextNodes = function(xml) {
 };
 
 
-describe.only('Lists extension', function() {
+describe('Lists extension', function() {
 
     describe('creating lists', function() {
         it('allows creation of a list from existing sibling DocumentElements', function() {

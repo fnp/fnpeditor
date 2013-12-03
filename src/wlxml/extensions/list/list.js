@@ -23,6 +23,12 @@ extension.classMethods['list'] = {
     }
 }
 
+extension.documentMethods = {
+    areItemsOfSameList: function(params) {
+        return params.node1.parent().sameNode(params.node2.parent()) && params.node2.parent().is('list');
+    }
+}
+
 extension.documentTransformations.push({
     name: 'createList',
     impl: function(params) {          
@@ -30,7 +36,7 @@ extension.documentTransformations.push({
             parentContents = parent.contents(),
             nodeIndexes = [params.node1.getIndex(), params.node2.getIndex()].sort(),
             nodesToWrap = [],
-            listNode = params.node1.document.createDocumentNode({tagName: 'div', attrs: {'class': 'list.items'}}),
+            listNode = params.node1.document.createDocumentNode({tagName: 'div', attrs: {'class': 'list'}}),
             node, i;
 
         for(i = nodeIndexes[0]; i <= nodeIndexes[1]; i++) {
@@ -131,7 +137,6 @@ extension.documentTransformations.push({
             reference.after(toAdd);
         }
         if(!params.merge && listIsNested) {
-            debugger;
             return this.transform('extractItems', {item1: extractedItems[0], item2: extractedItems[extractedItems.length-1]});
         }
         return true;
