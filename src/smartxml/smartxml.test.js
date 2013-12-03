@@ -734,6 +734,19 @@ describe('smartxml', function() {
                 expect(event.type).to.equal('nodeDetached');
                 expect(event.meta.node.sameNode(a));
             });
+
+            it('doesn\'t emit nodeDetached event for already out of document moved to out of document node: ' + insertionMethod, function() {
+                var doc = getDocumentFromXML('<div><a></a></div>'),
+                    a = doc.root.contents()[0],
+                    spy = sinon.spy();
+
+                doc.on('change', spy);
+
+                var newNode = doc.createDocumentNode({tagName: 'b'});
+                    var newNodeInner = newNode.append({tagName:'c'});
+
+                expect(spy.callCount).to.equal(0);
+            });
         });
 
 

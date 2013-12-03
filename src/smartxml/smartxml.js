@@ -15,12 +15,13 @@ var TEXT_NODE = Node.TEXT_NODE;
 var INSERTION = function(implementation) {
     var toret = function(node) {
         var insertion = this.getNodeInsertion(node),
+            nodeWasContained = this.document.containsNode(insertion.ofNode),
             nodeParent;
         if(!(this.document.containsNode(this))) {
             nodeParent = insertion.ofNode.parent();
         }
         implementation.call(this, insertion.ofNode.nativeNode);
-        this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode}, nodeParent);
+        this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode}, nodeParent, nodeWasContained);
         return insertion.ofNode;
     };
     return toret;
@@ -180,13 +181,13 @@ $.extend(DocumentNode.prototype, {
         }
     },
 
-    triggerChangeEvent: function(type, metaData, origParent) {
+    triggerChangeEvent: function(type, metaData, origParent, nodeWasContained) {
         var node = (metaData && metaData.node) ? metaData.node : this,
             event = new events.ChangeEvent(type, $.extend({node: node}, metaData || {}));
         if(type === 'nodeDetached' || this.document.containsNode(event.meta.node)) {
             this.document.trigger('change', event);
         }
-        if((type === 'nodeAdded' || type === 'nodeMoved') && !(this.document.containsNode(this))) {
+        if((type === 'nodeAdded' || type === 'nodeMoved') && !this.document.containsNode(this) && nodeWasContained) {
              event = new events.ChangeEvent('nodeDetached', {node: node, parent: origParent});
              this.document.trigger('change', event);
         }
