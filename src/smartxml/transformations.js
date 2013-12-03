@@ -95,10 +95,11 @@ toret.createContextTransformation = function(desc) {
 
 
 
-toret.TransformationStorage = function() {};
+toret.TransformationStorage = function() {
+    this._transformations = {};
+};
 
 _.extend(toret.TransformationStorage.prototype, {
-    _transformations: {},
     
     register: function(Transformation) {
         var list = (this._transformations[Transformation.prototype.name] = this._transformations[Transformation.prototype.name] || []);

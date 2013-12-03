@@ -4,7 +4,7 @@ define([
     'wlxml/wlxml',
     'wlxml/extensions/list/list'
 
-], function($, saveDialog, wlxml) {
+], function($, saveDialog, wlxml, listExtension) {
 
 'use strict';
 
@@ -16,6 +16,8 @@ return function(sandbox) {
     var history = sandbox.getBootstrappedData().history;
 
     var wlxmlDocument = wlxml.WLXMLDocumentFromXML(sandbox.getBootstrappedData().document);
+
+    wlxmlDocument.registerExtension(listExtension);
      
     
     function readCookie(name) {

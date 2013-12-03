@@ -1,13 +1,11 @@
-define(function(require) {
+define(function() {
 
 'use strict';
 
-
-var wlxml = require('wlxml/wlxml'),
-    extension = {documentTransformations: [], classMethods: {}};
+var extension = {document: {transformations: {}}, wlxmlClass: {list: {methods: {}}}};
 
 
-extension.classMethods['list'] = {
+extension.wlxmlClass.list.methods = {
     itemIndex: function(listItem) {
         var toret = -1;
         this.contents('.item').some(function(item, index) {
@@ -29,8 +27,9 @@ extension.documentMethods = {
     }
 }
 
-extension.documentTransformations.push({
-    name: 'createList',
+
+
+extension.document.transformations.createList = {
     impl: function(params) {          
         var parent = params.node1.parent(),
             parentContents = parent.contents(),
@@ -71,10 +70,9 @@ extension.documentTransformations.push({
     isAllowed: function() {
         return this.args.node1.parent().sameNode(this.args.node2.parent());
     }
-});
+};
 
-extension.documentTransformations.push({
-    name: 'extractItems',
+extension.document.transformations.extractItems = {
     impl: function(params) {
         params = _.extend({}, {merge: true}, params);
         var list = params.item1.parent(),
@@ -145,8 +143,9 @@ extension.documentTransformations.push({
         var parent = this.args.nodel1.parent();
         return parent.is('list') && parent.sameNode(this.args.node2.parent());
     }
-});
+};
 
-wlxml.registerExtension(extension);
+return extension;
+
 
 });

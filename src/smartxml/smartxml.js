@@ -581,6 +581,8 @@ var Document = function(xml) {
     this.undoStack = [];
     this.redoStack = [];
     this._transformationLevel = 0;
+    this.transformations = new transformations.TransformationStorage();
+
 };
 
 $.extend(Document.prototype, Backbone.Events, {
@@ -840,7 +842,8 @@ return {
 
     Document: Document,
     DocumentNode: DocumentNode,
-    ElementNode: ElementNode
+    ElementNode: ElementNode,
+    TextNode: TextNode
 };
 
 });

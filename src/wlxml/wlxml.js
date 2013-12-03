@@ -22,9 +22,19 @@ AttributesList.prototype.keys = function() {
 };
 
 var installObject = function(instance, klass) {
-    var methods = classMethods[klass];
+    var methods = instance.document.classMethods[klass];
     if(methods) {
-        instance.object = Object.create(methods);
+        instance.object = Object.create(_.extend({
+            transform: function(name, args) {
+                // TODO: refactor with DocumentElement.transform
+                var Transformation = instance.document.classTransformations[klass].get(name),
+                    transformation;
+                if(Transformation) {
+                    transformation = new Transformation(instance.document, instance, args);
+                }
+                return instance.document.transform(transformation);
+            }
+        }, methods));
         _.keys(methods).forEach(function(key) {
             instance.object[key] = _.bind(instance.object[key], instance);
         });
@@ -139,17 +149,43 @@ WLXMLElementNode.prototype.transformations.register(transformations.createContex
 
 
 
+var WLXMLDocumentNode = function() {
+    smartxml.DocumentNode.apply(this, arguments);
+}
+WLXMLDocumentNode.prototype = Object.create(smartxml.DocumentNode.prototype);
+
 var WLXMLDocument = function(xml, options) {
     smartxml.Document.call(this, xml);
     this.options = options;
+
+    // this.DocumentNodeFactory = function() {
+    //     WLXMLDocumentNode.apply(this, arguments);
+    // };
+
+    // this.DocumentNodeFactory.prototype = Object.create(WLXMLDocumentNode.prototype);    
+    
+    this.ElementNodeFactory = function() {
+        WLXMLElementNode.apply(this, arguments);
+    }
+    this.ElementNodeFactory.prototype = Object.create(WLXMLElementNode.prototype);
+    this.ElementNodeFactory.prototype.transformations = new transformations.TransformationStorage();
+
+    this.TextNodeFactory = function() {
+        smartxml.TextNode.apply(this, arguments);
+    }
+    this.TextNodeFactory.prototype = Object.create(smartxml.TextNode.prototype);
+    this.TextNodeFactory.prototype.transformations = new transformations.TransformationStorage();
+
+    this.classMethods = {};
+    this.classTransformations = {};
 };
 
 var formatter_prefix = '_wlxml_formatter_';
 
+
 WLXMLDocument.prototype = Object.create(smartxml.Document.prototype);
 $.extend(WLXMLDocument.prototype, {
     ElementNodeFactory: WLXMLElementNode,
-
     loadXML: function(xml) {
         smartxml.Document.prototype.loadXML.call(this, xml, {silent: true});
         $(this.dom).find(':not(iframe)').addBack().contents()
@@ -235,6 +271,78 @@ $.extend(WLXMLDocument.prototype, {
                 el.replaceWith(document.createTextNode(text.transformed));
             });
         this.trigger('contentSet');
+    },
+
+    registerExtension: function(extension) {
+        //debugger;
+        var doc = this,
+            existingPropertyName = _.values(this);
+
+        [
+            {source: extension.document, target: doc},
+            {source: extension.documentNode, target: [doc.ElementNodeFactory.prototype, doc.TextNodeFactory.prototype]},
+
+        ].forEach(function(x) {
+            if(x.source && x.source.methods) {
+                existingPropertyName = _.values(x.target)
+                _.pairs(x.source.methods).forEach(function(pair) {
+                    var methodName = pair[0],
+                        method = pair[1],
+                        targets = _.isArray(x.target) ? x.target : [x.target];
+                    if(_.contains(existingPropertyName, methodName)) {
+                        throw new Error('Cannot extend XXX with method name {methodName}. Name already exists.'.replace('{methodName}', methodName));
+                    }
+                    targets.forEach(function(target) {
+                        target[methodName] = method;
+                    });
+                    
+                });   
+            }
+        });
+
+
+        var getTrans = function(desc, methodName) {
+            if(typeof desc === 'function') {
+                desc = {impl: desc};
+            }
+            if(!desc.impl) {
+                throw new Error('Got transformation description without implementation.')
+            }
+            desc.name = desc.name || methodName;
+            return desc;
+        };
+
+        if(extension.document && extension.document.transformations) {
+            _.pairs(extension.document.transformations).forEach(function(pair) {
+                var transformation = getTrans(pair[1], pair[0]);
+                doc.transformations.register(transformations.createContextTransformation(transformation));
+            });   
+        }
+
+        if(extension.documentNode && extension.documentNode.transformations) {
+            _.pairs(extension.documentNode.transformations).forEach(function(pair) {
+                var transformation = getTrans(pair[1], pair[0]);
+                
+                doc.ElementNodeFactory.prototype.transformations.register(transformations.createContextTransformation(transformation));
+                doc.TextNodeFactory.prototype.transformations.register(transformations.createContextTransformation(transformation));
+            });   
+        }
+
+        _.pairs(extension.wlxmlClass).forEach(function(pair) {
+            var className = pair[0],
+                classExtension = pair[1],
+                thisClassMethods = (doc.classMethods[className] = doc.classMethods[className] || {}),
+                thisClassTransformations = (doc.classTransformations[className] = doc.classTransformations[className] || new transformations.TransformationStorage());
+    
+            _.extend(thisClassMethods, classExtension.methods || {}); //@ warning/throw on override?
+            
+
+            _.pairs(classExtension.transformations || {}).forEach(function(pair) {
+                var transformation = getTrans(pair[1], pair[0]);
+                thisClassTransformations.register(transformations.createContextTransformation(transformation));
+            }); 
+        });
+
     }
 
 });
@@ -258,9 +366,12 @@ return {
     },
 
     registerExtension: function(extension) {
-        extension.documentTransformations.forEach(function(method) {
-            WLXMLDocument.prototype.transformations.register(transformations.createContextTransformation(method));
-        });
+        // @@ depracated
+        if(extension.documentTransformations) {
+            extension.documentTransformations.forEach(function(method) {
+                WLXMLDocument.prototype.transformations.register(transformations.createContextTransformation(method));
+            });
+        }
 
         _.pairs(extension.classMethods).forEach(function(pair) {
             var className = pair[0],

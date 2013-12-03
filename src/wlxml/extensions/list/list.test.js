@@ -6,11 +6,13 @@ var chai = require('libs/chai'),
     wlxml = require('wlxml/wlxml'),
     expect = chai.expect,
     $ = require('libs/jquery'),
-    lists = require('wlxml/extensions/list/list');
+    listsExtension = require('wlxml/extensions/list/list');
 
 
 var getDocumentFromXML = function(xml, options) {
-    return wlxml.WLXMLDocumentFromXML(xml, options || {});
+    var doc = wlxml.WLXMLDocumentFromXML(xml, options || {});
+    doc.registerExtension(listsExtension);
+    return doc;
 };
 
 var removeEmptyTextNodes = function(xml) {

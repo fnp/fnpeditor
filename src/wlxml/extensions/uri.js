@@ -2,9 +2,12 @@ define(function() {
     
 'use strict';
 
-return {
-    className: 'uri',
-    attributes: {uri: {type: 'string'}}
-};
+var extenstion = {wlxmlClass: {uri: attributes: {
+    {
+        uri: {type: 'string'}
+    }
+}}}
+
+return extension;
 
 });
