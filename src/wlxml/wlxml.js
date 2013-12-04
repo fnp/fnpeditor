@@ -371,7 +371,6 @@ var wlxmlClasses = {
     }
 };
 
-var classMethods = {};
 
 return {
     WLXMLDocumentFromXML: function(xml, options) {
@@ -381,32 +380,7 @@ return {
 
     WLXMLElementNodeFromXML: function(xml) {
         return this.WLXMLDocumentFromXML(xml).root;
-    },
-
-    registerExtension: function(extension) {
-        // @@ depracated
-        if(extension.documentTransformations) {
-            extension.documentTransformations.forEach(function(method) {
-                WLXMLDocument.prototype.transformations.register(transformations.createContextTransformation(method));
-            });
-        }
-
-        _.pairs(extension.classMethods).forEach(function(pair) {
-            var className = pair[0],
-                methods = pair[1];
-            _.pairs(methods).forEach(function(pair) {
-                var methodName = pair[0],
-                    method = pair[1];
-                classMethods[className] = classMethods[className] || {};
-                classMethods[className][methodName] = method;
-            });
-            
-        });
-
-        _.extend(WLXMLDocument.prototype, extension.documentMethods);
-
     }
-
 };
 
 });
