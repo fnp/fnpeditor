@@ -38,8 +38,6 @@ var DocumentNode = function(nativeNode, document) {
 
 $.extend(DocumentNode.prototype, {
 
-    transformations: new transformations.TransformationStorage(),
-
     transform: function(name, args) {
         var Transformation = this.transformations.get(name),
             transformation;
@@ -386,56 +384,56 @@ $.extend(ElementNode.prototype, {
 
 // todo - split+append
 
-ElementNode.prototype.transformations.register(transformations.createContextTransformation({
-    name: 'smartxml.setAttr',
-    impl: function(args) {
-        this.setAttr(args.name, args.value);
-    },
-    getChangeRoot: function() {
-        return this.context;
-    }
-}));
+// ElementNode.prototype.transformations.register(transformations.createContextTransformation({
+//     name: 'smartxml.setAttr',
+//     impl: function(args) {
+//         this.setAttr(args.name, args.value);
+//     },
+//     getChangeRoot: function() {
+//         return this.context;
+//     }
+// }));
 
-ElementNode.prototype.transformations.register(transformations.createContextTransformation({
-    name: 'smartxml.setAttr2',
-    impl: function(args) {
-        this.prevAttr = this.getAttr(args.name);
-        this.setAttr(args.name, args.value);
-    },
-    undo: function(args) {
-        this.setAttr(args.name, this.prevAttr);
-    }
-}));
+// ElementNode.prototype.transformations.register(transformations.createContextTransformation({
+//     name: 'smartxml.setAttr2',
+//     impl: function(args) {
+//         this.prevAttr = this.getAttr(args.name);
+//         this.setAttr(args.name, args.value);
+//     },
+//     undo: function(args) {
+//         this.setAttr(args.name, this.prevAttr);
+//     }
+// }));
 
-DocumentNode.prototype.transformations.register(transformations.createContextTransformation({
-    name: 'smartxml.wrapWith',
-    getChangeRoot: function() {
-        return this.context.parent();
-    },
-    impl: function(args) {
-        return this.wrapWith(args);
-    }
-}));
+// DocumentNode.prototype.transformations.register(transformations.createContextTransformation({
+//     name: 'smartxml.wrapWith',
+//     getChangeRoot: function() {
+//         return this.context.parent();
+//     },
+//     impl: function(args) {
+//         return this.wrapWith(args);
+//     }
+// }));
 
-DocumentNode.prototype.transformations.register(transformations.createContextTransformation({
-    name: 'smartxml.wrapText',
-    getChangeRoot: function() {
-        return this.context;
-    },
-    impl: function(args) {
-        return this.wrapText(args);
-    }
-}));
+// DocumentNode.prototype.transformations.register(transformations.createContextTransformation({
+//     name: 'smartxml.wrapText',
+//     getChangeRoot: function() {
+//         return this.context;
+//     },
+//     impl: function(args) {
+//         return this.wrapText(args);
+//     }
+// }));
 
-DocumentNode.prototype.transformations.register(transformations.createContextTransformation({
-    name: 'smartxml.detach',
-    getChangeRoot: function() {
-        return this.context.parent();
-    },
-    impl: function(args) {
-        return this.detach();
-    }
-}));
+// DocumentNode.prototype.transformations.register(transformations.createContextTransformation({
+//     name: 'smartxml.detach',
+//     getChangeRoot: function() {
+//         return this.context.parent();
+//     },
+//     impl: function(args) {
+//         return this.detach();
+//     }
+// }));
 
 ///
 
@@ -526,51 +524,51 @@ $.extend(TextNode.prototype, {
 });
 
 
-TextNode.prototype.transformations.register(transformations.createContextTransformation({
-    name: 'rng.breakContent',
-    // impl: function(args) {
-    //     var node = this.context,
-    //         newNodes, emptyNode, emptyText;
-    //     newNodes = node.transform('smartxml.split', {offset: args.offset});
-    //     [newNodes.first, newNodes.second].some(function(newNode) {
-    //         if(!(newNode.contents().length)) {
-    //             newNode.transform('smartxml.append', {text: ''});
-    //             return true; // break
-    //         }
-    //     });
-    //     return _.extend(newNodes, {emptyText: emptyText});
-    // },
-    impl: function(args) {
-        var node = this,
-            newNodes, emptyNode, emptyText;
-        newNodes = node.split({offset: args.offset});
-        [newNodes.first, newNodes.second].some(function(newNode) {
-            if(!(newNode.contents().length)) {
-                newNode.append({text: ''});
-                return true; // break
-            }
-        });
-        return _.extend(newNodes, {emptyText: emptyText});
-    },
-    getChangeRoot: function() {
-        return this.context.parent().parent();
-    },
-    isAllowed: function(args) {
-        var parent = this.parent();
-        return !!(parent && parent.parent());
-    }
-}));
+// TextNode.prototype.transformations.register(transformations.createContextTransformation({
+//     name: 'rng.breakContent',
+//     // impl: function(args) {
+//     //     var node = this.context,
+//     //         newNodes, emptyNode, emptyText;
+//     //     newNodes = node.transform('smartxml.split', {offset: args.offset});
+//     //     [newNodes.first, newNodes.second].some(function(newNode) {
+//     //         if(!(newNode.contents().length)) {
+//     //             newNode.transform('smartxml.append', {text: ''});
+//     //             return true; // break
+//     //         }
+//     //     });
+//     //     return _.extend(newNodes, {emptyText: emptyText});
+//     // },
+//     impl: function(args) {
+//         var node = this,
+//             newNodes, emptyNode, emptyText;
+//         newNodes = node.split({offset: args.offset});
+//         [newNodes.first, newNodes.second].some(function(newNode) {
+//             if(!(newNode.contents().length)) {
+//                 newNode.append({text: ''});
+//                 return true; // break
+//             }
+//         });
+//         return _.extend(newNodes, {emptyText: emptyText});
+//     },
+//     getChangeRoot: function() {
+//         return this.context.parent().parent();
+//     },
+//     isAllowed: function(args) {
+//         var parent = this.parent();
+//         return !!(parent && parent.parent());
+//     }
+// }));
 
 
-ElementNode.prototype.transformations.register(transformations.createContextTransformation({
-    name: 'smartxml.setText',
-    impl: function(args) {
-        this.setText(args.text);
-    },
-    getChangeRoot: function() {
-        return this.context;
-    }
-}));
+// ElementNode.prototype.transformations.register(transformations.createContextTransformation({
+//     name: 'smartxml.setText',
+//     impl: function(args) {
+//         this.setText(args.text);
+//     },
+//     getChangeRoot: function() {
+//         return this.context;
+//     }
+// }));
 
 
 var parseXML = function(xml) {
@@ -583,13 +581,14 @@ var Document = function(xml) {
     this.redoStack = [];
     this._transformationLevel = 0;
     this.transformations = new transformations.TransformationStorage();
-
+    
+    this._nodeMethods = {};
+    this._nodeTransformations = new transformations.TransformationStorage();
 };
 
 $.extend(Document.prototype, Backbone.Events, {
     ElementNodeFactory: ElementNode,
     TextNodeFactory: TextNode,
-    transformations: new transformations.TransformationStorage(),
 
     createDocumentNode: function(from) {
         if(!(from instanceof Node)) {
@@ -612,7 +611,10 @@ $.extend(Document.prototype, Backbone.Events, {
         } else if(from.nodeType === Node.ELEMENT_NODE) {
             Factory = this.ElementNodeFactory;
         }
-        return new Factory(from, this);
+        var toret = new Factory(from, this);
+        _.extend(toret, this._nodeMethods);
+        toret.transformations = this._nodeTransformations;
+        return toret;
     },
 
     loadXML: function(xml, options) {
@@ -761,6 +763,23 @@ $.extend(Document.prototype, Backbone.Events, {
         return insertion.ofNode;
     },
 
+    registerMethod: function(methodName, method) {
+        this[methodName] = method;
+    },
+
+    registerTransformation: function(Transformation) {
+        return this.transformations.register(Transformation);
+    },
+
+    registerNodeMethod: function(methodName, method) {
+        this._nodeMethods[methodName] = method;
+    },
+
+    registerNodeTransformation: function(Transformation) {
+        this._nodeTransformations.register(Transformation);
+    },
+
+
     transform: function(transformation, args) {
         //console.log('transform');
         var Transformation, toret;
@@ -817,19 +836,19 @@ var defineDocumentProperties = function(doc, $document) {
     }, configurable: true});
 };
 
-Document.prototype.transformations.register(transformations.createContextTransformation({
-    name: 'smartxml.wrapNodes',
-    // init: function() {
+// Document.prototype.transformations.register(transformations.createContextTransformation({
+//     name: 'smartxml.wrapNodes',
+//     // init: function() {
 
-    // },
-    // getChangeRoot: function() {
-    //     return this.context;
-    // },
-    impl: function(args) {
-        this.wrapNodes(args);
-    },
+//     // },
+//     // getChangeRoot: function() {
+//     //     return this.context;
+//     // },
+//     impl: function(args) {
+//         this.wrapNodes(args);
+//     },
 
-}));
+// }));
 
 
 return {

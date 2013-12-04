@@ -303,6 +303,11 @@ describe('WLXMLDocument', function() {
             }}};
 
             doc.registerExtension(extension);
+
+            /* refresh */
+            elementNode = doc.root;
+            textNode = doc.root.contents()[0];
+
             expect(elementNode.testMethod().sameNode(elementNode)).to.equal(true, 'context is set to a node instance');
             expect(textNode.testMethod().sameNode(textNode)).to.equal(true, 'context is set to a node instance');
         });

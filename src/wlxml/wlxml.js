@@ -137,15 +137,15 @@ $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
     }
 });
 
-WLXMLElementNode.prototype.transformations.register(transformations.createContextTransformation({
-    name: 'wlxml.setMetaAttribute',
-    impl: function(args) {
-        this.setMetaAttribute(args.name, args.value);
-    },
-    getChangeRoot: function() {
-        return this.context;
-    }
-}));
+// WLXMLElementNode.prototype.transformations.register(transformations.createContextTransformation({
+//     name: 'wlxml.setMetaAttribute',
+//     impl: function(args) {
+//         this.setMetaAttribute(args.name, args.value);
+//     },
+//     getChangeRoot: function() {
+//         return this.context;
+//     }
+// }));
 
 
 
@@ -157,36 +157,6 @@ WLXMLDocumentNode.prototype = Object.create(smartxml.DocumentNode.prototype);
 var WLXMLDocument = function(xml, options) {
     smartxml.Document.call(this, xml);
     this.options = options;
-
-    // this.DocumentNodeFactory = function() {
-    //     WLXMLDocumentNode.apply(this, arguments);
-    // };
-
-    // this.DocumentNodeFactory.prototype = Object.create(WLXMLDocumentNode.prototype);    
-    
-    this.ElementNodeFactory = function() {
-        WLXMLElementNode.apply(this, arguments);
-    }
-    this.ElementNodeFactory.prototype = Object.create(WLXMLElementNode.prototype);
-    this.ElementNodeFactory.prototype.transformations = new transformations.TransformationStorage();
-    this.ElementNodeFactory.prototype.registerTransformation = function(Transformation) {
-        return this.transformations.register(Transformation);
-    };
-    this.ElementNodeFactory.prototype.registerMethod = function(methodName, method) {
-        this[methodName] = method;
-    };
-
-    this.TextNodeFactory = function() {
-        smartxml.TextNode.apply(this, arguments);
-    }
-    this.TextNodeFactory.prototype = Object.create(smartxml.TextNode.prototype);
-    this.TextNodeFactory.prototype.transformations = new transformations.TransformationStorage();
-    this.TextNodeFactory.prototype.registerTransformation = function(Transformation) {
-        return this.transformations.register(Transformation);
-    };
-    this.TextNodeFactory.prototype.registerMethod = function(methodName, method) {
-        this[methodName] = method;
-    };
 
     this.classMethods = {};
     this.classTransformations = {};
@@ -285,14 +255,6 @@ $.extend(WLXMLDocument.prototype, {
         this.trigger('contentSet');
     },
 
-    registerMethod: function(methodName, method) {
-        this[methodName] = method;
-    },
-
-    registerTransformation: function(Transformation) {
-        return this.transformations.register(Transformation);
-    },
-
     registerClassTransformation: function(Transformation, className) {
         var thisClassTransformations = (this.classTransformations[className] = this.classTransformations[className] || new transformations.TransformationStorage());
         return thisClassTransformations.register(Transformation);
@@ -338,7 +300,12 @@ $.extend(WLXMLDocument.prototype, {
                             );
                         }
                         targets.forEach(function(target) {
-                            target.registerMethod(methodName, method)
+                            if(target === doc) {
+                                target.registerMethod(methodName, method);
+                            } else {
+                                doc.registerNodeMethod(methodName, method);
+                            }
+
                         });
                     });
                 }
@@ -348,7 +315,13 @@ $.extend(WLXMLDocument.prototype, {
                         var transformation = getTrans(pair[1], pair[0]),
                             targets = _.isArray(mapping.target) ? mapping.target : [mapping.target];
                         targets.forEach(function(target) {
-                            target.registerTransformation(transformations.createContextTransformation(transformation));
+                            if(target === doc) {
+                                target.registerTransformation(transformations.createContextTransformation(transformation));    
+                            } else {
+                                doc.registerNodeTransformation(transformations.createContextTransformation(transformation));
+                            }
+
+                            
                         });
                     });
                 }
