@@ -22,7 +22,7 @@ AttributesList.prototype.keys = function() {
 };
 
 var installObject = function(instance, klass) {
-    var methods = instance.document.classMethods[klass];
+    var methods = instance.document.classMethods[klass] || instance.document.classTransformations;
     if(methods) {
         instance.object = Object.create(_.extend({
             transform: function(name, args) {
@@ -169,12 +169,18 @@ var WLXMLDocument = function(xml, options) {
     }
     this.ElementNodeFactory.prototype = Object.create(WLXMLElementNode.prototype);
     this.ElementNodeFactory.prototype.transformations = new transformations.TransformationStorage();
+    this.ElementNodeFactory.prototype.registerTransformation = function(Transformation) {
+        return this.transformations.register(Transformation);
+    };
 
     this.TextNodeFactory = function() {
         smartxml.TextNode.apply(this, arguments);
     }
     this.TextNodeFactory.prototype = Object.create(smartxml.TextNode.prototype);
     this.TextNodeFactory.prototype.transformations = new transformations.TransformationStorage();
+    this.TextNodeFactory.prototype.registerTransformation = function(Transformation) {
+        return this.transformations.register(Transformation);
+    };
 
     this.classMethods = {};
     this.classTransformations = {};
@@ -273,6 +279,20 @@ $.extend(WLXMLDocument.prototype, {
         this.trigger('contentSet');
     },
 
+    registerTransformation: function(Transformation) {
+        return this.transformations.register(Transformation);
+    },
+
+    registerClassTransformation: function(Transformation, className) {
+        var thisClassTransformations = (this.classTransformations[className] = this.classTransformations[className] || new transformations.TransformationStorage());
+        return thisClassTransformations.register(Transformation);
+    },
+
+    registerClassMethod: function(methodName, method, className) {
+        var thisClassMethods = (this.classMethods[className] = this.classMethods[className] || {});
+        thisClassMethods[methodName] = method;
+    },
+
     registerExtension: function(extension) {
         //debugger;
         var doc = this,
@@ -318,7 +338,7 @@ $.extend(WLXMLDocument.prototype, {
                         var transformation = getTrans(pair[1], pair[0]),
                             targets = _.isArray(mapping.target) ? mapping.target : [mapping.target];
                         targets.forEach(function(target) {
-                            target.transformations.register(transformations.createContextTransformation(transformation));
+                            target.registerTransformation(transformations.createContextTransformation(transformation));
                         });
                     });
                 }
@@ -327,16 +347,17 @@ $.extend(WLXMLDocument.prototype, {
 
         _.pairs(extension.wlxmlClass).forEach(function(pair) {
             var className = pair[0],
-                classExtension = pair[1],
-                thisClassMethods = (doc.classMethods[className] = doc.classMethods[className] || {}),
-                thisClassTransformations = (doc.classTransformations[className] = doc.classTransformations[className] || new transformations.TransformationStorage());
-    
-            _.extend(thisClassMethods, classExtension.methods || {}); //@ warning/throw on override?
-            
+                classExtension = pair[1];
+
+            _.pairs(classExtension.methods || {}).forEach(function(pair) {
+                var name = pair[0],
+                    method = pair[1];
+                doc.registerClassMethod(name, method, className);
+            });
 
             _.pairs(classExtension.transformations || {}).forEach(function(pair) {
                 var transformation = getTrans(pair[1], pair[0]);
-                thisClassTransformations.register(transformations.createContextTransformation(transformation));
+                doc.registerClassTransformation(transformations.createContextTransformation(transformation), className);
             }); 
         });
 
