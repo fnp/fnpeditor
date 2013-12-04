@@ -172,6 +172,9 @@ var WLXMLDocument = function(xml, options) {
     this.ElementNodeFactory.prototype.registerTransformation = function(Transformation) {
         return this.transformations.register(Transformation);
     };
+    this.ElementNodeFactory.prototype.registerMethod = function(methodName, method) {
+        this[methodName] = method;
+    };
 
     this.TextNodeFactory = function() {
         smartxml.TextNode.apply(this, arguments);
@@ -180,6 +183,9 @@ var WLXMLDocument = function(xml, options) {
     this.TextNodeFactory.prototype.transformations = new transformations.TransformationStorage();
     this.TextNodeFactory.prototype.registerTransformation = function(Transformation) {
         return this.transformations.register(Transformation);
+    };
+    this.TextNodeFactory.prototype.registerMethod = function(methodName, method) {
+        this[methodName] = method;
     };
 
     this.classMethods = {};
@@ -279,6 +285,10 @@ $.extend(WLXMLDocument.prototype, {
         this.trigger('contentSet');
     },
 
+    registerMethod: function(methodName, method) {
+        this[methodName] = method;
+    },
+
     registerTransformation: function(Transformation) {
         return this.transformations.register(Transformation);
     },
@@ -328,7 +338,7 @@ $.extend(WLXMLDocument.prototype, {
                             );
                         }
                         targets.forEach(function(target) {
-                            target[methodName] = method;
+                            target.registerMethod(methodName, method)
                         });
                     });
                 }
