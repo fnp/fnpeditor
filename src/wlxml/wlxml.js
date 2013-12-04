@@ -276,30 +276,7 @@ $.extend(WLXMLDocument.prototype, {
     registerExtension: function(extension) {
         //debugger;
         var doc = this,
-            existingPropertyName = _.values(this);
-
-        [
-            {source: extension.document, target: doc},
-            {source: extension.documentNode, target: [doc.ElementNodeFactory.prototype, doc.TextNodeFactory.prototype]},
-
-        ].forEach(function(x) {
-            if(x.source && x.source.methods) {
-                existingPropertyName = _.values(x.target)
-                _.pairs(x.source.methods).forEach(function(pair) {
-                    var methodName = pair[0],
-                        method = pair[1],
-                        targets = _.isArray(x.target) ? x.target : [x.target];
-                    if(_.contains(existingPropertyName, methodName)) {
-                        throw new Error('Cannot extend XXX with method name {methodName}. Name already exists.'.replace('{methodName}', methodName));
-                    }
-                    targets.forEach(function(target) {
-                        target[methodName] = method;
-                    });
-                    
-                });   
-            }
-        });
-
+            existingPropertyNames = _.values(this);
 
         var getTrans = function(desc, methodName) {
             if(typeof desc === 'function') {
@@ -312,21 +289,41 @@ $.extend(WLXMLDocument.prototype, {
             return desc;
         };
 
-        if(extension.document && extension.document.transformations) {
-            _.pairs(extension.document.transformations).forEach(function(pair) {
-                var transformation = getTrans(pair[1], pair[0]);
-                doc.transformations.register(transformations.createContextTransformation(transformation));
-            });   
-        }
+        [
+            {source: extension.document, target: doc},
+            {source: extension.documentNode, target: [doc.ElementNodeFactory.prototype, doc.TextNodeFactory.prototype]},
 
-        if(extension.documentNode && extension.documentNode.transformations) {
-            _.pairs(extension.documentNode.transformations).forEach(function(pair) {
-                var transformation = getTrans(pair[1], pair[0]);
-                
-                doc.ElementNodeFactory.prototype.transformations.register(transformations.createContextTransformation(transformation));
-                doc.TextNodeFactory.prototype.transformations.register(transformations.createContextTransformation(transformation));
-            });   
-        }
+        ].forEach(function(mapping) {
+            if(mapping.source) {
+                if(mapping.source.methods) {
+                    existingPropertyNames = _.values(mapping.target)
+                    _.pairs(mapping.source.methods).forEach(function(pair) {
+                        var methodName = pair[0],
+                            method = pair[1],
+                            targets = _.isArray(mapping.target) ? mapping.target : [mapping.target];
+                        if(_.contains(existingPropertyNames, methodName)) {
+                            throw new Error('Cannot extend {target} with method name {methodName}. Name already exists.'
+                                .replace('{target}', mapping.target)
+                                .replace('{methodName}', methodName)
+                            );
+                        }
+                        targets.forEach(function(target) {
+                            target[methodName] = method;
+                        });
+                    });
+                }
+
+                if(mapping.source.transformations) {
+                    _.pairs(mapping.source.transformations).forEach(function(pair) {
+                        var transformation = getTrans(pair[1], pair[0]),
+                            targets = _.isArray(mapping.target) ? mapping.target : [mapping.target];
+                        targets.forEach(function(target) {
+                            target.transformations.register(transformations.createContextTransformation(transformation));
+                        });
+                    });
+                }
+            }
+        });
 
         _.pairs(extension.wlxmlClass).forEach(function(pair) {
             var className = pair[0],
