@@ -268,19 +268,7 @@ $.extend(WLXMLDocument.prototype, {
     registerExtension: function(extension) {
         //debugger;
         smartxml.Document.prototype.registerExtension.call(this, extension);
-        var doc = this,
-            existingPropertyNames = _.values(this);
-
-        var getTrans = function(desc, methodName) {
-            if(typeof desc === 'function') {
-                desc = {impl: desc};
-            }
-            if(!desc.impl) {
-                throw new Error('Got transformation description without implementation.')
-            }
-            desc.name = desc.name || methodName;
-            return desc;
-        };
+        var doc = this;
 
         _.pairs(extension.wlxmlClass).forEach(function(pair) {
             var className = pair[0],
@@ -293,8 +281,9 @@ $.extend(WLXMLDocument.prototype, {
             });
 
             _.pairs(classExtension.transformations || {}).forEach(function(pair) {
-                var transformation = getTrans(pair[1], pair[0]);
-                doc.registerClassTransformation(transformations.createContextTransformation(transformation), className);
+                var name = pair[0],
+                    desc = pair[1];
+                doc.registerClassTransformation(transformations.createContextTransformation(desc, name), className);
             }); 
         });
 

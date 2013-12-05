@@ -5,8 +5,19 @@ define(function(require) {
 var _ = require('libs/underscore'),
     toret = {};
 
+var getTransDesc = function(desc, name) {
+    if(typeof desc === 'function') {
+        desc = {impl: desc};
+    }
+    if(!desc.impl) {
+        throw new Error('Got transformation description without implementation.')
+    }
+    desc.name = desc.name || name;
+    return desc;
+};
 
-toret.createGenericTransformation = function(desc) {
+toret.createGenericTransformation = function(desc, name) {
+    desc = getTransDesc(desc, name);
     
     var GenericTransformation = function(document, args) {
         this.args = args || {};
@@ -64,9 +75,9 @@ toret.createGenericTransformation = function(desc) {
 // var t = T(doc, {a:1,b:2,c3:3});
 
 
-toret.createContextTransformation = function(desc) {
+toret.createContextTransformation = function(desc, name) {
     // mozna sie pozbyc przez przeniesienie object/context na koniec argumentow konstruktora generic transformation
-    var GenericTransformation = toret.createGenericTransformation(desc);
+    var GenericTransformation = toret.createGenericTransformation(desc, name);
 
     var ContextTransformation = function(document, object, args) {
         GenericTransformation.call(this, document, args);

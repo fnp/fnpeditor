@@ -794,17 +794,6 @@ $.extend(Document.prototype, Backbone.Events, {
         var doc = this,
             existingPropertyNames = _.values(this);
 
-        var getTrans = function(desc, methodName) {
-            if(typeof desc === 'function') {
-                desc = {impl: desc};
-            }
-            if(!desc.impl) {
-                throw new Error('Got transformation description without implementation.')
-            }
-            desc.name = desc.name || methodName;
-            return desc;
-        };
-
         ['document', 'documentNode'].forEach(function(dstName) {
             var dstExtension = extension[dstName];
             if(dstExtension) {
@@ -821,11 +810,11 @@ $.extend(Document.prototype, Backbone.Events, {
 
                 if(dstExtension.transformations) {
                     _.pairs(dstExtension.transformations).forEach(function(pair) {
-                        var transformation = getTrans(pair[1], pair[0]),
+                        var name = pair[0],
+                            desc = pair[1],
                             operation;
                         operation = {document: 'registerTransformation', documentNode: 'registerNodeTransformation'}[dstName];
-                        doc[operation](transformations.createContextTransformation(transformation));
-                            
+                        doc[operation](transformations.createContextTransformation(desc, name));
                     });
                 }
             }
