@@ -260,69 +260,8 @@ describe('WLXMLDocument', function() {
             textNode = doc.root.contents()[0];
             extension = {};
             
-            expect(function() {
-                elementNode.transform('testTransformation');
-            }).to.throw(Error);
-            expect(function() {
-                textNode.transform('testTransformation');
-            }).to.throw(Error);
-            expect(function() {
-                doc.transform('testTransformation');
-            }).to.throw(Error);
-            expect(doc.testMethod).to.be.undefined;
-            expect(elementNode.testMethod).to.be.undefined;
-            expect(textNode.testMethod).to.be.undefined;
 
             // spr+ a expect dotyczacy object api?
-        });
-
-        it('allows adding method to a document', function() {
-            extension = {document: {methods: {
-                testMethod: function() { return this; }
-            }}};
-
-            doc.registerExtension(extension);
-            expect(doc.testMethod()).to.equal(doc, 'context is set to a document instance');
-        });
-
-        it('allows adding transformation to a document', function() {
-            extension = {document: {transformations: {
-                testTransformation: function() { return this; },
-                testTransformation2: {impl: function() { return this;}}
-            }}};
-
-            doc.registerExtension(extension);
-            expect(doc.transform('testTransformation')).to.equal(doc, 'context is set to a document instance');
-            expect(doc.transform('testTransformation2')).to.equal(doc, 'context is set to a document instance');
-        });
-
-        it('allows adding method to a DocumentNode instance', function() {
-            extension = {documentNode: {methods: {
-                testMethod: function() { return this; }    
-            }}};
-
-            doc.registerExtension(extension);
-
-            /* refresh */
-            elementNode = doc.root;
-            textNode = doc.root.contents()[0];
-
-            expect(elementNode.testMethod().sameNode(elementNode)).to.equal(true, 'context is set to a node instance');
-            expect(textNode.testMethod().sameNode(textNode)).to.equal(true, 'context is set to a node instance');
-        });
-
-        it('allows adding transformation to a DocumentNode', function() {
-            extension = {documentNode: {transformations: {
-                testTransformation: function() { return this; },
-                testTransformation2: {impl: function() { return this;}}
-            }}};
-            
-            doc.registerExtension(extension);
-
-            expect(elementNode.transform('testTransformation').sameNode(elementNode)).to.equal(true, '1');
-            expect(elementNode.transform('testTransformation2').sameNode(elementNode)).to.equal(true, '2');
-            expect(textNode.transform('testTransformation').sameNode(textNode)).to.equal(true, '3');
-            expect(textNode.transform('testTransformation2').sameNode(textNode)).to.equal(true, '4');
         });
 
         it('allows adding method to an ElementNode of specific class', function() {
