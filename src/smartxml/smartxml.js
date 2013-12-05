@@ -764,6 +764,11 @@ $.extend(Document.prototype, Backbone.Events, {
     },
 
     registerMethod: function(methodName, method) {
+        if(this[methodName]) {
+            throw new Error('Cannot extend document with method name {methodName}. Name already exists.'
+                .replace('{methodName}', methodName)
+            );
+        }
         this[methodName] = method;
     },
 
@@ -772,6 +777,11 @@ $.extend(Document.prototype, Backbone.Events, {
     },
 
     registerNodeMethod: function(methodName, method) {
+        if(this._nodeMethods[methodName]) {
+            throw new Error('Cannot extend document with method name {methodName}. Name already exists.'
+                .replace('{methodName}', methodName)
+            );
+        }
         this._nodeMethods[methodName] = method;
     },
 
@@ -795,48 +805,27 @@ $.extend(Document.prototype, Backbone.Events, {
             return desc;
         };
 
-        [
-            {source: extension.document, target: doc},
-            {source: extension.documentNode, target: [doc.ElementNodeFactory.prototype, doc.TextNodeFactory.prototype]},
-
-        ].forEach(function(mapping) {
-            if(mapping.source) {
-                if(mapping.source.methods) {
-                    existingPropertyNames = _.values(mapping.target)
-                    _.pairs(mapping.source.methods).forEach(function(pair) {
+        ['document', 'documentNode'].forEach(function(dstName) {
+            var dstExtension = extension[dstName];
+            if(dstExtension) {
+                if(dstExtension.methods) {
+                    _.pairs(dstExtension.methods).forEach(function(pair) {
                         var methodName = pair[0],
                             method = pair[1],
-                            targets = _.isArray(mapping.target) ? mapping.target : [mapping.target];
-                        if(_.contains(existingPropertyNames, methodName)) {
-                            throw new Error('Cannot extend {target} with method name {methodName}. Name already exists.'
-                                .replace('{target}', mapping.target)
-                                .replace('{methodName}', methodName)
-                            );
-                        }
-                        targets.forEach(function(target) {
-                            if(target === doc) {
-                                target.registerMethod(methodName, method);
-                            } else {
-                                doc.registerNodeMethod(methodName, method);
-                            }
+                            operation;
+                        operation = {document: 'registerMethod', documentNode: 'registerNodeMethod'}[dstName];
+                        doc[operation](methodName, method);
 
-                        });
                     });
                 }
 
-                if(mapping.source.transformations) {
-                    _.pairs(mapping.source.transformations).forEach(function(pair) {
+                if(dstExtension.transformations) {
+                    _.pairs(dstExtension.transformations).forEach(function(pair) {
                         var transformation = getTrans(pair[1], pair[0]),
-                            targets = _.isArray(mapping.target) ? mapping.target : [mapping.target];
-                        targets.forEach(function(target) {
-                            if(target === doc) {
-                                target.registerTransformation(transformations.createContextTransformation(transformation));    
-                            } else {
-                                doc.registerNodeTransformation(transformations.createContextTransformation(transformation));
-                            }
-
+                            operation;
+                        operation = {document: 'registerTransformation', documentNode: 'registerNodeTransformation'}[dstName];
+                        doc[operation](transformations.createContextTransformation(transformation));
                             
-                        });
                     });
                 }
             }
