@@ -39,7 +39,7 @@ describe('Lists extension', function() {
                 div1 = section.contents()[1],
                 textA = section.contents()[2];
             
-            doc.transform('createList', {node1: div1, node2: textA});
+            doc.createList({node1: div1, node2: textA});
 
             expect(section.contents().length).to.equal(3, 'section has three child nodes');
 
@@ -72,7 +72,7 @@ describe('Lists extension', function() {
                 itemC = outerList.contents('.item')[2];
 
             
-            doc.transform('createList', {node1: itemB, node2: itemC});
+            doc.createList({node1: itemB, node2: itemC});
 
             var outerListItems = outerList.contents('.item'),
                 innerList = outerListItems[1].contents()[0];
@@ -108,7 +108,7 @@ describe('Lists extension', function() {
                 item1 = list.contents()[1],
                 item2 = list.contents()[2];
 
-            doc.transform('extractItems', {item1: item1, item2: item2});
+            doc.extractItems({item1: item1, item2: item2});
 
             var section = doc.root,
                 list1 = section.contents()[0],
@@ -147,7 +147,7 @@ describe('Lists extension', function() {
                 item2 = list.contents()[1],
                 item3 = list.contents()[2];
 
-            doc.transform('extractItems', {item1: item1, item2: item2});
+            doc.extractItems({item1: item1, item2: item2});
 
             var section = doc.root,
                 oldItem1 = section.contents()[0],
@@ -175,7 +175,7 @@ describe('Lists extension', function() {
                 item2 = list.contents()[1],
                 item3 = list.contents()[2];
 
-            doc.transform('extractItems', {item1: item2, item2: item3});
+            doc.extractItems({item1: item2, item2: item3});
 
             var section = doc.root,
                 oldItem1 = section.contents()[1],
@@ -201,7 +201,7 @@ describe('Lists extension', function() {
                 item1 = list.contents()[0],
                 item2 = list.contents()[1];
 
-            doc.transform('extractItems', {item1: item1, item2: item2});
+            doc.extractItems({item1: item1, item2: item2});
 
             var section = doc.root,
                 oldItem1 = section.contents()[0],
@@ -231,7 +231,7 @@ describe('Lists extension', function() {
                 nestedList = list.contents()[1].contents()[0],
                 nestedListItem = nestedList.contents()[1];
 
-            doc.transform('extractItems', {item1: nestedListItem, item2: nestedListItem});
+            doc.extractItems({item1: nestedListItem, item2: nestedListItem}); //@@ name!
 
             var section = doc.root,
                 list = section.contents()[0],
@@ -280,7 +280,7 @@ describe('Lists extension', function() {
                 nestedListItem1 = nestedList.contents()[1],
                 nestedListItem2 = nestedList.contents()[2];
 
-            doc.transform('extractItems', {item1: nestedListItem1, item2: nestedListItem2});
+            doc.extractItems({item1: nestedListItem1, item2: nestedListItem2});
 
             var section = doc.root,
                 list = section.contents()[0],
@@ -321,7 +321,7 @@ describe('Lists extension', function() {
                 nestedListItem1 = nestedList.contents()[0],
                 nestedListItem2 = nestedList.contents()[1];
 
-            doc.transform('extractItems', {item1: nestedListItem1, item2: nestedListItem2});
+            doc.extractItems({item1: nestedListItem1, item2: nestedListItem2});
 
             var section = doc.root,
                 list = section.contents()[0],
@@ -362,7 +362,7 @@ describe('Lists extension', function() {
                 nestedListItem1 = nestedList.contents()[0],
                 nestedListItem2 = nestedList.contents()[1];
 
-            doc.transform('extractItems', {item1: nestedListItem1, item2: nestedListItem2});
+            doc.extractItems({item1: nestedListItem1, item2: nestedListItem2});
 
             var section = doc.root,
                 list = section.contents()[0],
@@ -397,7 +397,7 @@ describe('Lists extension', function() {
                 nestedList = list.contents()[1].contents()[0],
                 nestedListItem = nestedList.contents()[0];
 
-            var test = doc.transform('extractItems', {item1: nestedListItem, item2: nestedListItem, merge: false});
+            var test = doc.extractItems({item1: nestedListItem, item2: nestedListItem, merge: false});
 
             expect(test).to.equal(true, 'extraction status ok');
 

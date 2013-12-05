@@ -38,12 +38,8 @@ var DocumentNode = function(nativeNode, document) {
 
 $.extend(DocumentNode.prototype, {
 
-    transform: function(name, args) {
-        var Transformation = this.transformations.get(name),
-            transformation;
-        if(Transformation) {
-            transformation = new Transformation(this.document, this, args);
-        }
+    transform: function(Transformation, args) {
+        var transformation = new Transformation(this.document, this, args);
         return this.document.transform(transformation);
     },
 
@@ -473,7 +469,10 @@ var parseXML = function(xml) {
 
 var registerTransformation = function(desc, name, target) {
     var Transformation = transformations.createContextTransformation(desc, name);
-    target.register(Transformation);
+    target[name] = function(args) {
+        var instance = this;
+        return instance.transform(Transformation, args);
+    }
 };
 
 var registerMethod = function(methodName, method, target) {
@@ -492,10 +491,9 @@ var Document = function(xml) {
     this.undoStack = [];
     this.redoStack = [];
     this._transformationLevel = 0;
-    this.transformations = new transformations.TransformationStorage();
     
     this._nodeMethods = {};
-    this._nodeTransformations = new transformations.TransformationStorage();
+    this._nodeTransformations = {};
 };
 
 $.extend(Document.prototype, Backbone.Events, {
@@ -525,7 +523,7 @@ $.extend(Document.prototype, Backbone.Events, {
         }
         var toret = new Factory(from, this);
         _.extend(toret, this._nodeMethods);
-        toret.transformations = this._nodeTransformations;
+        _.extend(toret, this._nodeTransformations);
         return toret;
     },
 
@@ -684,7 +682,7 @@ $.extend(Document.prototype, Backbone.Events, {
     },
 
     registerDocumentTransformation: function(desc, name) {
-        registerTransformation(desc, name, this.transformations);
+        registerTransformation(desc, name, this);
     },
 
     registerNodeTransformation: function(desc, name) {
@@ -723,15 +721,15 @@ $.extend(Document.prototype, Backbone.Events, {
         });
     },
 
-    transform: function(transformation, args) {
+    transform: function(Transformation, args) {
         //console.log('transform');
-        var Transformation, toret;
-        if(typeof transformation === 'string') {
-            Transformation = this.transformations.get(transformation);
-            if(Transformation) {
-                transformation = new Transformation(this, this, args);
-            }
-        } 
+        var toret, transformation;
+
+        if(typeof Transformation === 'function') {
+            transformation = new Transformation(this, this, args);
+        } else {
+            transformation = Transformation;
+        }
         if(transformation) {
             this._transformationLevel++;
             toret = transformation.run();

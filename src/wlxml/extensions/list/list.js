@@ -135,7 +135,7 @@ extension.document.transformations.extractItems = {
             reference.after(toAdd);
         }
         if(!params.merge && listIsNested) {
-            return this.transform('extractItems', {item1: extractedItems[0], item2: extractedItems[extractedItems.length-1]});
+            return this.extractItems({item1: extractedItems[0], item2: extractedItems[extractedItems.length-1]});
         }
         return true;
     },

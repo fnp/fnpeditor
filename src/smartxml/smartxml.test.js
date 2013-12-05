@@ -843,7 +843,7 @@ describe('smartxml', function() {
                 textNode.transform('testTransformation');
             }).to.throw(Error);
             expect(function() {
-                doc.transform('testTransformation');
+                doc.testTransformation();
             }).to.throw(Error);
             expect(doc.testMethod).to.be.undefined;
             expect(elementNode.testMethod).to.be.undefined;
@@ -866,8 +866,8 @@ describe('smartxml', function() {
             }}};
 
             doc.registerExtension(extension);
-            expect(doc.transform('testTransformation')).to.equal(doc, 'context is set to a document instance');
-            expect(doc.transform('testTransformation2')).to.equal(doc, 'context is set to a document instance');
+            expect(doc.testTransformation()).to.equal(doc, 'context is set to a document instance');
+            expect(doc.testTransformation2()).to.equal(doc, 'context is set to a document instance');
         });
 
         it('allows adding method to a DocumentNode instance', function() {
@@ -893,10 +893,14 @@ describe('smartxml', function() {
             
             doc.registerExtension(extension);
 
-            expect(elementNode.transform('testTransformation').sameNode(elementNode)).to.equal(true, '1');
-            expect(elementNode.transform('testTransformation2').sameNode(elementNode)).to.equal(true, '2');
-            expect(textNode.transform('testTransformation').sameNode(textNode)).to.equal(true, '3');
-            expect(textNode.transform('testTransformation2').sameNode(textNode)).to.equal(true, '4');
+            /* refresh */
+            elementNode = doc.root;
+            textNode = doc.root.contents()[0];
+            
+            expect(elementNode.testTransformation().sameNode(elementNode)).to.equal(true, '1');
+            expect(elementNode.testTransformation2().sameNode(elementNode)).to.equal(true, '2');
+            expect(textNode.testTransformation().sameNode(textNode)).to.equal(true, '3');
+            expect(textNode.testTransformation2().sameNode(textNode)).to.equal(true, '4');
         });
     });
 

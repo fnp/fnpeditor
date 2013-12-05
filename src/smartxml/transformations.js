@@ -12,12 +12,11 @@ var getTransDesc = function(desc, name) {
     if(!desc.impl) {
         throw new Error('Got transformation description without implementation.')
     }
-    desc.name = desc.name || name;
     return desc;
 };
 
 toret.createGenericTransformation = function(desc, name) {
-    desc = getTransDesc(desc, name);
+    desc = getTransDesc(desc);
     
     var GenericTransformation = function(document, args) {
         this.args = args || {};
@@ -48,7 +47,7 @@ toret.createGenericTransformation = function(desc, name) {
         }
     };
     _.extend(GenericTransformation.prototype, {
-        name: desc.name,
+        name: name,
         run: function() {
             var changeRoot;
             if(!desc.undo) {
