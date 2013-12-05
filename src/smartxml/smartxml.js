@@ -580,6 +580,16 @@ var registerTransformation = function(desc, name, target) {
     target.register(Transformation);
 };
 
+var registerMethod = function(methodName, method, target) {
+    if(target[methodName]) {
+        throw new Error('Cannot extend {target} with method name {methodName}. Name already exists.'
+            .replace('{target}', target)
+            .replace('{methodName}', methodName)
+        );
+    }
+    target[methodName] = method;
+};
+
 
 var Document = function(xml) {
     this.loadXML(xml);
@@ -770,21 +780,11 @@ $.extend(Document.prototype, Backbone.Events, {
     },
 
     registerMethod: function(methodName, method) {
-        if(this[methodName]) {
-            throw new Error('Cannot extend document with method name {methodName}. Name already exists.'
-                .replace('{methodName}', methodName)
-            );
-        }
-        this[methodName] = method;
+        registerMethod(methodName, method, this);
     },
 
     registerNodeMethod: function(methodName, method) {
-        if(this._nodeMethods[methodName]) {
-            throw new Error('Cannot extend document with method name {methodName}. Name already exists.'
-                .replace('{methodName}', methodName)
-            );
-        }
-        this._nodeMethods[methodName] = method;
+        registerMethod(methodName, method, this._nodeMethods);
     },
 
     registerDocumentTransformation: function(desc, name) {
