@@ -281,8 +281,8 @@ describe('WLXMLDocument', function() {
             }}}};
             doc.registerExtension(extension);
             testClassNode = doc.root.contents()[1];
-            expect(testClassNode.object.transform('testTransformation').sameNode(testClassNode)).to.equal(true, '1');
-            expect(testClassNode.object.transform('testTransformation2').sameNode(testClassNode)).to.equal(true, '1');
+            expect(testClassNode.object.testTransformation().sameNode(testClassNode)).to.equal(true, '1');
+            expect(testClassNode.object.testTransformation2().sameNode(testClassNode)).to.equal(true, '1');
         });
 
 

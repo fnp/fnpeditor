@@ -22,23 +22,13 @@ AttributesList.prototype.keys = function() {
 };
 
 var installObject = function(instance, klass) {
-    var methods = instance.document.classMethods[klass] || instance.document.classTransformations;
-    if(methods) {
-        instance.object = Object.create(_.extend({
-            transform: function(name, args) {
-                // TODO: refactor with DocumentElement.transform
-                var Transformation = instance.document.classTransformations[klass].get(name),
-                    transformation;
-                if(Transformation) {
-                    transformation = new Transformation(instance.document, instance, args);
-                }
-                return instance.document.transform(transformation);
-            }
-        }, methods));
-        _.keys(methods).forEach(function(key) {
-            instance.object[key] = _.bind(instance.object[key], instance);
-        });
-    }
+    var methods = instance.document.classMethods[klass] || {},
+        transformations = instance.document.classTransformations[klass] || {};
+
+    instance.object = Object.create(_.extend({}, methods, transformations));
+    _.keys(methods).concat(_.keys(transformations)).forEach(function(key) {
+        instance.object[key] = _.bind(instance.object[key], instance);
+    });
 }
 
 var WLXMLElementNode = function(nativeNode, document) {
@@ -256,8 +246,11 @@ $.extend(WLXMLDocument.prototype, {
     },
 
     registerClassTransformation: function(Transformation, className) {
-        var thisClassTransformations = (this.classTransformations[className] = this.classTransformations[className] || new transformations.TransformationStorage());
-        return thisClassTransformations.register(Transformation);
+        var thisClassTransformations = (this.classTransformations[className] = this.classTransformations[className] || {});
+        thisClassTransformations[Transformation.prototype.name] = function(args) {
+            var nodeInstance = this;
+            return nodeInstance.transform(Transformation, args);
+        }
     },
 
     registerClassMethod: function(methodName, method, className) {
