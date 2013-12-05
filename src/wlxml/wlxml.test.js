@@ -258,10 +258,11 @@ describe('WLXMLDocument', function() {
             doc = getDocumentFromXML('<section>Alice<div class="test_class"></div></section>');
             elementNode = doc.root;
             textNode = doc.root.contents()[0];
+            testClassNode = doc.root.contents('.test_class');
             extension = {};
             
+            expect(testClassNode.object).to.be.undefined;
 
-            // spr+ a expect dotyczacy object api?
         });
 
         it('allows adding method to an ElementNode of specific class', function() {
