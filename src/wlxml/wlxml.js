@@ -267,6 +267,7 @@ $.extend(WLXMLDocument.prototype, {
 
     registerExtension: function(extension) {
         //debugger;
+        smartxml.Document.prototype.registerExtension.call(this, extension);
         var doc = this,
             existingPropertyNames = _.values(this);
 
@@ -280,53 +281,6 @@ $.extend(WLXMLDocument.prototype, {
             desc.name = desc.name || methodName;
             return desc;
         };
-
-        [
-            {source: extension.document, target: doc},
-            {source: extension.documentNode, target: [doc.ElementNodeFactory.prototype, doc.TextNodeFactory.prototype]},
-
-        ].forEach(function(mapping) {
-            if(mapping.source) {
-                if(mapping.source.methods) {
-                    existingPropertyNames = _.values(mapping.target)
-                    _.pairs(mapping.source.methods).forEach(function(pair) {
-                        var methodName = pair[0],
-                            method = pair[1],
-                            targets = _.isArray(mapping.target) ? mapping.target : [mapping.target];
-                        if(_.contains(existingPropertyNames, methodName)) {
-                            throw new Error('Cannot extend {target} with method name {methodName}. Name already exists.'
-                                .replace('{target}', mapping.target)
-                                .replace('{methodName}', methodName)
-                            );
-                        }
-                        targets.forEach(function(target) {
-                            if(target === doc) {
-                                target.registerMethod(methodName, method);
-                            } else {
-                                doc.registerNodeMethod(methodName, method);
-                            }
-
-                        });
-                    });
-                }
-
-                if(mapping.source.transformations) {
-                    _.pairs(mapping.source.transformations).forEach(function(pair) {
-                        var transformation = getTrans(pair[1], pair[0]),
-                            targets = _.isArray(mapping.target) ? mapping.target : [mapping.target];
-                        targets.forEach(function(target) {
-                            if(target === doc) {
-                                target.registerTransformation(transformations.createContextTransformation(transformation));    
-                            } else {
-                                doc.registerNodeTransformation(transformations.createContextTransformation(transformation));
-                            }
-
-                            
-                        });
-                    });
-                }
-            }
-        });
 
         _.pairs(extension.wlxmlClass).forEach(function(pair) {
             var className = pair[0],

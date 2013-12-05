@@ -260,21 +260,20 @@ describe('WLXMLDocument', function() {
             textNode = doc.root.contents()[0];
             extension = {};
             
-            console.log('A');
             expect(function() {
                 elementNode.transform('testTransformation');
             }).to.throw(Error);
-            console.log('B');
             expect(function() {
                 textNode.transform('testTransformation');
             }).to.throw(Error);
-            console.log('C');
             expect(function() {
                 doc.transform('testTransformation');
             }).to.throw(Error);
             expect(doc.testMethod).to.be.undefined;
             expect(elementNode.testMethod).to.be.undefined;
             expect(textNode.testMethod).to.be.undefined;
+
+            // spr+ a expect dotyczacy object api?
         });
 
         it('allows adding method to a document', function() {
