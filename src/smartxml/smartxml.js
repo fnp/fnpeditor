@@ -575,6 +575,12 @@ var parseXML = function(xml) {
     return $($.trim(xml))[0];
 };
 
+var registerTransformation = function(desc, name, target) {
+    var Transformation = transformations.createContextTransformation(desc, name);
+    target.register(Transformation);
+};
+
+
 var Document = function(xml) {
     this.loadXML(xml);
     this.undoStack = [];
@@ -772,10 +778,6 @@ $.extend(Document.prototype, Backbone.Events, {
         this[methodName] = method;
     },
 
-    registerTransformation: function(Transformation) {
-        return this.transformations.register(Transformation);
-    },
-
     registerNodeMethod: function(methodName, method) {
         if(this._nodeMethods[methodName]) {
             throw new Error('Cannot extend document with method name {methodName}. Name already exists.'
@@ -785,8 +787,12 @@ $.extend(Document.prototype, Backbone.Events, {
         this._nodeMethods[methodName] = method;
     },
 
-    registerNodeTransformation: function(Transformation) {
-        this._nodeTransformations.register(Transformation);
+    registerDocumentTransformation: function(desc, name) {
+        registerTransformation(desc, name, this.transformations);
+    },
+
+    registerNodeTransformation: function(desc, name) {
+        registerTransformation(desc, name, this._nodeTransformations);
     },
 
     registerExtension: function(extension) {
@@ -813,8 +819,8 @@ $.extend(Document.prototype, Backbone.Events, {
                         var name = pair[0],
                             desc = pair[1],
                             operation;
-                        operation = {document: 'registerTransformation', documentNode: 'registerNodeTransformation'}[dstName];
-                        doc[operation](transformations.createContextTransformation(desc, name));
+                        operation = {document: 'registerDocumentTransformation', documentNode: 'registerNodeTransformation'}[dstName];
+                        doc[operation](desc, name);
                     });
                 }
             }
