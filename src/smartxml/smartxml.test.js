@@ -903,10 +903,24 @@ describe('smartxml', function() {
         });
 
         it('allows adding transformation to a DocumentNode', function() {
-            extension = {documentNode: {transformations: {
-                testTransformation: function() { return this; },
-                testTransformation2: {impl: function() { return this;}}
-            }}};
+            extension = {
+                documentNode: {
+                    transformations: {
+                        testTransformation: function() { return this; },
+                        testTransformation2: {impl: function() { return this;}}
+                    }
+                },
+                textNode: {
+                    transformations: {
+                        textTestTransformation: function() { return this; }
+                    }
+                },
+                elementNode: {
+                    transformations: {
+                        elementTestTransformation: function() { return this; }
+                    }
+                }
+            };
             
             doc.registerExtension(extension);
 
@@ -918,6 +932,12 @@ describe('smartxml', function() {
             expect(elementNode.testTransformation2().sameNode(elementNode)).to.equal(true, '2');
             expect(textNode.testTransformation().sameNode(textNode)).to.equal(true, '3');
             expect(textNode.testTransformation2().sameNode(textNode)).to.equal(true, '4');
+
+            expect(elementNode.elementTestTransformation().sameNode(elementNode)).to.be.true;
+            expect(elementNode.textTestTransformation).to.be.undefined;
+        
+            expect(textNode.textTestTransformation().sameNode(textNode)).to.be.true;
+            expect(textNode.elementTestTransfomation).to.be.undefined; 
         });
     });
 

@@ -496,6 +496,8 @@ var Document = function(xml) {
     this._textNodeMethods = {};
     this._elementNodeMethods = {};
     this._nodeTransformations = {};
+    this._textNodeTransformations = {};
+    this._elementNodeTransformations = {};
 };
 
 $.extend(Document.prototype, Backbone.Events, {
@@ -517,18 +519,21 @@ $.extend(Document.prototype, Backbone.Events, {
                 from = node[0];
             }
         }
-        var Factory, typeMethods;
+        var Factory, typeMethods, typeTransformations;
         if(from.nodeType === Node.TEXT_NODE) {
             Factory = this.TextNodeFactory;
             typeMethods = this._textNodeMethods;
+            typeTransformations = this._textNodeTransformations;
         } else if(from.nodeType === Node.ELEMENT_NODE) {
             Factory = this.ElementNodeFactory;
             typeMethods = this._elementNodeMethods;
+            typeTransformations = this._elementNodeTransformations;
         }
         var toret = new Factory(from, this);
         _.extend(toret, this._nodeMethods);
         _.extend(toret, typeMethods);
         _.extend(toret, this._nodeTransformations);
+        _.extend(toret, typeTransformations);
         return toret;
     },
 
@@ -689,12 +694,15 @@ $.extend(Document.prototype, Backbone.Events, {
         registerMethod(methodName, method, destination);
     },
 
-    registerDocumentTransformation: function(desc, name) {
-        registerTransformation(desc, name, this);
-    },
-
-    registerNodeTransformation: function(desc, name) {
-        registerTransformation(desc, name, this._nodeTransformations);
+    registerTransformation: function(desc, name, dstName) {
+        var doc = this;
+        var destination = {
+            document: doc,
+            documentNode: doc._nodeTransformations,
+            textNode: doc._textNodeTransformations,
+            elementNode: doc._elementNodeTransformations
+        }[dstName];
+        registerTransformation(desc, name, destination);
     },
 
     registerExtension: function(extension) {
@@ -718,10 +726,8 @@ $.extend(Document.prototype, Backbone.Events, {
                 if(dstExtension.transformations) {
                     _.pairs(dstExtension.transformations).forEach(function(pair) {
                         var name = pair[0],
-                            desc = pair[1],
-                            operation;
-                        operation = {document: 'registerDocumentTransformation', documentNode: 'registerNodeTransformation'}[dstName];
-                        doc[operation](desc, name);
+                            desc = pair[1];
+                        doc.registerTransformation(desc, name, dstName);
                     });
                 }
             }
