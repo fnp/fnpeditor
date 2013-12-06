@@ -836,15 +836,9 @@ describe('smartxml', function() {
             textNode = doc.root.contents()[0];
             extension = {};
             
-            expect(function() {
-                elementNode.testTransformation();
-            }).to.throw(Error);
-            expect(function() {
-                textNode.testTransformation();
-            }).to.throw(Error);
-            expect(function() {
-                doc.testTransformation();
-            }).to.throw(Error);
+            expect(elementNode.testTransformation).to.be.undefined;
+            expect(textNode.testTransformation).to.be.undefined;
+            expect(doc.testTransformation).to.be.undefined;
             
             expect(doc.testMethod).to.be.undefined;
             expect(elementNode.testMethod).to.be.undefined;
