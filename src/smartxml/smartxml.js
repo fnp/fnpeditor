@@ -48,6 +48,10 @@ $.extend(DocumentNode.prototype, {
     },
 
     getPath: function(ancestor) {
+        if(!(this.document.containsNode(this))) {
+            return null;
+        }
+        
         var nodePath = [this].concat(this.parents()),
             toret, idx;
         ancestor = ancestor || this.document.root;
