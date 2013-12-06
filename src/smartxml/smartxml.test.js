@@ -939,6 +939,57 @@ describe('smartxml', function() {
             expect(textNode.textTestTransformation().sameNode(textNode)).to.be.true;
             expect(textNode.elementTestTransfomation).to.be.undefined; 
         });
+
+        it('allows text/element node methods and transformations to access node and transormations on document node', function() {
+
+            var doc = getDocumentFromXML('<div>text</div>');
+
+            doc.registerExtension({
+                documentNode: {
+                    methods: {
+                        test: function() {
+                            return 'super';
+                        }
+                    },
+                    transformations: {
+                        testT: function() {
+                            return 'super_trans';
+                        }
+                    }
+                },
+                elementNode: {
+                    methods: {
+                        test: function() {
+                            return 'element_sub_' + this.__super__.test();
+                        }
+                    },
+                    transformations: {
+                        testT: function() {
+                            return 'element_trans_sub_' + this.__super__.testT();
+                        }
+                    }
+                },
+                textNode: {
+                    methods: {
+                        test: function() {
+                            return 'text_sub_' + this.__super__.test();
+                        }
+                    },
+                    transformations: {
+                        testT: function() {
+                            return 'text_trans_sub_' + this.__super__.testT();
+                        }
+                    }
+                }
+            });
+
+            var textNode = doc.root.contents()[0];
+
+            expect(doc.root.test()).to.equal('element_sub_super');
+            expect(textNode.test()).to.equal('text_sub_super');
+            expect(doc.root.testT()).to.equal('element_trans_sub_super_trans');
+            expect(textNode.testT()).to.equal('text_trans_sub_super_trans');
+        });
     });
 
     // describe('Undo/redo', function() {

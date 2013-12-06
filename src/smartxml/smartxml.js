@@ -299,8 +299,15 @@ $.extend(Document.prototype, Backbone.Events, {
         var toret = new Factory(from, this);
         _.extend(toret, this._nodeMethods);
         _.extend(toret, typeMethods);
+        
         _.extend(toret, this._nodeTransformations);
         _.extend(toret, typeTransformations);
+        
+        toret.__super__ = _.extend({}, this._nodeMethods, this._nodeTransformations);
+        _.keys(toret.__super__).forEach(function(key) {
+            toret.__super__[key] = _.bind(toret.__super__[key], toret);
+        });
+
         return toret;
     },
 
