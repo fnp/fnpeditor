@@ -95,7 +95,7 @@ var elementNodeTransformations = {
         node.setData(this.getData());
 
         if(this.sameNode(this.document.root)) {
-            defineDocumentProperties(this.document, node._$);
+            this.document._defineDocumentProperties(node._$);
         }
         this._$.replaceWith(node._$);
         this._setNativeNode(node._$[0]);

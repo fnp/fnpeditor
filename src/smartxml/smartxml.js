@@ -305,7 +305,7 @@ $.extend(Document.prototype, Backbone.Events, {
 
     loadXML: function(xml, options) {
         options = options || {};
-        defineDocumentProperties(this, $(parseXML(xml)));
+        this._defineDocumentProperties($(parseXML(xml)));
         if(!options.silent) {
             this.trigger('contentSet');
         }
@@ -452,17 +452,18 @@ $.extend(Document.prototype, Backbone.Events, {
             toret = toret.contents()[idx];
         });
         return toret;
+    },
+
+    _defineDocumentProperties: function($document) {
+        var doc = this;
+        Object.defineProperty(doc, 'root', {get: function() {
+            return doc.createDocumentNode($document[0]);
+        }, configurable: true});
+        Object.defineProperty(doc, 'dom', {get: function() {
+            return $document[0];
+        }, configurable: true});
     }
 });
-
-var defineDocumentProperties = function(doc, $document) {
-    Object.defineProperty(doc, 'root', {get: function() {
-        return doc.createDocumentNode($document[0]);
-    }, configurable: true});
-    Object.defineProperty(doc, 'dom', {get: function() {
-        return $document[0];
-    }, configurable: true});
-};
 
 
 return {
