@@ -837,10 +837,10 @@ describe('smartxml', function() {
             extension = {};
             
             expect(function() {
-                elementNode.transform('testTransformation');
+                elementNode.testTransformation();
             }).to.throw(Error);
             expect(function() {
-                textNode.transform('testTransformation');
+                textNode.testTransformation();
             }).to.throw(Error);
             expect(function() {
                 doc.testTransformation();
