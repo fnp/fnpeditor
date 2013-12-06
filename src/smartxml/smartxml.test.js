@@ -845,9 +845,12 @@ describe('smartxml', function() {
             expect(function() {
                 doc.testTransformation();
             }).to.throw(Error);
+            
             expect(doc.testMethod).to.be.undefined;
             expect(elementNode.testMethod).to.be.undefined;
             expect(textNode.testMethod).to.be.undefined;
+            expect(elementNode.elementTestMethod).to.be.undefined;
+            expect(textNode.textTestMethod).to.be.undefined;
         });
 
         it('allows adding method to a document', function() {
@@ -871,9 +874,23 @@ describe('smartxml', function() {
         });
 
         it('allows adding method to a DocumentNode instance', function() {
-            extension = {documentNode: {methods: {
-                testMethod: function() { return this; }    
-            }}};
+            extension = {
+                documentNode: {
+                    methods: {
+                        testMethod: function() { return this; }
+                    }
+                },
+                textNode: {
+                    methods: {
+                        textTestMethod: function() { return this; }
+                    }
+                },
+                elementNode: {
+                    methods: {
+                        elementTestMethod: function() { return this; }
+                    }
+                }
+            };
 
             doc.registerExtension(extension);
 
@@ -883,6 +900,12 @@ describe('smartxml', function() {
 
             expect(elementNode.testMethod().sameNode(elementNode)).to.equal(true, 'context is set to a node instance');
             expect(textNode.testMethod().sameNode(textNode)).to.equal(true, 'context is set to a node instance');
+
+            expect(elementNode.elementTestMethod().sameNode(elementNode)).to.be.true;
+            expect(elementNode.textTestMethod).to.be.undefined;
+        
+            expect(textNode.textTestMethod().sameNode(textNode)).to.be.true;
+            expect(textNode.elementTestMethod).to.be.undefined;
         });
 
         it('allows adding transformation to a DocumentNode', function() {

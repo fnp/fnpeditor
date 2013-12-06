@@ -493,6 +493,8 @@ var Document = function(xml) {
     this._transformationLevel = 0;
     
     this._nodeMethods = {};
+    this._textNodeMethods = {};
+    this._elementNodeMethods = {};
     this._nodeTransformations = {};
 };
 
@@ -515,14 +517,17 @@ $.extend(Document.prototype, Backbone.Events, {
                 from = node[0];
             }
         }
-        var Factory;
+        var Factory, typeMethods;
         if(from.nodeType === Node.TEXT_NODE) {
             Factory = this.TextNodeFactory;
+            typeMethods = this._textNodeMethods;
         } else if(from.nodeType === Node.ELEMENT_NODE) {
             Factory = this.ElementNodeFactory;
+            typeMethods = this._elementNodeMethods;
         }
         var toret = new Factory(from, this);
         _.extend(toret, this._nodeMethods);
+        _.extend(toret, typeMethods);
         _.extend(toret, this._nodeTransformations);
         return toret;
     },
@@ -673,12 +678,15 @@ $.extend(Document.prototype, Backbone.Events, {
         return insertion.ofNode;
     },
 
-    registerMethod: function(methodName, method) {
-        registerMethod(methodName, method, this);
-    },
-
-    registerNodeMethod: function(methodName, method) {
-        registerMethod(methodName, method, this._nodeMethods);
+    registerMethod: function(methodName, method, dstName) {
+        var doc = this;
+        var destination = {
+            document: doc,
+            documentNode: doc._nodeMethods,
+            textNode: doc._textNodeMethods,
+            elementNode: doc._elementNodeMethods
+        }[dstName];
+        registerMethod(methodName, method, destination);
     },
 
     registerDocumentTransformation: function(desc, name) {
@@ -694,16 +702,15 @@ $.extend(Document.prototype, Backbone.Events, {
         var doc = this,
             existingPropertyNames = _.values(this);
 
-        ['document', 'documentNode'].forEach(function(dstName) {
+        ['document', 'documentNode', 'elementNode', 'textNode'].forEach(function(dstName) {
             var dstExtension = extension[dstName];
             if(dstExtension) {
                 if(dstExtension.methods) {
                     _.pairs(dstExtension.methods).forEach(function(pair) {
                         var methodName = pair[0],
-                            method = pair[1],
-                            operation;
-                        operation = {document: 'registerMethod', documentNode: 'registerNodeMethod'}[dstName];
-                        doc[operation](methodName, method);
+                            method = pair[1];
+
+                        doc.registerMethod(methodName, method, dstName);
 
                     });
                 }
