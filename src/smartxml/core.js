@@ -3,7 +3,8 @@ define([
 ], function() {
     
 'use strict';
-
+/* globals Node */
+var TEXT_NODE = Node.TEXT_NODE;
 
 var INSERTION = function(implementation) {
     var toret = function(node) {
@@ -81,7 +82,7 @@ var elementNodeTransformations = {
             this.prev().appendText(next.getText());
             next.detach();
         }
-        return DocumentNode.prototype.detach.call(this);
+        return this.__super__.detach();
     },
 
     setTag: function(tagName) {
@@ -210,7 +211,7 @@ var textNodeTransformations = {
                 _with: {tagName: desc.tagName, attrs: desc.attrs}
             });
         } else {
-            return DocumentNode.prototype.wrapWith.call(this, desc);
+            return this.__super__.wrapWith.call(this, desc);
         }
     },
 
@@ -342,7 +343,7 @@ var documentTransformations = {
     replaceRoot: function(node) {
         var insertion = this.getNodeInsertion(node);
         this.root.detach();
-        defineDocumentProperties(this, insertion.ofNode._$);
+        this._defineDocumentProperties(insertion.ofNode._$);
         insertion.ofNode.triggerChangeEvent('nodeAdded');
         return insertion.ofNode;
     }

@@ -10,9 +10,6 @@ define([
 'use strict';
 /* globals Node */
 
-var TEXT_NODE = Node.TEXT_NODE;
-
-
 
 var DocumentNode = function(nativeNode, document) {
     if(!document) {
@@ -51,7 +48,7 @@ $.extend(DocumentNode.prototype, {
         if(!(this.document.containsNode(this))) {
             return null;
         }
-        
+
         var nodePath = [this].concat(this.parents()),
             toret, idx;
         ancestor = ancestor || this.document.root;
@@ -269,6 +266,8 @@ var Document = function(xml) {
     this._nodeTransformations = {};
     this._textNodeTransformations = {};
     this._elementNodeTransformations = {};
+    
+    this.registerExtension(coreTransformations);
 };
 
 $.extend(Document.prototype, Backbone.Events, {
@@ -481,7 +480,6 @@ $.extend(Document.prototype, Backbone.Events, {
 return {
     documentFromXML: function(xml) {
         var doc = new Document(xml);
-        doc.registerExtension(coreTransformations);
         return doc;
     },
 

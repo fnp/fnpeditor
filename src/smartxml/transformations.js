@@ -43,11 +43,11 @@ toret.createGenericTransformation = function(desc, name) {
 
         // potem spr na dotychczasowych undo/redo tests;
         this.args.forEach(function(arg, idx, args) {
-            if(arg.nodeType) { // ~
+            if(arg && arg.nodeType) { // ~
                 var path = arg.getPath();
                 Object.defineProperty(args, idx, {
                     get: function() {
-                        if(transformation.hasRun) {
+                        if(transformation.hasRun && path) {
                             return transformation.document.getNodeByPath(path);
                         } else {
                             return arg;

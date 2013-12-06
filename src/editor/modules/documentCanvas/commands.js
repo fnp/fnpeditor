@@ -125,7 +125,8 @@ commands.register('newNodeRequested', function(canvas, params) {
                 var wlxmlNode = selectionStart.element.data('wlxmlNode'),
                     caretTo = selectionStart.offset < selectionEnd.offset ? 'start' : 'end',
                     //wrapper = wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}, start: selectionStart.offset, end: selectionEnd.offset}),
-                    wrapper = wlxmlNode.transform('smartxml.wrapWith', {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}, start: selectionStart.offset, end: selectionEnd.offset})
+                    //wrapper = wlxmlNode.transform('smartxml.wrapWith', {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}, start: selectionStart.offset, end: selectionEnd.offset})
+                    wrapper = wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}, start: selectionStart.offset, end: selectionEnd.offset});
                     ;
                 var wrapperCanvasElement = utils.findCanvasElement(wrapper);
                 canvas.setCurrentElement(wrapperCanvasElement.children()[0], {caretTo: caretTo});

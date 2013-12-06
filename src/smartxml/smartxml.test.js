@@ -769,7 +769,9 @@ describe('smartxml', function() {
                     c = b.contents()[0];
 
                 var parents = c.parents();
-                expect(parents).to.eql([b,a]);
+                // @@
+                expect(parents[0].sameNode(b)).to.be.true;
+                expect(parents[1].sameNode(a)).to.be.true;
             });
         });
 

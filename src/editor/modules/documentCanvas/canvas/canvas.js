@@ -39,7 +39,7 @@ $.extend(TextHandler.prototype, {
     },
     setText: function(text, node) {
         //this.canvas.wlxmlDocument.transform('setText', {node:node, text: text});
-        node.transform('smartxml.setText', {text: text});
+        node.setText(text);
 
     }
 

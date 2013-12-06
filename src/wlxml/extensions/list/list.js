@@ -65,10 +65,10 @@ extension.document.transformations.createList = {
         });
     },
     getChangeRoot: function() {
-        return this.args.node1.parent();
+        return this.args[0].node1.parent();
     },
     isAllowed: function() {
-        return this.args.node1.parent().sameNode(this.args.node2.parent());
+        return this.args[0].node1.parent().sameNode(this.args[0].node2.parent());
     }
 };
 
@@ -140,8 +140,8 @@ extension.document.transformations.extractItems = {
         return true;
     },
     isAllowed: function() {
-        var parent = this.args.nodel1.parent();
-        return parent.is('list') && parent.sameNode(this.args.node2.parent());
+        var parent = this.args[0].nodel1.parent();
+        return parent.is('list') && parent.sameNode(this.args[0].node2.parent());
     }
 };
 
