@@ -235,8 +235,9 @@ var registerTransformation = function(desc, name, target) {
     var Transformation = transformations.createContextTransformation(desc, name);
     //+ to sie powinna nazywac registerTransformationFromDesc or sth
     //+ ew. spr czy nie override (tylko jesli powyzej sa prototypy to trudno do nich dojsc)
-    target[name] = function(args) {
-        var instance = this;
+    target[name] = function() {
+        var instance = this,
+            args = Array.prototype.slice.call(arguments, 0);
         return instance.transform(Transformation, args);
     }
 };

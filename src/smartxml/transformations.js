@@ -19,27 +19,44 @@ toret.createGenericTransformation = function(desc, name) {
     desc = getTransDesc(desc);
     
     var GenericTransformation = function(document, args) {
-        this.args = args || {};
+        this.args = args || [];
 
         var transformation = this;
-        _.keys(this.args).forEach(function(key) {
-            if(transformation.args[key].nodeType) { //@@ change to instanceof check, fix circular dependency
-                var value = transformation.args[key],
-                    path = value.getPath();
-                Object.defineProperty(transformation.args, key, {
+        // _.keys(this.args).forEach(function(key) {
+        //     if(transformation.args[key].nodeType) { //@@ change to instanceof check, fix circular dependency
+        //         var value = transformation.args[key],
+        //             path = value.getPath();
+        //         Object.defineProperty(transformation.args, key, {
+        //             get: function() {
+        //                 if(transformation.hasRun) {
+        //                     //console.log('returning via path');
+        //                     return transformation.document.getNodeByPath(path);
+        //                 } else {
+        //                     //console.log('returning original arg');
+        //                     return value;
+
+        //                 }
+        //             }
+        //         });
+        //     }
+        // });
+
+        // potem spr na dotychczasowych undo/redo tests;
+        this.args.forEach(function(arg, idx, args) {
+            if(arg.nodeType) { // ~
+                var path = arg.getPath();
+                Object.defineProperty(args, idx, {
                     get: function() {
                         if(transformation.hasRun) {
-                            //console.log('returning via path');
                             return transformation.document.getNodeByPath(path);
                         } else {
-                            //console.log('returning original arg');
-                            return value;
-
+                            return arg;
                         }
                     }
                 });
             }
         });
+
         this.document = document;
         this.hasRun = false;
         if(desc.init) {
@@ -55,7 +72,8 @@ toret.createGenericTransformation = function(desc, name) {
                 this.snapshot = changeRoot.clone();
                 this.changeRootPath = changeRoot.getPath();
             }
-            var toret = desc.impl.call(this.context, this.args); // a argumenty do metody?
+            //var toret = desc.impl.call(this.context, this.args); // a argumenty do metody?
+            var toret = desc.impl.apply(this.context, this.args);
             this.hasRun = true;
             return toret;
         },
