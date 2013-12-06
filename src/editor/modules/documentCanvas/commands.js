@@ -83,7 +83,8 @@ commands.register('wrap-node', function(canvas) {
 
     if(canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
         //canvas.list.create({element1: parent1, element2: parent2});
-        doc.transform('createList', {node1: node1, node2: node2});
+        //doc.transform('createList', {node1: node1, node2: node2});
+        doc.createList({node1: node1, node2: node2});
     }
 });
 
@@ -104,7 +105,9 @@ commands.register('list', function(canvas, params) {
         node2 = parent2.data('wlxmlNode'),
         doc = node1.document;
     
-    doc.transform('createList', {node1: node1, node2: node2});
+    //doc.transform('createList', {node1: node1, node2: node2});
+    doc.createList({node1: node1, node2: node2});
+
 
     canvas.setCurrentElement(selectionFocus.element, {caretTo: selectionFocus.offset});
 });
