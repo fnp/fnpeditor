@@ -994,63 +994,93 @@ describe('smartxml', function() {
         });
     });
 
-    // describe('Undo/redo', function() {
+    describe('Undo/redo', function() {
 
-    //     it('does work', function() {
-    //         var doc = getDocumentFromXML('<section><span>Alice</span></section>'),
-    //             span = doc.root.contents()[0];
+        it('smoke tests', function() {
+            var doc = getDocumentFromXML('<div>Alice</div>'),
+                textNode = doc.root.contents()[0],
+                result;
 
-    //         span.transform('smartxml.detach');
+            expect(doc.undoStack).to.have.length(0);
+            
+            textNode.wrapWith({tagName: 'span', start:1, end:2});
+            expect(doc.undoStack).to.have.length(1, '1');
+            expect(doc.toXML()).to.equal('<div>A<span>l</span>ice</div>');
+
+            doc.undo();
+            expect(doc.undoStack).to.have.length(0, '2');
+            expect(doc.toXML()).to.equal('<div>Alice</div>');
+
+            debugger;
+            doc.redo();
+            expect(doc.undoStack).to.have.length(1, '3');
+            expect(doc.toXML()).to.equal('<div>A<span>l</span>ice</div>');
+
+            doc.undo();
+            expect(doc.undoStack).to.have.length(0, '4');
+            expect(doc.toXML()).to.equal('<div>Alice</div>');
+
+            doc.undo();
+            expect(doc.undoStack).to.have.length(0, '5');
+            expect(doc.toXML()).to.equal('<div>Alice</div>');
+
+        });
+
+        // it('does work', function() {
+        //     var doc = getDocumentFromXML('<section><span>Alice</span></section>'),
+        //         span = doc.root.contents()[0];
+
+        //     span.transform('smartxml.detach');
 
 
-    //         doc.undo();
+        //     doc.undo();
 
-    //         expect(doc.root.contents()).to.have.length(1);
-    //         expect(doc.root.contents()[0].getTagName()).to.equal('span');
-    //         expect(doc.root.contents()[0].contents()[0].getText()).to.equal('Alice');
+        //     expect(doc.root.contents()).to.have.length(1);
+        //     expect(doc.root.contents()[0].getTagName()).to.equal('span');
+        //     expect(doc.root.contents()[0].contents()[0].getText()).to.equal('Alice');
 
-    //         doc.redo();
-    //         expect(doc.root.contents()).to.have.length(0);
+        //     doc.redo();
+        //     expect(doc.root.contents()).to.have.length(0);
 
-    //         doc.undo();
-    //         expect(doc.root.contents()).to.have.length(1);
-    //         expect(doc.root.contents()[0].getTagName()).to.equal('span');
-    //         expect(doc.root.contents()[0].contents()[0].getText()).to.equal('Alice');
+        //     doc.undo();
+        //     expect(doc.root.contents()).to.have.length(1);
+        //     expect(doc.root.contents()[0].getTagName()).to.equal('span');
+        //     expect(doc.root.contents()[0].contents()[0].getText()).to.equal('Alice');
 
-    //     });
-    //     it('does work - merged text nodes case', function() {
-    //         var doc = getDocumentFromXML('<section>Alice <span>has</span> a cat.</section>'),
-    //             span = doc.root.contents()[1];
+        // });
+        // it('does work - merged text nodes case', function() {
+        //     var doc = getDocumentFromXML('<section>Alice <span>has</span> a cat.</section>'),
+        //         span = doc.root.contents()[1];
 
-    //         span.transform('smartxml.detach');
+        //     span.transform('smartxml.detach');
 
 
-    //         doc.undo();
+        //     doc.undo();
 
-    //         expect(doc.root.contents().length).to.equal(3);
-    //         //console.log(doc.toXML());
-    //         expect(doc.root.contents()[1].contents()[0].getText()).to.equal('has');
+        //     expect(doc.root.contents().length).to.equal(3);
+        //     //console.log(doc.toXML());
+        //     expect(doc.root.contents()[1].contents()[0].getText()).to.equal('has');
 
-    //     });
-    //     it('dbg - don not store nodes in tranformation state!', function() {
-    //         var doc = getDocumentFromXML('<section><a></a><b></b></section>'),
-    //             a = doc.root.contents()[0],
-    //             b = doc.root.contents()[1];
+        // });
+        // it('dbg - don not store nodes in tranformation state!', function() {
+        //     var doc = getDocumentFromXML('<section><a></a><b></b></section>'),
+        //         a = doc.root.contents()[0],
+        //         b = doc.root.contents()[1];
 
-    //         a.transform('smartxml.detach');
-    //         b.transform('smartxml.detach');
-    //         doc.undo();
-    //         doc.undo();
-    //         expect(doc.root.contents().length).to.equal(2);
-    //         expect(doc.root.contents()[0].getTagName()).to.equal('a');
-    //         expect(doc.root.contents()[1].getTagName()).to.equal('b');
+        //     a.transform('smartxml.detach');
+        //     b.transform('smartxml.detach');
+        //     doc.undo();
+        //     doc.undo();
+        //     expect(doc.root.contents().length).to.equal(2);
+        //     expect(doc.root.contents()[0].getTagName()).to.equal('a');
+        //     expect(doc.root.contents()[1].getTagName()).to.equal('b');
 
-    //         doc.redo();
-    //         doc.redo();
-    //         expect(doc.root.contents().length).to.equal(0);
+        //     doc.redo();
+        //     doc.redo();
+        //     expect(doc.root.contents().length).to.equal(0);
 
-    //     });
-    // });
+        // });
+    });
 
 });
 

@@ -431,7 +431,7 @@ $.extend(Document.prototype, Backbone.Events, {
         if(transformation) {
             this._transformationLevel++;
             toret = transformation.run();
-            if(this._transformationLevel === 1) {
+            if(this._transformationLevel === 1 && !this._undoInProgress) {
                 this.undoStack.push(transformation);
             }
             this._transformationLevel--;
@@ -445,14 +445,18 @@ $.extend(Document.prototype, Backbone.Events, {
     undo: function() {
         var transformation = this.undoStack.pop();
         if(transformation) {
+            this._undoInProgress = true;
             transformation.undo();
+            this._undoInProgress = false;
             this.redoStack.push(transformation);
         }
     },
     redo: function() {
         var transformation = this.redoStack.pop();
         if(transformation) {
+            this._transformationLevel++;
             transformation.run();
+            this._transformationLevel--;
             this.undoStack.push(transformation);
         }
     },
