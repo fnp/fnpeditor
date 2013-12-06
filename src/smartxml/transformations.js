@@ -42,18 +42,40 @@ toret.createGenericTransformation = function(desc, name) {
         // });
 
         // potem spr na dotychczasowych undo/redo tests;
+        
+
         this.args.forEach(function(arg, idx, args) {
-            if(arg && arg.nodeType) { // ~
-                var path = arg.getPath();
-                Object.defineProperty(args, idx, {
-                    get: function() {
-                        if(transformation.hasRun && path) {
-                            return transformation.document.getNodeByPath(path);
-                        } else {
-                            return arg;
+            var path;
+            if(arg) {
+                if(arg.nodeType) { // ~
+                    path = arg.getPath();
+                    Object.defineProperty(args, idx, {
+                        get: function() {
+                            if(transformation.hasRun && path) {
+                                return transformation.document.getNodeByPath(path);
+                            } else {
+                                return arg;
+                            }
                         }
-                    }
-                });
+                    });
+                } else if(_.isObject(arg)) {
+                    _.keys(arg).forEach(function(key) {
+                        var value = arg[key],
+                            path;
+                        if(value && value.nodeType) {
+                            path = value.getPath();
+                            Object.defineProperty(arg, key, {
+                                get: function() {
+                                    if(transformation.hasRun && path) {
+                                        return transformation.document.getNodeByPath(path);
+                                    } else {
+                                        return value;
+                                    }
+                                }
+                            });   
+                        }
+                    });
+                }
             }
         });
 
