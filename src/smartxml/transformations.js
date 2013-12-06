@@ -84,14 +84,21 @@ toret.createContextTransformation = function(desc, name) {
         if(document === object) {
             this.context = document;
         } else {      
-            var contextPath = object.getPath();
+            var contextPath = object.getPath(),
+                transformation = this;
             Object.defineProperty(this, 'context', {
                 get: function() {
                     // todo: to jakos inaczej, bo np. this.context w undo transformacji before to juz nie ten sam obiekt
                     // moze transformacja powinna zwracac zmodyfikowana sciezke do obiektu po dzialaniu run?
                     
-                    // tu tez trick z hasRun
-                    return document.getNodeByPath(contextPath);
+                    if(transformation.hasRun) {
+                        //console.log('returning via path');
+                        return transformation.document.getNodeByPath(contextPath);
+                    } else {
+                        //console.log('returning original arg');
+                        return object;
+
+                    }
                 }
             });
         }
