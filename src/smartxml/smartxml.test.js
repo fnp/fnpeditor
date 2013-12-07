@@ -1060,6 +1060,99 @@ describe('smartxml', function() {
             expect(textNode.getText()).to.equal('Alice h');
         });
 
+        
+        var sampleMethod = function(val) {
+            this._$.attr('x', val);
+        };
+
+        var transformations = {
+            'unaware': sampleMethod,
+            'returning change root': {
+                impl: sampleMethod,
+                getChangeRoot: function() {
+                    return this.context;
+                }
+            },
+            'implementing undo operation': {
+                impl: function(t, val) {
+                    t.oldVal = this.getAttr('x');
+                    sampleMethod.call(this, val);
+                },
+                undo: function(t) {
+                    this.setAttr('x', t.oldVal);
+                }
+            }
+        };
+
+        _.pairs(transformations).forEach(function(pair) {
+            var name = pair[0],
+                transformaton = pair[1];
+
+            describe(name + ' transformation: ', function() {
+                var doc, node, nodePath;
+
+                beforeEach(function() {
+                    doc = getDocumentFromXML('<div><test x="old"></test></div>');
+
+                    doc.registerExtension({elementNode: {transformations: {
+                        test: transformaton
+                    }}});
+
+                    node = doc.root.contents()[0];
+                    nodePath = node.getPath();
+                });
+
+                it('transforms as expected', function() {
+                    node.test('new');
+                    expect(node.getAttr('x')).to.equal('new');
+                });
+
+                it('can be undone', function() {
+                    node.test('new');
+                    doc.undo();
+                    node = doc.getNodeByPath(nodePath);
+                    expect(node.getAttr('x')).to.equal('old');
+                });
+
+                it('can be undone and then redone', function() {
+                    node.test('new');
+                    doc.undo();
+                    doc.redo();
+                    node = doc.getNodeByPath(nodePath);
+                    expect(node.getAttr('x')).to.equal('new');
+                });
+
+                it('handles a sample scenario', function() {
+                    doc.root.contents()[0].test('1');
+                    doc.root.contents()[0].test('2');
+                    doc.root.contents()[0].test('3');
+                    doc.root.contents()[0].test('4');
+                    doc.root.contents()[0].test('5');
+
+                    expect(doc.root.contents()[0].getAttr('x')).to.equal('5', 'after initial transformations');
+                    doc.undo();
+                    expect(doc.root.contents()[0].getAttr('x')).to.equal('4', 'undo 1.1');
+                    doc.undo();
+                    expect(doc.root.contents()[0].getAttr('x')).to.equal('3', 'undo 1.2');
+                    doc.redo();
+                    expect(doc.root.contents()[0].getAttr('x')).to.equal('4', 'redo 1.1');
+                    doc.redo();
+                    expect(doc.root.contents()[0].getAttr('x')).to.equal('5', 'redo 1.2');
+                    doc.undo();
+                    expect(doc.root.contents()[0].getAttr('x')).to.equal('4', 'undo 2.1');
+                    doc.root.contents()[0].test('10');
+                    expect(doc.root.contents()[0].getAttr('x')).to.equal('10', 'additional transformation');
+                    expect(doc.redoStack.length).to.equal(0, 'transformation cleared redo stack');
+                    doc.redo();
+                    expect(doc.root.contents()[0].getAttr('x')).to.equal('10', 'empty redoStack so redo was noop');
+                    doc.undo();
+                    expect(doc.root.contents()[0].getAttr('x')).to.equal('4', 'undoing additional transformation');
+                    doc.redo()
+                    expect(doc.root.contents()[0].getAttr('x')).to.equal('10', 'redoing additional transformation');
+                });
+            });
+        });
+
         // it('does work', function() {
         //     var doc = getDocumentFromXML('<section><span>Alice</span></section>'),
         //         span = doc.root.contents()[0];
