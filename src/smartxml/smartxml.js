@@ -420,6 +420,7 @@ $.extend(Document.prototype, Backbone.Events, {
     transform: function(Transformation, args) {
         //console.log('transform');
         var toret, transformation;
+        //debugger;
 
         // ref: odrebnie przygotowanie transformacji, odrebnie jej wykonanie (to pierwsze to analog transform z node)
 
@@ -430,7 +431,7 @@ $.extend(Document.prototype, Backbone.Events, {
         }
         if(transformation) {
             this._transformationLevel++;
-            toret = transformation.run();
+            toret = transformation.run({beUndoable:this._transformationLevel === 1});
             if(this._transformationLevel === 1 && !this._undoInProgress) {
                 this.undoStack.push(transformation);
             }
@@ -457,9 +458,10 @@ $.extend(Document.prototype, Backbone.Events, {
         var transformation = this.redoStack.pop();
         if(transformation) {
             this._transformationLevel++;
-            transformation.run();
+            transformation.run({beUndoable: true});
             this._transformationLevel--;
             this.undoStack.push(transformation);
+
         }
     },
 
