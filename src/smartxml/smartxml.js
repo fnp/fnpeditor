@@ -436,7 +436,9 @@ $.extend(Document.prototype, Backbone.Events, {
             }
             this._transformationLevel--;
             //console.log('clearing redo stack');
-            this.redoStack = [];
+            if(!this._undoInProgress) {
+                this.redoStack = [];
+            }
             return toret;
         } else {
             throw new Error('Transformation ' + transformation + ' doesn\'t exist!');

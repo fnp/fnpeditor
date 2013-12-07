@@ -1023,7 +1023,41 @@ describe('smartxml', function() {
             doc.undo();
             expect(doc.undoStack).to.have.length(0, '5');
             expect(doc.toXML()).to.equal('<div>Alice</div>');
+        });
 
+        it('smoke tests 2', function() {
+            var doc = getDocumentFromXML('<div>Alice</div>'),
+                textNode = doc.root.contents()[0],
+                path = textNode.getPath(),
+                result;
+
+            debugger;
+            textNode.setText('Alice ');
+            textNode.setText('Alice h');
+            textNode.setText('Alice ha');
+            textNode.setText('Alice has');
+
+            expect(textNode.getText()).to.equal('Alice has');
+
+            doc.undo();
+            expect(doc.root.contents()[0].getText()).to.equal('Alice ha', '1');
+
+            doc.undo();
+            expect(doc.root.contents()[0].getText()).to.equal('Alice h', '2');
+
+            doc.redo();
+            expect(doc.root.contents()[0].getText()).to.equal('Alice ha', '3');
+
+            doc.redo();
+            expect(doc.root.contents()[0].getText()).to.equal('Alice has', '4');
+
+            doc.undo();
+            doc.undo();
+            textNode = doc.getNodeByPath(path);
+            textNode.setText('Cat');
+            doc.undo();
+            textNode = doc.getNodeByPath(path);
+            expect(textNode.getText()).to.equal('Alice h');
         });
 
         // it('does work', function() {
