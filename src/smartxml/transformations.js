@@ -95,13 +95,14 @@ toret.createGenericTransformation = function(desc, name) {
                 this.changeRootPath = changeRoot.getPath();
             }
             //var toret = desc.impl.call(this.context, this.args); // a argumenty do metody?
-            var toret = desc.impl.apply(this.context, this.args);
+            var argsToPass = desc.undo ? [this].concat(this.args) : this.args;
+            var toret = desc.impl.apply(this.context, argsToPass);
             this.hasRun = true;
             return toret;
         },
         undo: function() {
             if(desc.undo) {
-                desc.undo.call(this.context);
+                desc.undo.call(this.context, this);
             } else {
                 this.document.getNodeByPath(this.changeRootPath).replaceWith(this.snapshot);
             }
