@@ -12,14 +12,14 @@ var templates = {
 };
 
 var getAttrElement = function(attrName, attr) {
-    var toret = $('<div>');   
+    var toret = $('<div>');
     toret.append(templates.string({name: attrName, value: attr.value}));
     return toret;
 };
 
 var MetaWidget = Backbone.View.extend({
     events: {
-        'change [metaField-name]': 'onMetaFieldChange' 
+        'change [metaField-name]': 'onMetaFieldChange'
     },
     initialize: function() {
         var view = this;

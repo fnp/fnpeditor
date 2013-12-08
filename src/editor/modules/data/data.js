@@ -21,7 +21,7 @@ return function(sandbox) {
      
     
     function readCookie(name) {
-        /* global escape, unescape */
+        /* global escape, unescape, document */
         var nameEQ = escape(name) + '=';
         var ca = document.cookie.split(';');
         for (var i = 0; i < ca.length; i++) {

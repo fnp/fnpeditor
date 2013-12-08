@@ -6,7 +6,7 @@ define([
 'use strict';
 
 /* jshint expr:true */
-/* global it, describe */
+/* global it, describe, beforeEach */
 
 var expect = chai.expect;
 
@@ -103,6 +103,8 @@ describe('WLXMLDocument', function() {
     });
 
     describe('White space handling', function() {
+        /* globals Node */
+
         it('ignores white space surrounding block elements', function() {
             var node = nodeFromXML('<section> <div></div> </section>'),
                 contents = node.contents();

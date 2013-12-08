@@ -7,6 +7,8 @@ define([
     
 'use strict';
 
+/* globals Node */
+
 // utils
 
 var isMetaAttribute = function(attrName) {
@@ -29,7 +31,7 @@ var installObject = function(instance, klass) {
     _.keys(methods).concat(_.keys(transformations)).forEach(function(key) {
         instance.object[key] = _.bind(instance.object[key], instance);
     });
-}
+};
 
 var WLXMLElementNode = function(nativeNode, document) {
     smartxml.ElementNode.call(this, nativeNode, document);
@@ -42,7 +44,6 @@ $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
         return this.getAttr('class') || '';
     },
     setClass: function(klass) {
-        var methods, object;
         if(klass !== this.klass) {
             installObject(this, klass);
             return this.setAttr('class', klass);
@@ -141,7 +142,7 @@ $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
 
 var WLXMLDocumentNode = function() {
     smartxml.DocumentNode.apply(this, arguments);
-}
+};
 WLXMLDocumentNode.prototype = Object.create(smartxml.DocumentNode.prototype);
 
 var WLXMLDocument = function(xml, options) {
@@ -239,7 +240,7 @@ $.extend(WLXMLDocument.prototype, {
                         }
                     //}
                 }
-
+                /* globals document */
                 el.replaceWith(document.createTextNode(text.transformed));
             });
         this.trigger('contentSet');
@@ -250,7 +251,7 @@ $.extend(WLXMLDocument.prototype, {
         thisClassTransformations[Transformation.prototype.name] = function(args) {
             var nodeInstance = this;
             return nodeInstance.transform(Transformation, args);
-        }
+        };
     },
 
     registerClassMethod: function(methodName, method, className) {
@@ -277,7 +278,7 @@ $.extend(WLXMLDocument.prototype, {
                 var name = pair[0],
                     desc = pair[1];
                 doc.registerClassTransformation(transformations.createContextTransformation(desc, name), className);
-            }); 
+            });
         });
 
     }

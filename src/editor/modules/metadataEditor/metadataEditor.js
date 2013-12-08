@@ -29,6 +29,7 @@ return function(sandbox) {
             });
             
             this.metaTable.on('keydown', '[contenteditable]', function(e) {
+                /* globals document */
                 if(e.which === 13) {
                     if($(document.activeElement).hasClass('rng-module-metadataEditor-metaItemKey')) {
                         metaTable.find('.rng-module-metadataEditor-metaItemValue').focus();

@@ -1,10 +1,11 @@
-define([
-
-], function() {
+define(function(require) {
     
 'use strict';
 /* globals Node */
-var TEXT_NODE = Node.TEXT_NODE;
+
+var _ = require('libs/underscore'),
+    TEXT_NODE = Node.TEXT_NODE;
+
 
 var INSERTION = function(implementation) {
     var toret = function(node) {
@@ -186,7 +187,6 @@ var elementNodeTransformations = {
 
 var textNodeTransformations = {
     setText: function(text) {
-        //console.log('smartxml: ' + text);
         this.nativeNode.data = text;
         this.triggerTextChangeEvent();
     },
@@ -347,7 +347,7 @@ var documentTransformations = {
         insertion.ofNode.triggerChangeEvent('nodeAdded');
         return insertion.ofNode;
     }
-}
+};
 
 return {
     document: {

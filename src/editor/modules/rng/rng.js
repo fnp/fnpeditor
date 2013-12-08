@@ -226,6 +226,7 @@ return function(sandbox) {
             sandbox.getModule('data').restoreVersion(event);
         },
         displayVersion: function(event) {
+            /* globals window */
             window.open('/' + gettext('editor') + '/' + sandbox.getModule('data').getDocumentId() + '?version=' + event.version, _.uniqueId());
         }
     };

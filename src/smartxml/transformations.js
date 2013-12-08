@@ -5,12 +5,12 @@ define(function(require) {
 var _ = require('libs/underscore'),
     toret = {};
 
-var getTransDesc = function(desc, name) {
+var getTransDesc = function(desc) {
     if(typeof desc === 'function') {
         desc = {impl: desc};
     }
     if(!desc.impl) {
-        throw new Error('Got transformation description without implementation.')
+        throw new Error('Got transformation description without implementation.');
     }
     return desc;
 };
@@ -72,7 +72,7 @@ toret.createGenericTransformation = function(desc, name) {
                                         return value;
                                     }
                                 }
-                            });   
+                            });
                         }
                     });
                 }
@@ -94,7 +94,6 @@ toret.createGenericTransformation = function(desc, name) {
                 this.snapshot = changeRoot.clone();
                 this.changeRootPath = changeRoot.getPath();
             }
-            //var toret = desc.impl.call(this.context, this.args); // a argumenty do metody?
             var argsToPass = desc.undo ? [this].concat(this.args) : this.args;
             var toret = desc.impl.apply(this.context, argsToPass);
             this.hasRun = true;
@@ -111,12 +110,8 @@ toret.createGenericTransformation = function(desc, name) {
 
     return GenericTransformation;
 };
-// var T = createGenericTransformation({impl: function() {}});
-// var t = T(doc, {a:1,b:2,c3:3});
-
 
 toret.createContextTransformation = function(desc, name) {
-    // mozna sie pozbyc przez przeniesienie object/context na koniec argumentow konstruktora generic transformation
     var GenericTransformation = toret.createGenericTransformation(desc, name);
 
     var ContextTransformation = function(document, object, args) {
@@ -124,77 +119,23 @@ toret.createContextTransformation = function(desc, name) {
 
         if(document === object) {
             this.context = document;
-        } else {      
+        } else {
             var contextPath = object.getPath(),
                 transformation = this;
             Object.defineProperty(this, 'context', {
                 get: function() {
-                    // todo: to jakos inaczej, bo np. this.context w undo transformacji before to juz nie ten sam obiekt
-                    // moze transformacja powinna zwracac zmodyfikowana sciezke do obiektu po dzialaniu run?
-                    
                     if(transformation.hasRun) {
-                        //console.log('returning via path');
                         return transformation.document.getNodeByPath(contextPath);
                     } else {
-                        //console.log('returning original arg');
                         return object;
-
                     }
                 }
             });
         }
-    }
+    };
     ContextTransformation.prototype = Object.create(GenericTransformation.prototype);
     return ContextTransformation;
-}
-// var T = createContextTransformation({impl: function() {}});
-// var t = T(doc, node, {a:1,b:2,c3:3});
-///
-
-
-
-toret.TransformationStorage = function() {
-    this._transformations = {};
 };
-
-_.extend(toret.TransformationStorage.prototype, {
-    
-    register: function(Transformation) {
-        var list = (this._transformations[Transformation.prototype.name] = this._transformations[Transformation.prototype.name] || []);
-        list.push(Transformation);
-    },
-
-    get: function(name) {
-        var transformations = this._transformations[name];
-        if(!transformations) {
-            throw new Error('Transformation "' + name + '" not found!');
-        }
-        // na razie zwraca pierwsza
-        return transformations[0];
-    }
-});
-
-
-
-// var registerTransformationFromMethod = (object, methodName, desc) {
-//         if(!object[methodName]) {
-//             throw new Exeption('Cannot register transformation from unknown method ' + methodName + ' on ' + object);
-//         }
-//         desc.impl = object[name];
-//         Transformation = createContextTransformation(desc);
-//         object.prototype.registerContextTransformation(name, createContextTransformation(method));
-// };
-
-
-// registerTransformationFromMethod(ElementNode, 'setAttr', {
-//     impl: function(args) {
-//         this.setAttr(args.name, args.value);
-//     },
-//     getChangeRoot: function() {
-//         return this.context;
-//     }
-
-// });
 
 return toret;
 

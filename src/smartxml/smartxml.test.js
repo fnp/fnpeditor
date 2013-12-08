@@ -1,8 +1,9 @@
 define([
     'libs/chai',
     'libs/sinon',
+    'libs/underscore',
     './smartxml.js'
-], function(chai, sinon, smartxml) {
+], function(chai, sinon, _, smartxml) {
     
 'use strict';
 /*jshint expr:true */
@@ -939,7 +940,7 @@ describe('smartxml', function() {
             expect(elementNode.textTestTransformation).to.be.undefined;
         
             expect(textNode.textTestTransformation().sameNode(textNode)).to.be.true;
-            expect(textNode.elementTestTransfomation).to.be.undefined; 
+            expect(textNode.elementTestTransfomation).to.be.undefined;
         });
 
         it('allows text/element node methods and transformations to access node and transormations on document node', function() {
@@ -998,8 +999,7 @@ describe('smartxml', function() {
 
         it('smoke tests', function() {
             var doc = getDocumentFromXML('<div>Alice</div>'),
-                textNode = doc.root.contents()[0],
-                result;
+                textNode = doc.root.contents()[0];
 
             expect(doc.undoStack).to.have.length(0);
             
@@ -1011,7 +1011,6 @@ describe('smartxml', function() {
             expect(doc.undoStack).to.have.length(0, '2');
             expect(doc.toXML()).to.equal('<div>Alice</div>');
 
-            debugger;
             doc.redo();
             expect(doc.undoStack).to.have.length(1, '3');
             expect(doc.toXML()).to.equal('<div>A<span>l</span>ice</div>');
@@ -1028,10 +1027,8 @@ describe('smartxml', function() {
         it('smoke tests 2', function() {
             var doc = getDocumentFromXML('<div>Alice</div>'),
                 textNode = doc.root.contents()[0],
-                path = textNode.getPath(),
-                result;
+                path = textNode.getPath();
 
-            debugger;
             textNode.setText('Alice ');
             textNode.setText('Alice h');
             textNode.setText('Alice ha');
@@ -1147,7 +1144,7 @@ describe('smartxml', function() {
                     expect(doc.root.contents()[0].getAttr('x')).to.equal('10', 'empty redoStack so redo was noop');
                     doc.undo();
                     expect(doc.root.contents()[0].getAttr('x')).to.equal('4', 'undoing additional transformation');
-                    doc.redo()
+                    doc.redo();
                     expect(doc.root.contents()[0].getAttr('x')).to.equal('10', 'redoing additional transformation');
                 });
             });

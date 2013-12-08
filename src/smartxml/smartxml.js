@@ -34,13 +34,6 @@ $.extend(DocumentNode.prototype, {
 
     clone: function() {
         var clone = this._$.clone(true, true);
-        // clone.find('*').addBack().each(function() {
-        //     var n = $(this);
-        //     if(n.data('canvasElement')) {
-        //         n.data('canvasElement', $.extend(true, {}, n.data('canvasElement')));
-        //         n.data('canvasElement').$element = n.data('canvasElement').$element.clone(true, true);
-        //     }
-        // });
         return this.document.createDocumentNode(clone[0]);
     },
 
@@ -234,13 +227,11 @@ var parseXML = function(xml) {
 
 var registerTransformation = function(desc, name, target) {
     var Transformation = transformations.createContextTransformation(desc, name);
-    //+ to sie powinna nazywac registerTransformationFromDesc or sth
-    //+ ew. spr czy nie override (tylko jesli powyzej sa prototypy to trudno do nich dojsc)
     target[name] = function() {
         var instance = this,
             args = Array.prototype.slice.call(arguments, 0);
         return instance.transform(Transformation, args);
-    }
+    };
 };
 
 var registerMethod = function(methodName, method, target) {
@@ -350,7 +341,6 @@ $.extend(Document.prototype, Backbone.Events, {
     },
 
     trigger: function() {
-        //console.log('trigger: ' + arguments[0] + (arguments[1] ? ', ' + arguments[1].type : ''));
         Backbone.Events.trigger.apply(this, arguments);
     },
 
@@ -389,9 +379,7 @@ $.extend(Document.prototype, Backbone.Events, {
     },
 
     registerExtension: function(extension) {
-        //debugger;
-        var doc = this,
-            existingPropertyNames = _.values(this);
+        var doc = this;
 
         ['document', 'documentNode', 'elementNode', 'textNode'].forEach(function(dstName) {
             var dstExtension = extension[dstName];
@@ -418,11 +406,7 @@ $.extend(Document.prototype, Backbone.Events, {
     },
 
     transform: function(Transformation, args) {
-        //console.log('transform');
         var toret, transformation;
-        //debugger;
-
-        // ref: odrebnie przygotowanie transformacji, odrebnie jej wykonanie (to pierwsze to analog transform z node)
 
         if(typeof Transformation === 'function') {
             transformation = new Transformation(this, this, args);
@@ -436,7 +420,6 @@ $.extend(Document.prototype, Backbone.Events, {
                 this.undoStack.push(transformation);
             }
             this._transformationLevel--;
-            //console.log('clearing redo stack');
             if(!this._undoInProgress) {
                 this.redoStack = [];
             }

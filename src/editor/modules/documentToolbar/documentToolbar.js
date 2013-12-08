@@ -39,7 +39,7 @@ return function(sandbox) {
                 if(command === 'undo' || command === 'redo') {
                     params.callback = function(disable) {
                         btn.attr('disabled', !disable);
-                    }
+                    };
                 }
 
                 sandbox.publish('command', command, params);

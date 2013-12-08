@@ -16,7 +16,7 @@ var DocumentElementWrapper = function(documentElement) {
 
     this.clearWidgets = function() {
         documentElement.dom().children('.canvas-widgets').empty();
-    }
+    };
 
     this.setDisplayStyle = function(displayStyle) {
         documentElement.dom().css('display', displayStyle || '');
@@ -33,25 +33,28 @@ var DocumentElementWrapper = function(documentElement) {
 
     this.toggle = function(toggle) {
         documentElement._container().toggle(toggle);
-    }
+    };
 
     var eventBus = documentElement.canvas ? documentElement.canvas.eventBus :
         {trigger: function() {}};
     this.trigger = function() {
         eventBus.trigger.apply(eventBus, arguments);
-    }
+    };
 
-}
+};
 
 var getDisplayStyle = function(tag, klass) {
-    if(tag === 'metadata')
+    if(tag === 'metadata') {
         return 'none';
-    if(tag === 'span')
+    }
+    if(tag === 'span') {
         return 'inline';
-    if(klass === 'item')
+    }
+    if(klass === 'item') {
         return null;
+    }
     return 'block';
-}
+};
 
 var GenericManager = function(wlxmlElement) {
     this.el = wlxmlElement;
@@ -69,21 +72,23 @@ $.extend(GenericManager.prototype, {
         this.el.toggle(toggle);
     }
 
-})
+});
 
 var managers = {
     _m: {},
     set: function(tag, klass, manager) {
-        if(!this._m[tag])
+        if(!this._m[tag]) {
             this._m[tag] = {};
+        }
         this._m[tag][klass] = manager;
     },
     get: function(tag,klass) {
-        if(this._m[tag] && this._m[tag][klass])
+        if(this._m[tag] && this._m[tag][klass]) {
             return this._m[tag][klass];
+        }
         return GenericManager;
     }
-}
+};
 
 var FootnoteManager = function(wlxmlElement) {
     this.el = wlxmlElement;
@@ -114,10 +119,11 @@ $.extend(FootnoteManager.prototype, {
         
         this.el.setDisplayStyle(toggle ? 'block' : 'inline');
         this.el.toggle(toggle);
-        if(!options.silent)
+        if(!options.silent) {
             this.el.trigger('elementToggled', toggle, this.el.documentElement);
+        }
     }
-})
+});
 managers.set('aside', 'footnote', FootnoteManager);
 
 

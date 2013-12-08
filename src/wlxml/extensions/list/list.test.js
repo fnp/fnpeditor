@@ -2,6 +2,9 @@ define(function(require) {
     
 'use strict';
 
+/* jshint multistr:true */
+/* globals describe, it */
+
 var chai = require('libs/chai'),
     wlxml = require('wlxml/wlxml'),
     expect = chai.expect,
@@ -16,6 +19,7 @@ var getDocumentFromXML = function(xml, options) {
 };
 
 var removeEmptyTextNodes = function(xml) {
+    /* globals Node */
     xml = $($.trim(xml));
     xml.find(':not(iframe)')
         .addBack()
@@ -233,9 +237,8 @@ describe('Lists extension', function() {
 
             doc.extractItems({item1: nestedListItem, item2: nestedListItem}); //@@ name!
 
-            var section = doc.root,
-                list = section.contents()[0],
-                item1 = list.contents()[0],
+            list = doc.root.contents()[0];
+            var item1 = list.contents()[0],
                 item2 = list.contents()[1], //
                 item3 = list.contents()[2],
                 item4 = list.contents()[3], //
@@ -281,10 +284,8 @@ describe('Lists extension', function() {
                 nestedListItem2 = nestedList.contents()[2];
 
             doc.extractItems({item1: nestedListItem1, item2: nestedListItem2});
-
-            var section = doc.root,
-                list = section.contents()[0],
-                item1 = list.contents()[0],
+            list = doc.root.contents()[0];
+            var item1 = list.contents()[0],
                 item2 = list.contents()[1],
                 item3 = list.contents()[2],
                 item4 = list.contents()[3],
@@ -323,9 +324,8 @@ describe('Lists extension', function() {
 
             doc.extractItems({item1: nestedListItem1, item2: nestedListItem2});
 
-            var section = doc.root,
-                list = section.contents()[0],
-                item1 = list.contents()[0],
+            list = doc.root.contents()[0];
+            var item1 = list.contents()[0],
                 item2 = list.contents()[1],
                 item3 = list.contents()[2],
                 item4 = list.contents()[3],
@@ -364,9 +364,8 @@ describe('Lists extension', function() {
 
             doc.extractItems({item1: nestedListItem1, item2: nestedListItem2});
 
-            var section = doc.root,
-                list = section.contents()[0],
-                item1 = list.contents()[0],
+            list = doc.root.contents()[0];
+            var item1 = list.contents()[0],
                 item2 = list.contents()[1],
                 item3 = list.contents()[2],
                 item4 = list.contents()[3];

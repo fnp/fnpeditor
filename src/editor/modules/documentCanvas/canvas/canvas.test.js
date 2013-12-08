@@ -19,9 +19,10 @@ var getCanvasFromXML = function(xml) {
 
 var getDocumentFromXML = function(xml) {
     return wlxml.WLXMLDocumentFromXML(xml);
-}
+};
 
 var wait = function(callback, timeout) {
+    /* globals window */
     return window.setTimeout(callback, timeout || 0.5);
 };
 
@@ -56,7 +57,7 @@ describe('Handling changes to the document', function() {
             c = canvas.fromXMLDocument(doc);
 
         var header = doc.root.replaceWith({tagName: 'header'});
-        expect(c.doc().data('wlxmlNode').sameNode(header)).to.be.true;
+        expect(c.doc().data('wlxmlNode').sameNode(header)).to.equal(true);
     });
 });
 
@@ -90,7 +91,7 @@ describe('Listening to document changes', function() {
 });
 
 describe('Cursor', function() {
-
+    /* globals Node */
     var getSelection;
 
     var findTextNode = function(inside, text) {
@@ -104,6 +105,7 @@ describe('Cursor', function() {
     };
 
     beforeEach(function() {
+        /* globals window */
         getSelection = sinon.stub(window, 'getSelection');
     });
 

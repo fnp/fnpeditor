@@ -3,7 +3,7 @@ define([
 ], function($) {
     
 'use strict';
-
+/* globals Node */
 
 var nearestInDocumentOrder = function(selector, direction, element) {
     var parents = $(element).parents(),

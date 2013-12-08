@@ -1,10 +1,12 @@
 define([
+'libs/jquery',
 'libs/chai',
 'libs/sinon',
 'modules/nodePane/metaWidget/metaWidget'
-], function(chai, sinon, metaWidget) {
+], function($, chai, sinon, metaWidget) {
 
 'use strict';
+/* globals describe, it */
 
 var assert = chai.assert;
 
