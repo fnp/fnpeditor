@@ -1150,6 +1150,46 @@ describe('smartxml', function() {
             });
         });
 
+        it('smoke tests nested transformations', function() {
+            var doc = getDocumentFromXML('<div></div>');
+
+            doc.registerExtension({elementNode: {transformations: {
+                nested: function(v) {
+                    this._$.attr('innerAttr', v);
+                },
+                outer: function(v) {
+                    this.nested(v);
+                    this._$.attr('outerAttr', v);
+                }
+            }}});
+
+            doc.root.outer('test1');
+            doc.root.outer('test2');
+
+            expect(doc.root.getAttr('innerAttr')).to.equal('test2');
+            expect(doc.root.getAttr('outerAttr')).to.equal('test2');
+
+            doc.undo();
+
+            expect(doc.root.getAttr('innerAttr')).to.equal('test1');
+            expect(doc.root.getAttr('outerAttr')).to.equal('test1');
+
+            doc.undo();
+
+            expect(doc.root.getAttr('innerAttr')).to.equal(undefined);
+            expect(doc.root.getAttr('outerAttr')).to.equal(undefined);
+
+            doc.redo();
+
+            expect(doc.root.getAttr('innerAttr')).to.equal('test1');
+            expect(doc.root.getAttr('outerAttr')).to.equal('test1');
+
+            doc.redo();
+
+            expect(doc.root.getAttr('innerAttr')).to.equal('test2');
+            expect(doc.root.getAttr('outerAttr')).to.equal('test2');
+
+        });
         // it('does work', function() {
         //     var doc = getDocumentFromXML('<section><span>Alice</span></section>'),
         //         span = doc.root.contents()[0];

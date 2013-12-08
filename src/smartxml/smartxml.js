@@ -419,10 +419,10 @@ $.extend(Document.prototype, Backbone.Events, {
             if(this._transformationLevel === 1 && !this._undoInProgress) {
                 this.undoStack.push(transformation);
             }
-            this._transformationLevel--;
-            if(!this._undoInProgress) {
+            if(!this._undoInProgress && this._transformationLevel === 1) {
                 this.redoStack = [];
             }
+            this._transformationLevel--;
             return toret;
         } else {
             throw new Error('Transformation ' + transformation + ' doesn\'t exist!');
