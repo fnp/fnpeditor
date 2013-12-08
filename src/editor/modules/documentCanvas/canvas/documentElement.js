@@ -195,19 +195,6 @@ $.extend(DocumentNodeElement.prototype, {
         return this.dom().children('[document-element-content]');
     },
     detach: function() {
-        var parent = this.parent();
-        if(!parent)
-            return;
-
-        var parentChildren = parent.children(),
-            myIdx = parent.childIndex(this);
-
-        if(myIdx > 0 && myIdx < parentChildren.length) {
-            if((parentChildren[myIdx-1] instanceof DocumentTextElement) && (parentChildren[myIdx+1] instanceof DocumentTextElement)) {
-                parentChildren[myIdx-1].appendText(parentChildren[myIdx+1].getText());
-                parentChildren[myIdx+1].detach();
-            }
-        }
         this.dom().detach();
         this.canvas = null;
         return this;
