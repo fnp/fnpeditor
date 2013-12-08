@@ -9,30 +9,31 @@ define([
 ], function($, _, Backbone, documentElement, keyboard, utils, wlxmlListener) {
     
 'use strict';
+/* global document:false, window:false */
 
-var TextHandler = function(canvas) {this.canvas = canvas; this.buffer = null};
+
+var TextHandler = function(canvas) {this.canvas = canvas; this.buffer = null;};
 $.extend(TextHandler.prototype, {
     handle: function(node, text) {
-        //console.log('canvas text handler: ' + text);
         this.setText(text, node);
-        return;
-        if(!this.node) {
-            this.node = node;
-        }
-        if(this.node.sameNode(node)) {
-            this._ping(text);
-        } else {
-            this.flush();
-            this.node = node;
-            this._ping(text);
-        }
+        // return;
+        // if(!this.node) {
+        //     this.node = node;
+        // }
+        // if(this.node.sameNode(node)) {
+        //     this._ping(text);
+        // } else {
+        //     this.flush();
+        //     this.node = node;
+        //     this._ping(text);
+        // }
     },
     _ping: _.throttle(function(text) {
         this.buffer = text;
         this.flush();
     }, 1000),
     flush: function() {
-        if(this.buffer != null) {
+        if(this.buffer !== null) {
             this.setText(this.buffer, this.node);
             this.buffer = null;
         }
@@ -94,13 +95,14 @@ $.extend(Canvas.prototype, {
         });
 
 
-
+        /* globals MutationObserver */
         var observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 if(documentElement.DocumentTextElement.isContentContainer(mutation.target)) {
                     observer.disconnect();
-                    if(mutation.target.data === '')
+                    if(mutation.target.data === '') {
                         mutation.target.data = utils.unicode.ZWS;
+                    }
                     else if(mutation.oldValue === utils.unicode.ZWS) {
                         mutation.target.data = mutation.target.data.replace(utils.unicode.ZWS, '');
                         canvas._moveCaretToTextElement(canvas.getDocumentElement(mutation.target), 'end');
@@ -113,7 +115,7 @@ $.extend(Canvas.prototype, {
 
                     //textElement.data('wlxmlNode').setText(toSet);
                     //textElement.data('wlxmlNode').document.transform('setText', {node: textElement.data('wlxmlNode'), text: toSet});
-                    if(textElement.data('wlxmlNode').getText() != toSet) {
+                    if(textElement.data('wlxmlNode').getText() !== toSet) {
                         canvas.textHandler.handle(textElement.data('wlxmlNode'), toSet);
                     }
                 }
@@ -125,20 +127,24 @@ $.extend(Canvas.prototype, {
 
         this.wrapper.on('mouseover', '[document-node-element], [document-text-element]', function(e) {
             var el = canvas.getDocumentElement(e.currentTarget);
-            if(!el)
+            if(!el) {
                 return;
+            }
             e.stopPropagation();
-            if(el instanceof documentElement.DocumentTextElement)
+            if(el instanceof documentElement.DocumentTextElement) {
                 el = el.parent();
+            }
             el.toggleLabel(true);
         });
         this.wrapper.on('mouseout', '[document-node-element], [document-text-element]', function(e) {
             var el = canvas.getDocumentElement(e.currentTarget);
-            if(!el)
+            if(!el) {
                 return;
+            }
             e.stopPropagation();
-            if(el instanceof documentElement.DocumentTextElement)
+            if(el instanceof documentElement.DocumentTextElement) {
                 el = el.parent();
+            }
             el.toggleLabel(false);
         });
 
@@ -154,8 +160,9 @@ $.extend(Canvas.prototype, {
     },
 
     doc: function() {
-        if(this.d === null)
+        if(this.d === null) {
             return null;
+        }
         return documentElement.DocumentNodeElement.fromHTMLElement(this.d.get(0), this); //{wlxmlTag: this.d.prop('tagName')};
     },
 
@@ -169,6 +176,7 @@ $.extend(Canvas.prototype, {
     },
 
     getDocumentElement: function(from) {
+        /* globals HTMLElement, Text */
         if(from instanceof HTMLElement || from instanceof Text) {
            return documentElement.DocumentElement.fromHTMLElement(from, this);
         }
@@ -196,12 +204,14 @@ $.extend(Canvas.prototype, {
         params = _.extend({caretTo: 'end'}, params);
         var findFirstDirectTextChild = function(e, nodeToLand) {
             var byBrowser = this.getCursor().getPosition().element;
-            if(byBrowser && byBrowser.parent().sameNode(nodeToLand))
+            if(byBrowser && byBrowser.parent().sameNode(nodeToLand)) {
                 return byBrowser;
+            }
             var children = e.children();
             for(var i = 0; i < children.length; i++) {
-                if(children[i] instanceof documentElement.DocumentTextElement)
+                if(children[i] instanceof documentElement.DocumentTextElement) {
                     return children[i];
+                }
             }
             return null;
         }.bind(this);
@@ -210,7 +220,7 @@ $.extend(Canvas.prototype, {
                 this.wrapper.find('.current-text-element').removeClass('current-text-element');
                 element.dom().addClass('current-text-element');
             } else {
-                this.wrapper.find('.current-node-element').removeClass('current-node-element')
+                this.wrapper.find('.current-node-element').removeClass('current-node-element');
                 element._container().addClass('current-node-element');
                 this.publisher('currentElementChanged', element);
             }
@@ -223,15 +233,18 @@ $.extend(Canvas.prototype, {
             currentTextElement = this.getCurrentTextElement(),
             currentNodeElement = this.getCurrentNodeElement();
 
-        if(currentTextElement && !(currentTextElement.sameNode(textElementToLand)))
+        if(currentTextElement && !(currentTextElement.sameNode(textElementToLand))) {
             this.wrapper.find('.current-text-element').removeClass('current-text-element');
+        }
 
         if(textElementToLand) {
             _markAsCurrent(textElementToLand);
-            if(params.caretTo || !textElementToLand.sameNode(this.getCursor().getPosition().element))
+            if(params.caretTo || !textElementToLand.sameNode(this.getCursor().getPosition().element)) {
                 this._moveCaretToTextElement(textElementToLand, params.caretTo); // as method on element?
-            if(!(textElementToLand.sameNode(currentTextElement)))
+            }
+            if(!(textElementToLand.sameNode(currentTextElement))) {
                 this.publisher('currentTextElementSet', textElementToLand.data('wlxmlNode'));
+            }
         } else {
             document.getSelection().removeAllRanges();
         }
@@ -254,8 +267,9 @@ $.extend(Canvas.prototype, {
         }
         
         var collapseArg = true;
-        if(where === 'end')
+        if(where === 'end') {
             collapseArg = false;
+        }
         range.collapse(collapseArg);
         
         var selection = document.getSelection();
@@ -266,8 +280,9 @@ $.extend(Canvas.prototype, {
     },
 
     setCursorPosition: function(position) {
-        if(position.element)
+        if(position.element) {
             this._moveCaretToTextElement(position.element, position.offset);
+        }
     }
 });
 
@@ -303,12 +318,14 @@ $.extend(Cursor.prototype, {
         return this.getSelectionBoundry('focus');
     },
     getSelectionBoundry: function(which) {
+        /* globals window */
         var selection = window.getSelection(),
             anchorElement = this.canvas.getDocumentElement(selection.anchorNode),
             focusElement = this.canvas.getDocumentElement(selection.focusNode);
         
-        if((!anchorElement) || (anchorElement instanceof documentElement.DocumentNodeElement) || (!focusElement) || focusElement instanceof documentElement.DocumentNodeElement)
+        if((!anchorElement) || (anchorElement instanceof documentElement.DocumentNodeElement) || (!focusElement) || focusElement instanceof documentElement.DocumentNodeElement) {
             return {};
+        }
 
         if(which === 'anchor') {
             return {
@@ -336,30 +353,30 @@ $.extend(Cursor.prototype, {
             if(anchorFirst) {
                 if(which === 'start') {
                     element = anchorElement;
-                    offset = selection.anchorOffset
+                    offset = selection.anchorOffset;
                 }
                 else if(which === 'end') {
-                    element = focusElement,
-                    offset = selection.focusOffset
+                    element = focusElement;
+                    offset = selection.focusOffset;
                 }
             } else {
                 if(which === 'start') {
-                    element = focusElement,
-                    offset = selection.focusOffset
+                    element = focusElement;
+                    offset = selection.focusOffset;
                 }
                 else if(which === 'end') {
                     element = anchorElement;
-                    offset = selection.anchorOffset
+                    offset = selection.anchorOffset;
                 }
             }
         } else {
             // TODO: Handle order via https://developer.mozilla.org/en-US/docs/Web/API/Node.compareDocumentPosition
             if(which === 'start') {
                 element = anchorElement;
-                offset = selection.anchorOffset
+                offset = selection.anchorOffset;
             } else {
                 element = focusElement;
-                offset = selection.focusOffset
+                offset = selection.focusOffset;
             }
         }
 
@@ -369,9 +386,9 @@ $.extend(Cursor.prototype, {
             offset: offset,
             offsetAtBeginning: offset === 0,
             offsetAtEnd: nodeLen === offset
-        }
+        };
     }
-})
+});
 
 return {
     fromXMLDocument: function(wlxmlDocument, publisher) {

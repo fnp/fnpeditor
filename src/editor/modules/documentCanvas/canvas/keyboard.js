@@ -27,10 +27,12 @@ var handleKey = function(event, canvas) {
 };
 
 var handles = function(handler, event) {
-    if(handler.key === event.which)
+    if(handler.key === event.which) {
         return true;
-    if(handler.keys && handler.keys.indexOf(event.which) !== -1)
+    }
+    if(handler.keys && handler.keys.indexOf(event.which) !== -1) {
         return true;
+    }
     return false;
 };
 
@@ -42,12 +44,13 @@ handlers.push({key: KEYS.ENTER,
         event.preventDefault();
         var cursor = canvas.getCursor(),
             position = cursor.getPosition(),
-            element = position.element;
+            element = position.element,
+            added;
 
         if(Object.keys(cursor.getPosition()).length === 0) {
             var currentElement = canvas.getCurrentNodeElement();
             if(currentElement) {
-                var added = currentElement.data('wlxmlNode').after({
+                added = currentElement.data('wlxmlNode').after({
                     tag: currentElement.getWlxmlTag() || 'div',
                     attrs: {'class': currentElement.getWlxmlClass() || 'p'}
                 });
@@ -62,7 +65,7 @@ handlers.push({key: KEYS.ENTER,
                 if(element instanceof documentElement.DocumentTextElement) {
                     element = element.parent();
                 }
-                var added = element.data('wlxmlNode').after(
+                added = element.data('wlxmlNode').after(
                     {tagName: element.getWlxmlTag() || 'div', attrs: {'class': element.getWlxmlClass() || 'p'}}
                 );
                 added.append({text: ''});
@@ -100,7 +103,7 @@ handlers.push({key: KEYS.ENTER,
                     gotoOptions = {};
                 } else {
                     goto = result.second;
-                    gotoOptions = {caretTo: 'start'};   
+                    gotoOptions = {caretTo: 'start'};
                 }
 
                 canvas.setCurrentElement(utils.findCanvasElement(goto), gotoOptions);
@@ -139,6 +142,7 @@ handlers.push({keys: [KEYS.ARROW_UP, KEYS.ARROW_DOWN, KEYS.ARROW_LEFT, KEYS.ARRO
                 direction = 'below';
                 caretTo = 'start';
             }
+            /* globals window */
             element = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]:visible', direction, window.getSelection().focusNode));
         }
         canvas.setCurrentElement(element, {caretTo: caretTo});
@@ -147,15 +151,17 @@ handlers.push({keys: [KEYS.ARROW_UP, KEYS.ARROW_DOWN, KEYS.ARROW_LEFT, KEYS.ARRO
 
 
 var selectsWholeTextElement = function(cursor) {
-    if(cursor.isSelecting() && cursor.getSelectionStart().offsetAtBeginning && cursor.getSelectionEnd().offsetAtEnd)
+    if(cursor.isSelecting() && cursor.getSelectionStart().offsetAtBeginning && cursor.getSelectionEnd().offsetAtEnd) {
         return true;
+    }
     return false;
-}
+};
 
 handlers.push({key: KEYS.X,
     keydown: function(event, canvas) {
-        if(event.ctrlKey && selectsWholeTextElement(canvas.getCursor()))
+        if(event.ctrlKey && selectsWholeTextElement(canvas.getCursor())) {
             event.preventDefault();
+        }
     }
 });
 
@@ -177,7 +183,7 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
 
         var willDeleteWholeText = function() {
             return element.getText().length === 1 || selectsWholeTextElement(cursor);
-        }
+        };
 
         if(willDeleteWholeText()) {
             event.preventDefault();
