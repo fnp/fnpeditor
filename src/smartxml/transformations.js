@@ -90,7 +90,17 @@ toret.createGenericTransformation = function(desc, name) {
         run: function(options) {
             var changeRoot;
             if(!desc.undo && options.beUndoable) {
-                changeRoot = desc.getChangeRoot ? desc.getChangeRoot.call(this) : this.document.root;
+                if(desc.getChangeRoot) {
+                    changeRoot = desc.getChangeRoot.call(this);
+                    if(!changeRoot) {
+                        throw new Error(
+                            'Transformation {name} returned invalid change root value'
+                            .replace('{name}', name)
+                        );
+                    }
+                } else {
+                    changeRoot = this.document.root;
+                }
                 this.snapshot = changeRoot.clone();
                 this.changeRootPath = changeRoot.getPath();
             }
