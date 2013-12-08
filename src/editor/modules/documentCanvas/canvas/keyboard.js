@@ -93,7 +93,7 @@ handlers.push({key: KEYS.ENTER,
                 //     gotoOptions = {caretTo: 'start'};
                 // }
 
-                var result = position.element.data('wlxmlNode').transform('rng.breakContent', {offset: position.offset}),
+                var result = position.element.data('wlxmlNode').breakContent({offset: position.offset}),
                     goto, gotoOptions;
                 if(result.emptyText) {
                     goto = result.createdEmpty;

@@ -12,7 +12,8 @@ var Runner = function(app, modules) {
     var bootstrappedData = {},
         options = {},
         moduleInstances = {},
-        eventListeners = [];
+        eventListeners = [],
+        plugins = [];
         
     _.each(_.keys(modules || {}), function(moduleName) {
         if(_.contains(app.permissions[moduleName] || [], 'handleEvents')) {
@@ -53,12 +54,19 @@ var Runner = function(app, modules) {
         this.getDOM = _.contains(permissions, 'getDOM') ? function() {
             return $(options.rootSelector);
         } : undefined;
-        
+
+        this.getPlugins = function() {
+            return plugins;
+        };
     };
     
     
     this.setBootstrappedData = function(moduleName, data) {
         bootstrappedData[moduleName] = data;
+    };
+
+    this.registerPlugin = function(plugin) {
+        plugins.push(plugin);
     };
     
     this.start = function(_options) {

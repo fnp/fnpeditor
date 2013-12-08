@@ -18,6 +18,11 @@ return function(sandbox) {
     var wlxmlDocument = wlxml.WLXMLDocumentFromXML(sandbox.getBootstrappedData().document);
 
     wlxmlDocument.registerExtension(listExtension);
+    sandbox.getPlugins().forEach(function(plugin) {
+        if(plugin.documentExtension) {
+            wlxmlDocument.registerExtension(plugin.documentExtension);
+        }
+    });
      
     
     function readCookie(name) {

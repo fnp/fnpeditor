@@ -48,11 +48,13 @@
         '../fnpjs/runner',
         'rng',
         './modules',
+        'plugins/core/core',
         'libs/bootstrap'
-    ], function($, runner, rng, modules) {
+    ], function($, runner, rng, modules, corePlugin) {
         $(function() {
             var app = new runner.Runner(rng, modules);
             app.setBootstrappedData('data', RNG_BOOTSTRAP_DATA);
+            app.registerPlugin(corePlugin);
             app.start({rootSelector:'#editor_root'});
         });
     });
