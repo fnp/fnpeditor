@@ -32,7 +32,7 @@ commands.register('redo', function(canvas) {
 });
 
 commands.register('remove-node', function(canvas) {
-    canvas.getCurrentNodeElement().data('wlxmlNode').transform('smartxml.detach');
+    canvas.getCurrentNodeElement().data('wlxmlNode').detach();
 });
 
 commands.register('unwrap-node', function(canvas) {
@@ -49,7 +49,7 @@ commands.register('unwrap-node', function(canvas) {
     if(doc.areItemsOfSameList({node1: node1, node2: node2})) {
 
 
-        doc.transform('extractItems', {item1: node1, item2: node2});
+        doc.extractItems({item1: node1, item2: node2});
 
         //canvas.list.extractItems({element1: parent1, element2: parent2});
         canvas.setCurrentElement(selectionAnchor.element, {caretTo: selectionAnchor.offset});
@@ -137,7 +137,7 @@ commands.register('newNodeRequested', function(canvas, params) {
                 //     offsetEnd: selectionEnd.offset,
                 //     textNodeIdx: [wlxmlNode.indexOf(selectionStart.element.data('wlxmlNode')), wlxmlNode.indexOf(selectionEnd.element.data('wlxmlNode'))] //parent.childIndex(selectionEnd.element)]
                 // }),
-                wrapper = wlxmlNode.transform('smartxml.wrapText', {
+                wrapper = wlxmlNode.wrapText({
                     _with: {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}},
                     offsetStart: selectionStart.offset,
                     offsetEnd: selectionEnd.offset,
@@ -157,7 +157,7 @@ commands.register('newNodeRequested', function(canvas, params) {
                 //     element2: siblingParents.node2,
                 //     _with: {tagName: params.wlxmlTag, attrs: {klass: params.wlxmlClass}}
                 // });
-                canvas.wlxmlDocument.transform('smartxml.wrapNodes', {
+                canvas.wlxmlDocument.wrapNodes({
                     node1: siblingParents.node1,
                     node2: siblingParents.node2,
                     _with: {tagName: params.wlxmlTag, attrs: {klass: params.wlxmlClass}}
@@ -167,7 +167,7 @@ commands.register('newNodeRequested', function(canvas, params) {
     } else if(canvas.getCurrentNodeElement()) {
         wlxmlNode = canvas.getCurrentNodeElement().data('wlxmlNode');
             // wrapper = node.wrapWith({tagName: params.wlxmlTag, attrs: {klass: params.wlxmlClass}});
-        wrapper = wlxmlNode.transform('smartxml.wrapWith', {tagName: params.wlxmlTag, attrs: {klass: params.wlxmlClass}});
+        wrapper = wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {klass: params.wlxmlClass}});
         canvas.setCurrentElement(utils.findCanvasElement(wrapper));
     }
 
@@ -178,16 +178,17 @@ commands.register('footnote', function(canvas, params) {
     void(params);
     var cursor = canvas.getCursor(),
         position = cursor.getPosition(),
-        asideElement;
+        asideNode, asideElement;
         
 
     if(cursor.isSelectingWithinElement()) {
-        asideElement = position.element.wrapWithNodeElement({tag: 'aside', klass: 'footnote', start: cursor.getSelectionStart().offset, end: cursor.getSelectionEnd().offset});
+        asideNode = position.element.data('wlxmlNode').wrapWith({tagName: 'aside', attrs:{'class': 'footnote'}, start: cursor.getSelectionStart().offset, end: cursor.getSelectionEnd().offset});
     } else {
-        asideElement = position.element.divide({tag: 'aside', klass: 'footnote', offset: position.offset});
-        asideElement.append({text: ''});
+        asideNode = position.element.data('wlxmlNode').divideWithElementNode({tagName: 'aside', attrs:{'class': 'footnote'}}, {offset: position.offset});
+        asideNode.append({text: ''});
     }
 
+    asideElement = utils.findCanvasElement(asideNode);
     asideElement.toggle(true);
     canvas.setCurrentElement(asideElement);
 });

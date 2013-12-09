@@ -20,7 +20,7 @@ return function(sandbox) {
                 
         if(attr === 'Class') {
             //currentNode.document.transform('setClass', {node: currentNode, klass: value});
-            currentNode.transform('smartxml.setAttr', {name: 'class', value: value});
+            currentNode.setClass(value);
         }
         //currentNode['set' + attr](value);
     });
@@ -49,7 +49,7 @@ return function(sandbox) {
 
             var widget = metaWidget.create({attrs:wlxmlNodeElement.getMetaAttributes()});
             widget.on('valueChanged', function(key, value) {
-                wlxmlNodeElement.transform('wlxml.setMetaAttribute', {name: key, value: value});
+                wlxmlNodeElement.setMetaAttribute(key, value);
                 //wlxmlNodeElement.setMetaAttribute(key, value);
             });
             view.find('.metaFields').empty().append(widget.el);
