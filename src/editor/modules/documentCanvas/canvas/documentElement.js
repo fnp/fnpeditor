@@ -349,7 +349,7 @@ $.extend(DocumentTextElement, {
     },
 
     create: function(wlxmlTextNode, canvas) {
-        return this.fromHTMLElement(this.createDOM(wlxmlTextNode)[0]);
+        return this.fromHTMLElement(this.createDOM(wlxmlTextNode)[0], canvas);
     },
 
     fromHTMLElement: function(htmlElement, canvas) {
