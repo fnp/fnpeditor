@@ -210,13 +210,13 @@ commands.register('take-away-node', function(canvas) {
             canvas.setCurrentElement(element, {caretTo: position.offset});
         } else {
             if(elementIsFirstChild) {
-                canvas.setCurrentElement(findCanvasElement(range.element1), {caretTo: 'end'});
+                canvas.setCurrentElement(utils.findCanvasElement(range.element1), {caretTo: 'end'});
             } else {
-                canvas.setCurrentElement(findCanvasElement(range.element2), {caretTo: 'end'});
+                canvas.setCurrentElement(utils.findCanvasElement(range.element2), {caretTo: 'end'});
             }
         }
     } else {
-        canvas.setCurrentElement(findCanvasElement(range.element1), {caretTo: 'start'});
+        canvas.setCurrentElement(utils.findCanvasElement(range.element1), {caretTo: 'start'});
     }
 
 });
