@@ -148,8 +148,7 @@ describe('Lists extension', function() {
                 </section>')),
                 list = doc.root.contents()[0],
                 item1 = list.contents()[0],
-                item2 = list.contents()[1],
-                item3 = list.contents()[2];
+                item2 = list.contents()[1];
 
             doc.extractItems({item1: item1, item2: item2});
 
@@ -175,7 +174,6 @@ describe('Lists extension', function() {
                     </div>\
                 </section>')),
                 list = doc.root.contents()[0],
-                item1 = list.contents()[0],
                 item2 = list.contents()[1],
                 item3 = list.contents()[2];
 
