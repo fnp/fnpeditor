@@ -90,19 +90,15 @@ toret.createGenericTransformation = function(desc, name) {
         run: function(options) {
             var changeRoot;
             if(!desc.undo && options.beUndoable) {
-                if(desc.getChangeRoot) {
-                    changeRoot = desc.getChangeRoot.call(this);
-                    if(!changeRoot) {
-                        throw new Error(
-                            'Transformation {name} returned invalid change root value'
-                            .replace('{name}', name)
-                        );
-                    }
-                } else {
-                    changeRoot = this.document.root;
+                changeRoot = this.getChangeRoot();
+                if(!changeRoot) {
+                     throw new Error(
+                         'Transformation {name} returned invalid change root value'
+                         .replace('{name}', name)
+                     );
                 }
-                this.snapshot = changeRoot.clone();
                 this.changeRootPath = changeRoot.getPath();
+                this.snapshot = changeRoot.clone();
             }
             var argsToPass = desc.undo ? [this].concat(this.args) : this.args;
             var toret = desc.impl.apply(this.context, argsToPass);
@@ -116,6 +112,9 @@ toret.createGenericTransformation = function(desc, name) {
                 this.document.getNodeByPath(this.changeRootPath).replaceWith(this.snapshot);
             }
         },
+        getChangeRoot: desc.getChangeRoot || function() {
+            return this.document.root;
+        }
     });
 
     return GenericTransformation;

@@ -1235,6 +1235,70 @@ describe('smartxml', function() {
             expect(doc.root.getAttr('outerAttr')).to.equal('test2');
 
         });
+
+        describe('Transactions', function() {
+            it('allows to undo/redo series of transformations at once', function() {
+                var doc = getDocumentFromXML('<div></div>');
+
+                doc.registerExtension({
+                    elementNode: {transformations: {
+                        test: function(v) {
+                            this.setAttr('test', v);
+                        }
+                    }}
+                });
+
+                doc.startTransaction();
+                doc.root.test('1');
+                doc.root.test('2');
+                doc.root.test('3');
+                doc.endTransaction();
+
+                doc.undo();
+                expect(doc.root.getAttr('test'), '1');
+                doc.redo();
+                expect(doc.root.getAttr('test'), '3');
+                doc.undo();
+                expect(doc.root.getAttr('test'), '1');
+                doc.redo();
+                expect(doc.root.getAttr('test'), '3');
+            });
+
+            it('doesn\'t break on optimizations', function() {
+                // This is a smoke test checking if optimizations made to transaction undoing
+                // doesnt't break anything.
+                var doc = getDocumentFromXML('<div smart="1" unaware="1"></div>');
+
+                doc.registerExtension({
+                    elementNode: {transformations: {
+                        unaware: function(v) {
+                            this.setAttr('unware', v);
+                        },
+                        smart: {
+                            impl: function(t, v) {
+                                t.oldVal = this.getAttr('smart');
+                                this.setAttr('smart', v);
+                            },
+                            undo: function(t) {
+                                this.setAttr('smart', t.oldVal);
+                            }
+                        }
+                    }}
+                });
+
+                doc.startTransaction();
+                doc.root.smart('2');
+                doc.root.unaware('2');
+                doc.root.smart('3');
+                doc.root.unaware('3');
+                doc.endTransaction();
+
+                doc.undo();
+
+                expect(doc.root.getAttr('smart')).to.equal('1');
+                expect(doc.root.getAttr('unaware')).to.equal('1');
+            });
+        });
     });
 
 });

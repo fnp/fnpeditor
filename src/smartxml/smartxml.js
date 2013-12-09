@@ -249,6 +249,7 @@ var Document = function(xml) {
     this.loadXML(xml);
     this.undoStack = [];
     this.redoStack = [];
+    this._transactionStack = [];
     this._transformationLevel = 0;
     
     this._nodeMethods = {};
@@ -417,7 +418,11 @@ $.extend(Document.prototype, Backbone.Events, {
             this._transformationLevel++;
             toret = transformation.run({beUndoable:this._transformationLevel === 1});
             if(this._transformationLevel === 1 && !this._undoInProgress) {
-                this.undoStack.push(transformation);
+                if(this._transactionInProgress) {
+                    this._transactionStack.push(transformation);
+                } else {
+                    this.undoStack.push(transformation);
+                }
             }
             if(!this._undoInProgress && this._transformationLevel === 1) {
                 this.redoStack = [];
@@ -429,23 +434,73 @@ $.extend(Document.prototype, Backbone.Events, {
         }
     },
     undo: function() {
-        var transformation = this.undoStack.pop();
-        if(transformation) {
+        var transformationObject = this.undoStack.pop(),
+            doc = this,
+            transformations, stopAt;
+
+        if(transformationObject) {
             this._undoInProgress = true;
-            transformation.undo();
+
+            if(_.isArray(transformationObject)) {
+                // We will modify this array in a minute so make sure we work on a copy.
+                transformations = transformationObject.slice(0);
+            } else {
+                // Lets normalize single transformation to a transaction containing one transformation.
+                transformations = [transformationObject];
+            }
+
+            if(transformations.length > 1) {
+                // In case of real transactions we don't want to run undo on all of transformations if we don't have to.
+                stopAt = undefined;
+                transformations.some(function(t, idx) {
+                    if(!t.undo && t.getChangeRoot().sameNode(doc.root)) {
+                        stopAt = idx;
+                        return true; //break
+                    }
+                });
+                if(stopAt !== undefined) {
+                    // We will get away with undoing only this transformations as the one at stopAt reverses the whole document.
+                    transformations = transformations.slice(0, stopAt+1);
+                }
+            }
+
+            transformations.reverse();
+            transformations.forEach(function(t) {
+                t.undo();
+            });
+
             this._undoInProgress = false;
-            this.redoStack.push(transformation);
+            this.redoStack.push(transformationObject);
         }
     },
     redo: function() {
-        var transformation = this.redoStack.pop();
-        if(transformation) {
+        var transformationObject = this.redoStack.pop(),
+            transformations;
+        if(transformationObject) {
             this._transformationLevel++;
-            transformation.run({beUndoable: true});
+            transformations = _.isArray(transformationObject) ? transformationObject : [transformationObject];
+            transformations.forEach(function(t) {
+                t.run({beUndoable: true});
+            });
             this._transformationLevel--;
-            this.undoStack.push(transformation);
-
+            this.undoStack.push(transformationObject);
         }
+    },
+
+    startTransaction: function() {
+        if(this._transactionInProgress) {
+            throw new Error('Nested transactions not supported!');
+        }
+        this._transactionInProgress = true;
+    },
+
+    endTransaction: function() {
+        if(!this._transactionInProgress) {
+            throw new Error('End of transaction requested, but there is no transaction in progress!');
+        }
+        this._transactionInProgress = false;
+        this.undoStack.push(this._transactionStack);
+        this._transactionStack = [];
     },
 
     getNodeByPath: function(path) {
