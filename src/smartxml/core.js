@@ -251,6 +251,27 @@ var textNodeTransformations = {
         });
 
         return {first: parentElement, second: newElement};
+    },
+
+    divideWithElementNode: function(node, params) {
+        var insertion = this.getNodeInsertion(node),
+            myText = this.getText();
+
+        if(params.offset === myText.length) {
+            return this.after(node);
+        }
+        if(params.offset === 0) {
+            return this.before(node);
+        }
+
+        var lhsText = myText.substr(0, params.offset),
+            rhsText = myText.substr(params.offset),
+            rhsTextNode = this.document.createDocumentNode({text: rhsText});
+
+        this.setText(lhsText);
+        this.after(insertion.ofNode);
+        insertion.ofNode.after(rhsTextNode);
+        return insertion.ofNode;
     }
 };
 

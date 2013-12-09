@@ -301,6 +301,52 @@ describe('smartxml', function() {
             });
         });
 
+        describe('Dividing text node into two with element node', function() {
+                it('can divide text node with element node, splitting text node into two', function() {
+                    var doc = getDocumentFromXML('<div>Alice has a cat</div>'),
+                        text = doc.root.contents()[0];
+
+                    var returned = text.divideWithElementNode({tagName: 'aside'}, {offset: 5}),
+                        contents = doc.root.contents(),
+                        lhsText = contents[0],
+                        rhsText = contents[2];
+
+                    expect(lhsText.getText()).to.equal('Alice');
+                    expect(returned.sameNode(contents[1]));
+                    expect(rhsText.getText()).to.equal(' has a cat');
+                });
+
+                it('treats dividing at the very end as appending after it', function() {
+                    var doc = getDocumentFromXML('<div>Alice has a cat</div>'),
+                        text = doc.root.contents()[0];
+
+
+                    var returned = text.divideWithElementNode({tagName: 'aside'}, {offset: 15}),
+                        contents = doc.root.contents(),
+                        textNode = contents[0],
+                        elementNode = contents[1];
+
+                    expect(contents.length).to.equal(2);
+                    expect(textNode.getText()).to.equal('Alice has a cat');
+                    expect(returned.sameNode(elementNode)).to.be.true;
+                    expect(elementNode.getTagName()).to.equal('aside');
+                });
+
+                it('treats dividing at the very beginning as prepending before it', function() {
+                    var doc = getDocumentFromXML('<div>Alice has a cat</div>'),
+                        text = doc.root.contents()[0];
+
+                    var returned = text.divideWithElementNode({tagName: 'aside'}, {offset: 0}),
+                        contents = doc.root.contents(),
+                        textNode = contents[1],
+                        elementNode = contents[0];
+
+                    expect(contents.length).to.equal(2);
+                    expect(textNode.getText()).to.equal('Alice has a cat');
+                    expect(returned.sameNode(elementNode)).to.be.true;
+                    expect(elementNode.getTagName()).to.equal('aside');
+                });
+        });
     });
 
     describe('Manipulations', function() {
