@@ -17,12 +17,7 @@ return function(sandbox) {
         var target = $(e.target);
         var attr = target.attr('class').split('-')[3] === 'tagSelect' ? 'Tag' : 'Class',
             value = target.val().replace(/-/g, '.');
-                
-        if(attr === 'Class') {
-            //currentNode.document.transform('setClass', {node: currentNode, klass: value});
-            currentNode.setClass(value);
-        }
-        //currentNode['set' + attr](value);
+        currentNode['set' + attr](value);
     });
    
     return {
