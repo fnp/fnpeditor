@@ -29,10 +29,6 @@ $.extend(DocumentElement, {
         return elementTypeFromWlxmlNode(node).create(node, canvas);
     },
 
-    createDOM: function(wlxmlNode) {
-        return elementTypeFromParams(wlxmlNode).createDOM(params);
-    },
-
     fromHTMLElement: function(htmlElement, canvas) {
         var $element = $(htmlElement);
         if(htmlElement.nodeType === Node.ELEMENT_NODE && $element.attr('document-node-element') !== undefined) {
