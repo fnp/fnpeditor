@@ -50,11 +50,13 @@ handlers.push({key: KEYS.ENTER,
         if(Object.keys(cursor.getPosition()).length === 0) {
             var currentElement = canvas.getCurrentNodeElement();
             if(currentElement) {
+                canvas.wlxmlDocument.startTransaction();
                 added = currentElement.data('wlxmlNode').after({
                     tag: currentElement.getWlxmlTag() || 'div',
                     attrs: {'class': currentElement.getWlxmlClass() || 'p'}
                 });
                 added.append({text:''});
+                canvas.wlxmlDocument.endTransaction();
                 canvas.setCurrentElement(utils.findCanvasElement(added), {caretTo: 'start'});
             }
             return;
@@ -65,10 +67,13 @@ handlers.push({key: KEYS.ENTER,
                 if(element instanceof documentElement.DocumentTextElement) {
                     element = element.parent();
                 }
+
+                canvas.wlxmlDocument.startTransaction();
                 added = element.data('wlxmlNode').after(
                     {tagName: element.getWlxmlTag() || 'div', attrs: {'class': element.getWlxmlClass() || 'p'}}
                 );
                 added.append({text: ''});
+                canvas.wlxmlDocument.endTransaction();
                 canvas.setCurrentElement(utils.findCanvasElement(added), {caretTo: 'start'});
 
             } else {
@@ -169,7 +174,8 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
     keydown: function(event, canvas) {
         var cursor = canvas.getCursor(),
             position = canvas.getCursor().getPosition(),
-            element = position.element;
+            element = position.element,
+            node = element.data('wlxmlNode');
 
         if(cursor.isSelecting() && !cursor.isSelectingWithinElement()) {
             event.preventDefault();
@@ -185,9 +191,11 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
             return element.getText().length === 1 || selectsWholeTextElement(cursor);
         };
 
+        canvas.wlxmlDocument.startTransaction();
+        
         if(willDeleteWholeText()) {
             event.preventDefault();
-            element.setText('');
+            node.setText('');
         }
         else if(element.isEmpty()) {
 
@@ -222,6 +230,8 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
             // todo
             event.preventDefault();
         }
+        canvas.wlxmlDocument.endTransaction();
+
     }
 });
 
