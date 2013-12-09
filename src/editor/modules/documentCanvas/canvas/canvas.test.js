@@ -88,6 +88,23 @@ describe('Listening to document changes', function() {
         expect(sectionChildren[0].getText()).to.equal('Alice');
         expect(sectionChildren[1].getWlxmlTag()).to.equal('a');
     });
+
+    it('Handles nodeTagChange event', function() {
+
+        var doc = wlxml.WLXMLDocumentFromXML('<section><div>Alice</div></section>'),
+            c = canvas.fromXMLDocument(doc);
+
+        doc.root.contents()[0].setTag('header');
+
+        var headerNode = doc.root.contents()[0],
+            headerElement = c.doc().children()[0];
+
+        expect(headerElement.getWlxmlTag()).to.equal('header', 'element ok');
+
+        /* Make sure we handle invalidation of reference to wlxmlNode after changing its tag */
+        expect(headerNode.getData('canvasElement').sameNode(headerElement)).to.equal(true, 'node->element');
+        expect(headerElement.data('wlxmlNode').sameNode(headerNode)).to.equal(true, 'element->node');
+    });
 });
 
 describe('Cursor', function() {

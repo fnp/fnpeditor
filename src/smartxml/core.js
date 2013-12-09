@@ -99,6 +99,8 @@ var elementNodeTransformations = {
         if(this.sameNode(this.document.root)) {
             this.document._defineDocumentProperties(node._$);
         }
+
+        /* TODO: This invalidates old references to this node. Caching instances on nodes would fix this. */
         this._$.replaceWith(node._$);
         this._setNativeNode(node._$[0]);
         this._$.append(myContents);
