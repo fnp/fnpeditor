@@ -1,7 +1,7 @@
 (function() {
     'use strict';
     
-    /* globals requirejs, RNG_BOOTSTRAP_DATA */
+    /* globals requirejs, editor_init */
 
     requirejs.config({
         baseUrl: '/static/editor/src/editor',
@@ -53,9 +53,11 @@
     ], function($, runner, rng, modules, corePlugin) {
         $(function() {
             var app = new runner.Runner(rng, modules);
-            app.setBootstrappedData('data', RNG_BOOTSTRAP_DATA);
             app.registerPlugin(corePlugin);
-            app.start({rootSelector:'#editor_root'});
+
+            if(typeof editor_init !== 'undefined') {
+                editor_init(app);
+            }
         });
     });
 
