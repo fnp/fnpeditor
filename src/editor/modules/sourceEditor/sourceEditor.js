@@ -1,10 +1,10 @@
-define(['libs/jquery'], function($) {
+define(['libs/jquery', 'libs/text!./template.html'], function($, template) {
 
 'use strict';
 
 return function(sandbox) {
 
-    var view = $(sandbox.getTemplate('main')()),
+    var view = $(template),
         documentIsDirty = true,
         documentEditedHere = false,
         wlxmlDocument;
