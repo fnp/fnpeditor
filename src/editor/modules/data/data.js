@@ -53,7 +53,7 @@ return function(sandbox) {
     var reloadHistory = function() {
         $.ajax({
             method: 'get',
-            url: '/' + gettext('editor') + '/' + document_id + '/history',
+            url: sandbox.getConfig().documentHistoryUrl(document_id),
             success: function(data) {
                 history = data;
                 sandbox.publish('historyItemAdded', data.slice(-1)[0]);
@@ -69,18 +69,34 @@ return function(sandbox) {
             return wlxmlDocument;
         },
         saveDocument: function() {
-
-            var dialog = saveDialog.create();
+            var documentSaveForm = $.extend({
+                        fields: [],
+                        content_field_name: 'text',
+                        version_field_name: 'version'
+                    },
+                    sandbox.getConfig().documentSaveForm
+                ),
+                dialog = saveDialog.create({fields: documentSaveForm.fields});
+            
             dialog.on('save', function(event) {
                 sandbox.publish('savingStarted');
+
+                var formData = event.formData;
+                formData[documentSaveForm.content_field_name] = wlxmlDocument.toXML();
+                formData[documentSaveForm.version_field_name] = document_version;
+                if(sandbox.getConfig().jsonifySentData) {
+                    formData = JSON.stringify(formData);
+                }
+
                 dialog.toggleButtons(false);
                 $.ajax({
                     method: 'post',
-                    url: '/' + gettext('editor') + '/' + document_id,
-                    data: JSON.stringify({document:wlxmlDocument.toXML(), description: event.data.description}),
-                    success: function() {
+                    url: sandbox.getConfig().documentSaveUrl(document_id),
+                    data: formData,
+                    success: function(data) {
                         event.success();
-                        sandbox.publish('savingEnded', 'success');
+                        sandbox.publish('savingEnded', 'success', data.version);
+                        document_version = data.version;
                         reloadHistory();
                     },
                     error: function() {event.error(); sandbox.publish('savingEnded', 'error');}
@@ -98,7 +114,7 @@ return function(sandbox) {
         fetchDiff: function(ver1, ver2) {
             $.ajax({
                 method: 'get',
-                url: '/' + gettext('editor') + '/' + document_id + '/diff',
+                url: '/' + gettext('editor') + '/diff/' + document_id,
                 data: {from: ver1, to: ver2},
                 success: function(data) {
                     sandbox.publish('diffFetched', {table: data, ver1: ver1, ver2: ver2});
