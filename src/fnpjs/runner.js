@@ -10,10 +10,10 @@ var Runner = function(app, modules) {
     }
 
     var bootstrappedData = {},
-        options = {},
         moduleInstances = {},
         eventListeners = [],
-        plugins = [];
+        plugins = [],
+        config;
         
     _.each(_.keys(modules || {}), function(moduleName) {
         if(_.contains(app.permissions[moduleName] || [], 'handleEvents')) {
@@ -52,11 +52,15 @@ var Runner = function(app, modules) {
         } : undefined;
         
         this.getDOM = _.contains(permissions, 'getDOM') ? function() {
-            return $(options.rootSelector);
+            return $(config.rootSelector);
         } : undefined;
 
         this.getPlugins = function() {
             return plugins;
+        };
+
+        this.getConfig = function() {
+            return config;
         };
     };
     
@@ -69,10 +73,10 @@ var Runner = function(app, modules) {
         plugins.push(plugin);
     };
     
-    this.start = function(_options) {
-        options = _.extend({
+    this.start = function(_config) {
+        config = _.extend({
             rootSelector: 'body'
-        }, _options);
+        }, _config);
         app.initModules.forEach(function(moduleName) {
             getModuleInstance(moduleName).start();
         });
