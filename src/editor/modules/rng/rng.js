@@ -91,10 +91,11 @@ return function(sandbox) {
             sandbox.getModule('mainBar').setCommandEnabled('save', false);
             sandbox.getModule('indicator').showMessage(gettext('Saving...'));
         },
-        savingEnded: function(status) {
+        savingEnded: function(status, current_version) {
             void(status);
             sandbox.getModule('mainBar').setCommandEnabled('save', true);
             sandbox.getModule('indicator').clearMessage({message:'Dokument zapisany'});
+            sandbox.getModule('mainBar').setVersion(current_version);
         },
         restoringStarted: function(event) {
             sandbox.getModule('mainBar').setCommandEnabled('save', false);
