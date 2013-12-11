@@ -161,7 +161,11 @@ $.extend(WLXMLDocument.prototype, {
     ElementNodeFactory: WLXMLElementNode,
     loadXML: function(xml) {
         smartxml.Document.prototype.loadXML.call(this, xml, {silent: true});
-        $(this.dom).find(':not(iframe)').addBack().contents()
+        this.trigger('contentSet');
+    },
+
+    normalizeXML: function(nativeNode) {
+        $(nativeNode).find(':not(iframe)').addBack().contents()
             .filter(function() {return this.nodeType === Node.TEXT_NODE;})
             .each(function() {
                 var el = $(this),
@@ -243,7 +247,6 @@ $.extend(WLXMLDocument.prototype, {
                 /* globals document */
                 el.replaceWith(document.createTextNode(text.transformed));
             });
-        this.trigger('contentSet');
     },
 
     registerClassTransformation: function(Transformation, className) {
