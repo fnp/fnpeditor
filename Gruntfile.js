@@ -3,13 +3,18 @@
 module.exports = function(grunt) {
     'use strict';
 
+    var build_output_dir = grunt.option('output-dir') || 'build',
+        less_files = {};
+
+    less_files[build_output_dir + '/rng.css'] = 'src/editor/styles/main.less';
+
     grunt.initConfig({
         requirejs: {
           compile: {
             options: {
               baseUrl: 'src/editor',
               mainConfigFile: 'src/editor/entrypoint.js',
-              out: 'build/rng.js',
+              out: build_output_dir + '/rng.js',
               name: 'entrypoint',
               include: ['libs/require']
             }
@@ -21,9 +26,7 @@ module.exports = function(grunt) {
                     paths: [''],
                     yuicompress: true
                 },
-                files: {
-                    'build/rng.css': 'src/editor/styles/main.less'
-                },
+                files: less_files,
             },
         },
         jshint: {
