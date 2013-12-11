@@ -39,5 +39,16 @@
         <button data-name="grid" data-btn-type="toggle" class="btn btn-mini"><i class="icon-th-large"></i></button>
     </div>
 
+    <% if(templates) { %>
+    <div class="rng-module-documentToolbar-toolbarGroup">
+        <select data-name="templates-select">
+        <% templates.forEach(function(template) { %>
+            <option value="<%= template.id %>"><%= template.name %></option>
+        <% }); %>
+        </select>
+        <button class="btn btn-mini" data-name="templatesBtn">+</button>
+    </div>
+    <% } %>
+
     <div style="clear: both;"></div>
 </div>
