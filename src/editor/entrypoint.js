@@ -4,8 +4,6 @@
     /* globals requirejs, editor_init */
 
     requirejs.config({
-        baseUrl: '/static/editor/src/editor',
-        
         paths: {
             'fnpjs': '../fnpjs',
             'libs': '../../libs',
