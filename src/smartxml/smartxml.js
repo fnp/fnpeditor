@@ -268,17 +268,22 @@ $.extend(Document.prototype, Backbone.Events, {
 
     createDocumentNode: function(from) {
         if(!(from instanceof Node)) {
-            if(from.text !== undefined) {
-                /* globals document */
-                from = document.createTextNode(from.text);
+            if(typeof from === 'string') {
+                from = parseXML(from);
+                this.normalizeXML(from);
             } else {
-                var node = $('<' + from.tagName + '>');
+                if(from.text !== undefined) {
+                    /* globals document */
+                    from = document.createTextNode(from.text);
+                } else {
+                    var node = $('<' + from.tagName + '>');
 
-                _.keys(from.attrs || {}).forEach(function(key) {
-                    node.attr(key, from.attrs[key]);
-                });
+                    _.keys(from.attrs || {}).forEach(function(key) {
+                        node.attr(key, from.attrs[key]);
+                    });
 
-                from = node[0];
+                    from = node[0];
+                }
             }
         }
         var Factory, typeMethods, typeTransformations;
@@ -309,9 +314,14 @@ $.extend(Document.prototype, Backbone.Events, {
     loadXML: function(xml, options) {
         options = options || {};
         this._defineDocumentProperties($(parseXML(xml)));
+        this.normalizeXML(this.dom);
         if(!options.silent) {
             this.trigger('contentSet');
         }
+    },
+
+    normalizeXML: function(nativeNode) {
+        void(nativeNode); // noop
     },
 
     toXML: function() {

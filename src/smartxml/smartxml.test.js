@@ -60,6 +60,15 @@ describe('smartxml', function() {
             expect(emptyTextNode.getText()).to.equal('', 'empty ok');
             expect(nonEmptyTextNode.getText()).to.equal('alice', 'non empty ok');
         });
+
+        it('creates nodes from xml strings', function() {
+            var doc = getDocumentFromXML('<div></div>'),
+                node = doc.createDocumentNode('<a>Alice<b></b></a>');
+            expect(node.getTagName()).to.equal('a');
+            expect(node.contents().length).to.equal(2);
+            expect(node.contents()[0].getText()).to.equal('Alice');
+            expect(node.contents()[1].getTagName()).to.equal('b');
+        });
     });
 
     describe('DocumentNode', function() {
