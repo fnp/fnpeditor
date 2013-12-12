@@ -24,7 +24,8 @@ module.exports = function(grunt) {
             production: {
                 options: {
                     paths: [''],
-                    yuicompress: true
+                    cleancss: true,
+                    relativeUrls: true
                 },
                 files: less_files,
             },
@@ -38,7 +39,7 @@ module.exports = function(grunt) {
         copy: {
           resources: {
             files: [
-              {src: ['libs/bootstrap/**'], dest: build_output_dir+'/'},
+              {src: ['libs/bootstrap/img/**'], dest: build_output_dir+'/'},
             ]
           }
         }
