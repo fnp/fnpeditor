@@ -25,7 +25,8 @@ module.exports = function(grunt) {
                 options: {
                     paths: [''],
                     cleancss: true,
-                    relativeUrls: true
+                    relativeUrls: true,
+                    rootpath: 'src/editor/styles/'
                 },
                 files: less_files,
             },
