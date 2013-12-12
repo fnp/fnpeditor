@@ -34,14 +34,22 @@ module.exports = function(grunt) {
             options: {
                 jshintrc: '.jshintrc'
             }
+        },
+        copy: {
+          resources: {
+            files: [
+              {src: ['libs/bootstrap/**'], dest: build_output_dir+'/'},
+            ]
+          }
         }
     });
 
     grunt.loadNpmTasks('grunt-contrib-requirejs');
     grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-copy');
 
-    grunt.registerTask('build', ['requirejs', 'less:production']);
+    grunt.registerTask('build', ['requirejs', 'less:production', 'copy:resources']);
     grunt.registerTask('lint', ['jshint']);
     grunt.registerTask('default', ['build']);
 };
