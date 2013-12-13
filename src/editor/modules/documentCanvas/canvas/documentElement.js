@@ -172,7 +172,7 @@ $.extend(DocumentNodeElement, {
         element.setWlxml({tag: wlxmlNode.getTagName(), klass: wlxmlNode.getClass()});
 
         wlxmlNode.contents().forEach(function(node) {
-            container.append(DocumentElement.create(node).dom());
+            container.append(DocumentElement.create(node, canvas).dom());
         }.bind(this));
 
         return dom;
@@ -339,17 +339,17 @@ var DocumentTextElement = function(htmlElement, canvas) {
 };
 
 $.extend(DocumentTextElement, {
-    createDOM: function(wlxmlTextNode) {
+    createDOM: function(wlxmlTextNode, canvas) {
         var dom = $('<div>')
             .attr('document-text-element', '')
             .text(wlxmlTextNode.getText() || utils.unicode.ZWS),
-        element = this.fromHTMLElement(dom[0], this);
+        element = this.fromHTMLElement(dom[0], canvas);
         element.data('wlxmlNode', wlxmlTextNode);
         return dom;
     },
 
     create: function(wlxmlTextNode, canvas) {
-        return this.fromHTMLElement(this.createDOM(wlxmlTextNode)[0], canvas);
+        return this.fromHTMLElement(this.createDOM(wlxmlTextNode, canvas)[0], canvas);
     },
 
     fromHTMLElement: function(htmlElement, canvas) {
