@@ -13,7 +13,7 @@
         <div>
             <label>Klasa</label>
             <select  class="rng-module-nodePane-classSelect">
-                <% var options = ['', 'author', 'title', 'cite', 'cite.code', 'cite.code.xml', 'list.items', 'list.items.enum', 'item', 'uri', 'p', 'footnote', 'todo', 'emp'] %>
+                <% var options = ['', 'author', 'title', 'comment', 'cite', 'cite.code', 'cite.code.xml', 'list.items', 'list.items.enum', 'item', 'uri', 'p', 'footnote', 'todo', 'emp'] %>
                 <% options.forEach(function(option) { %>
                     <option value="<%= option.replace(/\./g, '-') %>" <% if(option === '') { %>selected<% } %>><%= utils.getClassLabel(option) %></option>
                 <% }); %>
