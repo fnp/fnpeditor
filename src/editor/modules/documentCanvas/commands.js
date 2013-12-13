@@ -167,7 +167,7 @@ commands.register('newNodeRequested', function(canvas, params) {
     } else if(canvas.getCurrentNodeElement()) {
         wlxmlNode = canvas.getCurrentNodeElement().data('wlxmlNode');
             // wrapper = node.wrapWith({tagName: params.wlxmlTag, attrs: {klass: params.wlxmlClass}});
-        wrapper = wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {klass: params.wlxmlClass}});
+        wrapper = wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}});
         canvas.setCurrentElement(utils.findCanvasElement(wrapper));
     }
 
