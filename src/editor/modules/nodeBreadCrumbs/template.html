@@ -2,9 +2,9 @@
     <ul class="breadcrumb">
     <% if(node && parents) { %>
         <% for(var i = parents.length - 1; i >= 0; i--) { %>
-            <li><a href="#"> <%= tagNames[parents[i].getTagName()] %><% if(parents[i].getClass()) { %>.<%= classNames[parents[i].getClass()] %> <% } %></a><span class="divider">/</span></li>
+            <li><a href="#"> <%= utils.getTagLabel(parents[i].getTagName()) %><% if(parents[i].getClass()) { %>.<%= utils.getClassLabel(parents[i].getClass()) %> <% } %></a><span class="divider">/</span></li>
         <% } %>
-            <li class="active"><%= tagNames[node.getTagName()] %><% if(node.getClass()) { %>.<%= classNames[node.getClass()] %> <% } %></span></li>
+            <li class="active"><%= utils.getTagLabel(node.getTagName()) %><% if(node.getClass()) { %>.<%= utils.getClassLabel(node.getClass()) %> <% } %></span></li>
     <% } %>
     </ul>
 </div>

@@ -9,7 +9,7 @@ return function(sandbox) {
         currentNode;
 
     var view = {
-        node: $(_.template(template)({tagNames: wlxmlUtils.wlxmlTagNames, classNames: wlxmlUtils.wlxmlClassNames, templates: documentTemplates})),
+        node: $(_.template(template)({wlxmlUtils: wlxmlUtils, templates: documentTemplates})),
         setup: function() {
             var view = this;
             

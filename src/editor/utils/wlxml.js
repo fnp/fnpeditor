@@ -6,17 +6,17 @@ define([
 
 
 
-return {
-    wlxmlTagNames: {
-        '': '',
+var names = {
+    tag: {
+        '': '-',
         section: 'sekcja',
         header: 'nagłówek',
         div: 'blok',
         span: 'tekst',
         aside: 'poboczny'
     },
-    wlxmlClassNames: {
-        '': '',
+    'class': {
+        '': '-',
         author: 'autor',
         title: 'tytuł',
         cite: 'cytat',
@@ -30,6 +30,18 @@ return {
         footnote: 'przypis',
         todo: 'todo',
         emp: 'wyróżnienie'
+    }
+};
+
+return {
+    getLabel: function(of, name) {
+        return (names[of] && (names[of][name] || name)) || '?';
+    },
+    getTagLabel: function(tagName) {
+        return this.getLabel('tag', tagName);
+    },
+    getClassLabel: function(className) {
+        return this.getLabel('class', className);
     }
 };
 

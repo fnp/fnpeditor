@@ -10,7 +10,7 @@ define([
 
 return function(sandbox) {
     
-    var view = $(_.template(templateSrc)({tagNames: wlxmlUtils.wlxmlTagNames, classNames: wlxmlUtils.wlxmlClassNames})),
+    var view = $(_.template(templateSrc)({utils: wlxmlUtils})),
         currentNode;
     
     view.on('change', 'select', function(e) {

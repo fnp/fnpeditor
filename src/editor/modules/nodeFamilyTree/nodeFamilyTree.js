@@ -65,7 +65,7 @@ return function(sandbox) {
                 items.push(nodeElementParent);
                 parent = {
                     id: items.length - 1,
-                    repr: wlxmlUtils.wlxmlTagNames[nodeElementParent.getTagName()] + (nodeElementParent.getClass() ? ' / ' + wlxmlUtils.wlxmlClassNames[nodeElementParent.getClass()] : '')
+                    repr: wlxmlUtils.getTagLabel(nodeElementParent.getTagName()) + (nodeElementParent.getClass() ? ' / ' + wlxmlUtils.getClassLabel(nodeElementParent.getClass()) : '')
                 };
                 
             }
@@ -91,7 +91,7 @@ return function(sandbox) {
                 } else {
                     contents.push({
                         id: items.length,
-                        repr: wlxmlUtils.wlxmlTagNames[child.getTagName()] + (child.getClass() ? ' / ' + wlxmlUtils.wlxmlClassNames[child.getClass()] : '')
+                        repr: wlxmlUtils.getTagLabel(child.getTagName()) + (child.getClass() ? ' / ' + wlxmlUtils.getClassLabel(child.getClass()) : '')
                     });
                 }
                 items.push(child);

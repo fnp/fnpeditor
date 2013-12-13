@@ -32,7 +32,7 @@ return function(sandbox) {
             this.dom.empty();
             this.currentNodeElement = nodeElement;
             var parents = nodeElement.parents();
-            this.dom.html(template({node: nodeElement, parents: parents, tagNames: wlxmlUtils.wlxmlTagNames, classNames: wlxmlUtils.wlxmlClassNames}));
+            this.dom.html(template({node: nodeElement, parents: parents, utils: wlxmlUtils}));
 
             this.dom.find('li > a[href="#"]').each(function(idx, a) {
                 $(a).data('element', parents[parents.length - 1 - idx]);

@@ -9,7 +9,7 @@ return {
     labelWidget: function(tag, klass) {
         return $('<span>')
             .addClass('canvas-widget canvas-widget-label')
-            .text(wlxmlUtils.wlxmlTagNames[tag] + (klass ? ' / ' + wlxmlUtils.wlxmlClassNames[klass] : ''));
+            .text(wlxmlUtils.getTagLabel(tag) + (klass ? ' / ' + wlxmlUtils.getClassLabel(klass) : ''));
     },
 
     footnoteHandler: function(clickHandler) {
