@@ -104,7 +104,7 @@ handlers.push({key: KEYS.ENTER,
                 var result = position.element.data('wlxmlNode').breakContent({offset: position.offset}),
                     goto, gotoOptions;
                 if(result.emptyText) {
-                    goto = result.createdEmpty;
+                    goto = result.emptyText;
                     gotoOptions = {};
                 } else {
                     goto = result.second;
