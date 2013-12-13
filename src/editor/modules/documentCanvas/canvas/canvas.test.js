@@ -33,6 +33,7 @@ describe('new Canvas', function() {
             c = canvas.fromXMLDocument(doc);
 
         expect(c.doc().children()).to.have.length(3);
+        expect(c.doc().children()[0].canvas).to.equal(c);
     });
 });
 
@@ -104,6 +105,26 @@ describe('Listening to document changes', function() {
         /* Make sure we handle invalidation of reference to wlxmlNode after changing its tag */
         expect(headerNode.getData('canvasElement').sameNode(headerElement)).to.equal(true, 'node->element');
         expect(headerElement.data('wlxmlNode').sameNode(headerNode)).to.equal(true, 'element->node');
+    });
+
+    it('Handles nodeDetached event for an empty text node', function(done) {
+        var doc = wlxml.WLXMLDocumentFromXML('<section><div>A<span>b</span></div></section>'),
+            aTextNode = doc.root.contents()[0].contents()[0],
+            aTextElement;
+
+        canvas.fromXMLDocument(doc);
+        aTextElement = utils.findCanvasElementInParent(aTextNode, aTextNode.parent()); // TODO: This really should be easier...
+
+        aTextElement.setText('');
+
+        wait(function() {
+            var parent = aTextElement.parent();
+            expect(aTextElement.getText({raw:true})).to.equal(utils.unicode.ZWS, 'canvas represents this as empty node');
+            aTextElement.data('wlxmlNode').detach();
+            expect(parent.children().length).to.equal(1);
+            expect(parent.children()[0].getWlxmlTag()).to.equal('span');
+            done();
+        });
     });
 });
 

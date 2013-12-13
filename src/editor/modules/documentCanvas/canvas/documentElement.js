@@ -229,18 +229,10 @@ $.extend(DocumentNodeElement.prototype, {
 
         var elementContent = this._container().contents();
         var element = this;
-        elementContent.each(function(idx) {
+        elementContent.each(function() {
             var childElement = DocumentElement.fromHTMLElement(this, element.canvas);
             if(childElement === undefined) {
                 return true;
-            }
-            if(idx === 0 && elementContent.length > 1 && elementContent[1].nodeType === Node.ELEMENT_NODE && (childElement instanceof DocumentTextElement) && $.trim($(this).text()) === '') {
-                return true;
-            }
-            if(idx > 0 && childElement instanceof DocumentTextElement) {
-                if(toret[toret.length-1] instanceof DocumentNodeElement && $.trim($(this).text()) === '') {
-                    return true;
-                }
             }
             toret.push(childElement);
         });
