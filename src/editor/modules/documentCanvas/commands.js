@@ -73,7 +73,7 @@ commands.register('wrap-node', function(canvas) {
         node2 = parent2.data('wlxmlNode'),
         doc = node1.document;
 
-    if(canvas.list.areItemsOfTheSameList({element1: parent1, element2: parent2})) {
+    if(doc.areItemsOfSameList({node1: node1, node2: node2})) {
         //canvas.list.create({element1: parent1, element2: parent2});
         //doc.transform('createList', {node1: node1, node2: node2});
         doc.createList({node1: node1, node2: node2});
