@@ -3,7 +3,7 @@ define(function(require) {
 'use strict';
 
 var _ = require('libs/underscore'),
-    extension = {document: {transformations: {}}, wlxmlClass: {list: {methods: {}}}};
+    extension = {document: {transformations: {}, methods: {}}, wlxmlClass: {list: {methods: {}}}};
 
 
 extension.wlxmlClass.list.methods = {
@@ -22,7 +22,7 @@ extension.wlxmlClass.list.methods = {
     }
 };
 
-extension.documentMethods = {
+extension.document.methods = {
     areItemsOfSameList: function(params) {
         return params.node1.parent().sameNode(params.node2.parent()) && params.node2.parent().is('list');
     }
