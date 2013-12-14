@@ -50,7 +50,7 @@ var getDisplayStyle = function(tag, klass) {
     if(tag === 'span') {
         return 'inline';
     }
-    if(klass === 'item') {
+    if(klass && klass.substr(0, 4) === 'item') {
         return null;
     }
     return 'block';
