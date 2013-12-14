@@ -139,18 +139,24 @@ handlers.push({keys: [KEYS.ARROW_UP, KEYS.ARROW_DOWN, KEYS.ARROW_LEFT, KEYS.ARRO
             caretTo = false;
         if(!element) {
             // Chrome hack
-            var direction;
-            if(event.which === KEYS.ARROW_LEFT  || event.which === KEYS.ARROW_UP) {
-                direction = 'above';
-                caretTo = 'end';
-            } else {
-                direction = 'below';
-                caretTo = 'start';
+
+            var moves = [{direction: 'above', caretTo: 'end'}, {direction: 'below', caretTo: 'start'}];
+            if(event.which === KEYS.ARROW_RIGHT  || event.which === KEYS.ARROW_DOWN) {
+                moves.reverse();
             }
-            /* globals window */
-            element = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]:visible', direction, window.getSelection().focusNode));
+            moves.some(function(move) {
+                /* globals window */
+                var targetNode = utils.nearestInDocumentOrder('[document-text-element]:visible', move.direction, window.getSelection().focusNode);
+                if(targetNode) {
+                    element = canvas.getDocumentElement(targetNode);
+                    caretTo = move.caretTo;
+                    return true; // break
+                }
+            });
         }
-        canvas.setCurrentElement(element, {caretTo: caretTo});
+        if(element) {
+            canvas.setCurrentElement(element, {caretTo: caretTo});
+        }
     }
 });
 
