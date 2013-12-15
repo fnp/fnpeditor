@@ -144,24 +144,4 @@ extension.documentTransformations.push({
 
 wlxml.registerExtension(extension);
 
-// wlxml.registerClassTransformation('list', {
-//     name: 'insertItem',
-//     impl: function(item) {
-//         if(!item.is('item')) {
-//             throw new Error ('...');
-//         }
-//         this.append(item);
-//     }
-// });
-
-// wlxml.registerClassMethod('list', {
-//     name: 'items',
-//     impl: function() {
-//         var node = this;
-//         return this.contents();    
-//     }
-// });
-
-//a atrybuty? registerClassAttrs? E... lepiej registerClassExtension({methods, attibutes})
-
 });
