@@ -188,9 +188,15 @@ var elementNodeTransformations = {
 };
 
 var textNodeTransformations = {
-    setText: function(text) {
-        this.nativeNode.data = text;
-        this.triggerTextChangeEvent();
+    setText: {
+        impl: function(t, text) {
+            t.oldText = this.getText();
+            this.nativeNode.data = text;
+            this.triggerTextChangeEvent();
+        },
+        undo: function(t) {
+            this.setText(t.oldText);
+        }
     },
 
     appendText: function(text) {
