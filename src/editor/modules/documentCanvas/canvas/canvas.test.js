@@ -185,6 +185,108 @@ describe('Cursor', function() {
         expect(cursor.getPosition().offsetAtEnd).to.equal(true, 'offset at end');
     });
 
+    it('recognizes selection start and end on document order', function() {
+        var c = getCanvasFromXML('<section><span>Alice</span><span>has a cat</span><div>abc<span>...</span>cde</div></section>'),
+            dom = c.doc().dom(),
+            textFirst = findTextNode(dom, 'Alice'),
+            textSecond = findTextNode(dom, 'has a cat'),
+            textAbc = findTextNode(dom, 'abc'),
+            textCde = findTextNode(dom, 'cde'),
+            cursor, label;
+
+        var check = function(label, expected) {
+            var cursor = c.getCursor();
+            label = label + ': ';
+            expect(cursor.getSelectionStart().element.getText()).to.equal(expected.start.text, label + 'start element ok');
+            expect(cursor.getSelectionStart().offset).to.equal(expected.start.offset, label + 'start offset ok');
+            expect(cursor.getSelectionEnd().element.getText()).to.equal(expected.end.text, label + 'end element ok');
+            expect(cursor.getSelectionEnd().offset).to.equal(expected.end.offset, label + 'end offset ok');
+        }
+
+        getSelection.returns({
+            anchorNode: textFirst,
+            focusNode: textFirst,
+            anchorOffset: 1,
+            focusOffset: 3,
+            isCollapsed: false
+        });
+
+        check('same element, anchor first', {
+            start: {text: 'Alice', offset: 1},
+            end: {text: 'Alice', offset:3}
+        });
+
+
+        getSelection.returns({
+            anchorNode: textFirst,
+            focusNode: textFirst,
+            anchorOffset: 3,
+            focusOffset: 1,
+            isCollapsed: false
+        });
+
+        check('same element, anchor second', {
+            start: {text: 'Alice', offset: 1},
+            end: {text: 'Alice', offset:3}
+        });
+
+
+        getSelection.returns({
+            anchorNode: textAbc,
+            focusNode: textCde,
+            anchorOffset: 3,
+            focusOffset: 1,
+            isCollapsed: false
+        });
+
+        check('same parent, anchor first', {
+            start: {text: 'abc', offset: 3},
+            end: {text: 'cde', offset:1}
+        });
+
+
+        getSelection.returns({
+            anchorNode: textCde,
+            focusNode: textAbc,
+            anchorOffset: 1,
+            focusOffset: 3,
+            isCollapsed: false
+        });
+
+        check('same parent, anchor second', {
+            start: {text: 'abc', offset: 3},
+            end: {text: 'cde', offset:1}
+        });
+
+
+        getSelection.returns({
+            anchorNode: textFirst,
+            focusNode: textSecond,
+            anchorOffset: 1,
+            focusOffset: 3,
+            isCollapsed: false
+        });
+
+        check('different parents, anchor first', {
+            start: {text: 'Alice', offset: 1},
+            end: {text: 'has a cat', offset:3}
+        });
+
+
+        getSelection.returns({
+            anchorNode: textSecond,
+            focusNode: textFirst,
+            anchorOffset: 3,
+            focusOffset: 1,
+            isCollapsed: false
+        });
+
+        check('different parents, anchor second', {
+            start: {text: 'Alice', offset: 1},
+            end: {text: 'has a cat', offset:3}
+        });
+    });
+
     it('returns boundries of selection when browser selection not collapsed', function() {
         var c = getCanvasFromXML('<section>Alice <span>has</span> a <span>big</span> cat</section>'),
             dom = c.doc().dom(),

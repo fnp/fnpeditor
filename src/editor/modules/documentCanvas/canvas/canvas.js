@@ -9,7 +9,7 @@ define([
 ], function($, _, Backbone, documentElement, keyboard, utils, wlxmlListener) {
     
 'use strict';
-/* global document:false, window:false */
+/* global document:false, window:false, Node:false */
 
 
 var TextHandler = function(canvas) {this.canvas = canvas; this.buffer = null;};
@@ -344,12 +344,8 @@ $.extend(Cursor.prototype, {
             };
         }
         
-        var element,
-            offset;
-
-        if(anchorElement.parent().sameNode(focusElement.parent())) {
-            var parent = anchorElement.parent(),
-                anchorFirst = parent.childIndex(anchorElement) < parent.childIndex(focusElement);
+        var getPlaceData = function(anchorFirst) {
+            var element, offset;
             if(anchorFirst) {
                 if(which === 'start') {
                     element = anchorElement;
@@ -369,23 +365,31 @@ $.extend(Cursor.prototype, {
                     offset = selection.anchorOffset;
                 }
             }
-        } else {
-            // TODO: Handle order via https://developer.mozilla.org/en-US/docs/Web/API/Node.compareDocumentPosition
-            if(which === 'start') {
-                element = anchorElement;
-                offset = selection.anchorOffset;
+            return {element: element, offset: offset};
+        };
+
+        var anchorFirst, placeData, parent;
+
+        if(anchorElement.parent().sameNode(focusElement.parent())) {
+            parent = anchorElement.parent();
+            if(selection.anchorNode === selection.focusNode) {
+                anchorFirst = selection.anchorOffset <= selection.focusOffset;
             } else {
-                element = focusElement;
-                offset = selection.focusOffset;
+                anchorFirst = parent.childIndex(anchorElement) < parent.childIndex(focusElement);
             }
+            placeData = getPlaceData(anchorFirst);
+        } else {
+            /*jshint bitwise: false*/
+            anchorFirst = selection.anchorNode.compareDocumentPosition(selection.focusNode) & Node.DOCUMENT_POSITION_FOLLOWING;
+            placeData = getPlaceData(anchorFirst);
         }
 
-        var nodeLen = (element.sameNode(focusElement) ? selection.focusNode : selection.anchorNode).length;
+        var nodeLen = (placeData.element.sameNode(focusElement) ? selection.focusNode : selection.anchorNode).length;
         return {
-            element: element,
-            offset: offset,
-            offsetAtBeginning: offset === 0,
-            offsetAtEnd: nodeLen === offset
+            element: placeData.element,
+            offset: placeData.offset,
+            offsetAtBeginning: placeData.offset === 0,
+            offsetAtEnd: nodeLen === placeData.offset
         };
     }
 });
