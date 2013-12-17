@@ -509,8 +509,10 @@ $.extend(Document.prototype, Backbone.Events, {
             throw new Error('End of transaction requested, but there is no transaction in progress!');
         }
         this._transactionInProgress = false;
-        this.undoStack.push(this._transactionStack);
-        this._transactionStack = [];
+        if(this._transactionStack.length) {
+            this.undoStack.push(this._transactionStack);
+            this._transactionStack = [];
+        }
     },
 
     getNodeByPath: function(path) {

@@ -1273,6 +1273,13 @@ describe('smartxml', function() {
                 expect(doc.root.getAttr('test'), '3');
             });
 
+            it('ignores empty transactions', function() {
+                var doc = getDocumentFromXML('<div></div>');
+                doc.startTransaction();
+                doc.endTransaction();
+                expect(doc.undoStack).to.have.length(0, 'empty transaction doesn\'t get pushed into undo stack');
+            });
+
             it('doesn\'t break on optimizations', function() {
                 // This is a smoke test checking if optimizations made to transaction undoing
                 // doesnt't break anything.
