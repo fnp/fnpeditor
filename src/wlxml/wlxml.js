@@ -9,13 +9,6 @@ define([
 
 /* globals Node */
 
-// utils
-
-var isMetaAttribute = function(attrName) {
-    return attrName.substr(0, 5) === 'meta-';
-};
-
-//
 
 var AttributesList = function() {};
 AttributesList.prototype = Object.create({});
@@ -62,23 +55,27 @@ $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
             classDesc = this.document.options.wlxmlClasses[classCurrent];
             if(classDesc) {
                 _.keys(classDesc.attrs).forEach(function(attrName) {
-                    toret[attrName] = _.extend({value: this.getAttr('meta-' + attrName)}, classDesc.attrs[attrName]);
+                    toret[attrName] = _.extend({value: this.getAttr(attrName)}, classDesc.attrs[attrName]);
                 }.bind(this));
             }
         }.bind(this));
         return toret;
     },
     setMetaAttribute: function(key, value) {
-        this.setAttr('meta-'+key, value);
+        this.setAttr(key, value);
     },
     getOtherAttributes: function() {
-        var toret = {};
+        var toret = {},
+            node = this;
         this.getAttrs().forEach(function(attr) {
-            if(attr.name !== 'class' && !isMetaAttribute(attr.name)) {
-                toret[attr.name] = attr.value;
+            if(attr.name !== 'class' && !node.isMetaAttribute(attr.name)) {
+                toret[attr.name] = {value: attr.value};
             }
         });
         return toret;
+    },
+    isMetaAttribute: function(attrName) {
+        return attrName !== 'class' &&_.contains(_.keys(this.getMetaAttributes()), attrName);
     },
 
     _getXMLDOMToDump: function() {

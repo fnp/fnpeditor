@@ -27,9 +27,14 @@ describe('WLXMLDocument', function() {
             expect(node.getClass()).to.equal('class.subclass');
         });
 
-        it('returns attributes other than class and meta-* as other attributes', function() {
-            var node = nodeFromXML('<span class="uri" meta-attr="val" attr1="val1" attr2="val2"></span>');
-            expect(node.getOtherAttributes()).to.eql({attr1: 'val1', attr2: 'val2'});
+        it('returns unregistered attributes', function() {
+            var testClasses = {
+                    'testClass': {
+                        attrs: {'attr1': {type: 'string'}}
+                    }
+                },
+                doc = getDocumentFromXML('<span class="testClass" attr="val" attr1="val1"></span>', {wlxmlClasses: testClasses});
+            expect(doc.root.getOtherAttributes()).to.eql({attr: {value:'val'}});
         });
     });
 
@@ -76,7 +81,7 @@ describe('WLXMLDocument', function() {
                         }
                     },
                     node = getDocumentFromXML(
-                        '<span class="test" meta-attr1="val1" meta-attr2="2014-01-01"></span>',
+                        '<span class="test" attr1="val1" attr2="2014-01-01"></span>',
                         {wlxmlClasses: testClasses}
                     ).root,
                     attrs = node.getMetaAttributes();
