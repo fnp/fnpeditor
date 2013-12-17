@@ -94,6 +94,29 @@ $.extend(Canvas.prototype, {
             canvas.setCurrentElement(canvas.getDocumentElement(e.currentTarget), {caretTo: false});
         });
 
+        this.wrapper.on('paste', function(e) {
+            e.preventDefault();
+
+            var clipboardData = e.originalEvent.clipboardData;
+            if(!clipboardData || !clipboardData.getData) {
+                return; // TODO: alert
+            }
+
+            var text = clipboardData.getData('text/plain'),
+                cursor = canvas.getCursor(),
+                element = cursor.getPosition().element,
+                lhs, rhs;
+            
+            if(element && cursor.isWithinElement()) {
+                lhs = element.getText().substr(0, cursor.getSelectionStart().offset);
+                rhs = element.getText().substr(cursor.getSelectionEnd().offset);
+                element.setText(lhs+text+rhs);
+                canvas.setCurrentElement(element, {caretTo: lhs.length + text.length});
+            } else {
+                /* jshint noempty:false */
+                // TODO: alert
+            }
+        });
 
         /* globals MutationObserver */
         var observer = new MutationObserver(function(mutations) {
@@ -298,6 +321,9 @@ $.extend(Cursor.prototype, {
     },
     isSelectingWithinElement: function() {
         return this.isSelecting() && this.getSelectionStart().element.sameNode(this.getSelectionEnd().element);
+    },
+    isWithinElement: function() {
+        return !this.isSelecting() || this.isSelectingWithinElement();
     },
     isSelectingSiblings: function() {
         return this.isSelecting() && this.getSelectionStart().element.parent().sameNode(this.getSelectionEnd().element.parent());
