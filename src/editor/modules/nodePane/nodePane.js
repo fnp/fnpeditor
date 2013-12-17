@@ -42,7 +42,8 @@ return function(sandbox) {
             var escapedClassName = (wlxmlNodeElement.getClass() || '').replace(/\./g, '-');
             view.find('.rng-module-nodePane-classSelect').val(escapedClassName);
 
-            var widget = metaWidget.create({attrs:wlxmlNodeElement.getMetaAttributes()});
+            var attrs = _.extend(wlxmlNodeElement.getMetaAttributes(), wlxmlNodeElement.getOtherAttributes());
+            var widget = metaWidget.create({attrs:attrs});
             widget.on('valueChanged', function(key, value) {
                 wlxmlNodeElement.setMetaAttribute(key, value);
                 //wlxmlNodeElement.setMetaAttribute(key, value);
