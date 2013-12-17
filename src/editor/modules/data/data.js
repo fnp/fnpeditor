@@ -9,7 +9,6 @@ define([
 'use strict';
 
 return function(sandbox) {
-    /* global gettext */
 
     var document_id = sandbox.getBootstrappedData().document_id;
     var document_version = sandbox.getBootstrappedData().version;
@@ -114,7 +113,7 @@ return function(sandbox) {
         fetchDiff: function(ver1, ver2) {
             $.ajax({
                 method: 'get',
-                url: '/' + gettext('editor') + '/diff/' + document_id,
+                url: sandbox.getConfig().documentDiffUrl(document_id),
                 data: {from: ver1, to: ver2},
                 success: function(data) {
                     sandbox.publish('diffFetched', {table: data, ver1: ver1, ver2: ver2});
@@ -127,7 +126,7 @@ return function(sandbox) {
                 $.ajax({
                     method: 'post',
                     dataType: 'json',
-                    url: '/' + gettext('editor') + '/' + document_id + '/revert',
+                    url: sandbox.getConfig().documentRestoreUrl(document_id),
                     data: JSON.stringify(options),
                     success: function(data) {
                         document_version = data.current_version;
