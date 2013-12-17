@@ -52,6 +52,7 @@ var Canvas = function(wlxmlDocument, publisher) {
     this.wrapper = $('<div>').addClass('canvas-wrapper').attr('contenteditable', true);
     this.wlxmlListener = wlxmlListener.create(this);
     this.loadWlxmlDocument(wlxmlDocument);
+    this.setupEventHandling();
     this.publisher = publisher ? publisher : function() {};
     this.textHandler = new TextHandler(this);
 };
@@ -66,7 +67,6 @@ $.extend(Canvas.prototype, {
         this.wlxmlListener.listenTo(wlxmlDocument);
         this.wlxmlDocument = wlxmlDocument;
         this.reloadRoot();
-        this.setupEventHandling();
     },
 
     reloadRoot: function() {
