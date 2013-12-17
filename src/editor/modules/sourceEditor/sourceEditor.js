@@ -49,6 +49,9 @@ return function(sandbox) {
             wlxmlDocument.on('change', function() {
                 documentIsDirty = true;
             });
+            wlxmlDocument.on('contentSet', function() {
+                documentIsDirty = true;
+            });
         },
         getDocument: function() {
             return editor.getValue();
