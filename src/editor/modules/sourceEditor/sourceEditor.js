@@ -34,10 +34,6 @@ return function(sandbox) {
     session.setMode('ace/mode/xml');
     session.setUseWrapMode(true);
     
-    $('textarea', view).on('keyup', function() {
-        documentEditedHere = true;
-    });
-    
     editor.getSession().on('change', function() {
         documentEditedHere = true;
     });
