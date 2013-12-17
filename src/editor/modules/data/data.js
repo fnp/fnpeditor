@@ -1,12 +1,12 @@
 define([
     'libs/jquery',
-    './saveDialog',
+    './dialog',
     'wlxml/wlxml',
     'wlxml/extensions/list/list'
-
-], function($, saveDialog, wlxml, listExtension) {
+], function($, Dialog, wlxml, listExtension) {
 
 'use strict';
+/* global gettext */
 
 return function(sandbox) {
 
@@ -75,7 +75,11 @@ return function(sandbox) {
                     },
                     sandbox.getConfig().documentSaveForm
                 ),
-                dialog = saveDialog.create({fields: documentSaveForm.fields});
+                dialog = Dialog.create({
+                    fields: documentSaveForm.fields,
+                    title: gettext('Save Document'),
+                    submitButtonText: gettext('Save')
+                });
             
             dialog.on('save', function(event) {
                 sandbox.publish('savingStarted');
@@ -120,22 +124,41 @@ return function(sandbox) {
                 },
             });
         },
-        restoreVersion: function(options) {
-            if(options.version && options.description) {
-                sandbox.publish('restoringStarted', {version: options.version});
+        restoreVersion: function(version) {
+            var documentRestoreForm = $.extend({
+                        fields: [],
+                        version_field_name: 'version'
+                    },
+                    sandbox.getConfig().documentRestoreForm
+                ),
+                dialog = Dialog.create({
+                    fields: documentRestoreForm.fields,
+                    title: gettext('Restore Version'),
+                    submitButtonText: gettext('Restore')
+                });
+
+            dialog.on('save', function(event) {
+                var formData = event.formData;
+                formData[documentRestoreForm.version_field_name] = version;
+                sandbox.publish('restoringStarted', {version: version});
+                if(sandbox.getConfig().jsonifySentData) {
+                    formData = JSON.stringify(formData);
+                }
                 $.ajax({
                     method: 'post',
                     dataType: 'json',
                     url: sandbox.getConfig().documentRestoreUrl(document_id),
-                    data: JSON.stringify(options),
+                    data: formData,
                     success: function(data) {
-                        document_version = data.current_version;
+                        document_version = data.version;
                         reloadHistory();
                         wlxmlDocument.loadXML(data.document);
-                        sandbox.publish('documentReverted', data);
+                        sandbox.publish('documentReverted', data.version);
+                        event.success();
                     },
                 });
-            }
+            });
+            dialog.show();
         },
         getDocumentId: function() {
             return document_id;

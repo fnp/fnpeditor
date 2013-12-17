@@ -1,10 +1,9 @@
 define([
 'libs/jquery',
 'libs/underscore',
-'./restoreDialog',
 'libs/text!./templates/main.html',
 'libs/text!./templates/item.html'
-], function($, _, restoreDialog, mainTemplateSrc, itemTemplateSrc) {
+], function($, _, mainTemplateSrc, itemTemplateSrc) {
 
 'use strict';
     
@@ -23,12 +22,7 @@ return function(sandbox) {
     });
     
     dom.find('.btn.restore').click(function() {
-        var dialog = restoreDialog.create();
-        dialog.on('restore', function(event) {
-            sandbox.publish('restoreVersion', {version: historyItems.getSelected()[0], description: event.data.description});
-            event.success();
-        });
-        dialog.show();
+        sandbox.publish('restoreVersion', historyItems.getSelected()[0]);
     });
     
     dom.find('.btn.display').click(function() {

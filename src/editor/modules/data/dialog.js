@@ -4,7 +4,7 @@ define(function(require) {
 
     var _ = require('libs/underscore'),
         Backbone = require('libs/backbone'),
-        saveDialogTemplate = require('libs/text!./saveDialog.html'),
+        saveDialogTemplate = require('libs/text!./dialog.html'),
         fieldTemplates = {};
         fieldTemplates.checkbox = require('libs/text!./templates/checkbox.html');
         fieldTemplates.select = require('libs/text!./templates/select.html');
@@ -25,7 +25,7 @@ define(function(require) {
             this.actionsDisabled = false;
         },
         show: function() {
-            this.setElement(this.template());
+            this.setElement(this.template(this.options));
 
             var body = this.$('.modal-body');
             this.options.fields.forEach(function(field) {

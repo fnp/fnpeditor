@@ -108,10 +108,10 @@ return function(sandbox) {
         diffFetched: function(diff) {
             sandbox.getModule('diffViewer').setDiff(diff);
         },
-        documentReverted: function(event) {
+        documentReverted: function(version) {
             sandbox.getModule('mainBar').setCommandEnabled('save', true);
-            sandbox.getModule('indicator').clearMessage({message:'Wersja ' + event.reverted_version + ' przywrócona'});
-            sandbox.getModule('mainBar').setVersion(event.current_version);
+            sandbox.getModule('indicator').clearMessage({message:'Wersja ' + version + ' przywrócona'});
+            sandbox.getModule('mainBar').setVersion(version);
         }
     };
     
@@ -224,8 +224,8 @@ return function(sandbox) {
         compare: function(ver1, ver2) {
             sandbox.getModule('data').fetchDiff(ver1, ver2);
         },
-        restoreVersion: function(event) {
-            sandbox.getModule('data').restoreVersion(event);
+        restoreVersion: function(version) {
+            sandbox.getModule('data').restoreVersion(version);
         },
         displayVersion: function(event) {
             /* globals window */
