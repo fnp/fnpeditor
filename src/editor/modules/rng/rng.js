@@ -60,9 +60,9 @@ return function(sandbox) {
     };
     
     views.visualEditing.setView('rightColumn', views.visualEditingSidebar.getAsView());
-    addMainTab('Edytor', 'editor', views.visualEditing.getAsView());
+    addMainTab(gettext('Editor'), 'editor', views.visualEditing.getAsView());
     addMainTab(gettext('Source'), 'sourceEditor',  '');
-    addMainTab('Historia', 'history', views.diffLayout.getAsView());
+    addMainTab(gettext('History'), 'history', views.diffLayout.getAsView());
     
     sandbox.getDOM().append(views.mainLayout.getAsView());
     
