@@ -4,7 +4,7 @@ define(function(require) {
 
     var _ = require('libs/underscore'),
         Backbone = require('libs/backbone'),
-        saveDialogTemplate = require('libs/text!./dialog.html'),
+        dialogTemplate = require('libs/text!./dialog.html'),
         fieldTemplates = {};
         fieldTemplates.checkbox = require('libs/text!./templates/checkbox.html');
         fieldTemplates.select = require('libs/text!./templates/select.html');
@@ -14,7 +14,7 @@ define(function(require) {
 
 
     var DialogView = Backbone.View.extend({
-        template: _.template(saveDialogTemplate),
+        template: _.template(dialogTemplate),
         events: {
             'click .save-btn': 'onSave',
             'click .cancel-btn': 'close',
