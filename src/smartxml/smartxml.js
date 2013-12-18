@@ -276,6 +276,9 @@ $.extend(Document.prototype, Backbone.Events, {
                     /* globals document */
                     from = document.createTextNode(from.text);
                 } else {
+                    if(!from.tagName) {
+                        throw new Error('tagName missing');
+                    }
                     var node = $('<' + from.tagName + '>');
 
                     _.keys(from.attrs || {}).forEach(function(key) {
