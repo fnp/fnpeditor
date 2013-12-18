@@ -102,7 +102,7 @@ $.extend(Canvas.prototype, {
                 return; // TODO: alert
             }
 
-            var text = clipboardData.getData('text/plain'),
+            var text = clipboardData.getData('text/plain').replace(/\r?\n|\r/g, ' '),
                 cursor = canvas.getCursor(),
                 element = cursor.getPosition().element,
                 lhs, rhs;
