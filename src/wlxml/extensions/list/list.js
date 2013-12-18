@@ -35,7 +35,7 @@ extension.document.transformations.createList = {
         /* globals Node */
         var parent = params.node1.parent(),
             parentContents = parent.contents(),
-            nodeIndexes = [params.node1.getIndex(), params.node2.getIndex()].sort(),
+            nodeIndexes = [params.node1.getIndex(), params.node2.getIndex()].sort(function(a,b) { return a-b; }),
             nodesToWrap = [],
             listNode = params.node1.document.createDocumentNode({tagName: 'div', attrs: {'class': 'list'}}),
             node, i;
@@ -78,7 +78,7 @@ extension.document.transformations.extractItems = {
     impl: function(params) {
         params = _.extend({}, {merge: true}, params);
         var list = params.item1.parent(),
-            indexes = [params.item1.getIndex(), params.item2.getIndex()].sort(),
+            indexes = [params.item1.getIndex(), params.item2.getIndex()].sort(function(a,b) { return a-b;}),
             precedingItems = [],
             extractedItems = [],
             succeedingItems = [],
