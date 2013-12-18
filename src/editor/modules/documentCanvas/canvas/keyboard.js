@@ -52,7 +52,7 @@ handlers.push({key: KEYS.ENTER,
             if(currentElement) {
                 canvas.wlxmlDocument.startTransaction();
                 added = currentElement.data('wlxmlNode').after({
-                    tag: currentElement.getWlxmlTag() || 'div',
+                    tagName: currentElement.getWlxmlTag() || 'div',
                     attrs: {'class': currentElement.getWlxmlClass() || 'p'}
                 });
                 added.append({text:''});
