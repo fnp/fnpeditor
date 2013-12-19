@@ -286,8 +286,8 @@ $.extend(WLXMLDocument.prototype, {
 });
 
 var wlxmlClasses = {
-    'uri': {
-        attrs: {uri: {type: 'string'}}
+    'link': {
+        attrs: {href: {type: 'string'}}
     }
 };
 

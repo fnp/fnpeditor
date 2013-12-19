@@ -3,7 +3,7 @@
         <button data-name="new-node" data-meta="header/" data-btn-type="cmd" class="btn btn-mini">nagłówek</button>
         <button data-name="new-node" data-meta="div/p" data-btn-type="cmd" class="btn btn-mini">paragraf</button>
         <button data-name="new-node" data-meta="span/cite" data-btn-type="cmd" class="btn btn-mini">cytat</i></button>
-        <button data-name="new-node" data-meta="span/uri" data-btn-type="cmd" class="btn btn-mini">uri</i></button>
+        <button data-name="new-node" data-meta="span/link" data-btn-type="cmd" class="btn btn-mini">link</i></button>
         <select class="rng-module-documentToolbar-toolbarOption" data-option="newTag-tag">
             <% var options = ['', 'section', 'header', 'div', 'span', 'aside']; %>
             <% options.forEach(function(option) { %>
@@ -11,7 +11,7 @@
             <% }); %>
         </select>
         <select class="rng-module-documentToolbar-toolbarOption" data-option="newTag-class">
-            <% var options = ['', 'author', 'title', 'cite', 'cite.code', 'cite.code.xml', 'list.items', 'item', 'uri', 'p', 'footnote', 'todo', 'emp'] %>
+            <% var options = ['', 'author', 'title', 'cite', 'cite.code', 'cite.code.xml', 'list.items', 'item', 'link', 'p', 'footnote', 'todo', 'emp'] %>
             <% options.forEach(function(option) { %>
                 <option value="<%= option.replace(/\./g, '-') %>" <% if(option==='cite') { %>selected<% } %>><%= wlxmlUtils.getClassLabel(option) %></option>
             <% }); %>
