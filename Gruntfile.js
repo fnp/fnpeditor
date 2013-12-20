@@ -12,6 +12,7 @@ module.exports = function(grunt) {
         requirejs: {
           compile: {
             options: {
+              useStrict: true,
               baseUrl: 'src/editor',
               mainConfigFile: 'src/editor/entrypoint.js',
               out: build_output_dir + '/rng.js',
