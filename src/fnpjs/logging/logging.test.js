@@ -31,8 +31,8 @@ var log = {
 };
 
 // Loggin handler that just writes to the global logger object
-var testLoggingHandler = function(msg) {
-    log.append(msg);
+var testLoggingHandler = function(record) {
+    log.append(record.message);
 };
 
 describe('Logging', function() {

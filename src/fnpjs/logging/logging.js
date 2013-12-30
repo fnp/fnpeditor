@@ -37,9 +37,14 @@ _.extend(Logger.prototype, {
                 }
 
                 if(levels.indexOf(handlerLevel) !== -1 && levels.indexOf(level) >= levels.indexOf(handlerLevel)) {
-                    handler(message, level, data);
+                    handler({
+                        message: message,
+                        level: level,
+                        loggerName: this.name,
+                        data: data
+                    });
                 }
-            });
+            }.bind(this));
         }
         if(this.config.propagate && this.name) {
             var logger = new Logger(this.name.split('.').slice(0, -1).join('.'));

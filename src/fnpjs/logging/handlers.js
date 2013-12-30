@@ -4,7 +4,7 @@ define(function() {
 
 
 return {
-    raven: function(msg, level, data) {
+    raven: function(record) {
         /* global window */
         if(!window.Raven) {
             return;
@@ -12,15 +12,15 @@ return {
 
         var ravenData = {};
 
-        if(data.exception) {
-            window.Raven.captureException(data.exception);
+        if(record.data.exception) {
+            window.Raven.captureException(record.data.exception);
         } else {
-            Object.keys(data || {}).forEach(function(key) {
-                ravenData[key] = data[key];
+            Object.keys(record.data || {}).forEach(function(key) {
+                ravenData[key] = record.data[key];
             });
             ravenData.tags = ravenData.tags || {};
-            ravenData.tags.level = level;
-            window.Raven.captureMessage(msg, ravenData);
+            ravenData.tags.level = record.level;
+            window.Raven.captureMessage(record.message, ravenData);
         }
     }
 };
