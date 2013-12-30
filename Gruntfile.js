@@ -17,7 +17,13 @@ module.exports = function(grunt) {
               mainConfigFile: 'src/editor/entrypoint.js',
               out: build_output_dir + '/rng.js',
               name: 'entrypoint',
-              include: ['libs/require']
+              include: ['libs/require'],
+              generateSourceMaps: true,
+
+              // The following two settings are required for source maps to work,
+              // see: http://requirejs.org/docs/optimization.html#sourcemaps
+              preserveLicenseComments: false,
+              optimize: 'uglify2'
             }
           }
         },
