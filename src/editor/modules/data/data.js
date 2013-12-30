@@ -2,11 +2,16 @@ define([
     'libs/jquery',
     './dialog',
     'wlxml/wlxml',
-    'wlxml/extensions/list/list'
-], function($, Dialog, wlxml, listExtension) {
+    'wlxml/extensions/list/list',
+    'fnpjs/logging/logging',
+], function($, Dialog, wlxml, listExtension, logging) {
 
 'use strict';
-/* global gettext */
+/* global gettext, alert */
+
+var logger = logging.getLogger('editor.modules.data'),
+    stubDocument = '<section><div>' + gettext('This is an empty document.') + '</div></section>';
+
 
 return function(sandbox) {
 
@@ -14,7 +19,14 @@ return function(sandbox) {
     var document_version = sandbox.getBootstrappedData().version;
     var history = sandbox.getBootstrappedData().history;
 
-    var wlxmlDocument = wlxml.WLXMLDocumentFromXML(sandbox.getBootstrappedData().document);
+    var wlxmlDocument;
+    try {
+        wlxmlDocument = wlxml.WLXMLDocumentFromXML(sandbox.getBootstrappedData().document);
+    } catch(e) {
+        logger.exception(e);
+        alert(gettext('This document contains errors and can\'t be loaded. :(')); // TODO
+        wlxmlDocument = wlxml.WLXMLDocumentFromXML(stubDocument);
+    }
 
     wlxmlDocument.registerExtension(listExtension);
     sandbox.getPlugins().forEach(function(plugin) {
