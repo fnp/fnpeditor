@@ -10,16 +10,21 @@ return {
             return;
         }
 
-        var ravenData = {};
+        var ravenData = {
+            level: record.level,
+            logger: record.loggerName,
+            tags: {}
+        };
+
+        Object.keys(record.data || {})
+            .filter(function(key) {return key !== 'exception';})
+            .forEach(function(key) {
+                ravenData.tags[key] = record.data[key];
+            });
 
         if(record.data.exception) {
-            window.Raven.captureException(record.data.exception);
+            window.Raven.captureException(record.data.exception, ravenData);
         } else {
-            Object.keys(record.data || {}).forEach(function(key) {
-                ravenData[key] = record.data[key];
-            });
-            ravenData.tags = ravenData.tags || {};
-            ravenData.tags.level = record.level;
             window.Raven.captureMessage(record.message, ravenData);
         }
     }
