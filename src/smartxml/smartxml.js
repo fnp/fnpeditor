@@ -222,7 +222,12 @@ $.extend(TextNode.prototype, {
 
 
 var parseXML = function(xml) {
-    return $($.trim(xml))[0];
+    var toret = $($.trim(xml));
+    if(!toret.length) {
+        throw new Error('Unable to parse XML: ' + xml);
+    }
+    return toret[0];
+
 };
 
 var registerTransformation = function(desc, name, target) {
