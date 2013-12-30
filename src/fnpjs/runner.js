@@ -1,4 +1,4 @@
-define(['libs/jquery', 'libs/underscore'], function($, _) {
+define(['libs/jquery', 'libs/underscore', 'fnpjs/logging/logging'], function($, _, logging) {
 
 'use strict';
 
@@ -77,6 +77,12 @@ var Runner = function(app, modules) {
         config = _.extend({
             rootSelector: 'body'
         }, _config);
+
+
+        if(config.logging) {
+            logging.setConfig(config.logging);
+        }
+
         app.initModules.forEach(function(moduleName) {
             getModuleInstance(moduleName).start();
         });
