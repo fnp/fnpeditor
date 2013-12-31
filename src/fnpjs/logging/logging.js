@@ -4,6 +4,7 @@ define(function(require) {
 
 var _ = require('libs/underscore'),
     handlers = require('fnpjs/logging/handlers'),
+    formatters = require('fnpjs/logging/formatters'),
     config = {},
     levels = ['debug', 'info', 'warning', 'error', 'critical'];
 
@@ -27,22 +28,35 @@ _.extend(Logger.prototype, {
             this.config.handlers.forEach(function(handlerName) {
                 var handlerConfig = config.handlers[handlerName],
                     handler = handlerConfig.handler,
-                    handlerLevel = handlerConfig.level || 'info';
+                    formatter = handlerConfig.formatter,
+                    handlerLevel = handlerConfig.level || 'info',
+                    record = {
+                        originalMessage: message,
+                        level: level,
+                        loggerName: this.name,
+                        data: data
+                    };
 
                 if(typeof handler === 'string') {
                     handler = handlers[handlerConfig.handler];
                 }
+                if(typeof formatter === 'string') {
+                    if(formatter.indexOf('%') !== -1) {
+                        formatter = formatters.fromFormatString(formatter);
+                    } else {
+                        formatter = formatters[handlerConfig.formatter];
+                    }
+                }
                 if(!handler) {
                     throw new Error('Unknown handler: ' + handlerName);
                 }
+                if(!formatter) {
+                    formatter = formatters.simple;
+                }
 
                 if(levels.indexOf(handlerLevel) !== -1 && levels.indexOf(level) >= levels.indexOf(handlerLevel)) {
-                    handler({
-                        message: message,
-                        level: level,
-                        loggerName: this.name,
-                        data: data
-                    });
+                    record.message = formatter(record);
+                    handler(record);
                 }
             }.bind(this));
         }
