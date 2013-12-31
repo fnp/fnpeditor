@@ -68,6 +68,7 @@ return function(sandbox) {
     
     views.visualEditingSidebar.addTab({icon: 'pencil'}, 'edit', views.currentNodePaneLayout.getAsView());
 
+    var wlxmlDocument, documentIsDirty;
     
     /* Events handling */
     
@@ -87,6 +88,15 @@ return function(sandbox) {
             _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'nodePane', 'metadataEditor', 'nodeFamilyTree', 'nodeBreadCrumbs', 'mainBar', 'indicator', 'documentHistory', 'diffViewer'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
+            
+            wlxmlDocument = sandbox.getModule('data').getDocument();
+            documentIsDirty = false;
+            wlxmlDocument.on('change', function() {
+                documentIsDirty = true;
+            });
+            wlxmlDocument.on('contentSet', function() {
+                documentIsDirty = true;
+            });
         },
         savingStarted: function() {
             sandbox.getModule('mainBar').setCommandEnabled('save', false);
@@ -94,6 +104,7 @@ return function(sandbox) {
         },
         savingEnded: function(status, current_version) {
             void(status);
+            documentIsDirty = false;
             sandbox.getModule('mainBar').setCommandEnabled('save', true);
             sandbox.getModule('indicator').clearMessage({message:'Dokument zapisany'});
             sandbox.getModule('mainBar').setVersion(current_version);
@@ -109,6 +120,7 @@ return function(sandbox) {
             sandbox.getModule('diffViewer').setDiff(diff);
         },
         documentReverted: function(version) {
+            documentIsDirty = false;
             sandbox.getModule('mainBar').setCommandEnabled('save', true);
             sandbox.getModule('indicator').clearMessage({message:'Wersja ' + version + ' przywrócona'});
             sandbox.getModule('mainBar').setVersion(version);
@@ -238,6 +250,15 @@ return function(sandbox) {
             views.diffLayout.setView('right', sandbox.getModule('diffViewer').getView());
         }
     };
+
+    window.addEventListener('beforeunload', function(event) {
+        var txt = gettext('Do you really want to exit?');
+        if(documentIsDirty) {
+            txt += ' ' + gettext('Document contains unsaved changes!');
+        }
+        event.returnValue = txt; // FF
+        return txt; // Chrome
+    });
     
     /* api */
     
