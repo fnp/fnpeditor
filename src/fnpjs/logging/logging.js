@@ -51,7 +51,7 @@ _.extend(Logger.prototype, {
                     throw new Error('Unknown handler: ' + handlerName);
                 }
                 if(!formatter) {
-                    formatter = formatters.simple;
+                    formatter = formatters.noop;
                 }
 
                 if(levels.indexOf(handlerLevel) !== -1 && levels.indexOf(level) >= levels.indexOf(handlerLevel)) {
