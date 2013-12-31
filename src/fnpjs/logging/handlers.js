@@ -4,6 +4,14 @@ define(function() {
 
 
 return {
+    console: function(record) {
+        /* global console */
+        var method;
+        if(console) {
+            method = (typeof console[record.level] === 'function') ? record.level : 'log';
+            console[method](record.message);
+        }
+    },
     raven: function(record) {
         /* global window */
         if(!window.Raven) {
