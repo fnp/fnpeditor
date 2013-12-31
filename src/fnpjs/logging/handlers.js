@@ -22,7 +22,7 @@ return {
                 ravenData.tags[key] = record.data[key];
             });
 
-        if(record.data.exception) {
+        if(record.data && record.data.exception) {
             window.Raven.captureException(record.data.exception, ravenData);
         } else {
             window.Raven.captureMessage(record.message, ravenData);
