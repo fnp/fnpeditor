@@ -260,8 +260,7 @@ var registerMethod = function(methodName, method, target) {
 };
 
 
-var Document = function(xml) {
-    this.loadXML(xml);
+var Document = function(xml, extensions) {
     this.undoStack = [];
     this.redoStack = [];
     this._transactionStack = [];
@@ -275,6 +274,11 @@ var Document = function(xml) {
     this._elementNodeTransformations = {};
     
     this.registerExtension(coreTransformations);
+
+    (extensions || []).forEach(function(extension) {
+        this.registerExtension(extension);
+    }.bind(this));
+    this.loadXML(xml);
 };
 
 $.extend(Document.prototype, Backbone.Events, {
