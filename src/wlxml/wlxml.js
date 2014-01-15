@@ -2,13 +2,13 @@ define([
     'libs/jquery',
     'libs/underscore',
     'smartxml/smartxml',
-    'smartxml/transformations'
-], function($, _, smartxml, transformations) {
+    'smartxml/transformations',
+    'wlxml/extensions/metadata/metadata'
+], function($, _, smartxml, transformations, metadataExtension) {
     
 'use strict';
 
 /* globals Node */
-var metadataKey = 'wlxml.metadata';
 
 
 var AttributesList = function() {};
@@ -77,26 +77,6 @@ $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
     },
     isMetaAttribute: function(attrName) {
         return attrName !== 'class' &&_.contains(_.keys(this.getMetaAttributes()), attrName);
-    },
-
-    getMetadata: function() {
-        return this.getData(metadataKey) || [];
-    },
-
-    addMetadataRow: function(row) {
-        this.setMetadataRow(null, row);
-    },
-
-    setMetadataRow: function(index, row) {
-        var metadata = this.getData(metadataKey) || [];
-        if(typeof index !== 'number' || index > metadata.length - 1) {
-            metadata.push(row);
-            index = metadata.length - 1;
-        } else {
-            metadata[index] = _.extend(metadata[index], row);
-        }
-        this.setData(metadataKey, metadata);
-        this.triggerChangeEvent('metadataChange', {index: index});
     },
 
     _getXMLDOMToDump: function() {
@@ -182,7 +162,7 @@ WLXMLDocumentNode.prototype = Object.create(smartxml.DocumentNode.prototype);
 var WLXMLDocument = function(xml, options) {
     this.classMethods = {};
     this.classTransformations = {};
-    smartxml.Document.call(this, xml);
+    smartxml.Document.call(this, xml, [metadataExtension]);
     this.options = options;
 };
 
