@@ -33,14 +33,17 @@ $.extend(DocumentNode.prototype, {
     },
 
     clone: function() {
-        var clone = this._$.clone(true, true);
+        var clone = this._$.clone(true, true),
+            node = this;
         clone.find('*').addBack().each(function() {
-            var clonedData = $(this).data();
+            var el = this,
+                clonedData = $(this).data();
+
             _.pairs(clonedData).forEach(function(pair) {
                 var key = pair[0],
                     value = pair[1];
                 if(_.isFunction(value.clone)) {
-                    clonedData[key] = value.clone();
+                    clonedData[key] = value.clone(node.document.createDocumentNode(el));
                 }
             });
         });
