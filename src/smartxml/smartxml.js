@@ -34,6 +34,16 @@ $.extend(DocumentNode.prototype, {
 
     clone: function() {
         var clone = this._$.clone(true, true);
+        clone.find('*').addBack().each(function() {
+            var clonedData = $(this).data();
+            _.pairs(clonedData).forEach(function(pair) {
+                var key = pair[0],
+                    value = pair[1];
+                if(_.isFunction(value.clone)) {
+                    clonedData[key] = value.clone();
+                }
+            });
+        });
         return this.document.createDocumentNode(clone[0]);
     },
 
