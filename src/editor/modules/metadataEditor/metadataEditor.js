@@ -1,10 +1,9 @@
 define([
 'libs/jquery',
 'libs/underscore',
-'./transformations',
 'libs/text!./templates/main.html',
 'libs/text!./templates/item.html'
-], function($, _, transformations, mainTemplate, itemTemplate) {
+], function($, _, mainTemplate, itemTemplate) {
 
 'use strict';
 
@@ -55,22 +54,12 @@ return function(sandbox) {
             };
             this.metaTable.on('keyup', '[contenteditable]', _.throttle(onKeyUp, 500));
         },
-        getMetadata: function() {
-            var toret = [];
-            this.node.find('tr').each(function() {
-                var inputs = $(this).find('td [contenteditable]');
-                var key = $(inputs[0]).text();
-                var value = $(inputs[1]).text();
-                toret.push({key:key, value: value});
-            });
-            return toret;
-        },
         setMetadata: function(node) {
             var view = this,
                 metadata = node.getMetadata();
             this.metaTable.find('tr').remove();
             metadata.forEach(function(row) {
-                view._addMetaRow(row.key, row.value);
+                view._addMetaRow(row.getKey(), row.getValue());
             });
         },
         _addMetaRow: function(key, value) {
@@ -92,40 +81,17 @@ return function(sandbox) {
                     view.setMetadata(currentNode);
                 }
             });
-//            view.setMetadata(transformations.getMetadata(xml));
-            // sandbox.publish('metadataSet'); to wywalki
         },
         setNodeElement: function(node) {
             if(currentNode && currentNode.sameNode(node)) {
-                return;
+                return
             }
             currentNode = node;
             view.setMetadata(node);
         },
-        getMetadata: function() {
-            return transformations.getXML(view.getMetadata());
-        },
         getView: function() {
             return view.node;
-        },
-        attachMetadata: function(document) {
-            var toret = $('<div>');
-            toret.append($(document));
-            var meta = $('<metadata></metadata>\n').append(transformations.getXML(view.getMetadata()));
-            
-            var metadata = toret.find('metadata');
-            if(metadata.length === 0) {
-                var section = toret.find('section');
-                section = section.length ? $(section[0]) : null;
-                if(section) {
-                    section.prepend(meta);
-                }
-            } else {
-                metadata.replaceWith(meta);
-            }
-            return toret.html();
         }
-        
     };
 };
 
