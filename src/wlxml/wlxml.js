@@ -269,7 +269,7 @@ $.extend(WLXMLDocument.prototype, {
                 owner = doc.createDocumentNode(metadataNode.parent()[0]);
                 
             metadataNode.children().each(function() {
-                owner.addMetadataRow({key: (this.tagName).toLowerCase().substr(prefixLength), value: $(this).text()});
+                owner.addMetadata({key: (this.tagName).toLowerCase().substr(prefixLength), value: $(this).text()});
             });
             metadataNode.remove();
         });

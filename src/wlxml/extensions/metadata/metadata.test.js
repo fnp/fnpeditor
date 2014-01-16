@@ -16,22 +16,42 @@ var getDocumentFromXML = function(xml, options) {
 
 
 describe.only('Metadata API', function() {
+    it('returns empty metadata for node without metadata', function() {
+        var doc = getDocumentFromXML('<section></section>');
+        expect(doc.root.getMetadata().length).to.equal(0);
+    });
     it('allows to set metadata on an element node', function() {
         var doc = getDocumentFromXML('<section></section>');
-        expect(doc.root.getMetadata()).to.deep.equal([]);
-        doc.root.addMetadataRow({key: 'key', value: 'value'});
-        expect(doc.root.getMetadata()).to.deep.equal([{key: 'key', value: 'value'}]);
-    });
 
-    it('reads node\'s metadata from its metadata child node', function() {
-        var doc = getDocumentFromXML('<section><metadata><dc:key>value</dc:key></metadata></section>');
-        expect(doc.root.getMetadata()).to.deep.equal([{key: 'key', value: 'value'}]);
+        var row = doc.root.addMetadata({key: 'key', value: 'value'}),
+            metadata = doc.root.getMetadata();
+
+        expect(metadata.length).to.equal(1);
+        expect(metadata[0]).to.equal(row, 'aaa');
+
+        expect(row.getKey()).to.equal('key');
+        expect(row.getValue()).to.equal('value');
+    });
+    // it('allows to remove specific metadata row', function() {
+    //     var doc = getDocumentFromXML('<section><metadata><dc:key>value</dc:key><dc:key>value</dc:key></metadata></section>'),
+    //         metadata = doc.root.getMetadata();
+    //     expect(metadata.length).to.equal(2);
+    //     row.remove();
+    //     expect(metadata.length)
+    //     expect(metadata[0].getValue()).to.equal('value');
+    // });
+    it('reads node\'s metadata from source of its metadata child node', function() {
+        var doc = getDocumentFromXML('<section><metadata><dc:key>value</dc:key></metadata></section>'),
+            metadata = doc.root.getMetadata();
+        expect(metadata.length).to.equal(1);
+        expect(metadata[0].getKey()).to.equal('key');
+        expect(metadata[0].getValue()).to.equal('value');
     });
 
     it('serializes node\'s metadata to its metadata child node', function() {
         var doc = getDocumentFromXML('<section></section>');
 
-        doc.root.addMetadataRow({key: 'key', value: 'value'});
+        doc.root.addMetadata({key: 'key', value: 'value'});
 
         var metadataNodes = $(doc.toXML()).children('metadata'),
             keyNodes = metadataNodes.children();
@@ -41,10 +61,11 @@ describe.only('Metadata API', function() {
         expect(keyNodes[0].tagName.toLowerCase()).to.equal('dc:key');
         expect($(keyNodes[0]).text()).to.equal('value');
     });
-    it('doesnt show metadata node on nodes contents', function() {
+    it('doesn\'t show metadata node on nodes contents', function() {
         var doc = getDocumentFromXML('<section><metadata><dc:key>value</dc:key></metadata></section>');
         expect(doc.root.contents()).to.have.length(0);
     });
+
 });
 
 

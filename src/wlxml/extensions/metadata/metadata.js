@@ -5,6 +5,34 @@ define(function(require) {
 var _ = require('libs/underscore'),
     metadataKey = 'wlxml.metadata';
 
+var Row = function(key, value) {
+    this.key = key;
+    this.value  = value;
+};
+_.extend(Row.prototype, {
+    setKey: function(key) {
+        this.key = key;
+    },
+    getKey: function() {
+        return this.key;
+    },
+    setValue: function(value) {
+        this.value = value;
+    },
+    getValue: function() {
+        return this.value;
+    }
+});
+
+// var Metadata = function(node) {
+//     this._rows = [];
+// }
+
+// _.extend(Metadata.prototype, {
+//     forEach: function(callback) {
+//         this.
+//     }
+// })
 
 var methods = {
     getMetadata: function() {
@@ -13,20 +41,12 @@ var methods = {
 };
 
 var transformations = {
-    addMetadataRow: function(row) {
-        this.setMetadataRow(null, row);
-    },
-
-    setMetadataRow: function(index, row) {
-        var metadata = this.getData(metadataKey) || [];
-        if(typeof index !== 'number' || index > metadata.length - 1) {
-            metadata.push(row);
-            index = metadata.length - 1;
-        } else {
-            metadata[index] = _.extend(metadata[index], row);
-        }
+    addMetadata: function(desc) {
+        var metadata = this.getData(metadataKey) || [],
+            row = new Row(desc.key, desc.value);
+        metadata.push(row);
         this.setData(metadataKey, metadata);
-        this.triggerChangeEvent('metadataChange', {index: index});
+        return row;
     }
 };
 
