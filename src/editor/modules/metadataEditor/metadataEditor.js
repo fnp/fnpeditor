@@ -42,26 +42,16 @@ return function(sandbox) {
                 }
             });
             
-            
-            var onKeyUp = function(e) {
+            this.metaTable.on('keyup', '[contenteditable]', _.throttle(function(e) {
                 if(e.which !== 13) {
                     var editable = $(e.target),
-                        //myIndex = metaTable.find('.'+editable.attr('class')).index(editable),
-                        isKey = _.last(editable.attr('class').split('-')) === 'metaItemKey';
-                    //toSet[isKey ? 'key' : 'value'] = editable.text();
-                    //currentNode.setMetadataRow(myIndex, toSet);
-
-                    var row = editable.parents('tr').data('row'),
-                        toSet = editable.text();
-                    if(isKey) {
-                        row.setKey(toSet);
-                    } else {
-                        row.setValue(toSet);
-                    }
-
+                        toSet = editable.text(),
+                        row = editable.parents('tr').data('row'),
+                        isKey = _.last(editable.attr('class').split('-')) === 'metaItemKey',
+                        method = isKey ? 'setKey' : 'setValue';
+                    row[method](toSet);
                 }
-            };
-            this.metaTable.on('keyup', '[contenteditable]', _.throttle(onKeyUp, 500));
+            }, 500));
         },
         setMetadata: function(node) {
             var view = this,
