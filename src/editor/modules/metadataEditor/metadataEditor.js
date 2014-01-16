@@ -82,28 +82,30 @@ return function(sandbox) {
             return newRow;
         },
         updateMetadataRow: function(row) {
-            this.metaTable.find('tr').each(function() {
-                var tr = $(this),
-                    tds, keyTd, valueTd;
-                if(tr.data('row') === row) {
-                    tds = tr.find('td');
-                    keyTd = $(tds[0]);
+            this._getRowTr(row, function(tr) {
+                var tds = tr.find('td'),
+                    keyTd = $(tds[0]),
                     valueTd = $(tds[1]);
 
-                    if(keyTd.text() !== row.getKey()) {
-                        keyTd.text(row.getKey());
-                    }
-                    if(valueTd.text() !== row.getValue()) {
-                        valueTd.text(row.getValue());
-                    }
+                if(keyTd.text() !== row.getKey()) {
+                    keyTd.text(row.getKey());
+                }
+                if(valueTd.text() !== row.getValue()) {
+                    valueTd.text(row.getValue());
                 }
             });
         },
         removeMetadataRow: function(row) {
+            this._getRowTr(row, function(tr) {
+                tr.remove();
+            });
+        },
+        _getRowTr: function(row, callback) {
             this.metaTable.find('tr').each(function() {
                 var tr = $(this);
                 if(tr.data('row') === row) {
-                    tr.remove();
+                    callback(tr);
+                    return false;
                 }
             });
         }
