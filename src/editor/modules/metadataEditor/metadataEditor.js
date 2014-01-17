@@ -73,7 +73,7 @@ return function(sandbox) {
         },
         updateMetadataRow: function(row) {
             this._getRowTr(row, function(tr) {
-                var tds = tr.find('td'),
+                var tds = tr.find('td > div'),
                     keyTd = $(tds[0]),
                     valueTd = $(tds[1]);
 
