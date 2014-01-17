@@ -191,8 +191,7 @@ describe('Cursor', function() {
             textFirst = findTextNode(dom, 'Alice'),
             textSecond = findTextNode(dom, 'has a cat'),
             textAbc = findTextNode(dom, 'abc'),
-            textCde = findTextNode(dom, 'cde'),
-            cursor, label;
+            textCde = findTextNode(dom, 'cde');
 
         var check = function(label, expected) {
             var cursor = c.getCursor();
@@ -201,7 +200,7 @@ describe('Cursor', function() {
             expect(cursor.getSelectionStart().offset).to.equal(expected.start.offset, label + 'start offset ok');
             expect(cursor.getSelectionEnd().element.getText()).to.equal(expected.end.text, label + 'end element ok');
             expect(cursor.getSelectionEnd().offset).to.equal(expected.end.offset, label + 'end offset ok');
-        }
+        };
 
         getSelection.returns({
             anchorNode: textFirst,
