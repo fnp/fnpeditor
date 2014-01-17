@@ -33,7 +33,20 @@ $.extend(DocumentNode.prototype, {
     },
 
     clone: function() {
-        var clone = this._$.clone(true, true);
+        var clone = this._$.clone(true, true),
+            node = this;
+        clone.find('*').addBack().each(function() {
+            var el = this,
+                clonedData = $(this).data();
+
+            _.pairs(clonedData).forEach(function(pair) {
+                var key = pair[0],
+                    value = pair[1];
+                if(_.isFunction(value.clone)) {
+                    clonedData[key] = value.clone(node.document.createDocumentNode(el));
+                }
+            });
+        });
         return this.document.createDocumentNode(clone[0]);
     },
 
@@ -250,8 +263,7 @@ var registerMethod = function(methodName, method, target) {
 };
 
 
-var Document = function(xml) {
-    this.loadXML(xml);
+var Document = function(xml, extensions) {
     this.undoStack = [];
     this.redoStack = [];
     this._transactionStack = [];
@@ -265,6 +277,11 @@ var Document = function(xml) {
     this._elementNodeTransformations = {};
     
     this.registerExtension(coreTransformations);
+
+    (extensions || []).forEach(function(extension) {
+        this.registerExtension(extension);
+    }.bind(this));
+    this.loadXML(xml);
 };
 
 $.extend(Document.prototype, Backbone.Events, {

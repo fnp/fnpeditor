@@ -1,15 +1,16 @@
 define([
 'libs/jquery',
 'libs/underscore',
-'./transformations',
 'libs/text!./templates/main.html',
 'libs/text!./templates/item.html'
-], function($, _, transformations, mainTemplate, itemTemplate) {
+], function($, _, mainTemplate, itemTemplate) {
 
 'use strict';
 
 return function(sandbox) {
 
+    var currentNode,
+        adding = false;
     
     var view = {
         node: $(_.template(mainTemplate)()),
@@ -18,14 +19,12 @@ return function(sandbox) {
             var metaTable = this.metaTable = this.node.find('table');
             
             this.node.find('.rng-module-metadataEditor-addBtn').click(function() {
-                var newRow = view._addMetaRow('', '');
-                $(newRow.find('td div')[0]).focus();
-                sandbox.publish('metadataChanged', view.getMetadata());
+                adding = true;
+                currentNode.getMetadata().add('','');
             });
             
             this.metaTable.on('click', '.rng-visualEditor-metaRemoveBtn', function(e) {
-                $(e.target).closest('tr').remove();
-                sandbox.publish('metadataChanged', view.getMetadata());
+                $(e.target).closest('tr').data('row').remove();
             });
             
             this.metaTable.on('keydown', '[contenteditable]', function(e) {
@@ -43,35 +42,62 @@ return function(sandbox) {
                 }
             });
             
-            
-            var onKeyUp = function(e) {
+            this.metaTable.on('keyup', '[contenteditable]', _.throttle(function(e) {
                 if(e.which !== 13) {
-                    sandbox.publish('metadataChanged', view.getMetadata());
+                    var editable = $(e.target),
+                        toSet = editable.text(),
+                        row = editable.parents('tr').data('row'),
+                        isKey = _.last(editable.attr('class').split('-')) === 'metaItemKey',
+                        method = isKey ? 'setKey' : 'setValue';
+                    row[method](toSet);
                 }
-            };
-            this.metaTable.on('keyup', '[contenteditable]', _.throttle(onKeyUp, 500));
+            }, 500));
         },
-        getMetadata: function() {
-            var toret = {};
-            this.node.find('tr').each(function() {
-                var inputs = $(this).find('td [contenteditable]');
-                var key = $(inputs[0]).text();
-                var value = $(inputs[1]).text();
-                toret[key] = value;
-            });
-            return toret;
-        },
-        setMetadata: function(metadata) {
-            var view = this;
+        setMetadata: function(node) {
+            var view = this,
+                metadata = node.getMetadata();
             this.metaTable.find('tr').remove();
-            _.each(_.keys(metadata), function(key) {
-                view._addMetaRow(key, metadata[key]);
+            metadata.forEach(function(row) {
+                view.addMetadataRow(row);
             });
         },
-        _addMetaRow: function(key, value) {
-            var newRow = $(_.template(itemTemplate)({key: key || '', value: value || ''}));
+        addMetadataRow: function(row) {
+            var newRow = $(_.template(itemTemplate)({key: row.getKey() || '', value: row.getValue() || ''}));
             newRow.appendTo(this.metaTable);
+            newRow.data('row', row);
+            if(adding) {
+                $(newRow.find('td div')[0]).focus();
+                adding = false;
+            }
             return newRow;
+        },
+        updateMetadataRow: function(row) {
+            this._getRowTr(row, function(tr) {
+                var tds = tr.find('td > div'),
+                    keyTd = $(tds[0]),
+                    valueTd = $(tds[1]);
+
+                if(keyTd.text() !== row.getKey()) {
+                    keyTd.text(row.getKey());
+                }
+                if(valueTd.text() !== row.getValue()) {
+                    valueTd.text(row.getValue());
+                }
+            });
+        },
+        removeMetadataRow: function(row) {
+            this._getRowTr(row, function(tr) {
+                tr.remove();
+            });
+        },
+        _getRowTr: function(row, callback) {
+            this.metaTable.find('tr').each(function() {
+                var tr = $(this);
+                if(tr.data('row') === row) {
+                    callback(tr);
+                    return false;
+                }
+            });
         }
     };
     
@@ -81,34 +107,29 @@ return function(sandbox) {
         start: function() {
             sandbox.publish('ready');
         },
-        setDocument: function(xml) {
-            view.setMetadata(transformations.getMetadata(xml));
-            sandbox.publish('metadataSet');
+        setDocument: function(document) {
+            document.on('change', function(event) {
+                if(event.type === 'metadataAdded' && event.meta.node.sameNode(currentNode)) {
+                    view.addMetadataRow(event.meta.row);
+                }
+                if(event.type === 'metadataChanged' && event.meta.node.sameNode(currentNode)) {
+                    view.updateMetadataRow(event.meta.row);
+                }
+                if(event.type === 'metadataRemoved' && event.meta.node.sameNode(currentNode)) {
+                    view.removeMetadataRow(event.meta.row);
+                }
+            });
         },
-        getMetadata: function() {
-            return transformations.getXML(view.getMetadata());
+        setNodeElement: function(node) {
+            if(currentNode && currentNode.sameNode(node)) {
+                return;
+            }
+            currentNode = node;
+            view.setMetadata(node);
         },
         getView: function() {
             return view.node;
-        },
-        attachMetadata: function(document) {
-            var toret = $('<div>');
-            toret.append($(document));
-            var meta = $('<metadata></metadata>\n').append(transformations.getXML(view.getMetadata()));
-            
-            var metadata = toret.find('metadata');
-            if(metadata.length === 0) {
-                var section = toret.find('section');
-                section = section.length ? $(section[0]) : null;
-                if(section) {
-                    section.prepend(meta);
-                }
-            } else {
-                metadata.replaceWith(meta);
-            }
-            return toret.html();
         }
-        
     };
 };
 

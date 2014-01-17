@@ -43,6 +43,7 @@ return function(sandbox) {
             sandbox.getModule('nodeFamilyTree').setElement(nodeElement);
             sandbox.getModule('nodeBreadCrumbs').setNodeElement(nodeElement);
             sandbox.getModule('documentToolbar').setNodeElement(nodeElement);
+            sandbox.getModule('metadataEditor').setNodeElement(nodeElement);
         },
         updateCurrentTextElement: function(textElement) {
             sandbox.getModule('nodeFamilyTree').setElement(textElement);

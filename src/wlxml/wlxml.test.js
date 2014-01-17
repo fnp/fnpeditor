@@ -1,7 +1,8 @@
 define([
+    'libs/jquery',
     'libs/chai',
     './wlxml.js'
-], function(chai, wlxml) {
+], function($, chai, wlxml) {
     
 'use strict';
 
@@ -291,10 +292,7 @@ describe('WLXMLDocument', function() {
             expect(testClassNode.object.testTransformation().sameNode(testClassNode)).to.equal(true, '1');
             expect(testClassNode.object.testTransformation2().sameNode(testClassNode)).to.equal(true, '1');
         });
-
-
     });
-
 });
 
 });
