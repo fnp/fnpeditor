@@ -10,6 +10,7 @@ define([
 
 return function(sandbox) {
 
+    var currentNode;
     
     var view = {
         node: $(_.template(mainTemplate)()),
@@ -20,12 +21,10 @@ return function(sandbox) {
             this.node.find('.rng-module-metadataEditor-addBtn').click(function() {
                 var newRow = view._addMetaRow('', '');
                 $(newRow.find('td div')[0]).focus();
-                sandbox.publish('metadataChanged', view.getMetadata());
             });
             
             this.metaTable.on('click', '.rng-visualEditor-metaRemoveBtn', function(e) {
                 $(e.target).closest('tr').remove();
-                sandbox.publish('metadataChanged', view.getMetadata());
             });
             
             this.metaTable.on('keydown', '[contenteditable]', function(e) {
@@ -46,26 +45,32 @@ return function(sandbox) {
             
             var onKeyUp = function(e) {
                 if(e.which !== 13) {
-                    sandbox.publish('metadataChanged', view.getMetadata());
+                    var editable = $(e.target),
+                        myIndex = metaTable.find('.'+editable.attr('class')).index(editable),
+                        isKey = _.last(editable.attr('class').split('-')) === 'metaItemKey',
+                        toSet = {};
+                    toSet[isKey ? 'key' : 'value'] = editable.text();
+                    currentNode.setMetadataRow(myIndex, toSet);
                 }
             };
             this.metaTable.on('keyup', '[contenteditable]', _.throttle(onKeyUp, 500));
         },
         getMetadata: function() {
-            var toret = {};
+            var toret = [];
             this.node.find('tr').each(function() {
                 var inputs = $(this).find('td [contenteditable]');
                 var key = $(inputs[0]).text();
                 var value = $(inputs[1]).text();
-                toret[key] = value;
+                toret.push({key:key, value: value});
             });
             return toret;
         },
-        setMetadata: function(metadata) {
-            var view = this;
+        setMetadata: function(node) {
+            var view = this,
+                metadata = node.getMetadata();
             this.metaTable.find('tr').remove();
-            _.each(_.keys(metadata), function(key) {
-                view._addMetaRow(key, metadata[key]);
+            metadata.forEach(function(row) {
+                view._addMetaRow(row.key, row.value);
             });
         },
         _addMetaRow: function(key, value) {
@@ -81,9 +86,21 @@ return function(sandbox) {
         start: function() {
             sandbox.publish('ready');
         },
-        setDocument: function(xml) {
-            view.setMetadata(transformations.getMetadata(xml));
-            sandbox.publish('metadataSet');
+        setDocument: function(document) {
+            document.on('change', function(event) {
+                if(event.type === 'nodeMetadataChange' && event.meta.node.sameNode(currentNode)) {
+                    view.setMetadata(currentNode);
+                }
+            });
+//            view.setMetadata(transformations.getMetadata(xml));
+            // sandbox.publish('metadataSet'); to wywalki
+        },
+        setNodeElement: function(node) {
+            if(currentNode && currentNode.sameNode(node)) {
+                return;
+            }
+            currentNode = node;
+            view.setMetadata(node);
         },
         getMetadata: function() {
             return transformations.getXML(view.getMetadata());
