@@ -8,8 +8,8 @@ var _ = require('libs/underscore'),
 
 
 var Row = function(key, value, metadata) {
-    this.key = key;
-    this.value  = value;
+    this.key = key || '';
+    this.value  = value || '';
     this.metadata = metadata;
 };
 
