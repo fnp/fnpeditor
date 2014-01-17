@@ -181,6 +181,18 @@ $.extend(WLXMLDocument.prototype, {
         var doc = this,
             prefixLength = 'dc:'.length;
 
+        $(nativeNode).find('metadata').each(function() {
+            var metadataNode = $(this),
+                owner = doc.createDocumentNode(metadataNode.parent()[0]),
+                metadata = owner.getMetadata();
+                
+            metadataNode.children().each(function() {
+                metadata.add({key: (this.tagName).toLowerCase().substr(prefixLength), value: $(this).text()}, {undoable: false});
+            });
+            metadataNode.remove();
+        });
+        nativeNode.normalize();
+
         $(nativeNode).find(':not(iframe)').addBack().contents()
             .filter(function() {return this.nodeType === Node.TEXT_NODE;})
             .each(function() {
@@ -264,15 +276,7 @@ $.extend(WLXMLDocument.prototype, {
                 el.replaceWith(document.createTextNode(text.transformed));
             });
         
-        $(nativeNode).find('metadata').each(function() {
-            var metadataNode = $(this),
-                owner = doc.createDocumentNode(metadataNode.parent()[0]);
-                
-            metadataNode.children().each(function() {
-                owner.addMetadata({key: (this.tagName).toLowerCase().substr(prefixLength), value: $(this).text()});
-            });
-            metadataNode.remove();
-        });
+
     },
 
     registerClassTransformation: function(Transformation, className) {
