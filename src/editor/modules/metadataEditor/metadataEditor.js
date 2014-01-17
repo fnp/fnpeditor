@@ -9,7 +9,8 @@ define([
 
 return function(sandbox) {
 
-    var currentNode;
+    var currentNode,
+        adding = false;
     
     var view = {
         node: $(_.template(mainTemplate)()),
@@ -18,12 +19,12 @@ return function(sandbox) {
             var metaTable = this.metaTable = this.node.find('table');
             
             this.node.find('.rng-module-metadataEditor-addBtn').click(function() {
-                var newRow = view._addMetaRow('', '');
-                $(newRow.find('td div')[0]).focus();
+                adding = true;
+                currentNode.getMetadata().add('','');
             });
             
             this.metaTable.on('click', '.rng-visualEditor-metaRemoveBtn', function(e) {
-                $(e.target).closest('tr').remove();
+                $(e.target).closest('tr').data('row').remove();
             });
             
             this.metaTable.on('keydown', '[contenteditable]', function(e) {
@@ -45,11 +46,19 @@ return function(sandbox) {
             var onKeyUp = function(e) {
                 if(e.which !== 13) {
                     var editable = $(e.target),
-                        myIndex = metaTable.find('.'+editable.attr('class')).index(editable),
-                        isKey = _.last(editable.attr('class').split('-')) === 'metaItemKey',
-                        toSet = {};
-                    toSet[isKey ? 'key' : 'value'] = editable.text();
-                    currentNode.setMetadataRow(myIndex, toSet);
+                        //myIndex = metaTable.find('.'+editable.attr('class')).index(editable),
+                        isKey = _.last(editable.attr('class').split('-')) === 'metaItemKey';
+                    //toSet[isKey ? 'key' : 'value'] = editable.text();
+                    //currentNode.setMetadataRow(myIndex, toSet);
+
+                    var row = editable.parents('tr').data('row'),
+                        toSet = editable.text();
+                    if(isKey) {
+                        row.setKey(toSet);
+                    } else {
+                        row.setValue(toSet);
+                    }
+
                 }
             };
             this.metaTable.on('keyup', '[contenteditable]', _.throttle(onKeyUp, 500));
@@ -59,13 +68,44 @@ return function(sandbox) {
                 metadata = node.getMetadata();
             this.metaTable.find('tr').remove();
             metadata.forEach(function(row) {
-                view._addMetaRow(row.getKey(), row.getValue());
+                view.addMetadataRow(row);
             });
         },
-        _addMetaRow: function(key, value) {
-            var newRow = $(_.template(itemTemplate)({key: key || '', value: value || ''}));
+        addMetadataRow: function(row) {
+            var newRow = $(_.template(itemTemplate)({key: row.getKey() || '', value: row.getValue() || ''}));
             newRow.appendTo(this.metaTable);
+            newRow.data('row', row);
+            if(adding) {
+                $(newRow.find('td div')[0]).focus();
+                adding = false;
+            }
             return newRow;
+        },
+        updateMetadataRow: function(row) {
+            this.metaTable.find('tr').each(function() {
+                var tr = $(this),
+                    tds, keyTd, valueTd;
+                if(tr.data('row') === row) {
+                    tds = tr.find('td');
+                    keyTd = $(tds[0]);
+                    valueTd = $(tds[1]);
+
+                    if(keyTd.text() !== row.getKey()) {
+                        keyTd.text(row.getKey());
+                    }
+                    if(valueTd.text() !== row.getValue()) {
+                        valueTd.text(row.getValue());
+                    }
+                }
+            });
+        },
+        removeMetadataRow: function(row) {
+            this.metaTable.find('tr').each(function() {
+                var tr = $(this);
+                if(tr.data('row') === row) {
+                    tr.remove();
+                }
+            });
         }
     };
     
@@ -77,14 +117,20 @@ return function(sandbox) {
         },
         setDocument: function(document) {
             document.on('change', function(event) {
-                if(event.type === 'nodeMetadataChange' && event.meta.node.sameNode(currentNode)) {
-                    view.setMetadata(currentNode);
+                if(event.type === 'metadataAdded' && event.meta.node.sameNode(currentNode)) {
+                    view.addMetadataRow(event.meta.row);
+                }
+                if(event.type === 'metadataChanged' && event.meta.node.sameNode(currentNode)) {
+                    view.updateMetadataRow(event.meta.row);
+                }
+                if(event.type === 'metadataRemoved' && event.meta.node.sameNode(currentNode)) {
+                    view.removeMetadataRow(event.meta.row);
                 }
             });
         },
         setNodeElement: function(node) {
             if(currentNode && currentNode.sameNode(node)) {
-                return
+                return;
             }
             currentNode = node;
             view.setMetadata(node);
