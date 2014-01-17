@@ -160,7 +160,7 @@ commands.register('newNodeRequested', function(canvas, params) {
                 canvas.wlxmlDocument.wrapNodes({
                     node1: siblingParents.node1,
                     node2: siblingParents.node2,
-                    _with: {tagName: params.wlxmlTag, attrs: {klass: params.wlxmlClass}}
+                    _with: {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}}
                 });
             }
         }
