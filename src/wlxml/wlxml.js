@@ -8,6 +8,7 @@ define([
 'use strict';
 
 /* globals Node */
+var metadataKey = 'wlxml.metadata';
 
 
 var AttributesList = function() {};
@@ -78,8 +79,29 @@ $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
         return attrName !== 'class' &&_.contains(_.keys(this.getMetaAttributes()), attrName);
     },
 
+    getMetadata: function() {
+        return this.getData(metadataKey) || [];
+    },
+
+    addMetadataRow: function(row) {
+        this.setMetadataRow(null, row);
+    },
+
+    setMetadataRow: function(index, row) {
+        var metadata = this.getData(metadataKey) || [];
+        if(typeof index !== 'number' || index > metadata.length - 1) {
+            metadata.push(row);
+            index = metadata.length - 1;
+        } else {
+            metadata[index] = _.extend(metadata[index], row);
+        }
+        this.setData(metadataKey, metadata);
+        this.triggerChangeEvent('metadataChange', {index: index});
+    },
+
     _getXMLDOMToDump: function() {
-        var DOM = this._$.clone(true, true);
+        var DOM = this._$.clone(true, true),
+            doc = this.document;
 
         DOM.find('*').addBack().each(function() {
             var el = $(this),
@@ -89,7 +111,7 @@ $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
                 data = el.data();
 
 
-            var txt;
+            var txt, documentNode, metaNode;
 
             if(data[formatter_prefix+ 'orig_before']) {
                 txt = idx > 0 && contents[idx-1].nodeType === Node.TEXT_NODE ? contents[idx-1] : null;
@@ -119,7 +141,22 @@ $.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
                     el.append(data[formatter_prefix+ 'orig_end']);
                 }
             }
+
+
+            if(this.nodeType === Node.ELEMENT_NODE) {
+                documentNode = doc.createDocumentNode(this);
+                metaNode = $('<metadata>');
+                documentNode.getMetadata().forEach(function(row) {
+                    metaNode.append('<dc:'+ row.key + '>' + row.value + '</dc:' + row.key + '>');
+                });
+                if(metaNode.children().length) {
+                    $(this).prepend(metaNode);
+                }
+            }
+
         });
+
+        
 
         return DOM;
     }
@@ -143,11 +180,10 @@ var WLXMLDocumentNode = function() {
 WLXMLDocumentNode.prototype = Object.create(smartxml.DocumentNode.prototype);
 
 var WLXMLDocument = function(xml, options) {
-    smartxml.Document.call(this, xml);
-    this.options = options;
-
     this.classMethods = {};
     this.classTransformations = {};
+    smartxml.Document.call(this, xml);
+    this.options = options;
 };
 
 var formatter_prefix = '_wlxml_formatter_';
@@ -162,6 +198,9 @@ $.extend(WLXMLDocument.prototype, {
     },
 
     normalizeXML: function(nativeNode) {
+        var doc = this,
+            prefixLength = 'dc:'.length;
+
         $(nativeNode).find(':not(iframe)').addBack().contents()
             .filter(function() {return this.nodeType === Node.TEXT_NODE;})
             .each(function() {
@@ -244,6 +283,16 @@ $.extend(WLXMLDocument.prototype, {
                 /* globals document */
                 el.replaceWith(document.createTextNode(text.transformed));
             });
+        
+        $(nativeNode).find('metadata').each(function() {
+            var metadataNode = $(this),
+                owner = doc.createDocumentNode(metadataNode.parent()[0]);
+                
+            metadataNode.children().each(function() {
+                owner.addMetadataRow({key: (this.tagName).toLowerCase().substr(prefixLength), value: $(this).text()});
+            });
+            metadataNode.remove();
+        });
     },
 
     registerClassTransformation: function(Transformation, className) {
