@@ -90,8 +90,16 @@ _.extend(Metadata.prototype, {
         }
     }),
 
-    forEach: function(callback) {
-        return this._rows.forEach(callback);
+    _iter: function(method, callback, key) {
+        return this._rows
+            .filter(function(row) { return !key || row.getKey() === key; })
+            [method](function(row) { return callback(row); });
+    },
+    forEach: function(callback, key) {
+        return this._iter('forEach', callback, key);
+    },
+    some: function(callback, key) {
+        return this._iter('some', callback, key);
     },
     add: function(rowDesc, options) {
         var row;
