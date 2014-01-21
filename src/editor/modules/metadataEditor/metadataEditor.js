@@ -53,7 +53,13 @@ return function(sandbox) {
                 }
             }, 500));
         },
+        clear: function() {
+        },
         setMetadata: function(node) {
+            if(!node) {
+                this.metaTable.html('');
+                return;
+            }
             var view = this,
                 metadata = node.getMetadata();
             this.metaTable.find('tr').remove();
@@ -117,6 +123,9 @@ return function(sandbox) {
                 }
                 if(event.type === 'metadataRemoved' && event.meta.node.sameNode(currentNode)) {
                     view.removeMetadataRow(event.meta.row);
+                }
+                if(event.type === 'nodeDetached' && event.meta.node.sameNode(currentNode)) {
+                    view.setMetadata(null);
                 }
             });
         },
