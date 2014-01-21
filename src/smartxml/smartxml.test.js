@@ -1139,6 +1139,7 @@ describe('smartxml', function() {
         
         var sampleMethod = function(val) {
             this._$.attr('x', val);
+            this.triggerChangeEvent();
         };
 
         var transformations = {
@@ -1235,10 +1236,12 @@ describe('smartxml', function() {
             doc.registerExtension({elementNode: {transformations: {
                 nested: function(v) {
                     this._$.attr('innerAttr', v);
+                    this.triggerChangeEvent();
                 },
                 outer: function(v) {
                     this.nested(v);
                     this._$.attr('outerAttr', v);
+                    this.triggerChangeEvent();
                 }
             }}});
 
@@ -1267,6 +1270,20 @@ describe('smartxml', function() {
 
             expect(doc.root.getAttr('innerAttr')).to.equal('test2');
             expect(doc.root.getAttr('outerAttr')).to.equal('test2');
+
+        });
+
+        it('ignores transformation if document didn\'t emit change event', function() {
+            var doc = getDocumentFromXML('<div></div>');
+
+            doc.registerExtension({elementNode: {transformations: {
+                test: function() {
+                    // empty
+                }
+            }}});
+
+            doc.root.test();
+            expect(doc.undoStack.length).to.equal(0);
 
         });
 
@@ -1314,14 +1331,17 @@ describe('smartxml', function() {
                     elementNode: {transformations: {
                         unaware: function(v) {
                             this.setAttr('unware', v);
+                            this.triggerChangeEvent();
                         },
                         smart: {
                             impl: function(t, v) {
                                 t.oldVal = this.getAttr('smart');
                                 this.setAttr('smart', v);
+                                this.triggerChangeEvent();
                             },
                             undo: function(t) {
                                 this.setAttr('smart', t.oldVal);
+                                this.triggerChangeEvent();
                             }
                         }
                     }}

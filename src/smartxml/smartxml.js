@@ -441,6 +441,27 @@ $.extend(Document.prototype, Backbone.Events, {
         });
     },
 
+    ifChanged: function(context, action, documentChangedHandler, documentUnchangedHandler) {
+        var hasChanged = false,
+            changeMonitor = function() {
+                hasChanged = true;
+            };
+
+        this.on('change', changeMonitor);
+        action.call(context);
+        this.off('change', changeMonitor);
+        
+        if(hasChanged) {
+            if(documentChangedHandler) {
+                documentChangedHandler.call(context);
+            }
+        } else {
+            if(documentUnchangedHandler) {
+                documentUnchangedHandler.call(context);
+            }
+        }
+    },
+
     transform: function(Transformation, args) {
         var toret, transformation;
 
@@ -451,17 +472,26 @@ $.extend(Document.prototype, Backbone.Events, {
         }
         if(transformation) {
             this._transformationLevel++;
-            toret = transformation.run({beUndoable:this._transformationLevel === 1});
-            if(this._transformationLevel === 1 && !this._undoInProgress) {
-                if(this._transactionInProgress) {
-                    this._transactionStack.push(transformation);
-                } else {
-                    this.undoStack.push(transformation);
+            
+            this.ifChanged(
+                this,
+                function() {
+                    toret = transformation.run({beUndoable:this._transformationLevel === 1});
+                },
+                function() {
+                    if(this._transformationLevel === 1 && !this._undoInProgress) {
+                        if(this._transactionInProgress) {
+                            this._transactionStack.push(transformation);
+                        } else {
+                            this.undoStack.push(transformation);
+                        }
+                    }
+                    if(!this._undoInProgress && this._transformationLevel === 1) {
+                        this.redoStack = [];
+                    }
                 }
-            }
-            if(!this._undoInProgress && this._transformationLevel === 1) {
-                this.redoStack = [];
-            }
+            );
+
             this._transformationLevel--;
             return toret;
         } else {
