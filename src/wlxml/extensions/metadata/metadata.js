@@ -85,8 +85,10 @@ _.extend(Metadata.prototype, {
             this.triggerChangeEvent('metadataRemoved', {row: t.row});
         },
         undo: function(t) {
-            var metadata = this.getMetadata();
-            metadata._rows.splice(t.rowIdx, 0, new Row(t.row.getKey(), t.row.getValue(), metadata));
+            var metadata = this.getMetadata(),
+                row = new Row(t.row.getKey(), t.row.getValue(), metadata);
+            metadata._rows.splice(t.rowIdx, 0, row);
+            this.triggerChangeEvent('metadataAdded', {row: row});
         }
     }),
 
