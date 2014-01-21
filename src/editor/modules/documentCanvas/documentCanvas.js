@@ -61,7 +61,7 @@ return function(sandbox) {
             canvas.setCurrentElement(node);
         },
         command: function(command, params) {
-            commands.run(command, params, canvas);
+            commands.run(command, params, canvas, sandbox.getConfig().user);
             sandbox.publish('contentChanged');
         }
     };

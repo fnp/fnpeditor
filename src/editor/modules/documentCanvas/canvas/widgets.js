@@ -34,6 +34,30 @@ return {
             clickHandler();
         });
         return mydom;
+    },
+
+    commentAdnotation: function(node) {
+        var widget = {
+            DOM: $('<div>').addClass('canvas-widget canvas-widget-comment-adnotation'),
+            update: function(node) {
+                var parts = [],
+                    metadata = node.getMetadata(),
+                    dt;
+                metadata.forEach(function(row) {
+                    parts.push(row.getValue());
+                }, 'creator');
+                metadata.some(function(row) {
+                    dt = row.getValue();
+                    return true; // break
+                }, 'date');
+                if(dt) {
+                    parts.push(dt);
+                }
+                this.DOM.text(parts.join(', '));
+            }
+        };
+        widget.update(node);
+        return widget;
     }
 
 };

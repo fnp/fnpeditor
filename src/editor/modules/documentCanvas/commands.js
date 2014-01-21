@@ -14,8 +14,8 @@ var commands = {
         this._cmds[name] = command;
     },
 
-    run: function(name, params, canvas) {
-        return this._cmds[name](canvas, params);
+    run: function(name, params, canvas, user) {
+        return this._cmds[name](canvas, params, user);
     }
 };
 
@@ -101,11 +101,51 @@ commands.register('toggle-grid', function(canvas, params) {
     gridToggled = params.toggle;
 });
 
-commands.register('newNodeRequested', function(canvas, params) {
+commands.register('newNodeRequested', function(canvas, params, user) {
     var cursor = canvas.getCursor(),
         selectionStart = cursor.getSelectionStart(),
         selectionEnd = cursor.getSelectionEnd(),
         wlxmlNode, caretTo, wrapper, wrapperCanvasElement;
+
+    var insertNode = function(insertion) {
+        var doc = canvas.wlxmlDocument,
+            node, metadata, creator, currentDate, dt;
+
+        var pad = function(number) {
+            if(number < 10) {
+                number = '0' + number;
+            }
+            return number;
+        };
+
+        doc.startTransaction();
+        node = insertion();
+        if(node.getTagName() === 'aside' && node.getClass() === 'comment') {
+            if(user) {
+                creator = user.name;
+                if(user.email) {
+                    creator += ' (' + user.email + ')';
+                }
+            } else {
+                creator = 'anonymous';
+            }
+
+            currentDate = new Date();
+            dt = pad(currentDate.getDate()) + '-' +
+                            pad((currentDate.getMonth() + 1))  + '-' +
+                            pad(currentDate.getFullYear()) + ' ' +
+                            pad(currentDate.getHours()) + ':' +
+                            pad(currentDate.getMinutes()) + ':' +
+                            pad(currentDate.getSeconds());
+
+            metadata = node.getMetadata();
+            metadata.add({key: 'creator', value: creator});
+            metadata.add({key: 'date', value: dt});
+        }
+        doc.endTransaction();
+        return node;
+    };
+
 
     if(cursor.isSelecting()) {
         if(cursor.isSelectingSiblings()) {
@@ -113,7 +153,9 @@ commands.register('newNodeRequested', function(canvas, params) {
                 wlxmlNode = selectionStart.element.data('wlxmlNode');
                 caretTo = selectionStart.offset < selectionEnd.offset ? 'start' : 'end';
 
-                wrapper = wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}, start: selectionStart.offset, end: selectionEnd.offset});
+                wrapper = insertNode(function() {
+                    return wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}, start: selectionStart.offset, end: selectionEnd.offset});
+                });
                 wrapperCanvasElement = utils.findCanvasElement(wrapper);
                 canvas.setCurrentElement(wrapperCanvasElement.children()[0], {caretTo: caretTo});
             }
@@ -121,11 +163,13 @@ commands.register('newNodeRequested', function(canvas, params) {
                 wlxmlNode = selectionStart.element.data('wlxmlNode').parent();
                 caretTo = selectionStart.element.sameNode(cursor.getSelectionAnchor().element) ? 'end' : 'start';
 
-                wrapper = wlxmlNode.wrapText({
-                    _with: {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}},
-                    offsetStart: selectionStart.offset,
-                    offsetEnd: selectionEnd.offset,
-                    textNodeIdx: [wlxmlNode.indexOf(selectionStart.element.data('wlxmlNode')), wlxmlNode.indexOf(selectionEnd.element.data('wlxmlNode'))] //parent.childIndex(selectionEnd.element)]
+                wrapper = insertNode(function() {
+                    return wlxmlNode.wrapText({
+                        _with: {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}},
+                        offsetStart: selectionStart.offset,
+                        offsetEnd: selectionEnd.offset,
+                        textNodeIdx: [wlxmlNode.indexOf(selectionStart.element.data('wlxmlNode')), wlxmlNode.indexOf(selectionEnd.element.data('wlxmlNode'))] //parent.childIndex(selectionEnd.element)]
+                    });
                 });
                 wrapperCanvasElement = utils.findCanvasElement(wrapper);
                 canvas.setCurrentElement(wrapperCanvasElement.children()[caretTo === 0 ? 0 : wrapperCanvasElement.children().length - 1], {caretTo: caretTo});
@@ -136,17 +180,22 @@ commands.register('newNodeRequested', function(canvas, params) {
                 siblingParents = canvas.wlxmlDocument.getSiblingParents({node1: node1, node2: node2});
 
             if(siblingParents) {
-                canvas.wlxmlDocument.wrapNodes({
-                    node1: siblingParents.node1,
-                    node2: siblingParents.node2,
-                    _with: {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}}
+                insertNode(function() {
+                    return canvas.wlxmlDocument.wrapNodes({
+                        node1: siblingParents.node1,
+                        node2: siblingParents.node2,
+                        _with: {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}}
+                    });
                 });
             }
         }
     } else if(canvas.getCurrentNodeElement()) {
         wlxmlNode = canvas.getCurrentNodeElement().data('wlxmlNode');
-        wrapper = wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}});
+        wrapper = insertNode(function() {
+            return wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}});
+        });
         canvas.setCurrentElement(utils.findCanvasElement(wrapper));
+
     }
 
 
@@ -201,8 +250,8 @@ commands.register('take-away-node', function(canvas) {
 
 
 return {
-    run: function(name, params, canvas) {
-        return commands.run(name, params, canvas);
+    run: function(name, params, canvas, user) {
+        return commands.run(name, params, canvas, user);
     }
 };
 

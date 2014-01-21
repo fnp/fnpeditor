@@ -29,6 +29,12 @@ $.extend(Listener.prototype, {
     }
 });
 
+
+var _metadataEventHandler = function(event) {
+    var canvasNode = utils.findCanvasElement(event.meta.node);
+    canvasNode.exec('updateMetadata');
+};
+
 var handlers = {
     nodeAttrChange: function(event) {
         if(event.meta.attr === 'class') {
@@ -78,7 +84,11 @@ var handlers = {
         if(toSet !== canvasElement.getText()) {
             canvasElement.setText(toSet);
         }
-    }
+    },
+
+    metadataChanged: _metadataEventHandler,
+    metadataAdded: _metadataEventHandler,
+    metadataRemoved: _metadataEventHandler
 };
 
 return {

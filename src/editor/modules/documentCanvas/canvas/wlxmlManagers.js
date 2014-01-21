@@ -11,7 +11,7 @@ var DocumentElementWrapper = function(documentElement) {
     this.documentElement = documentElement;
 
     this.addWidget = function(widget) {
-        documentElement.dom().children('.canvas-widgets').append(widget);
+        documentElement.dom().children('.canvas-widgets').append(widget.DOM ? widget.DOM : widget);
     };
 
     this.clearWidgets = function() {
@@ -40,6 +40,8 @@ var DocumentElementWrapper = function(documentElement) {
     this.trigger = function() {
         eventBus.trigger.apply(eventBus, arguments);
     };
+
+    this.node = documentElement.data('wlxmlNode');
 
 };
 
@@ -141,6 +143,31 @@ $.extend(ListItemManager.prototype, {
     }
 });
 managers.set('div', 'item', ListItemManager);
+
+
+var CommentManager = function(wlxmlElement) {
+    this.el = wlxmlElement;
+};
+
+$.extend(CommentManager.prototype, {
+    setup: function() {
+        this.el.clearWidgets();
+        this.el.addWidget(widgets.labelWidget(this.el.tag(), this.el.klass()));
+
+        this.widget = widgets.commentAdnotation(this.el.node);
+        this.el.addWidget(this.widget);
+        this.widget.DOM.show();
+    },
+    updateMetadata: function() {
+        // var parts = [];
+        // this.el.node.getMetadata().forEach(function(row) {
+        //     parts.push(row.getValue());
+        // }, 'creator');
+        // this.widget.text(parts.join(', '));
+        this.widget.update(this.el.node);
+    }
+});
+managers.set('aside', 'comment', CommentManager);
 
 return {
     getFor: function(documentElement) {
