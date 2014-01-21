@@ -191,11 +191,18 @@ commands.register('newNodeRequested', function(canvas, params, user) {
         }
     } else if(canvas.getCurrentNodeElement()) {
         wlxmlNode = canvas.getCurrentNodeElement().data('wlxmlNode');
-        wrapper = insertNode(function() {
-            return wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}});
-        });
+        if(params.ctrlKey) {
+            wrapper = insertNode(function() {
+                return wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}});
+            });
+        } else {
+            wrapper = insertNode(function() {
+                var node = wlxmlNode.after({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}});
+                node.append({text:''});
+                return node;
+            });
+        }
         canvas.setCurrentElement(utils.findCanvasElement(wrapper));
-
     }
 
 

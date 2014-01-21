@@ -50,6 +50,8 @@ return function(sandbox) {
                         };
                     }
 
+                    _.extend(params, {ctrlKey: e.ctrlKey});
+
                     sandbox.publish('command', command, params);
                 }
             });
