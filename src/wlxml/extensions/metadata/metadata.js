@@ -17,6 +17,9 @@ _.extend(Row.prototype, {
     ChangeProperty: smartxmlTransformations.createContextTransformation({
         impl: function(t, rowIndex, propName, value) {
             var row = this.getMetadata().at(rowIndex);
+            if(row.getValue() === value) {
+                return;
+            }
             t.rowIndex = rowIndex;
             t.propName = propName;
             t.oldValue = row[propName];
