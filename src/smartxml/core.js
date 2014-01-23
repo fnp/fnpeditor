@@ -179,12 +179,12 @@ var elementNodeTransformations = {
 
         var prev = this.prev(),
             next = this.next(),
-            moveLeftRange, moveRightRange, leftMerged;
+            shiftRange, leftMerged;
 
         if(prev && (prev.nodeType === TEXT_NODE) && (myContents[0].nodeType === TEXT_NODE)) {
             prev.appendText(myContents[0].getText());
             myContents[0].detach();
-            moveLeftRange = true;
+            shiftRange = true;
             leftMerged = true;
         } else {
             leftMerged = false;
@@ -195,7 +195,6 @@ var elementNodeTransformations = {
             if(next && (next.nodeType === TEXT_NODE) && (lastContents.nodeType === TEXT_NODE)) {
                 next.prependText(lastContents.getText());
                 lastContents.detach();
-                moveRightRange = true;
             }
         }
 
@@ -207,8 +206,8 @@ var elementNodeTransformations = {
         this.detach();
 
         return {
-            element1: parent.contents()[myIdx + (moveLeftRange ? -1 : 0)],
-            element2: parent.contents()[myIdx + childrenLength-1 + (moveRightRange ? 1 : 0)]
+            element1: parent.contents()[myIdx + (shiftRange ? -1 : 0)],
+            element2: parent.contents()[myIdx + childrenLength-1 + (shiftRange ? -1 : 0)]
         };
     },
 
