@@ -458,6 +458,68 @@ describe('smartxml', function() {
             expect(node1.contents()[1].sameNode(node2)).to.be.true;
         });
 
+        describe('adding text nodes', function() {
+            it('merges text nodes on append', function() {
+                var doc = getDocumentFromXML('<root>text1</root>'),
+                    returned;
+                returned = doc.root.append({text: 'text2'});
+                expect(doc.root.contents().length).to.equal(1);
+                expect(returned.sameNode(doc.root.contents()[0])).to.equal(true, 'modified node returned');
+                expect(doc.root.contents()[0].getText()).to.equal('text1text2');
+            });
+
+            it('merges text nodes on prepend', function() {
+                var doc = getDocumentFromXML('<root>text1</root>'),
+                    returned;
+                returned = doc.root.prepend({text: 'text2'});
+                expect(doc.root.contents().length).to.equal(1);
+                expect(returned.sameNode(doc.root.contents()[0])).to.equal(true, 'modified node returned');
+                expect(doc.root.contents()[0].getText()).to.equal('text2text1');
+            });
+
+            it('merges text nodes on before text node', function() {
+                var doc = getDocumentFromXML('<root>text1</root>'),
+                    textNode = doc.root.contents()[0],
+                    returned;
+                returned = textNode.before({text: 'text2'});
+                expect(doc.root.contents().length).to.equal(1);
+                expect(returned.sameNode(doc.root.contents()[0])).to.equal(true, 'modified node returned');
+                expect(doc.root.contents()[0].getText()).to.equal('text2text1');
+            });
+
+            it('merges text nodes on after text node', function() {
+                var doc = getDocumentFromXML('<root>text1</root>'),
+                    textNode = doc.root.contents()[0],
+                    returned;
+                returned = textNode.after({text: 'text2'});
+                expect(doc.root.contents().length).to.equal(1);
+                expect(returned.sameNode(doc.root.contents()[0])).to.equal(true, 'modified node returned');
+                expect(doc.root.contents()[0].getText()).to.equal('text1text2');
+            });
+
+            it('merges text nodes on before element node', function() {
+                var doc = getDocumentFromXML('<root>text1<div></div></root>'),
+                    textNode = doc.root.contents()[0],
+                    div = doc.root.contents()[1],
+                    returned;
+                returned = div.before({text: 'text2'});
+                expect(doc.root.contents().length).to.equal(2);
+                expect(returned.sameNode(doc.root.contents()[0])).to.equal(true, 'modified node returned');
+                expect(textNode.getText()).to.equal('text1text2');
+            });
+
+            it('merges text nodes on after element node', function() {
+                var doc = getDocumentFromXML('<root><div></div>text1</root>'),
+                    textNode = doc.root.contents()[1],
+                    div = doc.root.contents()[0],
+                    returned;
+                returned = div.after({text: 'text2'});
+                expect(doc.root.contents().length).to.equal(2);
+                expect(returned.sameNode(doc.root.contents()[1])).to.equal(true, 'modified node returned');
+                expect(textNode.getText()).to.equal('text2text1');
+            });
+        });
+
         it('wraps element node with another element node', function() {
             var node = elementNodeFromXML('<div></div>'),
                 wrapper = elementNodeFromXML('<wrapper></wrapper>');

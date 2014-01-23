@@ -8,16 +8,20 @@ var _ = require('libs/underscore'),
 
 
 var INSERTION = function(implementation) {
-    var toret = function(node) {
+    var toret = function(node, options) {
         var insertion = this.getNodeInsertion(node),
             nodeWasContained = this.document.containsNode(insertion.ofNode),
-            nodeParent;
+            nodeParent,
+            returned;
+        options = options || {};
         if(!(this.document.containsNode(this))) {
             nodeParent = insertion.ofNode.parent();
         }
-        implementation.call(this, insertion.ofNode.nativeNode);
-        this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode}, nodeParent, nodeWasContained);
-        return insertion.ofNode;
+        returned = implementation.call(this, insertion.ofNode);
+        if(!options.silent && returned.sameNode(insertion.ofNode)) {
+            this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode}, nodeParent, nodeWasContained);
+        }
+        return returned;
     };
     return toret;
 };
@@ -40,12 +44,24 @@ var documentNodeTransformations = {
         return toret;
     },
 
-    after: INSERTION(function(nativeNode) {
-        return this._$.after(nativeNode);
+    after: INSERTION(function(node) {
+        var next = this.next();
+        if(next && next.nodeType === Node.TEXT_NODE && node.nodeType === Node.TEXT_NODE) {
+            next.setText(node.getText() + next.getText());
+            return next;
+        }
+        this._$.after(node.nativeNode);
+        return node;
     }),
 
-    before: INSERTION(function(nativeNode) {
-        return this._$.before(nativeNode);
+    before: INSERTION(function(node) {
+        var prev = this.prev();
+        if(prev && prev.nodeType === Node.TEXT_NODE && node.nodeType === Node.TEXT_NODE) {
+            prev.setText(prev.getText() + node.getText());
+            return prev;
+        }
+        this._$.before(node.nativeNode);
+        return node;
     }),
 
     wrapWith: function(node) {
@@ -116,12 +132,26 @@ var elementNodeTransformations = {
         }
     },
 
-    append: INSERTION(function(nativeNode) {
-        this._$.append(nativeNode);
+    append: INSERTION(function(node) {
+        var last = _.last(this.contents());
+        if(last && last.nodeType === Node.TEXT_NODE && node.nodeType === Node.TEXT_NODE) {
+            last.setText(last.getText() + node.getText());
+            return last;
+        } else {
+            this._$.append(node.nativeNode);
+            return node;
+        }
     }),
 
-    prepend: INSERTION(function(nativeNode) {
-        this._$.prepend(nativeNode);
+    prepend: INSERTION(function(node) {
+        var first = this.contents()[0];
+        if(first && first.nodeType === Node.TEXT_NODE && node.nodeType === Node.TEXT_NODE) {
+            first.setText(node.getText() + first.getText());
+            return first;
+        } else {
+            this._$.prepend(node.nativeNode);
+            return node;
+        }
     }),
 
     insertAtIndex: function(nativeNode, index) {
@@ -198,6 +228,24 @@ var textNodeTransformations = {
             this.setText(t.oldText);
         }
     },
+
+    before: INSERTION(function(node) {
+        if(node.nodeType === Node.TEXT_NODE) {
+            this.prependText(node.getText());
+            return this;
+        } else {
+            return this.__super__.before(node, {silent:true});
+        }
+    }),
+
+    after: INSERTION(function(node) {
+        if(node.nodeType === Node.TEXT_NODE) {
+            this.appendText(node.getText());
+            return this;
+        } else {
+            return this.__super__.after(node, {silent:true});
+        }
+    }),
 
     appendText: function(text) {
         this.nativeNode.data = this.nativeNode.data + text;
