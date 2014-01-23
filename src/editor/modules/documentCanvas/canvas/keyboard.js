@@ -181,7 +181,8 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
         var cursor = canvas.getCursor(),
             position = canvas.getCursor().getPosition(),
             element = position.element,
-            node = element.data('wlxmlNode');
+            node = element.data('wlxmlNode'),
+            goto;
 
         if(cursor.isSelecting() && !cursor.isSelectingWithinElement()) {
             event.preventDefault();
@@ -199,25 +200,23 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
 
         canvas.wlxmlDocument.startTransaction();
         
+        var direction = 'above',
+            caretTo = 'end';
+            
+        if(event.which === KEYS.DELETE) {
+            direction = 'below';
+            caretTo = 'start';
+        }
+
         if(willDeleteWholeText()) {
             event.preventDefault();
             node.setText('');
         }
         else if(element.isEmpty()) {
-
-            var direction = 'above',
-                caretTo = 'end';
-                
-            if(event.which === KEYS.DELETE) {
-                direction = 'below';
-                caretTo = 'start';
-            }
-
             event.preventDefault();
 
             var parent = element.parent(),
-                grandParent = parent ? parent.parent() : null,
-                goto;
+                grandParent = parent ? parent.parent() : null;
             if(parent.children().length === 1 && parent.children()[0].sameNode(element)) {
                 if(grandParent && grandParent.children().length === 1) {
                     goto = grandParent.data('wlxmlNode').append({text: ''});
@@ -233,7 +232,13 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
             canvas.publisher('contentChanged');
         }
         else if(cursorAtOperationEdge) {
-            // todo
+            if(direction === 'below') {
+                element = element.getNearestTextElement(direction);
+            }
+            if(element) {
+                goto = element.data('wlxmlNode').mergeContentUp();
+                canvas.setCurrentElement(goto.node, {caretTo: goto.offset});
+            }
             event.preventDefault();
         }
         canvas.wlxmlDocument.endTransaction();

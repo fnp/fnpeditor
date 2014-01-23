@@ -23,6 +23,18 @@ plugin.documentExtension.textNode.transformations = {
         getChangeRoot: function() {
             return this.context.parent().parent();
         }
+    },
+    mergeContentUp: function() {
+        var myPrev = this.prev(),
+            ret;
+
+        if(myPrev) {
+            ret = myPrev.append(this);
+            return {node: ret, offset: ret.sameNode(this) ? null : ret.getText().length - this.getText().length};
+        } else {
+            var range = this.parent().unwrapContent();
+            return {node: range.element1, offset: 0};
+        }
     }
 };
 
