@@ -357,16 +357,16 @@ $.extend(Cursor.prototype, {
             return {
                 element: anchorElement,
                 offset: selection.anchorOffset,
-                offsetAtBeginning: selection.anchorOffset === 0,
-                offsetAtEnd: selection.anchorNode.data.length === selection.anchorOffset
+                offsetAtBeginning: selection.anchorOffset === 0 || anchorElement.getText() === '',
+                offsetAtEnd: selection.anchorNode.data.length === selection.anchorOffset || anchorElement.getText() === ''
             };
         }
         if(which === 'focus') {
             return {
                 element: focusElement,
                 offset: selection.focusOffset,
-                offsetAtBeginning: selection.focusOffset === 0,
-                offsetAtEnd: selection.focusNode.data.length === selection.focusOffset
+                offsetAtBeginning: selection.focusOffset === 0 || focusElement.getText() === '',
+                offsetAtEnd: selection.focusNode.data.length === selection.focusOffset || focusElement.getText() === '',
             };
         }
         
@@ -414,8 +414,8 @@ $.extend(Cursor.prototype, {
         return {
             element: placeData.element,
             offset: placeData.offset,
-            offsetAtBeginning: placeData.offset === 0,
-            offsetAtEnd: nodeLen === placeData.offset
+            offsetAtBeginning: placeData.offset === 0 || focusElement.getText() === '',
+            offsetAtEnd: nodeLen === placeData.offset || focusElement.getText() === ''
         };
     }
 });
