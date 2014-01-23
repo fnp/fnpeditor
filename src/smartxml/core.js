@@ -3,8 +3,7 @@ define(function(require) {
 'use strict';
 /* globals Node */
 
-var _ = require('libs/underscore'),
-    TEXT_NODE = Node.TEXT_NODE;
+var _ = require('libs/underscore');
 
 
 var INSERTION = function(implementation) {
@@ -177,30 +176,16 @@ var elementNodeTransformations = {
             return this.detach();
         }
 
-        var prev = this.prev(),
-            next = this.next(),
-            shiftRange, leftMerged;
 
-        if(prev && (prev.nodeType === TEXT_NODE) && (myContents[0].nodeType === TEXT_NODE)) {
-            prev.appendText(myContents[0].getText());
-            myContents[0].detach();
-            shiftRange = true;
-            leftMerged = true;
-        } else {
-            leftMerged = false;
-        }
-
-        if(!(leftMerged && myContents.length === 1)) {
-            var lastContents = _.last(myContents);
-            if(next && (next.nodeType === TEXT_NODE) && (lastContents.nodeType === TEXT_NODE)) {
-                next.prependText(lastContents.getText());
-                lastContents.detach();
-            }
-        }
-
-        var childrenLength = this.contents().length;
+        var childrenLength = this.contents().length,
+            first = true,
+            shiftRange = false;
         this.contents().forEach(function(child) {
-            this.before(child);
+            var returned = this.before(child);
+            if(first && !(returned.sameNode(child))) {
+                shiftRange = true;
+                first = false;
+            }
         }.bind(this));
 
         this.detach();
