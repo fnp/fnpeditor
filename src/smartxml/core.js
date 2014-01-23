@@ -240,6 +240,21 @@ var textNodeTransformations = {
         }
     }),
 
+    append: function(node) {
+        if(node.nodeType === Node.TEXT_NODE) {
+            this.appendText(node.getText());
+            node.detach();
+            return this;
+        }
+    },
+    prepend: function(node) {
+        if(node.nodeType === Node.TEXT_NODE) {
+            this.prependText(node.getText());
+            node.detach();
+            return this;
+        }
+    },
+
     appendText: function(text) {
         this.nativeNode.data = this.nativeNode.data + text;
         this.triggerTextChangeEvent();
