@@ -27,9 +27,12 @@ var INSERTION = function(implementation) {
 
 var documentNodeTransformations = {
     detach: function() {
-        var parent = this.parent();
+        var parent = this.parent(),
+            existed = this.document.containsNode(this);
         this._$.detach();
-        this.triggerChangeEvent('nodeDetached', {parent: parent});
+        if(existed) {
+            this.triggerChangeEvent('nodeDetached', {parent: parent});
+        }
         return this;
     },
 
@@ -47,6 +50,7 @@ var documentNodeTransformations = {
         var next = this.next();
         if(next && next.nodeType === Node.TEXT_NODE && node.nodeType === Node.TEXT_NODE) {
             next.setText(node.getText() + next.getText());
+            node.detach();
             return next;
         }
         this._$.after(node.nativeNode);
@@ -57,6 +61,7 @@ var documentNodeTransformations = {
         var prev = this.prev();
         if(prev && prev.nodeType === Node.TEXT_NODE && node.nodeType === Node.TEXT_NODE) {
             prev.setText(prev.getText() + node.getText());
+            node.detach();
             return prev;
         }
         this._$.before(node.nativeNode);
@@ -135,6 +140,7 @@ var elementNodeTransformations = {
         var last = _.last(this.contents());
         if(last && last.nodeType === Node.TEXT_NODE && node.nodeType === Node.TEXT_NODE) {
             last.setText(last.getText() + node.getText());
+            node.detach();
             return last;
         } else {
             this._$.append(node.nativeNode);
@@ -146,6 +152,7 @@ var elementNodeTransformations = {
         var first = this.contents()[0];
         if(first && first.nodeType === Node.TEXT_NODE && node.nodeType === Node.TEXT_NODE) {
             first.setText(node.getText() + first.getText());
+            node.detach();
             return first;
         } else {
             this._$.prepend(node.nativeNode);
@@ -216,6 +223,7 @@ var textNodeTransformations = {
     before: INSERTION(function(node) {
         if(node.nodeType === Node.TEXT_NODE) {
             this.prependText(node.getText());
+            node.detach();
             return this;
         } else {
             return this.__super__.before(node, {silent:true});
@@ -225,6 +233,7 @@ var textNodeTransformations = {
     after: INSERTION(function(node) {
         if(node.nodeType === Node.TEXT_NODE) {
             this.appendText(node.getText());
+            node.detach();
             return this;
         } else {
             return this.__super__.after(node, {silent:true});
