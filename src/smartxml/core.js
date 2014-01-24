@@ -442,9 +442,14 @@ var documentTransformations = {
             return;
         }
 
+        // Both edge text nodes need to be edited before anything else happen in case that
+        // they get merged when detaching content between them.
+        params.from.node.setText(params.from.node.getText().substr(0, params.from.offset));
+        params.to.node.setText(params.to.node.getText().substr(params.to.offset));
+
         ptr = params.from.node;
-        ptr.setText(ptr.getText().substr(0, params.from.offset));
         next = ptr.next();
+
         while(next || ptr.parent()) {
             if(next) {
                 if(next.sameNode(params.to.node) || (next.nodeType === Node.ELEMENT_NODE && next.containsNode(params.to.node))) {
@@ -462,7 +467,11 @@ var documentTransformations = {
         }
 
         ptr = params.to.node;
-        ptr.setText(ptr.getText().substr(params.to.offset));
+
+        if(!this.containsNode(ptr)) {
+            // The end node was merged during detaching nodes above - there is nothing more left to do.
+            return;
+        }
         prev = ptr.prev();
         while(prev || ptr.parent()) {
             if(ptr.sameNode(middle)) {

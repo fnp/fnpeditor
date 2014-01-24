@@ -738,6 +738,22 @@ describe('smartxml', function() {
             expect(bContents[0].contents().length).to.equal(1);
             expect(bContents[0].contents()[0].getText()).to.equal('cc');
         });
+        it('remove across elements - 3 (merged text nodes)', function() {
+            var doc = getDocumentFromXML('<div>Alice <span>has</span> a cat</div>');
+            doc.deleteText({
+                from: {
+                    node: getTextNode('Alice ', doc),
+                    offset: 1
+                },
+                to: {
+                    node: getTextNode(' a cat', doc),
+                    offset: 3
+                }
+            });
+            var contents = doc.root.contents();
+            expect(contents.length).to.equal(1);
+            expect(contents[0].getText()).to.equal('Acat');
+        });
         it('removes nodes in between', function() {
             var doc = getDocumentFromXML('<div><a>aaa<x>!</x></a>xxx<x></x><b><x>!</x>bbb</b></div>');
             doc.deleteText({
