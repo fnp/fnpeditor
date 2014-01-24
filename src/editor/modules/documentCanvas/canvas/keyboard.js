@@ -182,10 +182,52 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
             position = canvas.getCursor().getPosition(),
             element = position.element,
             node = element.data('wlxmlNode'),
+            direction = 'above',
+            caretTo = 'end',
             goto;
+
+            
+        if(event.which === KEYS.DELETE) {
+            direction = 'below';
+            caretTo = 'start';
+        }
 
         if(cursor.isSelecting() && !cursor.isSelectingWithinElement()) {
             event.preventDefault();
+            var start = cursor.getSelectionStart(),
+                end = cursor.getSelectionEnd();
+
+            if(direction === 'above') {
+                if(start.offsetAtBeginning) {
+                    goto = start.element.getNearestTextElement('above');
+                    caretTo = 'end';
+                } else {
+                    goto = start.element;
+                    caretTo = start.offset;
+                }
+            } else {
+                if(end.offsetAtEnd) {
+                    goto = start.element.getNearestTextElement('below');
+                    caretTo = 'start';
+                } else {
+                    goto = end.element;
+                    caretTo = 0;
+                }
+            }
+
+            canvas.wlxmlDocument.deleteText({
+                from: {
+                    node: start.element.data('wlxmlNode'),
+                    offset: start.offset
+                },
+                to: {
+                    node: end.element.data('wlxmlNode'),
+                    offset: end.offset
+                }
+            });
+            if(goto) {
+                canvas.setCurrentElement(goto, {caretTo: caretTo});
+            }
             return;
         }
             
@@ -200,13 +242,7 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
 
         canvas.wlxmlDocument.startTransaction();
         
-        var direction = 'above',
-            caretTo = 'end';
-            
-        if(event.which === KEYS.DELETE) {
-            direction = 'below';
-            caretTo = 'start';
-        }
+
 
         if(willDeleteWholeText()) {
             event.preventDefault();
