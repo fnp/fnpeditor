@@ -49,20 +49,10 @@ toret.createGenericTransformation = function(desc, name) {
                 return;
             }
             _.keys(obj).forEach(function(key) {
-                var value = obj[key],
-                    path;
+                var value = obj[key];
                 if(value) {
                     if(value.nodeType) {
-                        path = value.getPath();
-                        Object.defineProperty(obj, key, {
-                            get: function() {
-                                if(transformation.hasRun && path) {
-                                    return transformation.document.getNodeByPath(path);
-                                } else {
-                                    return value;
-                                }
-                            }
-                        });
+                        transformation.wrapNodeProperty(obj, key);
                     } else if(_.isObject(value)) {
                         patchObject(value, depth+1);
                     }
@@ -71,19 +61,9 @@ toret.createGenericTransformation = function(desc, name) {
         };
 
         this.args.forEach(function(arg, idx, args) {
-            var path;
             if(arg) {
                 if(arg.nodeType) { // ~
-                    path = arg.getPath();
-                    Object.defineProperty(args, idx, {
-                        get: function() {
-                            if(transformation.hasRun && path) {
-                                return transformation.document.getNodeByPath(path);
-                            } else {
-                                return arg;
-                            }
-                        }
-                    });
+                    transformation.wrapNodeProperty(args, idx);
                 } else if(_.isObject(arg)) {
                     patchObject(arg);
                 }
@@ -125,6 +105,24 @@ toret.createGenericTransformation = function(desc, name) {
         },
         getChangeRoot: desc.getChangeRoot || function() {
             return this.document.root;
+        },
+        wrapNodeProperty: function(object, propName, value) {
+            var transformation = this,
+                path;
+            
+            value = value || object[propName];
+            if(value && value.nodeType) {
+                path = value.getPath();
+                Object.defineProperty(object, propName, {
+                    get: function() {
+                        if(transformation.hasRun && path) {
+                            return transformation.document.getNodeByPath(path);
+                        } else {
+                            return value;
+                        }
+                    }
+                });
+            }
         }
     });
 
@@ -140,17 +138,7 @@ toret.createContextTransformation = function(desc, name) {
         if(document === object) {
             this.context = document;
         } else {
-            var contextPath = object.getPath(),
-                transformation = this;
-            Object.defineProperty(this, 'context', {
-                get: function() {
-                    if(transformation.hasRun) {
-                        return transformation.document.getNodeByPath(contextPath);
-                    } else {
-                        return object;
-                    }
-                }
-            });
+            this.wrapNodeProperty(this, 'context', object);
         }
     };
     ContextTransformation.prototype = Object.create(GenericTransformation.prototype);
