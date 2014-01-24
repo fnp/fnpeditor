@@ -51,7 +51,7 @@ toret.createGenericTransformation = function(desc, name) {
         });
 
         this.document = document;
-        this.hasRun = false;
+        this.runCount = 0;
         if(desc.init) {
             desc.init.call(this);
         }
@@ -73,7 +73,7 @@ toret.createGenericTransformation = function(desc, name) {
             }
             var argsToPass = desc.undo ? [this].concat(this.args) : this.args;
             var toret = desc.impl.apply(this.context, argsToPass);
-            this.hasRun = true;
+            this.runCount++;
             return toret;
         },
         undo: function() {
@@ -88,6 +88,7 @@ toret.createGenericTransformation = function(desc, name) {
         },
         wrapNodeProperty: function(object, propName, value) {
             var transformation = this,
+                lastRunNumber = 0,
                 path;
             
             value = value || object[propName];
@@ -95,11 +96,11 @@ toret.createGenericTransformation = function(desc, name) {
                 path = value.getPath();
                 Object.defineProperty(object, propName, {
                     get: function() {
-                        if(transformation.hasRun && path) {
-                            return transformation.document.getNodeByPath(path);
-                        } else {
-                            return value;
+                        if((lastRunNumber !== transformation.runCount) && path) {
+                            value = transformation.document.getNodeByPath(path);
+                            lastRunNumber = transformation.runCount;
                         }
+                        return value;
                     }
                 });
             }
