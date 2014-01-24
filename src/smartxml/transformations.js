@@ -5,6 +5,7 @@ define(function(require) {
 var _ = require('libs/underscore'),
     toret = {};
 
+
 var getTransDesc = function(desc) {
     if(typeof desc === 'function') {
         desc = {impl: desc};
@@ -20,28 +21,7 @@ toret.createGenericTransformation = function(desc, name) {
     
     var GenericTransformation = function(document, args) {
         this.args = args || [];
-
         var transformation = this;
-        // _.keys(this.args).forEach(function(key) {
-        //     if(transformation.args[key].nodeType) { //@@ change to instanceof check, fix circular dependency
-        //         var value = transformation.args[key],
-        //             path = value.getPath();
-        //         Object.defineProperty(transformation.args, key, {
-        //             get: function() {
-        //                 if(transformation.hasRun) {
-        //                     //console.log('returning via path');
-        //                     return transformation.document.getNodeByPath(path);
-        //                 } else {
-        //                     //console.log('returning original arg');
-        //                     return value;
-
-        //                 }
-        //             }
-        //         });
-        //     }
-        // });
-
-        // potem spr na dotychczasowych undo/redo tests;
         
         var patchObject = function(obj, depth) {
             depth = _.isNumber(depth) ? depth : 1;
