@@ -203,6 +203,10 @@ $.extend(ElementNode.prototype, {
         return toret;
     },
 
+    containsNode: function(node) {
+        return node && (node.nativeNode === this.nativeNode || node._$.parents().index(this._$) !== -1);
+    },
+
     toXML: function() {
         var wrapper = $('<div>');
         wrapper.append(this._getXMLDOMToDump());
@@ -354,7 +358,7 @@ $.extend(Document.prototype, Backbone.Events, {
     },
 
     containsNode: function(node) {
-        return this.root && (node.nativeNode === this.root.nativeNode || node._$.parents().index(this.root._$) !== -1);
+        return this.root && this.root.containsNode(node);
     },
 
     getSiblingParents: function(params) {

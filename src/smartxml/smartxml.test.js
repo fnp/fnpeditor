@@ -644,6 +644,124 @@ describe('smartxml', function() {
 
     });
 
+    var getTextNodes = function(text, doc) {
+        /* globals Node */
+        var toret = [];
+        var search = function(node) {
+            node.contents().forEach(function(node) {
+                if(node.nodeType === Node.TEXT_NODE) {
+                    if(node.getText() === text) {
+                        toret.push(node);
+                    }
+                } else {
+                    search(node);
+                }
+            });
+        };
+        search(doc.root);
+        return toret;
+    };
+
+    var getTextNode = function(text, doc) {
+        var nodes = getTextNodes(text, doc),
+            error;
+        if(nodes.length === 0) {
+            error = 'Text not found';
+        } else if(nodes.length > 1) {
+            error = 'Text not unique';
+        } else if(nodes[0].getText() !== text) {
+            error = 'I was trying to cheat your test :(';
+        }
+        if(error) {
+            throw new Error(error);
+        }
+        return nodes[0];
+    };
+
+    describe('Removing arbitrary text', function() {
+        it('removes within single text element', function() {
+            var doc = getDocumentFromXML('<div>Alice</div>'),
+                text = getTextNode('Alice', doc);
+            doc.deleteText({
+                from: {
+                    node: text,
+                    offset: 1
+                },
+                to: {
+                    node: text,
+                    offset: 4
+                }
+            });
+            expect(doc.root.contents().length).to.equal(1);
+            expect(doc.root.contents()[0].getText()).to.equal('Ae');
+        });
+        it('removes across elements - 1', function() {
+            var doc = getDocumentFromXML('<div><a>aaa</a><b>bbb</b></div>');
+
+            doc.deleteText({
+                from: {
+                    node: getTextNode('aaa', doc),
+                    offset: 2
+                },
+                to: {
+                    node: getTextNode('bbb', doc),
+                    offset: 2
+                }
+            });
+
+            var contents = doc.root.contents();
+            expect(contents.length).to.equal(2);
+            expect(contents[0].contents()[0].getText()).to.equal('aa');
+            expect(contents[1].contents()[0].getText()).to.equal('b');
+        });
+        it('removes across elements - 2', function() {
+            var doc = getDocumentFromXML('<a><b><c>ccc</c></b>xxx</a>');
+            doc.deleteText({
+                from: {
+                    node: getTextNode('ccc', doc),
+                    offset: 2
+                },
+                to: {
+                    node: getTextNode('xxx', doc),
+                    offset: 2
+                }
+            });
+
+            var contents = doc.root.contents();
+            expect(contents.length).to.equal(2);
+            expect(contents[0].getTagName()).to.equal('b');
+            expect(contents[1].getText()).to.equal('x');
+            
+            var bContents = contents[0].contents();
+            expect(bContents.length).to.equal(1);
+            expect(bContents[0].getTagName()).to.equal('c');
+            expect(bContents[0].contents().length).to.equal(1);
+            expect(bContents[0].contents()[0].getText()).to.equal('cc');
+        });
+        it('removes nodes in between', function() {
+            var doc = getDocumentFromXML('<div><a>aaa<x>!</x></a>xxx<x></x><b><x>!</x>bbb</b></div>');
+            doc.deleteText({
+                from: {
+                    node: getTextNode('aaa', doc),
+                    offset: 2
+                },
+                to: {
+                    node: getTextNode('bbb', doc),
+                    offset: 2
+                }
+            });
+
+            var contents = doc.root.contents();
+            expect(contents.length).to.equal(2, 'two nodes survived');
+            expect(contents[0].getTagName()).to.equal('a');
+            expect(contents[1].getTagName()).to.equal('b');
+            expect(contents[0].contents().length).to.equal(1);
+            expect(contents[0].contents()[0].getText()).to.equal('aa');
+            expect(contents[1].contents().length).to.equal(1);
+            expect(contents[1].contents()[0].getText()).to.equal('b');
+        });
+    });
+
     describe('Splitting text', function() {
     
         it('splits TextNode\'s parent into two ElementNodes', function() {

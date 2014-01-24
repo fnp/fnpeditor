@@ -431,6 +431,52 @@ var documentTransformations = {
         this._defineDocumentProperties(insertion.ofNode._$);
         insertion.ofNode.triggerChangeEvent('nodeAdded');
         return insertion.ofNode;
+    },
+    deleteText: function(params) {
+        var ptr, prev, next, toDetach, middle, text;
+
+        if(params.from.node.sameNode(params.to.node)) {
+            ptr = params.from.node;
+            text = ptr.getText();
+            ptr.setText(text.substr(0, params.from.offset) + text.substr(params.to.offset));
+            return;
+        }
+
+        ptr = params.from.node;
+        ptr.setText(ptr.getText().substr(0, params.from.offset));
+        next = ptr.next();
+        while(next || ptr.parent()) {
+            if(next) {
+                if(next.sameNode(params.to.node) || (next.nodeType === Node.ELEMENT_NODE && next.containsNode(params.to.node))) {
+                    middle = next;
+                    break;
+                } else {
+                    toDetach = next;
+                    next = next.next();
+                    toDetach.detach();
+                }
+            } else {
+                ptr = ptr.parent();
+                next = ptr.next();
+            }
+        }
+
+        ptr = params.to.node;
+        ptr.setText(ptr.getText().substr(params.to.offset));
+        prev = ptr.prev();
+        while(prev || ptr.parent()) {
+            if(ptr.sameNode(middle)) {
+                break;
+            }
+            if(prev) {
+                toDetach = prev;
+                prev = prev.prev();
+                toDetach.detach();
+            } else {
+                ptr = ptr.parent();
+                prev = ptr.prev();
+            }
+        }
     }
 };
 
