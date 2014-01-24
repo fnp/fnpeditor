@@ -43,6 +43,32 @@ toret.createGenericTransformation = function(desc, name) {
 
         // potem spr na dotychczasowych undo/redo tests;
         
+        var patchObject = function(obj, depth) {
+            depth = _.isNumber(depth) ? depth : 1;
+            if(depth > 3) {
+                return;
+            }
+            _.keys(obj).forEach(function(key) {
+                var value = obj[key],
+                    path;
+                if(value) {
+                    if(value.nodeType) {
+                        path = value.getPath();
+                        Object.defineProperty(obj, key, {
+                            get: function() {
+                                if(transformation.hasRun && path) {
+                                    return transformation.document.getNodeByPath(path);
+                                } else {
+                                    return value;
+                                }
+                            }
+                        });
+                    } else if(_.isObject(value)) {
+                        patchObject(value, depth+1);
+                    }
+                }
+            });
+        };
 
         this.args.forEach(function(arg, idx, args) {
             var path;
@@ -59,22 +85,7 @@ toret.createGenericTransformation = function(desc, name) {
                         }
                     });
                 } else if(_.isObject(arg)) {
-                    _.keys(arg).forEach(function(key) {
-                        var value = arg[key],
-                            path;
-                        if(value && value.nodeType) {
-                            path = value.getPath();
-                            Object.defineProperty(arg, key, {
-                                get: function() {
-                                    if(transformation.hasRun && path) {
-                                        return transformation.document.getNodeByPath(path);
-                                    } else {
-                                        return value;
-                                    }
-                                }
-                            });
-                        }
-                    });
+                    patchObject(arg);
                 }
             }
         });
