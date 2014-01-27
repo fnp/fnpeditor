@@ -240,45 +240,40 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
             return element.getText().length === 1 || selectsWholeTextElement(cursor);
         };
 
-        canvas.wlxmlDocument.startTransaction();
-        
-
-
-        if(willDeleteWholeText()) {
-            event.preventDefault();
-            node.setText('');
-        }
-        else if(element.isEmpty()) {
-            event.preventDefault();
-
-            var parent = element.parent(),
-                grandParent = parent ? parent.parent() : null;
-            if(parent.children().length === 1 && parent.children()[0].sameNode(element)) {
-                if(grandParent && grandParent.children().length === 1) {
-                    goto = grandParent.data('wlxmlNode').append({text: ''});
+        canvas.wlxmlDocument.transaction(function() {
+            if(willDeleteWholeText()) {
+                event.preventDefault();
+                node.setText('');
+            }
+            else if(element.isEmpty()) {
+                event.preventDefault();
+                var parent = element.parent(),
+                    grandParent = parent ? parent.parent() : null;
+                if(parent.children().length === 1 && parent.children()[0].sameNode(element)) {
+                    if(grandParent && grandParent.children().length === 1) {
+                        goto = grandParent.data('wlxmlNode').append({text: ''});
+                    } else {
+                        goto = element.getNearestTextElement(direction);
+                    }
+                    parent.data('wlxmlNode').detach();
                 } else {
                     goto = element.getNearestTextElement(direction);
+                    element.data('wlxmlNode').detach();
                 }
-                parent.data('wlxmlNode').detach();
-            } else {
-                goto = element.getNearestTextElement(direction);
-                element.data('wlxmlNode').detach();
+                canvas.setCurrentElement(goto, {caretTo: caretTo});
+                canvas.publisher('contentChanged');
             }
-            canvas.setCurrentElement(goto, {caretTo: caretTo});
-            canvas.publisher('contentChanged');
-        }
-        else if(cursorAtOperationEdge) {
-            if(direction === 'below') {
-                element = element.getNearestTextElement(direction);
+            else if(cursorAtOperationEdge) {
+                if(direction === 'below') {
+                    element = element.getNearestTextElement(direction);
+                }
+                if(element) {
+                    goto = element.data('wlxmlNode').mergeContentUp();
+                    canvas.setCurrentElement(goto.node, {caretTo: goto.offset});
+                }
+                event.preventDefault();
             }
-            if(element) {
-                goto = element.data('wlxmlNode').mergeContentUp();
-                canvas.setCurrentElement(goto.node, {caretTo: goto.offset});
-            }
-            event.preventDefault();
-        }
-        canvas.wlxmlDocument.endTransaction();
-
+        });
     }
 });
 
