@@ -574,6 +574,12 @@ $.extend(Document.prototype, Backbone.Events, {
         }
     },
 
+    transaction: function(callback, context) {
+        this.startTransaction();
+        callback.call(context);
+        this.endTransaction();
+    },
+
     getNodeByPath: function(path) {
         var toret = this.root;
         path.forEach(function(idx) {
