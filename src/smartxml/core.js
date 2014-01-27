@@ -433,7 +433,7 @@ var documentTransformations = {
         return insertion.ofNode;
     },
     deleteText: function(params) {
-        var ptr, prev, next, toDetach, middle, text;
+        var ptr, next, toDetach, middle, text;
 
         if(params.from.node.sameNode(params.to.node)) {
             ptr = params.from.node;
@@ -452,7 +452,10 @@ var documentTransformations = {
 
         while(next || ptr.parent()) {
             if(next) {
-                if(next.sameNode(params.to.node) || (next.nodeType === Node.ELEMENT_NODE && next.containsNode(params.to.node))) {
+                if(next.sameNode(params.to.node)) {
+                    return;
+                }
+                else if(next.nodeType === Node.ELEMENT_NODE && next.containsNode(params.to.node)) {
                     middle = next;
                     break;
                 } else {
@@ -466,24 +469,19 @@ var documentTransformations = {
             }
         }
 
-        ptr = params.to.node;
-
-        if(!this.containsNode(ptr)) {
+        if(!this.containsNode(params.to.node)) {
             // The end node was merged during detaching nodes above - there is nothing more left to do.
             return;
         }
-        prev = ptr.prev();
-        while(prev || ptr.parent()) {
-            if(ptr.sameNode(middle)) {
-                break;
-            }
-            if(prev) {
-                toDetach = prev;
-                prev = prev.prev();
-                toDetach.detach();
+
+        ptr = middle.contents()[0];
+        while(ptr && !ptr.sameNode(params.to.node)) {
+            if(ptr.nodeType === Node.ELEMENT_NODE && ptr.containsNode(params.to.node)) {
+                ptr = ptr.contents()[0];
+                continue;
             } else {
-                ptr = ptr.parent();
-                prev = ptr.prev();
+                ptr = ptr.next();
+                ptr.prev().detach();
             }
         }
     }

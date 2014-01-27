@@ -754,6 +754,25 @@ describe('smartxml', function() {
             expect(contents.length).to.equal(1);
             expect(contents[0].getText()).to.equal('Acat');
         });
+        it('remove across elements - 4', function() {
+            var doc = getDocumentFromXML('<div>Alice <div>has <span>a</span> cat</div></div>');
+            doc.deleteText({
+                from: {
+                    node: getTextNode('Alice ', doc),
+                    offset: 1
+                },
+                to: {
+                    node: getTextNode(' cat', doc),
+                    offset: 1
+                }
+            });
+            var contents = doc.root.contents();
+            expect(contents.length).to.equal(2);
+            expect(contents[0].getText()).to.equal('A');
+            expect(contents[1].getTagName()).to.equal('div');
+            expect(contents[1].contents().length).to.equal(1);
+            expect(contents[1].contents()[0].getText()).to.equal('cat');
+        });
         it('removes nodes in between', function() {
             var doc = getDocumentFromXML('<div><a>aaa<x>!</x></a>xxx<x></x><b><x>!</x>bbb</b></div>');
             doc.deleteText({
