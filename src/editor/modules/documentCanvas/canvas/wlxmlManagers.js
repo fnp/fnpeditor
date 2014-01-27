@@ -55,6 +55,9 @@ var getDisplayStyle = function(tag, klass) {
     if(klass && klass.substr(0, 4) === 'item') {
         return null;
     }
+    if(klass === 'gap') {
+        return 'inline';
+    }
     return 'block';
 };
 
