@@ -131,7 +131,9 @@ handlers.push({keys: [KEYS.ARROW_UP, KEYS.ARROW_DOWN, KEYS.ARROW_LEFT, KEYS.ARRO
                 caretTo = 'start';
             }
             var el = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]', direction, element.dom()[0]));
-            canvas.setCurrentElement(el, {caretTo: caretTo});
+            if(el) {
+                canvas.setCurrentElement(el, {caretTo: caretTo});
+            }
         }
     },
     keyup: function(event, canvas) {
