@@ -97,7 +97,7 @@ commands.register('list', function(canvas, params) {
 });
 
 commands.register('toggle-grid', function(canvas, params) {
-    canvas.doc().dom().find('[wlxml-tag]').toggleClass('rng-common-hoveredNode', params.toggle);
+    canvas.doc().dom().parent().toggleClass('grid-on', params.toggle);
     gridToggled = params.toggle;
 });
 
