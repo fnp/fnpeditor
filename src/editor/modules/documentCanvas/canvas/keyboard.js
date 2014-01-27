@@ -249,6 +249,9 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
                 event.preventDefault();
                 var parent = element.parent(),
                     grandParent = parent ? parent.parent() : null;
+                if(!grandParent && parent.children().length === 1) {
+                    return;
+                }
                 if(parent.children().length === 1 && parent.children()[0].sameNode(element)) {
                     if(grandParent && grandParent.children().length === 1) {
                         goto = grandParent.data('wlxmlNode').append({text: ''});
