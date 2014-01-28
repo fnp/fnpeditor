@@ -11,7 +11,7 @@
             <% }); %>
         </select>
         <select class="rng-module-documentToolbar-toolbarOption" data-option="newTag-class">
-            <% var options = ['', 'author', 'title', 'cite', 'cite.code', 'cite.code.xml', 'list.items', 'item', 'link', 'p', 'footnote', 'todo', 'emp'] %>
+            <% var options = ['', 'author', 'title', 'cite', 'cite.code', 'cite.code.xml', 'list.items', 'item', 'link', 'p', 'footnote', 'todo', 'emp', 'gap'] %>
             <% options.forEach(function(option) { %>
                 <option value="<%= option.replace(/\./g, '-') %>" <% if(option==='cite') { %>selected<% } %>><%= wlxmlUtils.getClassLabel(option) %></option>
             <% }); %>
