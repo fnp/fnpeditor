@@ -23,7 +23,7 @@ module.exports = function(grunt) {
               // The following two settings are required for source maps to work,
               // see: http://requirejs.org/docs/optimization.html#sourcemaps
               preserveLicenseComments: false,
-              optimize: 'uglify2'
+              optimize: grunt.option('optimize') || 'uglify2'
             }
           }
         },
