@@ -212,14 +212,17 @@ commands.register('footnote', function(canvas, params) {
     void(params);
     var cursor = canvas.getCursor(),
         position = cursor.getPosition(),
-        asideNode, asideElement;
+        asideNode, asideElement, node;
         
 
     if(cursor.isSelectingWithinElement()) {
         asideNode = position.element.data('wlxmlNode').wrapWith({tagName: 'aside', attrs:{'class': 'footnote'}, start: cursor.getSelectionStart().offset, end: cursor.getSelectionEnd().offset});
     } else {
-        asideNode = position.element.data('wlxmlNode').divideWithElementNode({tagName: 'aside', attrs:{'class': 'footnote'}}, {offset: position.offset});
-        asideNode.append({text: ''});
+        node = position.element.data('wlxmlNode');
+        node.document.transaction(function() {
+            asideNode = node.divideWithElementNode({tagName: 'aside', attrs:{'class': 'footnote'}}, {offset: position.offset});
+            asideNode.append({text: ''});
+        });
     }
 
     asideElement = utils.findCanvasElement(asideNode);
