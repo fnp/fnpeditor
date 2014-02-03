@@ -66,7 +66,7 @@ $.extend(DocumentNode.prototype, {
             }
         });
 
-        if(idx !== 'undefined') {
+        if(idx !== undefined) {
             nodePath = nodePath.slice(0, idx);
         }
         toret = nodePath.map(function(node) {return node.getIndex(); });
