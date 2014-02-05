@@ -11,7 +11,7 @@ define([
         className: 'rng-view-tabs',
         
         events: {
-            'click ul a, i': '_onTabTitleClicked'
+            'click .rng-view-tabs-tabBar a, .rng-view-tabs-tabBar i': '_onTabTitleClicked'
         },
         
         initialize: function(options) {
