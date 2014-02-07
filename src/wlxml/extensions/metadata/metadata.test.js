@@ -125,6 +125,27 @@ describe('Metadata API', function() {
             doc.redo();
             expect(metadata.length).to.equal(0, 'redo removed metadata');
         });
+
+        describe('Regression tests', function() {
+            it('passes undoing & redoing scenario', function() {
+                var doc = getDocumentFromXML('<section></section>');
+
+                doc.startTransaction();
+                var comment = doc.root.append({tagName: 'aside', attrs: {klass: 'comment'}});
+                comment.append({text: ''});
+                var meta = comment.getMetadata();
+                meta.add({key: 'k', value: '1'});
+                doc.endTransaction();
+
+                doc.undo();
+                doc.redo();
+
+                comment = doc.root.contents()[0];
+                expect(comment.getMetadata().length).to.equal(1);
+                doc.undo();
+                expect(doc.root.contents().length).to.equal(0);
+            });
+        });
     });
 
 
