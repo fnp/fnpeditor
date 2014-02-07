@@ -1592,6 +1592,34 @@ describe('smartxml', function() {
                 expect(doc.root.getAttr('unaware')).to.equal('1');
             });
         });
+
+        describe('Regression tests', function() {
+            it('redos correctly after running its own undo followed by unaware transformation undo', function() {
+                var doc = getDocumentFromXML('<section t="0"></section>');
+                
+                doc.registerExtension({elementNode: {transformations: {
+                    unaware: function() {
+                        this.triggerChangeEvent();
+                    },
+                    test: {
+                        impl: function() {
+                            this._$.attr('t', 1);
+                            this.triggerChangeEvent();
+                        },
+                        undo: function() {
+                            this._$.attr('t', 0);
+                        }
+                    }
+                }}});
+                doc.root.unaware();
+                doc.root.test();
+                doc.undo();
+                doc.undo();
+                doc.redo();
+                doc.redo();
+                expect(doc.root.getAttr('t')).to.equal('1');
+            });
+        });
     });
 
 });

@@ -79,6 +79,7 @@ toret.createGenericTransformation = function(desc, name) {
         undo: function() {
             if(desc.undo) {
                 desc.undo.call(this.context, this);
+                this.runCount++;
             } else {
                 this.document.getNodeByPath(this.changeRootPath).replaceWith(this.snapshot);
             }
