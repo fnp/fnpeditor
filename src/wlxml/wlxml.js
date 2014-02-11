@@ -17,10 +17,26 @@ AttributesList.prototype.keys = function() {
     return _.keys(this);
 };
 
-var installObject = function(instance, klass) {
-    var methods = instance.document.classMethods[klass] || {},
-        transformations = instance.document.classTransformations[klass] || {};
+var getClassLists = function(klassName) {
+    var toret = [],
+        classParts = [''].concat(klassName.split('.')),
+        classCurrent;
 
+    classParts.forEach(function(part) {
+        classCurrent = classCurrent ? classCurrent + '.' + part : part;
+        toret.push(classCurrent);
+    });
+    return toret;
+};
+
+var installObject = function(instance, klass) {
+    var methods = {},
+        transformations = {};
+
+    getClassLists(klass).forEach(function(klassName) {
+        _.extend(methods, instance.document.classMethods[klassName] || {});
+        _.extend(methods, instance.document.classTransformations[klassName] || {});
+    });
     instance.object = Object.create(_.extend({}, methods, transformations));
     _.keys(methods).concat(_.keys(transformations)).forEach(function(key) {
         instance.object[key] = _.bind(instance.object[key], instance);

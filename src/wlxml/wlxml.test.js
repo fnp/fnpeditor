@@ -263,7 +263,7 @@ describe('WLXMLDocument', function() {
         var doc, extension, elementNode, textNode, testClassNode;
 
         beforeEach(function() {
-            doc = getDocumentFromXML('<section>Alice<div class="test_class"></div></section>');
+            doc = getDocumentFromXML('<section>Alice<div class="test_class"></div><div class="test_class.a"></div></section>');
             elementNode = doc.root;
             textNode = doc.root.contents()[0];
             testClassNode = doc.root.contents('.test_class');
@@ -291,6 +291,25 @@ describe('WLXMLDocument', function() {
             testClassNode = doc.root.contents()[1];
             expect(testClassNode.object.testTransformation().sameNode(testClassNode)).to.equal(true, '1');
             expect(testClassNode.object.testTransformation2().sameNode(testClassNode)).to.equal(true, '1');
+        });
+
+        it('added methods are inherited by nodes with subclasses', function() {
+            extension = {wlxmlClass: {test_class: {methods: {
+                testMethod: function() { return this; }
+            }}}};
+            doc.registerExtension(extension);
+            testClassNode = doc.root.contents()[2];
+            expect(testClassNode.object.testMethod().sameNode(testClassNode)).to.equal(true);
+        });
+        it('added transformations are inherited by nodes with subclasses', function() {
+            extension = {wlxmlClass: {test_class: {transformations: {
+                testTransformation: function() { return this; },
+                testTransformation2: {impl: function() { return this; }}
+            }}}};
+            doc.registerExtension(extension);
+            testClassNode = doc.root.contents()[2];
+            expect(testClassNode.object.testTransformation().sameNode(testClassNode)).to.equal(true, '1');
+            expect(testClassNode.object.testTransformation2().sameNode(testClassNode)).to.equal(true, '2');
         });
     });
 });
