@@ -373,12 +373,16 @@ $.extend(Document.prototype, Backbone.Events, {
             return noSiblingParents;
         }
 
-        var i;
-        for(i = 0; i < Math.min(parents1.length, parents2.length); i++) {
+        var stop = Math.min(parents1.length, parents2.length),
+            i;
+        for(i = 0; i < stop; i++) {
             if(parents1[i].sameNode(parents2[i])) {
                 continue;
             }
             break;
+        }
+        if(i === stop) {
+            i--;
         }
         return {node1: parents1[i], node2: parents2[i]};
     },

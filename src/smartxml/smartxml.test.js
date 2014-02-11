@@ -1112,6 +1112,16 @@ describe('smartxml', function() {
                 expect(siblingParents.node1.sameNode(aliceText)).to.equal(true, 'aliceText');
                 expect(siblingParents.node2.sameNode(span)).to.equal(true, 'span');
             });
+
+            it('returns node itself for two same nodes', function() {
+                var doc = getDocumentFromXML('<section><div></div></section>'),
+                    div = doc.root.contents()[0];
+
+                var siblingParents = doc.getSiblingParents({node1: div, node2: div});
+                expect(!!siblingParents.node1 && !!siblingParents.node2).to.equal(true, 'nodes defined');
+                expect(siblingParents.node1.sameNode(div)).to.be.equal(true, 'node1');
+                expect(siblingParents.node2.sameNode(div)).to.be.equal(true, 'node2');
+            });
         });
     });
 
