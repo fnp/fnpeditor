@@ -932,6 +932,7 @@ describe('smartxml', function() {
             expect(spy.callCount).to.equal(1);
             expect(event.type).to.equal('nodeMoved');
             expect(event.meta.node.sameNode(appended)).to.be.true;
+            expect(node.document.root.sameNode(event.meta.parent)).to.equal(true, 'previous parent attached to event meta');
         });
         
         it('emits nodeAdded event when prepending new node', function() {

@@ -13,7 +13,7 @@ var INSERTION = function(implementation) {
             nodeParent,
             returned;
         options = options || {};
-        if(!(this.document.containsNode(this))) {
+        if(!(this.document.containsNode(this)) || !insertion.isNew) {
             nodeParent = insertion.ofNode.parent();
         }
         returned = implementation.call(this, insertion.ofNode);
