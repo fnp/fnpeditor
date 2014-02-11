@@ -60,6 +60,15 @@ describe('Lists extension', function() {
             expect(child3.contents()[0].getText()).to.equal('cat');
         });
 
+        it('Handles text nodes on the boundries', function() {
+            var doc = getDocumentFromXML('<section>Alice<span>has</span>a cat</section>'),
+                textNode1 = doc.root.contents()[0],
+                textNode2 = doc.root.contents()[2];
+            doc.createList({node1: textNode1, node2: textNode2});
+            expect(doc.root.contents().length).to.equal(1);
+            expect(doc.root.contents()[0].is('list')).to.equal(true);
+        });
+
         it('allows creating nested list from existing sibling list items', function() {
             var doc = getDocumentFromXML('\
                 <section>\

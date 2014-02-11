@@ -38,12 +38,16 @@ extension.document.transformations.createList = {
             nodeIndexes = [params.node1.getIndex(), params.node2.getIndex()].sort(function(a,b) { return a-b; }),
             nodesToWrap = [],
             listNode = params.node1.document.createDocumentNode({tagName: 'div', attrs: {'class': 'list'}}),
+            listPlacePtr = params.node1,
             node, i;
-
+        
         for(i = nodeIndexes[0]; i <= nodeIndexes[1]; i++) {
             node = parentContents[i];
             if(node.nodeType === Node.TEXT_NODE) {
                 node = node.wrapWith({tagName: 'div', attrs: {'class': 'item'}});
+                if(i === nodeIndexes[0]) {
+                    listPlacePtr = node;
+                }
             } else {
                 node.setClass('item');
             }
@@ -60,7 +64,7 @@ extension.document.transformations.createList = {
             toInsert = listNode;
         }
 
-        params.node1.before(toInsert);
+        listPlacePtr.before(toInsert);
 
         nodesToWrap.forEach(function(node) {
             listNode.append(node);
