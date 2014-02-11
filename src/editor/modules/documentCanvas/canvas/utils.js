@@ -20,12 +20,12 @@ var nearestInDocumentOrder = function(selector, direction, element) {
     return null;
 };
 
-var findCanvasElement = function(node) {
+var findCanvasElement = function(node, childOf) {
     if(node.nodeType === Node.ELEMENT_NODE) {
         return node.getData('canvasElement');
     }
     if(node.nodeType === Node.TEXT_NODE) {
-        return findCanvasElementInParent(node, node.parent());
+        return findCanvasElementInParent(node, childOf || node.parent());
     }
 };
 

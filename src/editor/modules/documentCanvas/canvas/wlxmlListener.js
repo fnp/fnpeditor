@@ -64,7 +64,7 @@ var handlers = {
             referenceAction = 'after';
         }
 
-        actionArg = (checkForExistence && utils.findCanvasElement(event.meta.node)) || event.meta.node;
+        actionArg = (checkForExistence && utils.findCanvasElement(event.meta.node, event.meta.parent)) || event.meta.node;
         referenceElement[referenceAction](actionArg);
     },
     nodeMoved: function(event) {
