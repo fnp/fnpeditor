@@ -109,7 +109,7 @@ extension.document.transformations.extractItems = {
                 reference.after(item);
                 reference = item;
                 if(!listIsNested) {
-                    item.setClass(null);
+                    item.setClass('');
                 }
             });
             if(precedingItems.length === 0) {
@@ -119,14 +119,14 @@ extension.document.transformations.extractItems = {
             extractedItems.forEach(function(item) {
                 reference.before(item);
                 if(!listIsNested) {
-                    item.setClass(null);
+                    item.setClass('');
                 }
             });
         } else {
             extractedItems.forEach(function(item) {
                 reference.after(item);
                 if(!listIsNested) {
-                    item.setClass(null);
+                    item.setClass('');
                 }
                 reference = item;
             });
