@@ -45,9 +45,12 @@ var documentNodeTransformations = {
         if(this.isRoot()) {
             return this.document.replaceRoot(node);
         }
-        toret = this.after(node);
-        this.detach();
-        return toret;
+        if(this.parent()) {
+            toret = this.after(node);
+            this.detach();
+            return toret;
+        }
+        throw new Error('Cannot replace node without a parent.');
     },
 
     after: INSERTION(function(node) {
