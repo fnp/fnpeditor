@@ -68,7 +68,7 @@ var handlers = {
         referenceElement[referenceAction](actionArg);
     },
     nodeMoved: function(event) {
-        return handlers.nodeAdded(event, true);
+        return handlers.nodeAdded.call(this, event, true);
     },
     nodeDetached: function(event) {
         var canvasNode = utils.findCanvasElementInParent(event.meta.node, event.meta.parent);
