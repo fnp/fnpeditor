@@ -529,12 +529,33 @@ describe('smartxml', function() {
             });
         });
 
-        it('wraps element node with another element node', function() {
+        it('wraps root element node with another element node', function() {
             var node = elementNodeFromXML('<div></div>'),
                 wrapper = elementNodeFromXML('<wrapper></wrapper>');
 
             node.wrapWith(wrapper);
             expect(node.parent().sameNode(wrapper)).to.be.true;
+            expect(node.document.root.sameNode(wrapper)).to.be.true;
+        });
+
+        it('wraps element node with another element node', function() {
+            var doc = getDocumentFromXML('<section><div></div></section>'),
+                div = doc.root.contents()[0];
+
+            var wrapper = div.wrapWith({tagName: 'wrapper'});
+            expect(wrapper.sameNode(doc.root.contents()[0])).to.equal(true, '1');
+            expect(div.parent().sameNode(wrapper)).to.equal(true, '2');
+            expect(wrapper.contents()[0].sameNode(div)).to.equal(true, '3');
+        });
+
+        it('wraps element outside of document tree', function() {
+            var doc = getDocumentFromXML('<section><div></div></section>'),
+                node = doc.createDocumentNode({tagName: 'node'});
+
+            node.wrapWith({tagName: 'wrapper'});
+            expect(node.parent().getTagName()).to.equal('wrapper');
+            expect(node.parent().contents()[0].sameNode(node)).to.be.true;
+            expect(doc.root.getTagName()).to.equal('section');
         });
 
         it('unwraps element node contents', function() {

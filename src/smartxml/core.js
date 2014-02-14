@@ -77,8 +77,9 @@ var documentNodeTransformations = {
 
     wrapWith: function(node) {
         var insertion = this.getNodeInsertion(node);
-        if(this.parent()) {
-            this.before(insertion.ofNode);
+
+        if(this.parent() || this.isRoot()) {
+            this.replaceWith(insertion.ofNode);
         }
         insertion.ofNode.append(this);
         return insertion.ofNode;
