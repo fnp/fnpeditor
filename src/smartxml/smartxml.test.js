@@ -385,6 +385,15 @@ describe('smartxml', function() {
 
     describe('Manipulations', function() {
 
+        describe('detaching nodes', function() {
+            it('can detach document root node', function() {
+                var doc = getDocumentFromXML('<div></div>');
+
+                doc.root.detach();
+                expect(doc.root).to.equal(null);
+            });
+        });
+
         describe('replacing node with another one', function() {
             it('replaces node with another one', function() {
                 var doc = getDocumentFromXML('<div><a></a></div>'),

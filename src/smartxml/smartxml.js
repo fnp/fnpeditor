@@ -598,9 +598,15 @@ $.extend(Document.prototype, Backbone.Events, {
     _defineDocumentProperties: function($document) {
         var doc = this;
         Object.defineProperty(doc, 'root', {get: function() {
+            if(!$document) {
+                return null;
+            }
             return doc.createDocumentNode($document[0]);
         }, configurable: true});
         Object.defineProperty(doc, 'dom', {get: function() {
+            if(!$document) {
+                return null;
+            }
             return $document[0];
         }, configurable: true});
     }

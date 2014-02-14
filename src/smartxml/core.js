@@ -32,6 +32,10 @@ var documentNodeTransformations = {
         this._$.detach();
         if(existed) {
             this.triggerChangeEvent('nodeDetached', {parent: parent});
+            if(!parent) {
+                // This was the root of the document
+                this.document._defineDocumentProperties(null);
+            }
         }
         return this;
     },
