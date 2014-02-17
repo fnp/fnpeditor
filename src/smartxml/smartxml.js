@@ -78,6 +78,10 @@ $.extend(DocumentNode.prototype, {
         return this.document.root.sameNode(this);
     },
 
+    isSiblingOf: function(node) {
+        return node && this.parent().sameNode(node.parent());
+    },
+
     sameNode: function(otherNode) {
         return !!(otherNode) && this.nativeNode === otherNode.nativeNode;
     },
@@ -143,6 +147,10 @@ $.extend(DocumentNode.prototype, {
             return 0;
         }
         return this.parent().indexOf(this);
+    },
+
+    getNearestElementNode: function() {
+        return this.nodeType === Node.ELEMENT_NODE ? this : this.parent();
     }
 });
 
