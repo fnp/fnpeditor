@@ -138,7 +138,7 @@ extension.document.transformations.extractItems = {
                 }
                 reference = item;
             });
-            var secondList = params.item1.document.createDocumentNode({tagName: 'div', attrs: {'class':'list'}}),
+            var secondList = params.item1.document.createDocumentNode({tagName: 'div', attrs: {'class': list.getClass() || 'list'}}),
                 toAdd = secondList;
             
             if(listIsNested) {
