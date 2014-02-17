@@ -11,6 +11,25 @@ define([
 /* globals Node */
 
 
+var WLXMLDocumentNodeMethods =  {
+    isInside: function(klass) {
+        var parent = this.getParent(klass);
+        return !!parent;
+    },
+    getParent: function(klass) {
+        /* globals Node */
+        var me = this.nodeType === Node.ELEMENT_NODE ? [this] : [],
+            toret;
+        me.concat(this.parents()).some(function(node) {
+            if(node.is(klass)) {
+                toret = node;
+                return true;
+            }
+        });
+        return toret;
+    },
+};
+
 var AttributesList = function() {};
 AttributesList.prototype = Object.create({});
 AttributesList.prototype.keys = function() {
@@ -49,7 +68,7 @@ var WLXMLElementNode = function(nativeNode, document) {
 };
 WLXMLElementNode.prototype = Object.create(smartxml.ElementNode.prototype);
 
-$.extend(WLXMLElementNode.prototype, smartxml.ElementNode.prototype, {
+$.extend(WLXMLElementNode.prototype, WLXMLDocumentNodeMethods, smartxml.ElementNode.prototype, {
     getClass: function() {
         return this.getAttr('class') || '';
     },
@@ -175,6 +194,13 @@ var WLXMLDocumentNode = function() {
 };
 WLXMLDocumentNode.prototype = Object.create(smartxml.DocumentNode.prototype);
 
+
+var WLXMLTextNode = function() {
+    smartxml.TextNode.apply(this, arguments);
+};
+WLXMLTextNode.prototype = Object.create(smartxml.TextNode.prototype);
+$.extend(WLXMLTextNode.prototype, WLXMLDocumentNodeMethods);
+
 var WLXMLDocument = function(xml, options) {
     this.classMethods = {};
     this.classTransformations = {};
@@ -188,6 +214,7 @@ var formatter_prefix = '_wlxml_formatter_';
 WLXMLDocument.prototype = Object.create(smartxml.Document.prototype);
 $.extend(WLXMLDocument.prototype, {
     ElementNodeFactory: WLXMLElementNode,
+    TextNodeFactory: WLXMLTextNode,
     loadXML: function(xml) {
         smartxml.Document.prototype.loadXML.call(this, xml, {silent: true});
         this.trigger('contentSet');
