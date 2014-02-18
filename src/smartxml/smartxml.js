@@ -273,7 +273,7 @@ var registerMethod = function(methodName, method, target) {
 var Document = function(xml, extensions) {
     this.undoStack = [];
     this.redoStack = [];
-    this._transactionStack = [];
+    this._currentTransaction = null;
     this._transformationLevel = 0;
     
     this._nodeMethods = {};
@@ -476,6 +476,12 @@ $.extend(Document.prototype, Backbone.Events, {
     transform: function(Transformation, args) {
         var toret, transformation;
 
+        if(!this._currentTransaction) {
+            return this.transaction(function() {
+                return this.transform(Transformation, args);
+            }, this);
+        }
+
         if(typeof Transformation === 'function') {
             transformation = new Transformation(this, this, args);
         } else {
@@ -491,11 +497,7 @@ $.extend(Document.prototype, Backbone.Events, {
                 },
                 function() {
                     if(this._transformationLevel === 1 && !this._undoInProgress) {
-                        if(this._transactionInProgress) {
-                            this._transactionStack.push(transformation);
-                        } else {
-                            this.undoStack.push(transformation);
-                        }
+                        this._currentTransaction.pushTransformation(transformation);
                     }
                     if(!this._undoInProgress && this._transformationLevel === 1) {
                         this.redoStack = [];
@@ -510,20 +512,15 @@ $.extend(Document.prototype, Backbone.Events, {
         }
     },
     undo: function() {
-        var transformationObject = this.undoStack.pop(),
+        var transaction = this.undoStack.pop(),
             doc = this,
             transformations, stopAt;
 
-        if(transformationObject) {
+        if(transaction) {
             this._undoInProgress = true;
 
-            if(_.isArray(transformationObject)) {
-                // We will modify this array in a minute so make sure we work on a copy.
-                transformations = transformationObject.slice(0);
-            } else {
-                // Lets normalize single transformation to a transaction containing one transformation.
-                transformations = [transformationObject];
-            }
+            // We will modify this array in a minute so make sure we work on a copy.
+            transformations = transaction.transformations.slice(0);
 
             if(transformations.length > 1) {
                 // In case of real transactions we don't want to run undo on all of transformations if we don't have to.
@@ -546,39 +543,36 @@ $.extend(Document.prototype, Backbone.Events, {
             });
 
             this._undoInProgress = false;
-            this.redoStack.push(transformationObject);
+            this.redoStack.push(transaction);
         }
     },
     redo: function() {
-        var transformationObject = this.redoStack.pop(),
-            transformations;
-        if(transformationObject) {
+        var transaction = this.redoStack.pop();
+        if(transaction) {
             this._transformationLevel++;
-            transformations = _.isArray(transformationObject) ? transformationObject : [transformationObject];
-            transformations.forEach(function(t) {
+            transaction.transformations.forEach(function(t) {
                 t.run({beUndoable: true});
             });
             this._transformationLevel--;
-            this.undoStack.push(transformationObject);
+            this.undoStack.push(transaction);
         }
     },
 
     startTransaction: function() {
-        if(this._transactionInProgress) {
+        if(this._currentTransaction) {
             throw new Error('Nested transactions not supported!');
         }
-        this._transactionInProgress = true;
+        this._currentTransaction = new Transaction([]);
     },
 
     endTransaction: function() {
-        if(!this._transactionInProgress) {
+        if(!this._currentTransaction) {
             throw new Error('End of transaction requested, but there is no transaction in progress!');
         }
-        this._transactionInProgress = false;
-        if(this._transactionStack.length) {
-            this.undoStack.push(this._transactionStack);
-            this._transactionStack = [];
+        if(this._currentTransaction.hasTransformations()) {
+            this.undoStack.push(this._currentTransaction);
         }
+        this._currentTransaction = null;
     },
 
     transaction: function(callback, context) {
@@ -611,6 +605,18 @@ $.extend(Document.prototype, Backbone.Events, {
             }
             return $document[0];
         }, configurable: true});
+    }
+});
+
+var Transaction = function(transformations) {
+    this.transformations = transformations || [];
+};
+$.extend(Transaction.prototype, {
+    pushTransformation: function(transformation) {
+        this.transformations.push(transformation);
+    },
+    hasTransformations: function() {
+        return this.transformations.length > 0;
     }
 });
 
