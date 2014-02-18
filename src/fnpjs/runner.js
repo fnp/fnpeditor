@@ -1,4 +1,4 @@
-define(['libs/jquery', 'libs/underscore', 'fnpjs/logging/logging'], function($, _, logging) {
+define(['libs/jquery', 'libs/underscore', 'fnpjs/logging/logging', 'fnpjs/actions'], function($, _, logging, actions) {
 
 'use strict';
 
@@ -13,7 +13,9 @@ var Runner = function(app, modules) {
         moduleInstances = {},
         eventListeners = [],
         plugins = [],
-        config;
+        actionDefinitions = {},
+        config,
+        actionsAppObject;
         
     _.each(_.keys(modules || {}), function(moduleName) {
         if(_.contains(app.permissions[moduleName] || [], 'handleEvents')) {
@@ -62,6 +64,24 @@ var Runner = function(app, modules) {
         this.getConfig = function() {
             return config;
         };
+
+        this.createAction = function(fqName, config) {
+            var definition = actionDefinitions[fqName];
+            if(!definition) {
+                throw new Error('Invalid action: ' + fqName);
+            }
+            return new actions.Action(fqName, definition, config, actionsAppObject);
+        };
+
+        this.registerKeyHandler = function(eventName, handler) {
+            $('body').on(eventName, function(e) {
+                handler(e);
+            });
+        };
+
+        this.registerActionsAppObject = function(_actionsAppObject) {
+            actionsAppObject = _actionsAppObject;
+        };
     };
     
     
@@ -71,6 +91,10 @@ var Runner = function(app, modules) {
 
     this.registerPlugin = function(plugin) {
         plugins.push(plugin);
+        (plugin.actions || []).forEach(function(definition) {
+            var actionFqName = plugin.name + '.' + definition.name;
+            actionDefinitions[actionFqName] = definition;
+        });
     };
     
     this.start = function(_config) {
@@ -82,6 +106,20 @@ var Runner = function(app, modules) {
         if(config.logging) {
             logging.setConfig(config.logging);
         }
+
+        _.pairs(config.plugins || {}).forEach(function(pair) {
+            var pluginName = pair[0],
+                pluginConfig = pair[1];
+
+            plugins.some(function(plugin) {
+                if(plugin.name === pluginName) {
+                    if(_.isFunction(plugin.config)) {
+                        plugin.config(pluginConfig);
+                    }
+                    return true; //break
+                }
+            });
+        });
 
         app.initModules.forEach(function(moduleName) {
             getModuleInstance(moduleName).start();
