@@ -558,11 +558,11 @@ $.extend(Document.prototype, Backbone.Events, {
         }
     },
 
-    startTransaction: function() {
+    startTransaction: function(metadata) {
         if(this._currentTransaction) {
             throw new Error('Nested transactions not supported!');
         }
-        this._currentTransaction = new Transaction([]);
+        this._currentTransaction = new Transaction([], metadata);
     },
 
     endTransaction: function() {
@@ -575,9 +575,9 @@ $.extend(Document.prototype, Backbone.Events, {
         this._currentTransaction = null;
     },
 
-    transaction: function(callback, context) {
+    transaction: function(callback, context, metadata) {
         var toret;
-        this.startTransaction();
+        this.startTransaction(metadata);
         toret = callback.call(context);
         this.endTransaction();
         return toret;
@@ -608,8 +608,9 @@ $.extend(Document.prototype, Backbone.Events, {
     }
 });
 
-var Transaction = function(transformations) {
+var Transaction = function(transformations, metadata) {
     this.transformations = transformations || [];
+    this.metadata = metadata;
 };
 $.extend(Transaction.prototype, {
     pushTransformation: function(transformation) {

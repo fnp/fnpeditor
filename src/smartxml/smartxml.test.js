@@ -1632,6 +1632,24 @@ describe('smartxml', function() {
                 expect(doc.root.getAttr('smart')).to.equal('1');
                 expect(doc.root.getAttr('unaware')).to.equal('1');
             });
+
+            it('can have associated metadata', function() {
+                var doc = getDocumentFromXML('<div></div>'),
+                    metadata = Object.create({});
+
+                doc.registerExtension({document: {transformations: {
+                    test: function() {
+                        this.trigger('change');
+                    }
+                }}});
+
+                doc.startTransaction(metadata);
+                doc.test();
+                doc.endTransaction();
+
+                var transaction = doc.undoStack[0];
+                expect(transaction.metadata).to.equal(metadata);
+            });
         });
 
         describe('Regression tests', function() {
