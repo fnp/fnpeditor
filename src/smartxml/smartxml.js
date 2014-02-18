@@ -550,6 +550,7 @@ $.extend(Document.prototype, Backbone.Events, {
 
             this._undoInProgress = false;
             this.redoStack.push(transaction);
+            this.trigger('operationEnd');
         }
     },
     redo: function() {
@@ -561,6 +562,8 @@ $.extend(Document.prototype, Backbone.Events, {
             });
             this._transformationLevel--;
             this.undoStack.push(transaction);
+            this.trigger('operationEnd');
+
         }
     },
 
@@ -578,6 +581,7 @@ $.extend(Document.prototype, Backbone.Events, {
         }
         if(this._currentTransaction.hasTransformations()) {
             this.undoStack.push(this._currentTransaction);
+            this.trigger('operationEnd');
         }
         this._currentTransaction = null;
     },
