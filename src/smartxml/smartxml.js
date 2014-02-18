@@ -79,6 +79,10 @@ $.extend(DocumentNode.prototype, {
         return this.document.root.sameNode(this);
     },
 
+    isInDocument: function() {
+        return this.document.containsNode(this);
+    },
+
     isSiblingOf: function(node) {
         return node && this.parent().sameNode(node.parent());
     },
