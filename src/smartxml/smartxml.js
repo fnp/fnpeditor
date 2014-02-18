@@ -247,6 +247,11 @@ $.extend(TextNode.prototype, {
         return this.nativeNode.data;
     },
 
+
+    containsNode: function() {
+        return false;
+    },
+
     triggerTextChangeEvent: function() {
         var event = new events.ChangeEvent('nodeTextChange', {node: this});
         this.document.trigger('change', event);
