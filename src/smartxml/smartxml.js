@@ -476,6 +476,12 @@ $.extend(Document.prototype, Backbone.Events, {
     transform: function(Transformation, args) {
         var toret, transformation;
 
+        if(!this._currentTransaction) {
+            return this.transaction(function() {
+                return this.transform(Transformation, args);
+            }, this);
+        }
+
         if(typeof Transformation === 'function') {
             transformation = new Transformation(this, this, args);
         } else {
@@ -491,11 +497,7 @@ $.extend(Document.prototype, Backbone.Events, {
                 },
                 function() {
                     if(this._transformationLevel === 1 && !this._undoInProgress) {
-                        if(this._currentTransaction) {
-                            this._currentTransaction.pushTransformation(transformation);
-                        } else {
-                            this.undoStack.push(new Transaction([transformation]));
-                        }
+                        this._currentTransaction.pushTransformation(transformation);
                     }
                     if(!this._undoInProgress && this._transformationLevel === 1) {
                         this.redoStack = [];
