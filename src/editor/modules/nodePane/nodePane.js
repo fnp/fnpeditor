@@ -35,6 +35,9 @@ return function(sandbox) {
                 var module = this;
                 if(!listens) {
                     wlxmlNodeElement.document.on('change', function(event) {
+                        if(currentNode && !currentNode.isInDocument()) {
+                            module.setNodeElement(null);
+                        }
                         if(event.type === 'nodeAttrChange' && event.meta.node.sameNode(currentNode)) {
                             module.setNodeElement(currentNode);
                         }

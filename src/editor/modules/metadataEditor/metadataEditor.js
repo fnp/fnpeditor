@@ -191,7 +191,7 @@ return function(sandbox) {
                 if(event.type === 'metadataRemoved' && event.meta.node.sameNode(currentNode)) {
                     view.removeMetadataRow(event.meta.row);
                 }
-                if(event.type === 'nodeDetached' && event.meta.node.sameNode(currentNode)) {
+                if(event.type === 'nodeDetached' && event.meta.node.containsNode(currentNode)) {
                     view.setMetadata(null);
                 }
             });
