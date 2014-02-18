@@ -273,7 +273,7 @@ var registerMethod = function(methodName, method, target) {
 var Document = function(xml, extensions) {
     this.undoStack = [];
     this.redoStack = [];
-    this._transactionStack = [];
+    this._currentTransaction = null;
     this._transformationLevel = 0;
     
     this._nodeMethods = {};
@@ -491,8 +491,8 @@ $.extend(Document.prototype, Backbone.Events, {
                 },
                 function() {
                     if(this._transformationLevel === 1 && !this._undoInProgress) {
-                        if(this._transactionInProgress) {
-                            this._transactionStack.push(transformation);
+                        if(this._currentTransaction) {
+                            this._currentTransaction.pushTransformation(transformation);
                         } else {
                             this.undoStack.push(new Transaction([transformation]));
                         }
@@ -557,21 +557,20 @@ $.extend(Document.prototype, Backbone.Events, {
     },
 
     startTransaction: function() {
-        if(this._transactionInProgress) {
+        if(this._currentTransaction) {
             throw new Error('Nested transactions not supported!');
         }
-        this._transactionInProgress = true;
+        this._currentTransaction = new Transaction([]);
     },
 
     endTransaction: function() {
-        if(!this._transactionInProgress) {
+        if(!this._currentTransaction) {
             throw new Error('End of transaction requested, but there is no transaction in progress!');
         }
-        this._transactionInProgress = false;
-        if(this._transactionStack.length) {
-            this.undoStack.push(new Transaction(this._transactionStack));
-            this._transactionStack = [];
+        if(this._currentTransaction.hasTransformations()) {
+            this.undoStack.push(this._currentTransaction);
         }
+        this._currentTransaction = null;
     },
 
     transaction: function(callback, context) {
@@ -610,6 +609,14 @@ $.extend(Document.prototype, Backbone.Events, {
 var Transaction = function(transformations) {
     this.transformations = transformations || [];
 };
+$.extend(Transaction.prototype, {
+    pushTransformation: function(transformation) {
+        this.transformations.push(transformation);
+    },
+    hasTransformations: function() {
+        return this.transformations.length > 0;
+    }
+});
 
 
 return {
