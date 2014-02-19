@@ -12,13 +12,20 @@ return function(sandbox) {
     
     var view = $(_.template(templateSrc)({utils: wlxmlUtils})),
         listens = false,
-        currentNode;
+        currentNode,
+        msgs = {
+            Tag: gettext('Tag editing'),
+            Class: gettext('Class editing')
+        };
     
     view.on('change', 'select', function(e) {
         var target = $(e.target);
         var attr = target.attr('class').split('-')[3] === 'tagSelect' ? 'Tag' : 'Class',
-            value = target.val().replace(/-/g, '.');
-        currentNode['set' + attr](value);
+            value = target.val().replace(/-/g, '.'),
+            oldValue = attr === 'Tag' ? currentNode.getTagName() : currentNode.getClass();
+        currentNode.document.transaction(function() {
+            currentNode['set' + attr](value);
+        }, this, msgs[attr] + ': ' + oldValue + ' -> ' + value);
     });
 
 

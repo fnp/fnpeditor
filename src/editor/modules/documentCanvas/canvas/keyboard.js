@@ -4,7 +4,7 @@ define([
 ], function(documentElement, utils) {
     
 'use strict';
-
+/* globals gettext */
 
 var KEYS = {
     ENTER: 13,
@@ -50,7 +50,7 @@ handlers.push({key: KEYS.ENTER,
         if(Object.keys(cursor.getPosition()).length === 0) {
             var currentElement = canvas.getCurrentNodeElement();
             if(currentElement) {
-                canvas.wlxmlDocument.startTransaction();
+                canvas.wlxmlDocument.startTransaction(gettext('Splitting text'));
                 added = currentElement.wlxmlNode.after({
                     tagName: currentElement.getWlxmlTag() || 'div',
                     attrs: {'class': currentElement.getWlxmlClass() || 'p'}
@@ -68,7 +68,7 @@ handlers.push({key: KEYS.ENTER,
                     element = element.parent();
                 }
 
-                canvas.wlxmlDocument.startTransaction();
+                canvas.wlxmlDocument.startTransaction(gettext('Splitting text'));
                 added = element.wlxmlNode.after(
                     {tagName: element.getWlxmlTag() || 'div', attrs: {'class': element.getWlxmlClass() || 'p'}}
                 );
@@ -100,9 +100,13 @@ handlers.push({key: KEYS.ENTER,
                 //     goto = nodes.second;
                 //     gotoOptions = {caretTo: 'start'};
                 // }
+                var node = position.element.wlxmlNode,
+                    result, goto, gotoOptions;
 
-                var result = position.element.wlxmlNode.breakContent({offset: position.offset}),
-                    goto, gotoOptions;
+                node.document.transaction(function() {
+                    result = position.element.wlxmlNode.breakContent({offset: position.offset});
+                }, this, gettext('Splitting text'));
+
                 if(result.emptyText) {
                     goto = result.emptyText;
                     gotoOptions = {};
