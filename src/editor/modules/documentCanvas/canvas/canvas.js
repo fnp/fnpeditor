@@ -91,7 +91,12 @@ $.extend(Canvas.prototype, {
 
         this.wrapper.on('click', '[document-node-element], [document-text-element]', function(e) {
             e.stopPropagation();
-            canvas.setCurrentElement(canvas.getDocumentElement(e.currentTarget), {caretTo: false});
+            if(e.originalEvent.detail === 3) {
+                e.preventDefault();
+                canvas._moveCaretToTextElement(canvas.getDocumentElement(e.currentTarget), 'whole');
+            } else {
+                canvas.setCurrentElement(canvas.getDocumentElement(e.currentTarget), {caretTo: false});
+            }
         });
 
         this.wrapper.on('paste', function(e) {
@@ -289,12 +294,13 @@ $.extend(Canvas.prototype, {
             range.setStart(node, where);
         }
         
-        var collapseArg = true;
-        if(where === 'end') {
-            collapseArg = false;
+        if(where !== 'whole') {
+            var collapseArg = true;
+            if(where === 'end') {
+                collapseArg = false;
+            }
+            range.collapse(collapseArg);
         }
-        range.collapse(collapseArg);
-        
         var selection = document.getSelection();
 
         selection.removeAllRanges();
