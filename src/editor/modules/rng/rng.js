@@ -99,15 +99,23 @@ return function(sandbox) {
                 documentIsDirty = true;
             });
         },
-        savingStarted: function() {
+        savingStarted: function(what) {
+            var msg = {
+                remote: gettext('Saving document'),
+                local: gettext('Saving local copy')
+            };
             sandbox.getModule('mainBar').setCommandEnabled('save', false);
-            sandbox.getModule('indicator').showMessage(gettext('Saving...'));
+            sandbox.getModule('indicator').showMessage(msg[what] + '...');
         },
-        savingEnded: function(status, current_version) {
+        savingEnded: function(status, what, current_version) {
             void(status);
+            var msg = {
+                remote: gettext('Document saved'),
+                local: gettext('Local copy saved')
+            };
             documentIsDirty = false;
             sandbox.getModule('mainBar').setCommandEnabled('save', true);
-            sandbox.getModule('indicator').clearMessage({message:'Dokument zapisany'});
+            sandbox.getModule('indicator').clearMessage({message: msg[what]});
             sandbox.getModule('mainBar').setVersion(current_version);
         },
         restoringStarted: function(event) {

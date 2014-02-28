@@ -7,7 +7,7 @@ define([
 ], function($, Dialog, wlxml, listExtension, logging) {
 
 'use strict';
-/* global gettext, alert */
+/* global gettext, alert, window */
 
 var logger = logging.getLogger('editor.modules.data'),
     stubDocument = '<section><div>' + gettext('This is an empty document.') + '</div></section>';
@@ -18,23 +18,51 @@ return function(sandbox) {
     var document_id = sandbox.getBootstrappedData().document_id;
     var document_version = sandbox.getBootstrappedData().version;
     var history = sandbox.getBootstrappedData().history;
+    var documentDirty = false;
+    var draftDirty = false;
 
-    var wlxmlDocument;
-    try {
-        wlxmlDocument = wlxml.WLXMLDocumentFromXML(sandbox.getBootstrappedData().document);
-    } catch(e) {
-        logger.exception(e);
-        alert(gettext('This document contains errors and can\'t be loaded. :(')); // TODO
-        wlxmlDocument = wlxml.WLXMLDocumentFromXML(stubDocument);
-    }
+    var wlxmlDocument, text;
 
-    wlxmlDocument.registerExtension(listExtension);
-    sandbox.getPlugins().forEach(function(plugin) {
-        if(plugin.documentExtension) {
-            wlxmlDocument.registerExtension(plugin.documentExtension);
+    var loadDocument = function(text) {
+        logger.debug('loading document');
+        try {
+            wlxmlDocument = wlxml.WLXMLDocumentFromXML(text);
+        } catch(e) {
+            logger.exception(e);
+            alert(gettext('This document contains errors and can\'t be loaded. :(')); // TODO
+            wlxmlDocument = wlxml.WLXMLDocumentFromXML(stubDocument);
         }
-    });
-     
+
+        wlxmlDocument.registerExtension(listExtension);
+        sandbox.getPlugins().forEach(function(plugin) {
+            if(plugin.documentExtension) {
+                wlxmlDocument.registerExtension(plugin.documentExtension);
+            }
+        });
+        
+        var modificationFlag = true;
+        wlxmlDocument.on('change', function() {
+            documentDirty = true;
+            draftDirty = true;
+            modificationFlag = true;
+        });
+        if(window.localStorage) {
+            window.setInterval(function() {
+                if(modificationFlag) {
+                    modificationFlag = false;
+                    return;
+                }
+                if(wlxmlDocument && documentDirty && draftDirty) {
+                    logger.debug('Saving draft to local storage.');
+                    sandbox.publish('savingStarted', 'local');
+                    window.localStorage.setItem(getLocalStorageKey(), wlxmlDocument.toXML());
+                    sandbox.publish('savingEnded', 'success', 'local');
+                    draftDirty = false;
+                }
+            }, sandbox.getConfig().autoSaveInterval || 2500);
+        }
+        sandbox.publish('ready');
+    };
     
     function readCookie(name) {
         /* global escape, unescape, document */
@@ -71,10 +99,44 @@ return function(sandbox) {
             },
         });
     };
-    
+
+    var getLocalStorageKey = function() {
+        return 'draft-id:' + document_id + '-ver:' + document_version;
+    };
+
+   
     return {
         start: function() {
-            sandbox.publish('ready');
+
+            if(window.localStorage) {
+                text = window.localStorage.getItem(getLocalStorageKey());
+                if(text) {
+                    logger.debug('Local draft exists');
+                    var dialog = Dialog.create({
+                        title: gettext('Local draft of a document exists'),
+                        text: gettext('Unsaved local draft of this version of the document exists in your browser. Do you want to load it instead?'),
+                        executeButtonText: gettext('Yes, restore local draft'),
+                        cancelButtonText: gettext('No, use version loaded from the server')
+                    });
+                    dialog.on('cancel', function() {
+                        logger.debug('Bootstrapped version chosen');
+                        text = sandbox.getBootstrappedData().document;
+                        
+                    });
+                    dialog.on('execute', function(event) {
+                        logger.debug('Local draft chosen');
+                        event.success();
+                    });
+                    dialog.show();
+                    dialog.on('close', function() {
+                        loadDocument(text);
+                    });
+                } else {
+                    loadDocument(sandbox.getBootstrappedData().document);
+                }
+            } else {
+                loadDocument(sandbox.getBootstrappedData().document);
+            }
         },
         getDocument: function() {
             return wlxmlDocument;
@@ -90,11 +152,11 @@ return function(sandbox) {
                 dialog = Dialog.create({
                     fields: documentSaveForm.fields,
                     title: gettext('Save Document'),
-                    submitButtonText: gettext('Save')
+                    executeButtonText: gettext('Save')
                 });
             
-            dialog.on('save', function(event) {
-                sandbox.publish('savingStarted');
+            dialog.on('execute', function(event) {
+                sandbox.publish('savingStarted', 'remote');
 
                 var formData = event.formData;
                 formData[documentSaveForm.content_field_name] = wlxmlDocument.toXML();
@@ -110,11 +172,11 @@ return function(sandbox) {
                     data: formData,
                     success: function(data) {
                         event.success();
-                        sandbox.publish('savingEnded', 'success', data.version);
+                        sandbox.publish('savingEnded', 'success', 'remote', data.version);
                         document_version = data.version;
                         reloadHistory();
                     },
-                    error: function() {event.error(); sandbox.publish('savingEnded', 'error');}
+                    error: function() {event.error(); sandbox.publish('savingEnded', 'error', 'remote');}
                 });
             });
             dialog.on('cancel', function() {
@@ -146,10 +208,10 @@ return function(sandbox) {
                 dialog = Dialog.create({
                     fields: documentRestoreForm.fields,
                     title: gettext('Restore Version'),
-                    submitButtonText: gettext('Restore')
+                    executeButtonText: gettext('Restore')
                 });
 
-            dialog.on('save', function(event) {
+            dialog.on('execute', function(event) {
                 var formData = event.formData;
                 formData[documentRestoreForm.version_field_name] = version;
                 sandbox.publish('restoringStarted', {version: version});
@@ -165,6 +227,7 @@ return function(sandbox) {
                         document_version = data.version;
                         reloadHistory();
                         wlxmlDocument.loadXML(data.document);
+                        documentDirty = false;
                         sandbox.publish('documentReverted', data.version);
                         event.success();
                     },
