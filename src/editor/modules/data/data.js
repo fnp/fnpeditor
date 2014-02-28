@@ -54,9 +54,9 @@ return function(sandbox) {
                 }
                 if(wlxmlDocument && documentDirty && draftDirty) {
                     logger.debug('Saving draft to local storage.');
-                    sandbox.publish('savingStarted');
+                    sandbox.publish('savingStarted', 'local');
                     window.localStorage.setItem(getLocalStorageKey(), wlxmlDocument.toXML());
-                    sandbox.publish('savingEnded', 'success');
+                    sandbox.publish('savingEnded', 'success', 'local');
                     draftDirty = false;
                 }
             }, sandbox.getConfig().autoSaveInterval || 2500);
@@ -156,7 +156,7 @@ return function(sandbox) {
                 });
             
             dialog.on('execute', function(event) {
-                sandbox.publish('savingStarted');
+                sandbox.publish('savingStarted', 'remote');
 
                 var formData = event.formData;
                 formData[documentSaveForm.content_field_name] = wlxmlDocument.toXML();
@@ -172,11 +172,11 @@ return function(sandbox) {
                     data: formData,
                     success: function(data) {
                         event.success();
-                        sandbox.publish('savingEnded', 'success', data.version);
+                        sandbox.publish('savingEnded', 'success', 'remote', data.version);
                         document_version = data.version;
                         reloadHistory();
                     },
-                    error: function() {event.error(); sandbox.publish('savingEnded', 'error');}
+                    error: function() {event.error(); sandbox.publish('savingEnded', 'error', 'remote');}
                 });
             });
             dialog.on('cancel', function() {
