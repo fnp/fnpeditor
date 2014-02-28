@@ -17,7 +17,7 @@ define(function(require) {
     var DialogView = Backbone.View.extend({
         template: _.template(dialogTemplate),
         events: {
-            'click .save-btn': 'onSave',
+            'click .execute-btn': 'onExecute',
             'click .cancel-btn': 'onCancel',
             'click .close': 'close'
         },
@@ -27,7 +27,7 @@ define(function(require) {
         },
         show: function() {
             this.setElement(this.template(_.extend({
-                submitButtonText: gettext('Submit'),
+                executeButtonText: gettext('Submit'),
                 cancelButtonText: gettext('Cancel')
             }, this.options)));
 
@@ -50,7 +50,7 @@ define(function(require) {
             this.$el.modal('show');
             this.$('textarea').focus();
         },
-        onSave: function(e) {
+        onExecute: function(e) {
             e.preventDefault();
             var view = this,
                 formData = {};
@@ -60,7 +60,7 @@ define(function(require) {
                 formData[field.name] = widget.val();
             });
 
-            this.trigger('save', {
+            this.trigger('execute', {
                 formData: formData,
                 success: function() { view.actionsDisabled = false; view.close(); },
                 error: function() { view.actionsDisabled = false; view.close(); },

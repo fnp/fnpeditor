@@ -115,7 +115,7 @@ return function(sandbox) {
                     var dialog = Dialog.create({
                         title: gettext('Local draft of a document exists'),
                         text: gettext('Unsaved local draft of this version of the document exists in your browser. Do you want to load it instead?'),
-                        submitButtonText: gettext('Yes, restore local draft'),
+                        executeButtonText: gettext('Yes, restore local draft'),
                         cancelButtonText: gettext('No, use version loaded from the server')
                     });
                     dialog.on('cancel', function() {
@@ -123,7 +123,7 @@ return function(sandbox) {
                         text = sandbox.getBootstrappedData().document;
                         
                     });
-                    dialog.on('save', function(event) {
+                    dialog.on('execute', function(event) {
                         logger.debug('Local draft chosen');
                         event.success();
                     });
@@ -152,10 +152,10 @@ return function(sandbox) {
                 dialog = Dialog.create({
                     fields: documentSaveForm.fields,
                     title: gettext('Save Document'),
-                    submitButtonText: gettext('Save')
+                    executeButtonText: gettext('Save')
                 });
             
-            dialog.on('save', function(event) {
+            dialog.on('execute', function(event) {
                 sandbox.publish('savingStarted');
 
                 var formData = event.formData;
@@ -208,10 +208,10 @@ return function(sandbox) {
                 dialog = Dialog.create({
                     fields: documentRestoreForm.fields,
                     title: gettext('Restore Version'),
-                    submitButtonText: gettext('Restore')
+                    executeButtonText: gettext('Restore')
                 });
 
-            dialog.on('save', function(event) {
+            dialog.on('execute', function(event) {
                 var formData = event.formData;
                 formData[documentRestoreForm.version_field_name] = version;
                 sandbox.publish('restoringStarted', {version: version});
