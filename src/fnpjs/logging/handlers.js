@@ -6,9 +6,13 @@ define(function() {
 return {
     console: function(record) {
         /* global console */
-        var method;
+        var level = record.level,
+            method;
         if(console) {
-            method = (typeof console[record.level] === 'function') ? record.level : 'log';
+            if(level === 'warning') {
+                level = 'warn';
+            }
+            method = (typeof console[level] === 'function') ? level : 'log';
             console[method](record.message);
         }
     },
