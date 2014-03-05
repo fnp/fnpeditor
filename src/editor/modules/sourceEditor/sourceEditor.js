@@ -22,9 +22,13 @@ return function(sandbox) {
 
     view.onHide = function() {
         if(documentEditedHere) {
-            documentEditedHere = false;
-            wlxmlDocument.loadXML(editor.getValue());
+            commitDocument();
         }
+    };
+
+    var commitDocument = function() {
+        documentEditedHere = false;
+        wlxmlDocument.loadXML(editor.getValue());
     };
     
     /* globals ace */
@@ -53,6 +57,10 @@ return function(sandbox) {
                 documentIsDirty = true;
             });
         },
+        changesCommited: function() {
+            return !documentEditedHere;
+        },
+        commitChanges: commitDocument,
         getDocument: function() {
             return editor.getValue();
         }

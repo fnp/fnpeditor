@@ -142,6 +142,10 @@ return function(sandbox) {
             views.mainLayout.setView('topPanel', sandbox.getModule('mainBar').getView());
         },
         'cmd.save': function() {
+            var sourceEditor = sandbox.getModule('sourceEditor');
+            if(!sourceEditor.changesCommited()) {
+                sourceEditor.commitChanges();
+            }
             sandbox.getModule('data').saveDocument();
         }
     };
