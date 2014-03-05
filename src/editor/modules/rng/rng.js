@@ -2,17 +2,20 @@ define([
 'libs/underscore',
 'fnpjs/layout',
 'fnpjs/vbox',
+'fnpjs/logging/logging',
 'views/tabs/tabs',
 'libs/text!./mainLayout.html',
 'libs/text!./editingLayout.html',
 'libs/text!./diffLayout.html',
-], function(_, layout, vbox, tabs, mainLayoutTemplate, visualEditingLayoutTemplate, diffLayoutTemplate) {
+], function(_, layout, vbox, logging, tabs, mainLayoutTemplate, visualEditingLayoutTemplate, diffLayoutTemplate) {
 
 'use strict';
 
 return function(sandbox) {
 
     /* globals gettext */
+
+    var logger = logging.getLogger('editor.modules.rng');
     
     function addMainTab(title, slug, view) {
         views.mainTabs.addTab(title, slug, view);
@@ -144,6 +147,7 @@ return function(sandbox) {
         'cmd.save': function() {
             var sourceEditor = sandbox.getModule('sourceEditor');
             if(!sourceEditor.changesCommited()) {
+                logger.debug('Source editor has uncommited changes, commiting...');
                 sourceEditor.commitChanges();
             }
             sandbox.getModule('data').saveDocument();
@@ -280,9 +284,14 @@ return function(sandbox) {
             sandbox.getModule('data').start();
         },
         handleEvent: function(moduleName, eventName, args) {
+            var eventRepr = moduleName + '.' + eventName;
             if(eventHandlers[moduleName] && eventHandlers[moduleName][eventName]) {
+                logger.debug('Handling event ' + eventRepr);
                 eventHandlers[moduleName][eventName].apply(eventHandlers, args);
+            } else {
+                logger.debug('No event handler for ' + eventRepr);
             }
+
         }
     };
 };
