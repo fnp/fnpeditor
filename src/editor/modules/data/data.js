@@ -41,11 +41,14 @@ return function(sandbox) {
         });
         
         var modificationFlag = true;
-        wlxmlDocument.on('change', function() {
+        var handleChange = function() {
             documentDirty = true;
             draftDirty = true;
             modificationFlag = true;
-        });
+        };
+        wlxmlDocument.on('change', handleChange);
+        wlxmlDocument.on('contentSet', handleChange);
+
         if(window.localStorage) {
             window.setInterval(function() {
                 if(modificationFlag) {
