@@ -71,6 +71,11 @@ $.extend(Canvas.prototype, {
         this.reloadRoot();
     },
 
+    createElement: function(wlxmlNode) {
+        var Factory = wlxmlNode.nodeType === Node.TEXT_NODE ? documentElement.DocumentTextElement : documentElement.DocumentNodeElement;
+        return Factory.create(wlxmlNode, this);
+    },
+
     reloadRoot: function() {
         var canvasDOM = this.generateCanvasDOM(this.wlxmlDocument.root);
         //var canvasDOM = this.wlxmlDocument.root.getData('canvasElement') ? this.wlxmlDocument.root.getData('canvasElement').dom() : this.generateCanvasDOM(this.wlxmlDocument.root);

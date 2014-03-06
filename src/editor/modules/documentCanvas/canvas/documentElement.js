@@ -19,15 +19,7 @@ var DocumentElement = function(htmlElement, canvas) {
 };
 
 
-var elementTypeFromWlxmlNode = function(wlxmlNode) {
-    return wlxmlNode.nodeType === Node.TEXT_NODE ? DocumentTextElement : DocumentNodeElement;
-};
-
 $.extend(DocumentElement, {
-    create: function(node, canvas) {
-        return elementTypeFromWlxmlNode(node).create(node, canvas);
-    },
-
     fromHTMLElement: function(htmlElement, canvas) {
         var $element = $(htmlElement);
         if(htmlElement.nodeType === Node.ELEMENT_NODE && $element.attr('document-node-element') !== undefined) {
@@ -167,7 +159,7 @@ $.extend(DocumentNodeElement, {
         element.setWlxml({tag: wlxmlNode.getTagName(), klass: wlxmlNode.getClass()});
 
         wlxmlNode.contents().forEach(function(node) {
-            container.append(DocumentElement.create(node, canvas).dom());
+            container.append(canvas.createElement(node).dom());
         }.bind(this));
 
         return element;
@@ -179,7 +171,7 @@ var manipulate = function(e, params, action) {
     if(params instanceof DocumentElement) {
         element = params;
     } else {
-        element = DocumentElement.create(params);
+        element = e.canvas.createElement(params);
     }
     var target = (action === 'append' || action === 'prepend') ? e._container() : e.dom();
     target[action](element.dom());
@@ -380,7 +372,7 @@ $.extend(DocumentTextElement.prototype, {
         if(params instanceof DocumentNodeElement) {
             element = params;
         } else {
-            element = DocumentElement.create(params, this.canvas);
+            element = this.canvas.createElement(params);
         }
         this.dom().wrap('<div>');
         this.dom().parent().after(element.dom());
@@ -395,7 +387,7 @@ $.extend(DocumentTextElement.prototype, {
         if(params instanceof DocumentNodeElement) {
             element = params;
         } else {
-            element = DocumentNodeElement.create(params, this.canvas);
+            element = this.canvas.createElement(params, this.canvas);
         }
         this.dom().wrap('<div>');
         this.dom().parent().before(element.dom());
