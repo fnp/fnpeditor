@@ -205,9 +205,6 @@ $.extend(DocumentNodeElement.prototype, {
         return this;
     },
     append: function(params) {
-        if(params.tag !== 'span') {
-            this.data('orig-end', undefined);
-        }
         return manipulate(this, params, 'append');
     },
     prepend: function(params) {
