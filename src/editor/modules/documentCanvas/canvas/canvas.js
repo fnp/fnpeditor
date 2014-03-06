@@ -207,10 +207,6 @@ $.extend(Canvas.prototype, {
         element.toggleHighlight(toggle);
     },
 
-    createNodeElement: function(params) {
-        return documentElement.DocumentNodeElement.create(params, this);
-    },
-
     getDocumentElement: function(from) {
         /* globals HTMLElement, Text */
         if(from instanceof HTMLElement || from instanceof Text) {
