@@ -73,7 +73,7 @@ $.extend(Canvas.prototype, {
 
     createElement: function(wlxmlNode) {
         var Factory = wlxmlNode.nodeType === Node.TEXT_NODE ? documentElement.DocumentTextElement : documentElement.DocumentNodeElement;
-        return Factory.create(wlxmlNode, this);
+        return new Factory(wlxmlNode, this);
     },
 
     getDocumentElement: function(htmlElement) {
@@ -83,11 +83,16 @@ $.extend(Canvas.prototype, {
         }
         var $element = $(htmlElement);
         if(htmlElement.nodeType === Node.ELEMENT_NODE && $element.attr('document-node-element') !== undefined) {
-            return new documentElement.DocumentNodeElement(htmlElement, this);
+            return $element.data('canvas-element');
         }
+
+        if(htmlElement.nodeType === Node.TEXT_NODE && $element.parent().attr('document-text-element') !== undefined) {
+            $element = $element.parent();
+        }
+
         if($element.attr('document-text-element') !== undefined || (htmlElement.nodeType === Node.TEXT_NODE && $element.parent().attr('document-text-element') !== undefined)) {
             //return DocumentTextElement.fromHTMLElement(htmlElement, canvas);
-            return new documentElement.DocumentTextElement(htmlElement, this);
+            return $element.data('canvas-element');
         }
     },
 
@@ -101,8 +106,9 @@ $.extend(Canvas.prototype, {
     },
 
     generateCanvasDOM: function(wlxmlNode) {
-        var element = documentElement.DocumentNodeElement.create(wlxmlNode, this);
-        return element.dom();
+        //var element = new documentElement.DocumentNodeElement(wlxmlNode, this);
+        //return element.dom();
+        return this.createElement(wlxmlNode).dom();
     },
 
     setupEventHandling: function() {

@@ -10,17 +10,18 @@ define([
 
 
 // DocumentElement represents a text or an element node from WLXML document rendered inside Canvas
-var DocumentElement = function(htmlElement, canvas) {
+var DocumentElement = function(wlxmlNode, canvas) {
     if(arguments.length === 0) {
         return;
     }
+    this.wlxmlNode = wlxmlNode;
     this.canvas = canvas;
-    this._setupDOMHandler(htmlElement);
 };
 
 $.extend(DocumentElement.prototype, {
     _setupDOMHandler: function(htmlElement) {
         this.$element = $(htmlElement);
+        this.$element.data('canvas-element', this);
     },
     bound: function() {
         return $.contains(document.documentElement, this.dom()[0]);
@@ -115,38 +116,33 @@ $.extend(DocumentElement.prototype, {
 
 
 // DocumentNodeElement represents an element node from WLXML document rendered inside Canvas
-var DocumentNodeElement = function(htmlElement, canvas) {
-    DocumentElement.call(this, htmlElement, canvas);
+var DocumentNodeElement = function(wlxmlNode, canvas) {
+    DocumentElement.call(this, wlxmlNode, canvas);
+
+    var dom = $('<div>')
+            .attr('document-node-element', ''),
+        widgetsContainer = $('<div>')
+            .addClass('canvas-widgets')
+            .attr('contenteditable', false),
+        container = $('<div>')
+            .attr('document-element-content', '');
+    
+    dom.append(widgetsContainer, container);
+    // Make sure widgets aren't navigable with arrow keys
+    widgetsContainer.find('*').add(widgetsContainer).attr('tabindex', -1);
+    this._setupDOMHandler(dom);
+    
+
+    this.data('wlxmlNode', wlxmlNode);
+    wlxmlNode.setData('canvasElement', this);
+
+    this.setWlxml({tag: wlxmlNode.getTagName(), klass: wlxmlNode.getClass()});
+
+    wlxmlNode.contents().forEach(function(node) {
+        container.append(canvas.createElement(node).dom());
+    }.bind(this));
 };
 
-$.extend(DocumentNodeElement, {
-    create: function(wlxmlNode, canvas) {
-        var dom = $('<div>')
-                .attr('document-node-element', ''),
-            widgetsContainer = $('<div>')
-                .addClass('canvas-widgets')
-                .attr('contenteditable', false),
-            container = $('<div>')
-                .attr('document-element-content', '');
-        
-        dom.append(widgetsContainer, container);
-        // Make sure widgets aren't navigable with arrow keys
-        widgetsContainer.find('*').add(widgetsContainer).attr('tabindex', -1);
-
-        var element = canvas.getDocumentElement(dom[0]);
-
-        element.data('wlxmlNode', wlxmlNode);
-        wlxmlNode.setData('canvasElement', element);
-
-        element.setWlxml({tag: wlxmlNode.getTagName(), klass: wlxmlNode.getClass()});
-
-        wlxmlNode.contents().forEach(function(node) {
-            container.append(canvas.createElement(node).dom());
-        }.bind(this));
-
-        return element;
-    }
-});
 
 var manipulate = function(e, params, action) {
     var element;
@@ -291,20 +287,16 @@ $.extend(DocumentNodeElement.prototype, {
 
 
 // DocumentNodeElement represents a text node from WLXML document rendered inside Canvas
-var DocumentTextElement = function(htmlElement, canvas) {
-    DocumentElement.call(this, htmlElement, canvas);
+var DocumentTextElement = function(wlxmlTextNode, canvas) {
+    DocumentElement.call(this, wlxmlTextNode, canvas);
+    var dom = $('<div>')
+        .attr('document-text-element', '')
+        .text(wlxmlTextNode.getText() || utils.unicode.ZWS);
+    this._setupDOMHandler(dom);
+    this.data('wlxmlNode', wlxmlTextNode);
 };
 
 $.extend(DocumentTextElement, {
-    create: function(wlxmlTextNode, canvas) {
-        var dom = $('<div>')
-            .attr('document-text-element', '')
-            .text(wlxmlTextNode.getText() || utils.unicode.ZWS),
-        element = canvas.getDocumentElement(dom[0]);
-        element.data('wlxmlNode', wlxmlTextNode);
-        return element;
-    },
-
     isContentContainer: function(htmlElement) {
         return htmlElement.nodeType === Node.TEXT_NODE && $(htmlElement).parent().is('[document-text-element]');
     }
@@ -313,15 +305,6 @@ $.extend(DocumentTextElement, {
 DocumentTextElement.prototype = new DocumentElement();
 
 $.extend(DocumentTextElement.prototype, {
-    _setupDOMHandler: function(htmlElement) {
-        var $element = $(htmlElement);
-        if(htmlElement.nodeType === Node.TEXT_NODE) {
-            this.$element = $element.parent();
-        }
-        else {
-            this.$element = $element;
-        }
-    },
     detach: function() {
         this.dom().detach();
         this.canvas = null;
