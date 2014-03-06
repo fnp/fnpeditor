@@ -76,6 +76,21 @@ $.extend(Canvas.prototype, {
         return Factory.create(wlxmlNode, this);
     },
 
+    getDocumentElement: function(htmlElement) {
+        /* globals HTMLElement, Text */
+        if(!htmlElement || !(htmlElement instanceof HTMLElement || htmlElement instanceof Text)) {
+            return null;
+        }
+        var $element = $(htmlElement);
+        if(htmlElement.nodeType === Node.ELEMENT_NODE && $element.attr('document-node-element') !== undefined) {
+            return new documentElement.DocumentNodeElement(htmlElement, this);
+        }
+        if($element.attr('document-text-element') !== undefined || (htmlElement.nodeType === Node.TEXT_NODE && $element.parent().attr('document-text-element') !== undefined)) {
+            //return DocumentTextElement.fromHTMLElement(htmlElement, canvas);
+            return new documentElement.DocumentTextElement(htmlElement, this);
+        }
+    },
+
     reloadRoot: function() {
         var canvasDOM = this.generateCanvasDOM(this.wlxmlDocument.root);
         //var canvasDOM = this.wlxmlDocument.root.getData('canvasElement') ? this.wlxmlDocument.root.getData('canvasElement').dom() : this.generateCanvasDOM(this.wlxmlDocument.root);
@@ -204,7 +219,7 @@ $.extend(Canvas.prototype, {
         if(this.d === null) {
             return null;
         }
-        return documentElement.DocumentNodeElement.fromHTMLElement(this.d.get(0), this); //{wlxmlTag: this.d.prop('tagName')};
+        return this.getDocumentElement(this.d[0]);
     },
 
     toggleElementHighlight: function(node, toggle) {
@@ -212,23 +227,23 @@ $.extend(Canvas.prototype, {
         element.toggleHighlight(toggle);
     },
 
-    getDocumentElement: function(from) {
-        /* globals HTMLElement, Text */
-        if(from instanceof HTMLElement || from instanceof Text) {
-           return documentElement.DocumentElement.fromHTMLElement(from, this);
-        }
-    },
     getCursor: function() {
         return new Cursor(this);
     },
 
     
     getCurrentNodeElement: function() {
-        return this.getDocumentElement(this.wrapper.find('.current-node-element').parent()[0]);
+        var htmlElement = this.wrapper.find('.current-node-element').parent()[0];
+        if(htmlElement) {
+            return this.getDocumentElement(htmlElement);
+        }
     },
 
     getCurrentTextElement: function() {
-        return this.getDocumentElement(this.wrapper.find('.current-text-element')[0]);
+        var htmlElement = this.wrapper.find('.current-text-element')[0];
+        if(htmlElement) {
+            return this.getDocumentElement(htmlElement);
+        }
     },
 
     contains: function(element) {
