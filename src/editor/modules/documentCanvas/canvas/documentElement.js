@@ -142,15 +142,11 @@ var DocumentNodeElement = function(htmlElement, canvas) {
 };
 
 $.extend(DocumentNodeElement, {
-    create: function(wlxmlNode, canvas) {
-        return this.fromHTMLElement(this.createDOM(wlxmlNode, canvas)[0], canvas);
-    },
-
     fromHTMLElement: function(htmlElement, canvas) {
         return new this(htmlElement, canvas);
     },
 
-    createDOM: function(wlxmlNode, canvas) {
+    create: function(wlxmlNode, canvas) {
         var dom = $('<div>')
                 .attr('document-node-element', ''),
             widgetsContainer = $('<div>')
@@ -174,9 +170,8 @@ $.extend(DocumentNodeElement, {
             container.append(DocumentElement.create(node, canvas).dom());
         }.bind(this));
 
-        return dom;
+        return element;
     }
-
 });
 
 var manipulate = function(e, params, action) {
@@ -327,22 +322,19 @@ var DocumentTextElement = function(htmlElement, canvas) {
 };
 
 $.extend(DocumentTextElement, {
-    createDOM: function(wlxmlTextNode, canvas) {
+    create: function(wlxmlTextNode, canvas) {
         var dom = $('<div>')
             .attr('document-text-element', '')
             .text(wlxmlTextNode.getText() || utils.unicode.ZWS),
         element = this.fromHTMLElement(dom[0], canvas);
         element.data('wlxmlNode', wlxmlTextNode);
-        return dom;
-    },
-
-    create: function(wlxmlTextNode, canvas) {
-        return this.fromHTMLElement(this.createDOM(wlxmlTextNode, canvas)[0], canvas);
+        return element;
     },
 
     fromHTMLElement: function(htmlElement, canvas) {
         return new this(htmlElement, canvas);
     },
+
     isContentContainer: function(htmlElement) {
         return htmlElement.nodeType === Node.TEXT_NODE && $(htmlElement).parent().is('[document-text-element]');
     }
