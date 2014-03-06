@@ -28,14 +28,6 @@ $.extend(DocumentElement.prototype, {
     dom: function() {
         return this.$element;
     },
-    data: function() {
-        var dom = this.dom(),
-            args = Array.prototype.slice.call(arguments, 0);
-        if(args.length === 2 && args[1] === undefined) {
-            return dom.removeData(args[0]);
-        }
-        return dom.data.apply(dom, arguments);
-    },
     parent: function() {
         var parents = this.$element.parents('[document-node-element]');
         if(parents.length) {
@@ -106,9 +98,8 @@ $.extend(DocumentElement.prototype, {
     },
 
     exec: function(method) {
-        var manager = this.data('_wlxmlManager');
-        if(manager[method]) {
-            return manager[method].apply(manager, Array.prototype.slice.call(arguments, 1));
+        if(this.manager && this.manager[method]) {
+            return this.manager[method].apply(this.manager, Array.prototype.slice.call(arguments, 1));
         }
     }
 });
@@ -253,9 +244,8 @@ $.extend(DocumentNodeElement.prototype, {
         this.__updatingWlxml = false;
     },
     _updateWlxmlManager: function() {
-        var manager = wlxmlManagers.getFor(this);
-        this.data('_wlxmlManager', manager);
-        manager.setup();
+        this.manager = wlxmlManagers.getFor(this);
+        this.manager.setup();
     },
     is: function(what) {
         if(what === 'list' && _.contains(['list.items', 'list.items.enum'], this.getWlxmlClass())) {
@@ -275,9 +265,8 @@ $.extend(DocumentNodeElement.prototype, {
     },
 
     toggle: function(toggle) {
-        var mng = this.data('_wlxmlManager');
-        if(mng) {
-            mng.toggle(toggle);
+        if(this.manager) {
+            this.manager.toggle(toggle);
         }
     }
 });
