@@ -41,8 +41,7 @@ var DocumentElementWrapper = function(documentElement) {
         eventBus.trigger.apply(eventBus, arguments);
     };
 
-    this.node = documentElement.data('wlxmlNode');
-
+    this.node = documentElement.wlxmlNode;
 };
 
 var getDisplayStyle = function(tag, klass) {

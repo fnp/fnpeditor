@@ -33,6 +33,7 @@ describe('new Canvas', function() {
 
         expect(c.doc().children()).to.have.length(3);
         expect(c.doc().children()[0].canvas).to.equal(c);
+        expect(c.doc().children()[0].data('wlxmlNode').sameNode(doc.root));
     });
 });
 
