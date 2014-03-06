@@ -403,27 +403,6 @@ $.extend(DocumentTextElement.prototype, {
         return element;
     },
 
-    divide: function(params) {
-        var myText = this.getText();
-
-        if(params.offset === myText.length) {
-            return this.after(params);
-        }
-        if(params.offset === 0) {
-            return this.before(params);
-        }
-
-        var lhsText = myText.substr(0, params.offset),
-            rhsText = myText.substr(params.offset),
-            newElement = DocumentNodeElement.create({tag: params.tag, klass: params.klass}, this.canvas),
-            rhsTextElement = DocumentTextElement.create({text: rhsText});
-
-        this.setText(lhsText);
-        this.after(newElement);
-        newElement.after(rhsTextElement);
-        return newElement;
-    },
-
     toggleHighlight: function() {
         // do nothing for now
     }
