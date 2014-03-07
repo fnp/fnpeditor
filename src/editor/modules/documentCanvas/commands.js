@@ -1,7 +1,6 @@
 define([
-'modules/documentCanvas/canvas/documentElement',
 './canvas/utils'
-], function(documentElement, utils) {
+], function(utils) {
     
 'use strict';
 

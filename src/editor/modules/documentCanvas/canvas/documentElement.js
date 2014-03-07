@@ -2,9 +2,8 @@ define([
 'libs/jquery',
 'libs/underscore',
 'modules/documentCanvas/canvas/utils',
-'modules/documentCanvas/canvas/widgets',
 'modules/documentCanvas/canvas/wlxmlManagers'
-], function($, _, utils, widgets, wlxmlManagers) {
+], function($, _, utils, wlxmlManagers) {
     
 'use strict';
 /* global Node:false, document:false */

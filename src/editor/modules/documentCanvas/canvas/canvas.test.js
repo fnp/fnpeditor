@@ -3,10 +3,9 @@ define([
 'libs/chai',
 'libs/sinon',
 'modules/documentCanvas/canvas/canvas',
-'modules/documentCanvas/canvas/documentElement',
 'modules/documentCanvas/canvas/utils',
 'wlxml/wlxml'
-], function($, chai, sinon, canvas, documentElement, utils, wlxml) {
+], function($, chai, sinon, canvas, utils, wlxml) {
     
 'use strict';
 /* global describe, it, beforeEach, afterEach */

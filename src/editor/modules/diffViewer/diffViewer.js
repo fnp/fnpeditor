@@ -1,9 +1,8 @@
 define([
 'libs/jquery',
-'libs/underscore',
 'views/tabs/tabs',
 'libs/text!./diff.html'
-], function($, _, tabs, diffTemplateSrc) {
+], function($, tabs, diffTemplateSrc) {
 
 'use strict';
 

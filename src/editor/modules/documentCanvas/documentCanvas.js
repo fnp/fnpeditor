@@ -2,10 +2,9 @@
 
 define([
 'libs/jquery',
-'libs/underscore',
 './canvas/canvas',
 './commands',
-'libs/text!./template.html'], function($, _, canvas3, commands, template) {
+'libs/text!./template.html'], function($, canvas3, commands, template) {
 
 'use strict';
 
