@@ -1,8 +1,7 @@
 define([
-    'libs/jquery',
     'libs/chai',
     './wlxml.js'
-], function($, chai, wlxml) {
+], function(chai, wlxml) {
     
 'use strict';
 
