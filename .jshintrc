@@ -18,7 +18,7 @@
     "plusplus"      : false,
     "quotmark"      : true,
     "undef"         : true,
-    "unused"        : true,
+    "unused"        : "strict",
     "strict"        : true,
     "trailing"      : true,
     "maxparams"     : false,
