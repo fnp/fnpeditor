@@ -297,8 +297,9 @@ $.extend(WLXMLDocument.prototype, {
 
     registerClassTransformation: function(Transformation, className) {
         var thisClassTransformations = (this.classTransformations[className] = this.classTransformations[className] || {});
-        thisClassTransformations[Transformation.prototype.name] = function(args) {
+        thisClassTransformations[Transformation.prototype.name] = function() {
             var nodeInstance = this;
+            var args = Array.prototype.slice.call(arguments, 0);
             return nodeInstance.transform(Transformation, args);
         };
     },
