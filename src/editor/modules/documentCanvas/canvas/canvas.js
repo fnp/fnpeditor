@@ -89,13 +89,20 @@ $.extend(Canvas.prototype, {
             keyboard.handleKey(e, this);
         }.bind(this));
 
+        var mouseDown;
+        this.wrapper.on('mousedown', '[document-node-element], [document-text-element]', function(e) {
+            mouseDown = e.target;
+        });
+
         this.wrapper.on('click', '[document-node-element], [document-text-element]', function(e) {
             e.stopPropagation();
             if(e.originalEvent.detail === 3) {
                 e.preventDefault();
                 canvas._moveCaretToTextElement(canvas.getDocumentElement(e.currentTarget), 'whole');
             } else {
-                canvas.setCurrentElement(canvas.getDocumentElement(e.currentTarget), {caretTo: false});
+                if(mouseDown === e.target) {
+                    canvas.setCurrentElement(canvas.getDocumentElement(e.currentTarget), {caretTo: false});
+                }
             }
         });
 
