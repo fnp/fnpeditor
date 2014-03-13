@@ -220,6 +220,7 @@ describe('smartxml', function() {
                     expect(node.contents()).to.have.length(1);
                 });
             });
+        });
 
         describe('Setting node attributes', function() {
             it('can set node attribute', function() {
@@ -241,8 +242,6 @@ describe('smartxml', function() {
                 expect(event.meta.attr).to.equal('key');
                 expect(event.meta.oldVal).to.equal('value1');
             });
-        });
-
         });
     });
 
