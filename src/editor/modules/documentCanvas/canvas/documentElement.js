@@ -19,6 +19,15 @@ var DocumentElement = function(wlxmlNode, canvas) {
 };
 
 $.extend(DocumentElement.prototype, {
+    refreshPath: function() {
+        this.parents().forEach(function(parent) {
+            parent.refresh();
+        });
+        this.refresh();
+    },
+    refresh: function() {
+        // noop
+    },
     bound: function() {
         return $.contains(document.documentElement, this.dom()[0]);
     },
@@ -101,6 +110,7 @@ var manipulate = function(e, params, action) {
     }
     var target = (action === 'append' || action === 'prepend') ? e._container() : e.dom();
     target[action](element.dom());
+    e.refreshPath();
     return element;
 };
 
@@ -108,6 +118,9 @@ DocumentNodeElement.prototype = Object.create(DocumentElement.prototype);
 
 
 $.extend(DocumentNodeElement.prototype, {
+    init: function() {
+        // noo[]
+    },
     createDOM: function() {
         var dom = $('<div>')
                 .attr('document-node-element', ''),
@@ -128,15 +141,22 @@ $.extend(DocumentNodeElement.prototype, {
         this.wlxmlNode.contents().forEach(function(node) {
             container.append(this.canvas.createElement(node).dom());
         }.bind(this));
+
+        this.init();
+
         return dom;
     },
     _container: function() {
         return this.dom().children('[document-element-content]');
     },
     detach: function() {
+        var parents = this.parents();
         this.dom().detach();
         this.canvas = null;
-        return this;
+        if(parents[0]) {
+            parents[0].refreshPath();
+        }
+         return this;
     },
     append: function(params) {
         return manipulate(this, params, 'append');
@@ -205,6 +225,8 @@ $.extend(DocumentNodeElement.prototype, {
         }
         this.manager = wlxmlManagers.getFor(this);
         this.manager.setup();
+
+        this.refreshPath();
     },
     toggleLabel: function(toggle) {
         var displayCss = toggle ? 'inline-block' : 'none';
@@ -221,6 +243,33 @@ $.extend(DocumentNodeElement.prototype, {
         if(this.manager) {
             this.manager.toggle(toggle);
         }
+    },
+
+    isBlock: function() {
+        return this.dom().css('display') === 'block';
+    },
+
+    containsBlock: function() {
+        return this.children()
+            .filter(function(child) {
+                return child instanceof DocumentNodeElement;
+            })
+            .some(function(child) {
+                if(child.isBlock()) {
+                    return true;
+                } else {
+                    return child.containsBlock();
+                }
+            });
+    },
+
+    displayAsBlock: function() {
+        this.dom().css('display', 'block');
+        this._container().css('display', 'block');
+    },
+    displayInline: function() {
+        this.dom().css('display', 'inline');
+        this._container().css('display', 'inline');
     }
 });
 
@@ -277,6 +326,7 @@ $.extend(DocumentTextElement.prototype, {
         this.dom().wrap('<div>');
         this.dom().parent().after(element.dom());
         this.dom().unwrap();
+        this.refreshPath();
         return element;
     },
     before: function(params) {
@@ -292,18 +342,44 @@ $.extend(DocumentTextElement.prototype, {
         this.dom().wrap('<div>');
         this.dom().parent().before(element.dom());
         this.dom().unwrap();
+        this.refreshPath();
         return element;
     },
 
     toggleHighlight: function() {
         // do nothing for now
     }
+
 });
+
+var SpanElement = function() {
+    DocumentNodeElement.apply(this, Array.prototype.slice.call(arguments, 0));
+};
+SpanElement.prototype = $.extend(Object.create(DocumentNodeElement.prototype), {
+    init: function() {
+        if(this.containsBlock()) {
+            this.displayAsBlock();
+        } else {
+            this.displayInline();
+        }
+    },
+    refresh: function() {
+        this.init();
+    }
+});
+
+var elements = {
+    span: SpanElement
+};
+
 
 return {
     DocumentElement: DocumentElement,
     DocumentNodeElement: DocumentNodeElement,
-    DocumentTextElement: DocumentTextElement
+    DocumentTextElement: DocumentTextElement, //,
+    factoryForTag: function(tagName) {
+        return elements[tagName] || DocumentNodeElement;
+    }
 };
 
 });

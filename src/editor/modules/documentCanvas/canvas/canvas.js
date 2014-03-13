@@ -77,7 +77,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
     },
 
     createElement: function(wlxmlNode) {
-        var Factory = wlxmlNode.nodeType === Node.TEXT_NODE ? documentElement.DocumentTextElement : documentElement.DocumentNodeElement;
+        var Factory = wlxmlNode.nodeType === Node.TEXT_NODE ?  documentElement.DocumentTextElement : documentElement.factoryForTag(wlxmlNode.getTagName());
         return new Factory(wlxmlNode, this);
     },
 

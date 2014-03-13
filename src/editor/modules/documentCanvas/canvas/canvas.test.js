@@ -128,6 +128,45 @@ describe('Listening to document changes', function() {
     });
 });
 
+describe('Displaying span nodes', function() {
+    it('inlines a span element with a text', function() {
+        var c = getCanvasFromXML('<section><span>Alice</span></section>'),
+            spanElement = c.doc().children()[0];
+        expect(spanElement.isBlock()).to.equal(false);
+    });
+    it('renders non-span element as a block', function() {
+        var c = getCanvasFromXML('<section><span></span></section>'),
+            element = c.doc().children()[0],
+            node = element.wlxmlNode;
+
+        expect(element.isBlock()).to.equal(false, 'initially inline');
+        node = node.setTag('div');
+        expect(node.getData('canvasElement').isBlock()).to.equal(true, 'block');
+    });
+
+    it('inlines a span element if its block content gets removed', function() {
+        var c = getCanvasFromXML('<section><span>Alice <div>has</div> a cat!</span></section>'),
+            spanElement = c.doc().children()[0],
+            divNode = spanElement.wlxmlNode.contents()[1];
+
+        expect(spanElement.isBlock()).to.equal(true, 'initially a block');
+        divNode.detach();
+        expect(spanElement.isBlock()).to.equal(false, 'inlined after removing inner block');
+        
+        spanElement.wlxmlNode.append({tagName: 'div'});
+
+        expect(spanElement.isBlock()).to.equal(true, 'block again after bringing back inner block');
+    });
+
+    it('keeps showing element as a block after changing its node tag to span if it contains elements of non-span nodes', function() {
+        var c = getCanvasFromXML('<section><div><div></div></div></section>'),
+            outerDivElement = c.doc().children()[0],
+            outerDivNode = outerDivElement.wlxmlNode;
+        outerDivNode = outerDivNode.setTag('span');
+        expect(c.doc().children()[0].isBlock()).to.equal(true);
+    });
+});
+
 describe('Cursor', function() {
     /* globals Node */
     var getSelection;
