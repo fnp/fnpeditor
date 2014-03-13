@@ -141,7 +141,9 @@ $.extend(DocumentNodeElement.prototype, {
         // Make sure widgets aren't navigable with arrow keys
         widgetsContainer.find('*').add(widgetsContainer).attr('tabindex', -1);
         this.$element = dom; //@!!!
-        this.setWlxml({tag: this.wlxmlNode.getTagName(), klass: this.wlxmlNode.getClass()});
+
+        this.setWlxmlTag(this.wlxmlNode.getTagName());
+        this.setWlxmlClass(this.wlxmlNode.getClass());
 
         this.wlxmlNode.contents().forEach(function(node) {
             container.append(this.canvas.createElement(node).dom());
@@ -202,14 +204,7 @@ $.extend(DocumentNodeElement.prototype, {
         return this._container().attr('wlxml-tag');
     },
     setWlxmlTag: function(tag) {
-        if(tag === this.getWlxmlTag()) {
-            return;
-        }
-
         this._container().attr('wlxml-tag', tag);
-        if(!this.__updatingWlxml) {
-            this._updateWlxmlManager();
-        }
     },
     getWlxmlClass: function() {
         var klass = this._container().attr('wlxml-class');
@@ -228,22 +223,6 @@ $.extend(DocumentNodeElement.prototype, {
         else {
             this._container().removeAttr('wlxml-class');
         }
-        if(!this.__updatingWlxml) {
-            this._updateWlxmlManager();
-        }
-    },
-    setWlxml: function(params) {
-        this.__updatingWlxml = true;
-        if(params.tag !== undefined) {
-            this.setWlxmlTag(params.tag);
-        }
-        if(params.klass !== undefined) {
-            this.setWlxmlClass(params.klass);
-        }
-        this._updateWlxmlManager();
-        this.__updatingWlxml = false;
-    },
-    _updateWlxmlManager: function() {
         this.manager = wlxmlManagers.getFor(this);
         this.manager.setup();
     },

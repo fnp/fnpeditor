@@ -42,11 +42,6 @@ var handlers = {
             canvasNode.setWlxmlClass(event.meta.newVal);
         }
     },
-    nodeTagChange: function(event) {
-        var canvasNode = utils.findCanvasElement(event.meta.node);
-        canvasNode.setWlxmlTag(event.meta.newTagName);
-        canvasNode.wlxmlNode = event.meta.node;
-    },
     nodeAdded: function(event, checkForExistence) {
         if(event.meta.node.isRoot()) {
             this.canvas.reloadRoot();
