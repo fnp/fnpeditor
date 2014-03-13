@@ -115,26 +115,21 @@ var elementNodeTransformations = {
     },
 
     setTag: function(tagName) {
-        var node = this.document.createDocumentNode({tagName: tagName}),
-            oldTagName = this.getTagName(),
-            myContents = this._$.contents();
+        var node = this.document.createDocumentNode({tagName: tagName});
 
         this.getAttrs().forEach(function(attribute) {
-            node.setAttr(attribute.name, attribute.value, true);
+            node.setAttr(attribute.name, attribute.value);
         });
+
+        this.contents().forEach(function(child) {
+            node.append(child);
+        });
+
         node.setData(this.getData());
 
-        if(this.sameNode(this.document.root)) {
-            this.document._defineDocumentProperties(node._$);
-        }
-
-        /* TODO: This invalidates old references to this node. Caching instances on nodes would fix this. */
-        this._$.replaceWith(node._$);
-        this._setNativeNode(node._$[0]);
-        this._$.append(myContents);
-        this.triggerChangeEvent('nodeTagChange', {oldTagName: oldTagName, newTagName: this.getTagName()});
+        this.replaceWith(node);
+        return node;
     },
-
 
     setAttr: function(name, value, silent) {
         var oldVal = this.getAttr(name);

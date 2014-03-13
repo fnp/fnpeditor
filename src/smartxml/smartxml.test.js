@@ -169,40 +169,16 @@ describe('smartxml', function() {
 
             it('can change tag name', function() {
                 var node = elementNodeFromXML('<div></div>');
-                node.setTag('span');
+                node = node.setTag('span');
                 expect(node.getTagName()).to.equal('span');
             });
 
-            it('emits nodeTagChange event', function() {
-                var node = elementNodeFromXML('<div></div>'),
-                    spy = sinon.spy();
-
-                node.document.on('change', spy);
-                node.setTag('span');
-                var event = spy.args[0][0];
-
-                expect(event.type).to.equal('nodeTagChange');
-                expect(event.meta.node.sameNode(node)).to.be.true;
-                expect(event.meta.oldTagName).to.equal('div');
-            });
-
             describe('Implementation specific expectations', function() {
-                // DOM specifies ElementNode tag as a read-only property, so
-                // changing it in a seamless way is a little bit tricky. For this reason
-                // the folowing expectations are required, despite the fact that they actually are
-                // motivated by implemetation details.
-
-                it('keeps node in the document', function() {
-                    var doc = getDocumentFromXML('<div><header></header></div>'),
-                        header = doc.root.contents()[0];
-                    header.setTag('span');
-                    expect(header.parent().sameNode(doc.root)).to.be.true;
-                });
                 it('keeps custom data', function() {
                     var node = elementNodeFromXML('<div></div>');
 
                     node.setData('key', 'value');
-                    node.setTag('header');
+                    node = node.setTag('header');
                     
                     expect(node.getTagName()).to.equal('header');
                     expect(node.getData()).to.eql({key: 'value'});
@@ -214,9 +190,9 @@ describe('smartxml', function() {
                     expect(doc.root.getTagName()).to.equal('span');
                 });
 
-                it('keeps contents', function() {
+                it('keeps node contents', function() {
                     var node = elementNodeFromXML('<div><div></div></div>');
-                    node.setTag('header');
+                    node = node.setTag('header');
                     expect(node.contents()).to.have.length(1);
                 });
             });
