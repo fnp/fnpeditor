@@ -97,18 +97,9 @@ $.extend(Canvas.prototype, {
     },
 
     reloadRoot: function() {
-        var canvasDOM = this.generateCanvasDOM(this.wlxmlDocument.root);
-        //var canvasDOM = this.wlxmlDocument.root.getData('canvasElement') ? this.wlxmlDocument.root.getData('canvasElement').dom() : this.generateCanvasDOM(this.wlxmlDocument.root);
-
+        this.rootElement = this.createElement(this.wlxmlDocument.root);
         this.wrapper.empty();
-        this.wrapper.append(canvasDOM);
-        this.d = this.wrapper.children(0);
-    },
-
-    generateCanvasDOM: function(wlxmlNode) {
-        //var element = new documentElement.DocumentNodeElement(wlxmlNode, this);
-        //return element.dom();
-        return this.createElement(wlxmlNode).dom();
+        this.wrapper.append(this.rootElement.dom());
     },
 
     setupEventHandling: function() {
@@ -222,10 +213,7 @@ $.extend(Canvas.prototype, {
     },
 
     doc: function() {
-        if(this.d === null) {
-            return null;
-        }
-        return this.getDocumentElement(this.d[0]);
+        return this.rootElement;
     },
 
     toggleElementHighlight: function(node, toggle) {
