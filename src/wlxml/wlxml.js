@@ -72,6 +72,9 @@ $.extend(WLXMLElementNode.prototype, WLXMLDocumentNodeMethods, smartxml.ElementN
     getClass: function() {
         return this.getAttr('class') || '';
     },
+    getClassHierarchy: function() {
+        return getClassLists(this.getClass());
+    },
     setClass: function(klass) {
         if(klass !== this.klass) {
             installObject(this, klass);
@@ -384,7 +387,8 @@ return {
         return this.WLXMLDocumentFromXML(xml).root;
     },
 
-    WLXMLDocument: WLXMLDocument
+    WLXMLDocument: WLXMLDocument,
+    getClassHierarchy: getClassLists
 };
 
 });
