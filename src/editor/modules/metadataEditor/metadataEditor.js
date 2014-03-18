@@ -2,15 +2,19 @@ define([
 'libs/jquery',
 'libs/underscore',
 'libs/text!./templates/main.html',
-'libs/text!./templates/item.html'
-], function($, _, mainTemplate, itemTemplate) {
+'libs/text!./templates/item.html',
+'views/openSelect/openSelect'
+], function($, _, mainTemplate, itemTemplate, OpenSelectView) {
 
 'use strict';
 
 return function(sandbox) {
 
     var currentNode,
-        adding = false;
+        adding = false,
+        metadataKeys = (sandbox.getConfig().metadataKeys || [
+            'author', 'creator', 'date'
+        ]).sort();
     
     var view = {
         node: $(_.template(mainTemplate)()),
@@ -71,6 +75,20 @@ return function(sandbox) {
             var newRow = $(_.template(itemTemplate)({key: row.getKey() || '', value: row.getValue() || ''}));
             newRow.appendTo(this.metaTable);
             newRow.data('row', row);
+
+            var selectView = new OpenSelectView({
+                value: row.getKey() || '',
+                inputTemplate: _.template('<div class="openInput rng-module-metadataEditor-metaItemKey" contentEditable="true"><%= value %></div>')({value: row.getKey() || '' }),
+                setInput: function(inputDOM, value) {
+                    inputDOM.text(value);
+                    row.setKey(value);
+                }
+            });
+            newRow.find('td:first').append(selectView.el);
+            metadataKeys.forEach(function(key) {
+                selectView.addItem(key);
+            });
+
             if(adding) {
                 $(newRow.find('td div')[0]).focus();
                 adding = false;
@@ -79,7 +97,7 @@ return function(sandbox) {
         },
         updateMetadataRow: function(row) {
             this._getRowTr(row, function(tr) {
-                var tds = tr.find('td > div'),
+                var tds = tr.find('td [contenteditable]'),
                     keyTd = $(tds[0]),
                     valueTd = $(tds[1]);
 

@@ -1,0 +1,21 @@
+.openSelect {
+    @lineHeight: 13px;
+
+    line-height: @lineHeight;
+
+    .toggle-wrapper {
+        width: 1em;
+        :link {
+            text-decoration: none;
+            outline: none;
+        }
+    }
+
+    .input-wrapper {
+        margin: 0;
+        border: 0;
+        padding: 0 0 0 1em;
+        width: calc(~"100% - 1em");
+        margin-top: -@lineHeight;
+    }
+}
