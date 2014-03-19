@@ -1660,6 +1660,21 @@ describe('smartxml', function() {
                 expect(doc.undoStack.length).to.equal(0, 'nothing to undo');
                 expect(doc.root.contents().length).to.equal(0);
             });
+
+            it('rollbacks and rethrow if error gets thrown', function() {
+                var doc = getDocumentFromXML('<root></root>'),
+                    err = new Error();
+                
+                expect(function() {
+                    doc.transaction(function() {
+                        doc.root.append({tagName: 'div'});
+                        throw err;
+                    });
+                }).to.throw(err);
+
+                expect(doc.root.contents().length).to.equal(0);
+                expect(doc.undoStack.length).to.equal(0);
+            });
         });
 
         describe('Regression tests', function() {
