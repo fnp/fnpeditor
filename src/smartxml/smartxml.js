@@ -498,8 +498,6 @@ $.extend(Document.prototype, Backbone.Events, {
                 function() {
                     if(this._transformationLevel === 1 && !this._undoInProgress) {
                         this._currentTransaction.pushTransformation(transformation);
-                    }
-                    if(!this._undoInProgress && this._transformationLevel === 1) {
                         this.redoStack = [];
                     }
                 }
