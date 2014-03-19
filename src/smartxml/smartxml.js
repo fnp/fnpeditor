@@ -560,6 +560,7 @@ $.extend(Document.prototype, Backbone.Events, {
         if(this._currentTransaction) {
             throw new Error('Nested transactions not supported!');
         }
+        this._rollbackBackup = this.root.clone();
         this._currentTransaction = new Transaction([], metadata);
     },
 
@@ -570,6 +571,15 @@ $.extend(Document.prototype, Backbone.Events, {
         if(this._currentTransaction.hasTransformations()) {
             this.undoStack.push(this._currentTransaction);
         }
+        this._currentTransaction = null;
+    },
+
+    rollbackTransaction: function() {
+        if(!this._currentTransaction) {
+            throw new Error('Transaction rollback requested, but there is no transaction in progress!');
+        }
+        this.replaceRoot(this._rollbackBackup);
+        this._rollbackBackup = null;
         this._currentTransaction = null;
     },
 

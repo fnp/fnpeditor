@@ -1649,6 +1649,17 @@ describe('smartxml', function() {
                 var transaction = doc.undoStack[0];
                 expect(transaction.metadata).to.equal(metadata);
             });
+
+            it('can be rolled back', function() {
+                var doc = getDocumentFromXML('<root></root>');
+
+                doc.startTransaction();
+                doc.root.append({tagName: 'div'});
+                doc.rollbackTransaction();
+
+                expect(doc.undoStack.length).to.equal(0, 'nothing to undo');
+                expect(doc.root.contents().length).to.equal(0);
+            });
         });
 
         describe('Regression tests', function() {
