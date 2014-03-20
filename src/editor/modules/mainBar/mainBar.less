@@ -4,7 +4,7 @@
 
 .rng-module-mainBar {
 
-    font-size: 10px;
+    font-size: 11px;
 
     li {
         display: inline;
@@ -13,9 +13,21 @@
         border-style: solid;
         margin: 0 5px 0 0;
         padding: 0 5px 0 0;
+        &:last-child {
+            margin-right: 0;
+            padding-right: 0;
+        }
     }
 
     ul {
         list-style-type: none;
+    }
+
+    .top {
+        float:right;
+    }
+
+    .bottom {
+        margin-top: 8px;
     }
 }

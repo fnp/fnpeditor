@@ -1,9 +1,11 @@
 <div class="rng-module-mainBar">
-    <ul>
+    <div class="top">
+        <%= userName %> (<a href="/"><%= gettext('Exit') %></a>)
+    </div>
+    <div style="clear:both;"></div>
+    <ul class="bottom">
         <li>wersja: <span class="version"></span></li>
         <li><a href="#" data-cmd="drop-draft"><%= gettext('drop a working draft') %></a></li>
-        <li><%= userName %></li>
         <li><button class="btn btn-mini btn-info" data-cmd="save"><%= gettext('Save') %></button></li>
-        <li><a class="btn btn-mini btn-danger" href="/"><%= gettext('Exit') %></a></li>
     </ul>
 </div>
