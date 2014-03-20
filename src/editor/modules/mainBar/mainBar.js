@@ -7,7 +7,14 @@ define([
 
 return function(sandbox) {
 
-    var view = $(_.template(template)());
+    /* globals gettext*/
+
+    var config = sandbox.getConfig(),
+        userName = config.user && config.user.name,
+        view = $(_.template(template)({
+            userName: userName || gettext('anonymous')
+        }));
+
     view.find('[data-cmd]').click(function(e) {
         e.preventDefault();
         sandbox.publish('cmd.' + $(e.target).attr('data-cmd'));
