@@ -238,6 +238,12 @@ return function(sandbox) {
             });
             dialog.show();
         },
+        dropDraft: function() {
+            logger.debug('Dropping a draft...');
+            wlxmlDocument.loadXML(sandbox.getBootstrappedData().document);
+            draftDirty = false;
+            logger.debug('Draft dropped');
+        },
         getDocumentId: function() {
             return document_id;
         },

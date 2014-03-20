@@ -8,7 +8,7 @@ define([
 return function(sandbox) {
 
     var view = $(_.template(template)());
-    view.find('button').click(function(e) {
+    view.find('[data-cmd]').click(function(e) {
         e.preventDefault();
         sandbox.publish('cmd.' + $(e.target).attr('data-cmd'));
     });

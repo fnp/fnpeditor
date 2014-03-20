@@ -151,6 +151,9 @@ return function(sandbox) {
                 sourceEditor.commitChanges();
             }
             sandbox.getModule('data').saveDocument();
+        },
+        'cmd.drop-draft': function() {
+            sandbox.getModule('data').dropDraft();
         }
     };
     
