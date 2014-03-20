@@ -15,7 +15,6 @@ return function(sandbox) {
             editor.gotoLine(0);
             documentEditedHere = false;
 
-            sandbox.publish('documentSet');
             documentIsDirty = false;
         }
     };

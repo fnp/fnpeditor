@@ -143,7 +143,6 @@ $.extend(Canvas.prototype, {
                         canvas._moveCaretToTextElement(canvas.getDocumentElement(mutation.target), 'end');
                     }
                     observer.observe(canvas.wrapper[0], config);
-                    canvas.publisher('contentChanged');
 
                     var textElement = canvas.getDocumentElement(mutation.target),
                         toSet = mutation.target.data !== utils.unicode.ZWS ? mutation.target.data : '';
@@ -257,7 +256,6 @@ $.extend(Canvas.prototype, {
             } else {
                 this.wrapper.find('.current-node-element').removeClass('current-node-element');
                 element._container().addClass('current-node-element');
-                this.publisher('currentElementChanged', element);
             }
         }.bind(this);
 
