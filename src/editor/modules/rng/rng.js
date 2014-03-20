@@ -289,7 +289,7 @@ return function(sandbox) {
                 logger.debug('Handling event ' + eventRepr);
                 eventHandlers[moduleName][eventName].apply(eventHandlers, args);
             } else {
-                logger.debug('No event handler for ' + eventRepr);
+                logger.warning('No event handler for ' + eventRepr);
             }
 
         }
