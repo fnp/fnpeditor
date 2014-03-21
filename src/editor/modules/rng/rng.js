@@ -110,7 +110,7 @@ return function(sandbox) {
             sandbox.getModule('mainBar').setCommandEnabled('save', false);
             sandbox.getModule('indicator').showMessage(msg[what] + '...');
         },
-        savingEnded: function(status, what, current_version) {
+        savingEnded: function(status, what, data) {
             void(status);
             var msg = {
                 remote: gettext('Document saved'),
@@ -119,7 +119,7 @@ return function(sandbox) {
             documentIsDirty = false;
             sandbox.getModule('mainBar').setCommandEnabled('save', true);
             sandbox.getModule('indicator').clearMessage({message: msg[what]});
-            sandbox.getModule('mainBar').setVersion(current_version);
+            sandbox.getModule('mainBar').setVersion(data.version);
         },
         restoringStarted: function(event) {
             sandbox.getModule('mainBar').setCommandEnabled('save', false);
@@ -141,7 +141,7 @@ return function(sandbox) {
     
     eventHandlers.mainBar = {
         ready: function() {
-            sandbox.getModule('mainBar').setVersion(sandbox.getModule('data').getDocumentVersion());
+            sandbox.getModule('mainBar').setVersion(sandbox.getModule('data').getDocumentProperties().version);
             views.mainLayout.setView('topPanel', sandbox.getModule('mainBar').getView());
         },
         'cmd.save': function() {

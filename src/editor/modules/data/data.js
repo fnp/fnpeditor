@@ -16,10 +16,19 @@ var logger = logging.getLogger('editor.modules.data'),
 return function(sandbox) {
 
     var document_id = sandbox.getBootstrappedData().document_id;
-    var document_version = sandbox.getBootstrappedData().version;
     var history = sandbox.getBootstrappedData().history;
     var documentDirty = false;
     var draftDirty = false;
+
+    var documentProperties = {};
+    var data = sandbox.getBootstrappedData();
+    Object.keys(data)
+        .filter(function(key) {
+            return key !== 'history' && key !== 'document';
+        })
+        .forEach(function(key) {
+            documentProperties[key] = data[key];
+        });
 
     var wlxmlDocument, text;
 
@@ -104,7 +113,7 @@ return function(sandbox) {
     };
 
     var getLocalStorageKey = function() {
-        return 'draft-id:' + document_id + '-ver:' + document_version;
+        return 'draft-id:' + document_id + '-ver:' + documentProperties.version;
     };
 
    
@@ -163,7 +172,7 @@ return function(sandbox) {
 
                 var formData = event.formData;
                 formData[documentSaveForm.content_field_name] = wlxmlDocument.toXML();
-                formData[documentSaveForm.version_field_name] = document_version;
+                formData[documentSaveForm.version_field_name] = documentProperties.version;
                 if(sandbox.getConfig().jsonifySentData) {
                     formData = JSON.stringify(formData);
                 }
@@ -175,8 +184,16 @@ return function(sandbox) {
                     data: formData,
                     success: function(data) {
                         event.success();
-                        sandbox.publish('savingEnded', 'success', 'remote', data.version);
-                        document_version = data.version;
+                        sandbox.publish('savingEnded', 'success', 'remote', data);
+
+                        Object.keys(data)
+                            .filter(function(key) {
+                                return key !== 'text';
+                            })
+                            .forEach(function(key) {
+                                documentProperties[key] = data[key];
+                            });
+
                         reloadHistory();
                     },
                     error: function() {event.error(); sandbox.publish('savingEnded', 'error', 'remote');}
@@ -227,7 +244,13 @@ return function(sandbox) {
                     url: sandbox.getConfig().documentRestoreUrl(document_id),
                     data: formData,
                     success: function(data) {
-                        document_version = data.version;
+                        Object.keys(data)
+                            .filter(function(key) {
+                                return key !== 'document';
+                            })
+                            .forEach(function(key) {
+                                documentProperties = data[key];
+                            });
                         reloadHistory();
                         wlxmlDocument.loadXML(data.document);
                         documentDirty = false;
@@ -247,8 +270,8 @@ return function(sandbox) {
         getDocumentId: function() {
             return document_id;
         },
-        getDocumentVersion: function() {
-            return document_version;
+        getDocumentProperties: function() {
+            return documentProperties;
         }
     };
 };
