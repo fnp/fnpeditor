@@ -95,6 +95,8 @@ return function(sandbox) {
             documentSummary.setDraftField(usingDraft ? (draftTimestamp || '???') : '-');
             views.currentNodePaneLayout.appendView(documentSummary.dom);
 
+            sandbox.getModule('mainBar').setCommandEnabled('drop-draft', usingDraft);
+
             _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'nodePane', 'metadataEditor', 'nodeFamilyTree', 'nodeBreadCrumbs', 'mainBar', 'indicator', 'documentHistory', 'diffViewer'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
@@ -110,6 +112,7 @@ return function(sandbox) {
         },
         draftDropped: function() {
             documentSummary.setDraftField('-');
+            sandbox.getModule('mainBar').setCommandEnabled('drop-draft', false);
         },
         savingStarted: function(what) {
             var msg = {
@@ -132,9 +135,11 @@ return function(sandbox) {
                 sandbox.getModule('mainBar').setVersion(data.version);
                 documentSummary.render(data);
                 documentSummary.setDraftField('-');
+                sandbox.getModule('mainBar').setCommandEnabled('drop-draft', false);
             }
             if(what === 'local') {
                 documentSummary.setDraftField(data.timestamp);
+                sandbox.getModule('mainBar').setCommandEnabled('drop-draft', true);
             }
         },
         restoringStarted: function(event) {

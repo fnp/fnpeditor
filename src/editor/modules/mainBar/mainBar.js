@@ -17,6 +17,10 @@ return function(sandbox) {
 
     view.find('[data-cmd]').click(function(e) {
         e.preventDefault();
+        var target = $(e.target);
+        if(target.hasClass('disabled')) {
+            return;
+        }
         sandbox.publish('cmd.' + $(e.target).attr('data-cmd'));
     });
 
