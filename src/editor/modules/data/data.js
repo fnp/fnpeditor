@@ -4,7 +4,8 @@ define([
     'wlxml/wlxml',
     'wlxml/extensions/list/list',
     'fnpjs/logging/logging',
-], function($, Dialog, wlxml, listExtension, logging) {
+    'fnpjs/datetime'
+], function($, Dialog, wlxml, listExtension, logging, datetime) {
 
 'use strict';
 /* global gettext, alert, window */
@@ -32,7 +33,7 @@ return function(sandbox) {
 
     var wlxmlDocument, text;
 
-    var loadDocument = function(text) {
+    var loadDocument = function(text, isDraft, draftTimestamp) {
         logger.debug('loading document');
         try {
             wlxmlDocument = wlxml.WLXMLDocumentFromXML(text);
@@ -65,15 +66,17 @@ return function(sandbox) {
                     return;
                 }
                 if(wlxmlDocument && documentDirty && draftDirty) {
+                    var timestamp = datetime.currentStrfmt();
                     logger.debug('Saving draft to local storage.');
                     sandbox.publish('savingStarted', 'local');
-                    window.localStorage.setItem(getLocalStorageKey(), wlxmlDocument.toXML());
-                    sandbox.publish('savingEnded', 'success', 'local');
+                    window.localStorage.setItem(getLocalStorageKey().content, wlxmlDocument.toXML());
+                    window.localStorage.setItem(getLocalStorageKey().contentTimestamp, timestamp);
+                    sandbox.publish('savingEnded', 'success', 'local', {timestamp: timestamp});
                     draftDirty = false;
                 }
             }, sandbox.getConfig().autoSaveInterval || 2500);
         }
-        sandbox.publish('ready');
+        sandbox.publish('ready', isDraft, draftTimestamp);
     };
     
     function readCookie(name) {
@@ -113,15 +116,21 @@ return function(sandbox) {
     };
 
     var getLocalStorageKey = function() {
-        return 'draft-id:' + document_id + '-ver:' + documentProperties.version;
+        var base = 'draft-id:' + document_id + '-ver:' + documentProperties.version;
+        return {
+            content: base,
+            contentTimestamp: base + '-content-timestamp'
+        };
     };
 
    
     return {
         start: function() {
-
             if(window.localStorage) {
-                text = window.localStorage.getItem(getLocalStorageKey());
+                text = window.localStorage.getItem(getLocalStorageKey().content);
+
+                var timestamp = window.localStorage.getItem(getLocalStorageKey().contentTimestamp),
+                    usingDraft;
                 if(text) {
                     logger.debug('Local draft exists');
                     var dialog = Dialog.create({
@@ -132,22 +141,24 @@ return function(sandbox) {
                     });
                     dialog.on('cancel', function() {
                         logger.debug('Bootstrapped version chosen');
+                        usingDraft = false;
                         text = sandbox.getBootstrappedData().document;
                         
                     });
                     dialog.on('execute', function(event) {
                         logger.debug('Local draft chosen');
+                        usingDraft = true;
                         event.success();
                     });
                     dialog.show();
                     dialog.on('close', function() {
-                        loadDocument(text);
+                        loadDocument(text, usingDraft, timestamp);
                     });
                 } else {
-                    loadDocument(sandbox.getBootstrappedData().document);
+                    loadDocument(sandbox.getBootstrappedData().document, false);
                 }
             } else {
-                loadDocument(sandbox.getBootstrappedData().document);
+                loadDocument(sandbox.getBootstrappedData().document, false);
             }
         },
         getDocument: function() {
@@ -266,6 +277,7 @@ return function(sandbox) {
             wlxmlDocument.loadXML(sandbox.getBootstrappedData().document);
             draftDirty = false;
             logger.debug('Draft dropped');
+            sandbox.publish('draftDropped');
         },
         getDocumentId: function() {
             return document_id;

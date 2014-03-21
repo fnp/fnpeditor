@@ -1,0 +1,14 @@
+<div>
+    <h1 class="title"><%= title %></h1>
+    <table>
+        <% properties.forEach(function(propertyDesc) { %>
+            <tr>
+                <td><%= propertyDesc.label %></td>
+                <td><%= propertyValues[propertyDesc.name] %></td>
+        <% }); %>
+        <tr>
+            <td><%= gettext('Draft Saved') %></td>
+            <td class="draft"></td>
+        </tr>
+    </table>
+</div>

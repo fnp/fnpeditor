@@ -1,4 +1,5 @@
 define([
+'./documentSummary',
 'libs/underscore',
 'fnpjs/layout',
 'fnpjs/vbox',
@@ -7,7 +8,7 @@ define([
 'libs/text!./mainLayout.html',
 'libs/text!./editingLayout.html',
 'libs/text!./diffLayout.html',
-], function(_, layout, vbox, logging, tabs, mainLayoutTemplate, visualEditingLayoutTemplate, diffLayoutTemplate) {
+], function(documentSummary, _, layout, vbox, logging, tabs, mainLayoutTemplate, visualEditingLayoutTemplate, diffLayoutTemplate) {
 
 'use strict';
 
@@ -86,9 +87,14 @@ return function(sandbox) {
     };
     
     eventHandlers.data = {
-        ready: function() {
+        ready: function(usingDraft, draftTimestamp) {
             views.mainLayout.setView('mainView', views.mainTabs.getAsView());
             
+            documentSummary.init(sandbox.getConfig().documentSummaryView);
+            documentSummary.render(sandbox.getModule('data').getDocumentProperties());
+            documentSummary.setDraftField(usingDraft ? (draftTimestamp || '???') : '-');
+            views.currentNodePaneLayout.appendView(documentSummary.dom);
+
             _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'nodePane', 'metadataEditor', 'nodeFamilyTree', 'nodeBreadCrumbs', 'mainBar', 'indicator', 'documentHistory', 'diffViewer'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
@@ -101,6 +107,9 @@ return function(sandbox) {
             wlxmlDocument.on('contentSet', function() {
                 documentIsDirty = true;
             });
+        },
+        draftDropped: function() {
+            documentSummary.setDraftField('-');
         },
         savingStarted: function(what) {
             var msg = {
@@ -119,7 +128,14 @@ return function(sandbox) {
             documentIsDirty = false;
             sandbox.getModule('mainBar').setCommandEnabled('save', true);
             sandbox.getModule('indicator').clearMessage({message: msg[what]});
-            sandbox.getModule('mainBar').setVersion(data.version);
+            if(status === 'success' && what === 'remote') {
+                sandbox.getModule('mainBar').setVersion(data.version);
+                documentSummary.render(data);
+                documentSummary.setDraftField('-');
+            }
+            if(what === 'local') {
+                documentSummary.setDraftField(data.timestamp);
+            }
         },
         restoringStarted: function(event) {
             sandbox.getModule('mainBar').setCommandEnabled('save', false);
