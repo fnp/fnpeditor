@@ -96,6 +96,7 @@ return function(sandbox) {
             views.currentNodePaneLayout.appendView(documentSummary.dom);
 
             sandbox.getModule('mainBar').setCommandEnabled('drop-draft', usingDraft);
+            sandbox.getModule('mainBar').setCommandEnabled('save', usingDraft);
 
             _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'metadataEditor', 'nodeBreadCrumbs', 'mainBar', 'indicator', 'documentHistory', 'diffViewer'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
@@ -105,6 +106,7 @@ return function(sandbox) {
             documentIsDirty = false;
             wlxmlDocument.on('change', function() {
                 documentIsDirty = true;
+                sandbox.getModule('mainBar').setCommandEnabled('save', true);
             });
             wlxmlDocument.on('contentSet', function() {
                 documentIsDirty = true;
@@ -113,6 +115,7 @@ return function(sandbox) {
         draftDropped: function() {
             documentSummary.setDraftField('-');
             sandbox.getModule('mainBar').setCommandEnabled('drop-draft', false);
+            sandbox.getModule('mainBar').setCommandEnabled('save', false);
         },
         savingStarted: function(what) {
             var msg = {
@@ -129,17 +132,19 @@ return function(sandbox) {
                 local: gettext('Local copy saved')
             };
             documentIsDirty = false;
-            sandbox.getModule('mainBar').setCommandEnabled('save', true);
+            
             sandbox.getModule('indicator').clearMessage({message: msg[what]});
             if(status === 'success' && what === 'remote') {
                 sandbox.getModule('mainBar').setVersion(data.version);
                 documentSummary.render(data);
                 documentSummary.setDraftField('-');
                 sandbox.getModule('mainBar').setCommandEnabled('drop-draft', false);
+                sandbox.getModule('mainBar').setCommandEnabled('save', false);
             }
             if(what === 'local') {
                 documentSummary.setDraftField(data.timestamp);
                 sandbox.getModule('mainBar').setCommandEnabled('drop-draft', true);
+                sandbox.getModule('mainBar').setCommandEnabled('save', true);
             }
         },
         restoringStarted: function(event) {
@@ -154,7 +159,6 @@ return function(sandbox) {
         },
         documentReverted: function(version) {
             documentIsDirty = false;
-            sandbox.getModule('mainBar').setCommandEnabled('save', true);
             sandbox.getModule('indicator').clearMessage({message:'Wersja ' + version + ' przywrócona'});
             sandbox.getModule('mainBar').setVersion(version);
         }
