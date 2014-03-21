@@ -28,7 +28,18 @@ return function(sandbox) {
         start: function() { sandbox.publish('ready'); },
         getView: function() {return view;},
         setCommandEnabled: function(cmd, enabled) {
-            view.find('[data-cmd='+cmd+']').toggleClass('disabled', !enabled);
+            var trigger = view.find('[data-cmd='+cmd+']'),
+                disabledText = trigger.attr('data-disabled-text'),
+                originalContent = trigger.data('originalContent');
+            trigger.toggleClass('disabled', !enabled);
+            if(enabled && originalContent) {
+                trigger.html(originalContent);
+                trigger.removeData('originalContent');
+            }
+            if(!enabled && disabledText) {
+                trigger.data('originalContent', trigger.html());
+                trigger.text(disabledText);
+            }
         },
         setVersion: function(version) {
             view.find('.version').text(version);

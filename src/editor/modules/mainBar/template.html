@@ -5,7 +5,7 @@
     <div style="clear:both;"></div>
     <ul class="bottom">
         <li>wersja: <span class="version"></span></li>
-        <li><a href="#" data-cmd="drop-draft"><%= gettext('drop a working draft') %></a></li>
+        <li><a href="#" data-cmd="drop-draft" data-disabled-text="<%= gettext('no unsaved changes') %>"><%= gettext('drop a working draft') %></a></li>
         <li><button class="btn btn-mini btn-info" data-cmd="save"><%= gettext('Save') %></button></li>
     </ul>
 </div>
