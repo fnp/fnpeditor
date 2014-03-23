@@ -1,6 +1,7 @@
 define([
-'./canvas/utils'
-], function(utils) {
+'./canvas/utils',
+'fnpjs/datetime'
+], function(utils, datetime) {
     
 'use strict';
 
@@ -108,14 +109,7 @@ commands.register('newNodeRequested', function(canvas, params, user) {
 
     var insertNode = function(insertion) {
         var doc = canvas.wlxmlDocument,
-            node, metadata, creator, currentDate, dt;
-
-        var pad = function(number) {
-            if(number < 10) {
-                number = '0' + number;
-            }
-            return number;
-        };
+            node, metadata, creator;
 
         doc.startTransaction();
         node = insertion();
@@ -129,17 +123,9 @@ commands.register('newNodeRequested', function(canvas, params, user) {
                 creator = 'anonymous';
             }
 
-            currentDate = new Date();
-            dt = pad(currentDate.getDate()) + '-' +
-                            pad((currentDate.getMonth() + 1))  + '-' +
-                            pad(currentDate.getFullYear()) + ' ' +
-                            pad(currentDate.getHours()) + ':' +
-                            pad(currentDate.getMinutes()) + ':' +
-                            pad(currentDate.getSeconds());
-
             metadata = node.getMetadata();
             metadata.add({key: 'creator', value: creator});
-            metadata.add({key: 'date', value: dt});
+            metadata.add({key: 'date', value: datetime.currentStrfmt()});
         }
         doc.endTransaction();
         return node;
