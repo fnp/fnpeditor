@@ -38,7 +38,7 @@ define(function(require) {
                     throw new Error('Field type {type} not recognized.'.replace('{type}', field.type));
                 }
                 body.append(
-                    _.template(template)(_.extend({description: ''}, field))
+                    _.template(template)(_.extend({description: '', initialValue: ''}, field))
                 );
             });
 
