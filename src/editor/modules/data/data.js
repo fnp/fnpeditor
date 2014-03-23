@@ -1,6 +1,6 @@
 define([
     'libs/jquery',
-    './dialog',
+    'views/dialog/dialog',
     'wlxml/wlxml',
     'wlxml/extensions/list/list',
     'fnpjs/logging/logging',
