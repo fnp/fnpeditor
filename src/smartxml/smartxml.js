@@ -597,6 +597,9 @@ $.extend(Document.prototype, Backbone.Events, {
             return;
         }
         this.endTransaction();
+        if(params.success) {
+            params.success(toret);
+        }
         return toret;
     },
 
