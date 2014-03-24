@@ -1661,17 +1661,17 @@ describe('smartxml', function() {
                 expect(doc.root.contents().length).to.equal(0);
             });
 
-            it('rollbacks and rethrow if error gets thrown', function() {
+            it('rollbacks and calls error handleor if error gets thrown', function() {
                 var doc = getDocumentFromXML('<root></root>'),
-                    err = new Error();
+                    err = new Error(),
+                    spy = sinon.spy();
                 
-                expect(function() {
-                    doc.transaction(function() {
-                        doc.root.append({tagName: 'div'});
-                        throw err;
-                    });
-                }).to.throw(err);
+                doc.transaction(function() {
+                    doc.root.append({tagName: 'div'});
+                    throw err;
+                }, {error: spy});
 
+                expect(spy.args[0][0]).to.equal(err);
                 expect(doc.root.contents().length).to.equal(0);
                 expect(doc.undoStack.length).to.equal(0);
             });

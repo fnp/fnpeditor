@@ -583,14 +583,18 @@ $.extend(Document.prototype, Backbone.Events, {
         this._currentTransaction = null;
     },
 
-    transaction: function(callback, context, metadata) {
+    transaction: function(callback, params) {
         var toret;
-        this.startTransaction(metadata);
+        params = params || {};
+        this.startTransaction(params.metadata);
         try {
-            toret = callback.call(context);
+            toret = callback.call(params.context || this);
         } catch(e) {
+            if(params.error) {
+                params.error(e);
+            }
             this.rollbackTransaction();
-            throw e;
+            return;
         }
         this.endTransaction();
         return toret;
