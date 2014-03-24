@@ -61,7 +61,6 @@ return function(sandbox) {
         },
         command: function(command, params) {
             commands.run(command, params, canvas, sandbox.getConfig().user);
-            sandbox.publish('contentChanged');
         }
     };
     

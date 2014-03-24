@@ -266,7 +266,6 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
                     element.data('wlxmlNode').detach();
                 }
                 canvas.setCurrentElement(goto, {caretTo: caretTo});
-                canvas.publisher('contentChanged');
             }
             else if(cursorAtOperationEdge) {
                 if(direction === 'below') {
