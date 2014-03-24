@@ -343,14 +343,17 @@ var wlxmlClasses = {
 
 
 return {
-    WLXMLDocumentFromXML: function(xml, options) {
+    WLXMLDocumentFromXML: function(xml, options, Factory) {
         options = _.extend({wlxmlClasses: wlxmlClasses}, options);
-        return new WLXMLDocument(xml, options);
+        Factory = Factory || WLXMLDocument;
+        return new Factory(xml, options);
     },
 
     WLXMLElementNodeFromXML: function(xml) {
         return this.WLXMLDocumentFromXML(xml).root;
-    }
+    },
+
+    WLXMLDocument: WLXMLDocument
 };
 
 });
