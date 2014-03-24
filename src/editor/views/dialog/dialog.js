@@ -38,7 +38,7 @@ define(function(require) {
                     throw new Error('Field type {type} not recognized.'.replace('{type}', field.type));
                 }
                 body.append(
-                    _.template(template)(_.extend({description: ''}, field))
+                    _.template(template)(_.extend({description: '', initialValue: ''}, field))
                 );
             });
 
@@ -48,7 +48,7 @@ define(function(require) {
 
             this.$el.modal({backdrop: 'static'});
             this.$el.modal('show');
-            this.$('textarea').focus();
+            this.$('textarea, input').first().focus();
         },
         onExecute: function(e) {
             e.preventDefault();

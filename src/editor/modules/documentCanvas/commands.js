@@ -1,8 +1,11 @@
 define([
-'./canvas/utils'
-], function(utils) {
+'./canvas/utils',
+'views/dialog/dialog',
+'fnpjs/datetime'
+], function(utils, Dialog, datetime) {
     
 'use strict';
+/* globals gettext */
 
 
 var gridToggled = false;
@@ -104,22 +107,21 @@ commands.register('newNodeRequested', function(canvas, params, user) {
     var cursor = canvas.getCursor(),
         selectionStart = cursor.getSelectionStart(),
         selectionEnd = cursor.getSelectionEnd(),
-        wlxmlNode, caretTo, wrapper, wrapperCanvasElement;
+        wlxmlNode, caretTo, wrapperCanvasElement;
 
-    var insertNode = function(insertion) {
+    var insertNode = function(insertion, callback) {
         var doc = canvas.wlxmlDocument,
-            node, metadata, creator, currentDate, dt;
+            node, metadata, creator, dialog;
 
-        var pad = function(number) {
-            if(number < 10) {
-                number = '0' + number;
+        var execCallback = function(node) {
+            if(callback) {
+                callback(node);
             }
-            return number;
         };
 
-        doc.startTransaction();
-        node = insertion();
-        if(node.getTagName() === 'aside' && node.getClass() === 'comment') {
+        if(params.wlxmlTag === 'aside' && params.wlxmlClass === 'comment') {
+            doc.startTransaction();
+            node = insertion();
             if(user) {
                 creator = user.name;
                 if(user.email) {
@@ -129,22 +131,36 @@ commands.register('newNodeRequested', function(canvas, params, user) {
                 creator = 'anonymous';
             }
 
-            currentDate = new Date();
-            dt = pad(currentDate.getDate()) + '-' +
-                            pad((currentDate.getMonth() + 1))  + '-' +
-                            pad(currentDate.getFullYear()) + ' ' +
-                            pad(currentDate.getHours()) + ':' +
-                            pad(currentDate.getMinutes()) + ':' +
-                            pad(currentDate.getSeconds());
-
             metadata = node.getMetadata();
             metadata.add({key: 'creator', value: creator});
-            metadata.add({key: 'date', value: dt});
+            metadata.add({key: 'date', value: datetime.currentStrfmt()});
+            doc.endTransaction();
+            execCallback(node);
+        } else if(params.wlxmlClass === 'link') {
+            dialog = Dialog.create({
+                title: gettext('Create link'),
+                executeButtonText: gettext('Apply'),
+                cancelButtonText: gettext('Cancel'),
+                fields: [
+                    {label: gettext('Link'), name: 'href', type: 'input'}
+                ]
+            });
+            dialog.on('execute', function(event) {
+                doc.startTransaction();
+                node = insertion();
+                node.setAttr('href', event.formData.href);
+                doc.endTransaction();
+                event.success();
+                execCallback(node);
+            });
+            dialog.show();
+        } else {
+            doc.startTransaction();
+            node = insertion();
+            doc.endTransaction();
+            execCallback(node);
         }
-        doc.endTransaction();
-        return node;
     };
-
 
     if(cursor.isSelecting()) {
         if(cursor.isSelectingSiblings()) {
@@ -152,26 +168,34 @@ commands.register('newNodeRequested', function(canvas, params, user) {
                 wlxmlNode = selectionStart.element.data('wlxmlNode');
                 caretTo = selectionStart.offset < selectionEnd.offset ? 'start' : 'end';
 
-                wrapper = insertNode(function() {
-                    return wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}, start: selectionStart.offset, end: selectionEnd.offset});
-                });
-                wrapperCanvasElement = utils.findCanvasElement(wrapper);
-                canvas.setCurrentElement(wrapperCanvasElement.children()[0], {caretTo: caretTo});
+                insertNode(
+                    function() {
+                        return wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}, start: selectionStart.offset, end: selectionEnd.offset});
+                    },
+                    function(wrapper) {
+                        wrapperCanvasElement = utils.findCanvasElement(wrapper);
+                        canvas.setCurrentElement(wrapperCanvasElement.children()[0], {caretTo: caretTo});
+                    }
+                );
             }
             else {
                 wlxmlNode = selectionStart.element.data('wlxmlNode').parent();
                 caretTo = selectionStart.element.sameNode(cursor.getSelectionAnchor().element) ? 'end' : 'start';
 
-                wrapper = insertNode(function() {
-                    return wlxmlNode.wrapText({
-                        _with: {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}},
-                        offsetStart: selectionStart.offset,
-                        offsetEnd: selectionEnd.offset,
-                        textNodeIdx: [wlxmlNode.indexOf(selectionStart.element.data('wlxmlNode')), wlxmlNode.indexOf(selectionEnd.element.data('wlxmlNode'))] //parent.childIndex(selectionEnd.element)]
-                    });
-                });
-                wrapperCanvasElement = utils.findCanvasElement(wrapper);
-                canvas.setCurrentElement(wrapperCanvasElement.children()[caretTo === 0 ? 0 : wrapperCanvasElement.children().length - 1], {caretTo: caretTo});
+                insertNode(
+                    function() {
+                        return wlxmlNode.wrapText({
+                            _with: {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}},
+                            offsetStart: selectionStart.offset,
+                            offsetEnd: selectionEnd.offset,
+                            textNodeIdx: [wlxmlNode.indexOf(selectionStart.element.data('wlxmlNode')), wlxmlNode.indexOf(selectionEnd.element.data('wlxmlNode'))] //parent.childIndex(selectionEnd.element)]
+                        });
+                    },
+                    function(wrapper) {
+                        wrapperCanvasElement = utils.findCanvasElement(wrapper);
+                        canvas.setCurrentElement(wrapperCanvasElement.children()[caretTo === 0 ? 0 : wrapperCanvasElement.children().length - 1], {caretTo: caretTo});
+                    }
+                );
             }
         } else {
             var node1 = selectionStart.element.data('wlxmlNode'),
@@ -179,32 +203,65 @@ commands.register('newNodeRequested', function(canvas, params, user) {
                 siblingParents = canvas.wlxmlDocument.getSiblingParents({node1: node1, node2: node2});
 
             if(siblingParents) {
-                insertNode(function() {
-                    return canvas.wlxmlDocument.wrapNodes({
-                        node1: siblingParents.node1,
-                        node2: siblingParents.node2,
-                        _with: {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}}
-                    });
-                });
+                insertNode(
+                    function() {
+                        return canvas.wlxmlDocument.wrapNodes({
+                            node1: siblingParents.node1,
+                            node2: siblingParents.node2,
+                            _with: {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}}
+                        });
+                    }
+                );
             }
         }
     } else if(canvas.getCurrentNodeElement()) {
         wlxmlNode = canvas.getCurrentNodeElement().data('wlxmlNode');
-        if(params.ctrlKey) {
-            wrapper = insertNode(function() {
-                return wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}});
-            });
-        } else {
-            wrapper = insertNode(function() {
-                var node = wlxmlNode.after({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}});
-                node.append({text:''});
-                return node;
-            });
+
+        var linkFound = [wlxmlNode].concat(wlxmlNode.parents()).some(function(node) {
+            if(node.getClass() === 'link') {
+                var dialog = Dialog.create({
+                    title: gettext('Edit link'),
+                    executeButtonText: gettext('Apply'),
+                    cancelButtonText: gettext('Cancel'),
+                    fields: [
+                        {label: gettext('Link'), name: 'href', type: 'input', initialValue: node.getAttr('href')},
+                    ]
+                });
+                dialog.on('execute', function(event) {
+                    canvas.wlxmlDocument.startTransaction();
+                    node.setAttr('href', event.formData.href);
+                    event.success();
+                    canvas.wlxmlDocument.endTransaction();
+                });
+                dialog.show();
+                return true;
+            }
+        });
+        if(linkFound) {
+            return;
         }
-        canvas.setCurrentElement(utils.findCanvasElement(wrapper));
+
+        if(params.ctrlKey) {
+            insertNode(
+                function() {
+                    return wlxmlNode.wrapWith({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}});
+                },
+                function(wrapper) {
+                    canvas.setCurrentElement(utils.findCanvasElement(wrapper));
+                }
+            );
+        } else {
+            insertNode(
+                function() {
+                    var node = wlxmlNode.after({tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}});
+                    node.append({text:''});
+                    return node;
+                }, function(wrapper) {
+                    canvas.setCurrentElement(utils.findCanvasElement(wrapper));
+                }
+            );
+        }
     }
-
-
 });
 
 commands.register('footnote', function(canvas, params) {
