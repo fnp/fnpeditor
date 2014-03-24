@@ -175,7 +175,8 @@ return function(sandbox) {
                 dialog = Dialog.create({
                     fields: documentSaveForm.fields,
                     title: gettext('Save Document'),
-                    executeButtonText: gettext('Save')
+                    executeButtonText: gettext('Save'),
+                    cancelButtonText: gettext('Cancel')
                 });
             
             dialog.on('execute', function(event) {
@@ -239,7 +240,8 @@ return function(sandbox) {
                 dialog = Dialog.create({
                     fields: documentRestoreForm.fields,
                     title: gettext('Restore Version'),
-                    executeButtonText: gettext('Restore')
+                    executeButtonText: gettext('Restore'),
+                    cancelButtonText: gettext('Cancel')
                 });
 
             dialog.on('execute', function(event) {

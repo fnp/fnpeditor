@@ -1,6 +1,5 @@
 define(function(require) {
 
-    /* globals gettext */
     'use strict';
 
     var _ = require('libs/underscore'),
@@ -27,8 +26,8 @@ define(function(require) {
         },
         show: function() {
             this.setElement(this.template(_.extend({
-                executeButtonText: gettext('Submit'),
-                cancelButtonText: gettext('Cancel')
+                executeButtonText: null,
+                cancelButtonText: null
             }, this.options)));
 
             var body = this.$('.modal-body');
