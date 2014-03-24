@@ -111,7 +111,7 @@ commands.register('newNodeRequested', function(canvas, params, user) {
 
     var insertNode = function(insertion, callback) {
         var doc = canvas.wlxmlDocument,
-            node, metadata, creator, dialog;
+            metadata, creator, dialog;
 
         var execCallback = function(node) {
             if(callback) {
@@ -121,7 +121,7 @@ commands.register('newNodeRequested', function(canvas, params, user) {
 
         if(params.wlxmlTag === 'aside' && params.wlxmlClass === 'comment') {
             doc.transaction(function() {
-                node = insertion();
+                var node = insertion();
                 if(user) {
                     creator = user.name;
                     if(user.email) {
@@ -134,8 +134,10 @@ commands.register('newNodeRequested', function(canvas, params, user) {
                 metadata = node.getMetadata();
                 metadata.add({key: 'creator', value: creator});
                 metadata.add({key: 'date', value: datetime.currentStrfmt()});
+                return node;
+            }, {
+                success: execCallback
             });
-            execCallback(node);
         } else if(params.wlxmlClass === 'link') {
             dialog = Dialog.create({
                 title: gettext('Create link'),
@@ -147,18 +149,19 @@ commands.register('newNodeRequested', function(canvas, params, user) {
             });
             dialog.on('execute', function(event) {
                 doc.transaction(function() {
-                    node = insertion();
+                    var node = insertion();
                     node.setAttr('href', event.formData.href);
                     event.success();
+                    return node;
+                }, {
+                    success: execCallback
                 });
-                execCallback(node);
             });
             dialog.show();
         } else {
             doc.transaction(function() {
-                node = insertion();
-            });
-            execCallback(node);
+                return insertion();
+            }, {success: execCallback});
         }
     };
 

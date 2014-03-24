@@ -1,0 +1,46 @@
+define(function(require) {
+    
+'use strict';
+
+/* globals gettext */
+
+var _ = require('libs/underscore'),
+    Dialog = require('views/dialog/dialog'),
+    wlxml = require('wlxml/wlxml'),
+    logging = require('fnpjs/logging/logging');
+
+
+var logger = logging.getLogger('document');
+
+var Document = function() {
+    wlxml.WLXMLDocument.apply(this, Array.prototype.slice.call(arguments, 0));
+};
+Document.prototype = Object.create(wlxml.WLXMLDocument.prototype);
+
+_.extend(Document.prototype, {
+    transaction: function(body, params) {
+        params = params || {};
+        var error = params.error;
+        params.error = function(e) {
+            logger.exception(e);
+
+            var dialog = Dialog.create({
+                title: gettext('Error'),
+                text: gettext('Something wrong happend when applying this change so it was undone.'),
+                executeButtonText: gettext('Close')
+            });
+            dialog.show();
+            if(error) {
+                error(e);
+            }
+            dialog.on('execute', function(e) {
+                e.success();
+            });
+        }.bind(this);
+        return wlxml.WLXMLDocument.prototype.transaction.call(this, body, params);
+    }
+});
+
+return Document;
+
+});

@@ -4,8 +4,9 @@ define([
     'wlxml/wlxml',
     'wlxml/extensions/list/list',
     'fnpjs/logging/logging',
-    'fnpjs/datetime'
-], function($, Dialog, wlxml, listExtension, logging, datetime) {
+    'fnpjs/datetime',
+    './document'
+], function($, Dialog, wlxml, listExtension, logging, datetime, Document) {
 
 'use strict';
 /* global gettext, alert, window */
@@ -36,11 +37,11 @@ return function(sandbox) {
     var loadDocument = function(text, isDraft, draftTimestamp) {
         logger.debug('loading document');
         try {
-            wlxmlDocument = wlxml.WLXMLDocumentFromXML(text);
+            wlxmlDocument = wlxml.WLXMLDocumentFromXML(text, {}, Document);
         } catch(e) {
             logger.exception(e);
             alert(gettext('This document contains errors and can\'t be loaded. :(')); // TODO
-            wlxmlDocument = wlxml.WLXMLDocumentFromXML(stubDocument);
+            wlxmlDocument = wlxml.WLXMLDocumentFromXML(stubDocument, {}, Document);
         }
 
         wlxmlDocument.registerExtension(listExtension);
