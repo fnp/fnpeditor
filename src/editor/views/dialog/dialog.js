@@ -48,7 +48,7 @@ define(function(require) {
 
             this.$el.modal({backdrop: 'static'});
             this.$el.modal('show');
-            this.$('textarea').focus();
+            this.$('textarea, input').first().focus();
         },
         onExecute: function(e) {
             e.preventDefault();
