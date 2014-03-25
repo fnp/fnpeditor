@@ -24,6 +24,12 @@ var OpenSelect = Backbone.View.extend({
             this.input = $(this.options.inputTemplate);
             this.$('.input-wrapper').append(this.input);
         }
+        if(this.options.maxHeight) {
+            this.menu.css('max-height', this.options.maxHeight);
+        }
+        if(this.options.maxWidth) {
+            this.menu.css('max-width', this.options.maxWidth);
+        }
     },
     toggleHandler: function(toggle) {
         this.$('.toggle').css('visibility', toggle ? 'inherit' : 'hidden');
