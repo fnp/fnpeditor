@@ -12,9 +12,26 @@ return function(sandbox) {
 
     var currentNode,
         adding = false,
-        metadataKeys = (sandbox.getConfig().metadataKeys || [
-            'author', 'creator', 'date'
-        ]).sort();
+        metadataConfig = (sandbox.getConfig().metadata || []).sort(function(configRow1, configRow2) {
+            if(configRow1.key < configRow2.key) {
+                return -1;
+            }
+            if(configRow1.key > configRow2.key) {
+                return 1;
+            }
+            return 0;
+        });
+
+    var getValuesForKey = function(key) {
+        var toret = [];
+        metadataConfig.some(function(configRow) {
+            if(configRow.key === key) {
+                toret = configRow.values || [];
+                return true;
+            }
+        });
+        return toret;
+    };
     
     var view = {
         node: $(_.template(mainTemplate)()),
@@ -76,17 +93,43 @@ return function(sandbox) {
             newRow.appendTo(this.metaTable);
             newRow.data('row', row);
 
-            var selectView = new OpenSelectView({
+            var keySelectView = new OpenSelectView({
                 value: row.getKey() || '',
                 inputTemplate: _.template('<div class="openInput rng-module-metadataEditor-metaItemKey" contentEditable="true"><%= value %></div>')({value: row.getKey() || '' }),
                 setInput: function(inputDOM, value) {
-                    inputDOM.text(value);
-                    row.setKey(value);
+                    if(inputDOM.text() !== value) {
+                        inputDOM.text(value);
+                        row.setKey(value);
+                    }
+                    valueSelectView.clearItems();
+                    getValuesForKey(value).forEach(function(value) {
+                        valueSelectView.addItem(value);
+                    });
                 }
             });
-            newRow.find('td:first').append(selectView.el);
-            metadataKeys.forEach(function(key) {
-                selectView.addItem(key);
+            newRow.find('td:first').append(keySelectView.el).data('view', keySelectView);
+
+
+            var valueSelectView = new OpenSelectView({
+                value: row.getValue(),
+                inputTemplate: _.template('<div class="openInput rng-module-metadataEditor-metaItemValue" contentEditable="true"><%= value %></div>')({value: row.getValue() || '' }),
+                setInput: function(inputDOM, value) {
+                    if(inputDOM.text() !== value) {
+                        inputDOM.text(value);
+                        row.setValue(value);
+                    }
+                }
+            });
+            newRow.find('td:nth-child(2)').append(valueSelectView.el).data('view', valueSelectView);
+            
+
+            metadataConfig.forEach(function(configRow) {
+                keySelectView.addItem(configRow.key);
+                if(row.getKey() === configRow.key) {
+                    (configRow.values || []).forEach(function(value) {
+                        valueSelectView.addItem(value);
+                    });
+                }
             });
 
             if(adding) {
@@ -97,16 +140,12 @@ return function(sandbox) {
         },
         updateMetadataRow: function(row) {
             this._getRowTr(row, function(tr) {
-                var tds = tr.find('td [contenteditable]'),
+                var tds = tr.find('td'),
                     keyTd = $(tds[0]),
                     valueTd = $(tds[1]);
 
-                if(keyTd.text() !== row.getKey()) {
-                    keyTd.text(row.getKey());
-                }
-                if(valueTd.text() !== row.getValue()) {
-                    valueTd.text(row.getValue());
-                }
+                keyTd.data('view').setInput(row.getKey());
+                valueTd.data('view').setInput(row.getValue());
             });
         },
         removeMetadataRow: function(row) {
