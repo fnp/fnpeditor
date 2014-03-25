@@ -32,6 +32,10 @@ var OpenSelect = Backbone.View.extend({
         this.menu.append(_.template(itemTemplate)({value: value}));
         this.toggleHandler(true);
     },
+    clearItems: function() {
+        this.menu.empty();
+        this.toggleHandler(false);
+    },
     onSelection: function(e) {
         var val = $(e.target).text();
         if(this.options.setInput) {
