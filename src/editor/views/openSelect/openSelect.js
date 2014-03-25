@@ -19,13 +19,18 @@ var OpenSelect = Backbone.View.extend({
         this.$el.append(_.template(template)({value: this.options.value || ''}));
         this.$('.toggle').dropdown();
         this.menu = this.$('.dropdown-menu');
+        this.toggleHandler(false);
         if(this.options.inputTemplate) {
             this.input = $(this.options.inputTemplate);
             this.$('.input-wrapper').append(this.input);
         }
     },
+    toggleHandler: function(toggle) {
+        this.$('.toggle').css('visibility', toggle ? 'inherit' : 'hidden');
+    },
     addItem: function(value) {
         this.menu.append(_.template(itemTemplate)({value: value}));
+        this.toggleHandler(true);
     },
     onSelection: function(e) {
         var val = $(e.target).text();
