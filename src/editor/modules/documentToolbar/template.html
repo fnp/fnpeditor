@@ -1,44 +1,20 @@
 <div class="rng-module-documentToolbar">
     <div class="rng-module-documentToolbar-toolbarGroup">
-        <button data-name="new-node" data-meta="header/" data-btn-type="cmd" class="btn btn-mini">nagłówek</button>
-        <button data-name="new-node" data-meta="div/p" data-btn-type="cmd" class="btn btn-mini">paragraf</button>
-        <button data-name="new-node" data-meta="span/cite" data-btn-type="cmd" class="btn btn-mini">cytat</i></button>
-        <button data-name="new-node" data-meta="span/link" data-btn-type="cmd" class="btn btn-mini">link</i></button>
-        <select class="rng-module-documentToolbar-toolbarOption" data-option="newTag-tag">
-            <% var options = ['', 'section', 'header', 'div', 'span', 'aside']; %>
-            <% options.forEach(function(option) { %>
-                <option value="<%= option %>" <% if(option==='span') { %>selected<% } %>><%= wlxmlUtils.getTagLabel(option) %></option>
-            <% }); %>
-        </select>
-        <select class="rng-module-documentToolbar-toolbarOption" data-option="newTag-class">
-            <% var options = ['', 'author', 'title', 'cite', 'cite.code', 'cite.code.xml', 'list.items', 'item', 'link', 'p', 'footnote', 'todo', 'emp', 'gap'] %>
-            <% options.forEach(function(option) { %>
-                <option value="<%= option.replace(/\./g, '-') %>" <% if(option==='cite') { %>selected<% } %>><%= wlxmlUtils.getClassLabel(option) %></option>
-            <% }); %>
-        </select>
-        <button data-name="new-node" data-btn-type="cmd" class="btn btn-mini"><i class="icon-plus"></i></button>
-    </div>
-    <div class="rng-module-documentToolbar-toolbarGroup">
-        <button data-name="take-away-node" data-btn-type="cmd" class="btn btn-mini"><i class="icon-remove-circle"></i></button>
-        <button data-name="remove-node" data-btn-type="cmd" data-meta="bullets" class="btn btn-mini"><i class="icon-ban-circle"></i></button>
-    </div>    
-    <div class="rng-module-documentToolbar-toolbarGroup">
-        <button data-name="list" data-btn-type="cmd" data-meta="bullets" class="btn btn-mini"><i class="icon-list"></i></button>
-        <button data-name="unwrap-node" data-btn-type="cmd" class="btn btn-mini"><i class="icon-arrow-up"></i></button>
-        <button data-name="wrap-node" data-btn-type="cmd" class="btn btn-mini"><i class="icon-arrow-down"></i></button>
-    </div>
-
-    <div class="rng-module-documentToolbar-toolbarGroup">
         <button data-name="undo" data-btn-type="cmd" data-meta="bullets" class="btn btn-mini"><i class="icon-share-alt" style="-webkit-transform: scale(-1,1); transform: scale(-1, 1);"></i></button>
         <button data-name="redo" data-btn-type="cmd" class="btn btn-mini"><i class="icon-share-alt"></i></button>
     </div>
-    <div class="rng-module-documentToolbar-toolbarGroup">
-        <button data-name="footnote" data-btn-type="cmd" class="btn btn-mini"><i class="icon-asterisk"></i></button>
-        <button data-name="new-node" data-meta="aside/comment" data-btn-type="cmd" class="btn btn-mini"><i class="icon-comment"></i></button>
 
-    </div>
     <div class="rng-module-documentToolbar-toolbarGroup">
-        <button data-name="grid" data-btn-type="toggle" class="btn btn-mini"><i class="icon-th-large"></i></button>
+        <button data-name="new-node" data-meta="span/" data-btn-type="cmd" class="btn btn-mini">tekst</button>
+        <button data-name="new-node" data-meta="header/" data-btn-type="cmd" class="btn btn-mini">nagłówek</button>
+        <button data-name="new-node" data-meta="span/cite" data-btn-type="cmd" class="btn btn-mini">cytat</i></button>
+        <button data-name="list" data-btn-type="cmd" data-meta="bullets" class="btn btn-mini"><i class="icon-list"></i></button>
+        <button data-name="new-node" data-meta="aside/comment" data-btn-type="cmd" class="btn btn-mini"><i class="icon-comment"></i></button>
+    </div>
+
+    <div class="rng-module-documentToolbar-toolbarGroup">
+        <button data-name="new-node" data-meta="span/emp" data-btn-type="cmd" class="btn btn-mini">wyróżnienie</button>
+        <button data-name="new-node" data-meta="span/link" data-btn-type="cmd" class="btn btn-mini">link</i></button>
     </div>
 
     <% if(templates) { %>
