@@ -36,11 +36,14 @@ var OpenSelect = Backbone.View.extend({
         this.menu.empty();
         this.toggleHandler(false);
     },
+    setInput: function(value) {
+        if(this.options.setInput) {
+            this.options.setInput(this.input, value);
+        }
+    },
     onSelection: function(e) {
         var val = $(e.target).text();
-        if(this.options.setInput) {
-            this.options.setInput(this.input, val);
-        }
+        this.setInput(val);
         this.trigger('itemSelected', this.input.val());
     }
 });
