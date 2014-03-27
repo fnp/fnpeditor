@@ -2,15 +2,17 @@ define([
 'libs/jquery',
 'libs/underscore',
 'libs/backbone',
+'fnpjs/logging/logging',
 'modules/documentCanvas/canvas/documentElement',
 'modules/documentCanvas/canvas/keyboard',
 'modules/documentCanvas/canvas/utils',
 'modules/documentCanvas/canvas/wlxmlListener'
-], function($, _, Backbone, documentElement, keyboard, utils, wlxmlListener) {
+], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener) {
     
 'use strict';
 /* global document:false, window:false, Node:false */
 
+var logger = logging.getLogger('canvas');
 
 var TextHandler = function(canvas) {this.canvas = canvas; this.buffer = null;};
 $.extend(TextHandler.prototype, {
@@ -228,11 +230,18 @@ $.extend(Canvas.prototype, {
         return this.getDocumentElement(this.wrapper.find('.current-text-element')[0]);
     },
 
-
+    contains: function(element) {
+        return element.dom().parents().index(this.wrapper) !== -1;
+    },
 
     setCurrentElement: function(element, params) {
         if(!(element instanceof documentElement.DocumentElement)) {
             element = utils.findCanvasElement(element);
+        }
+
+        if(!element || !this.contains(element)) {
+            logger.warning('Cannot set current element: element doesn\'t exist on canvas');
+            return;
         }
 
         params = _.extend({caretTo: 'end'}, params);
