@@ -45,7 +45,7 @@ var handlers = {
     nodeTagChange: function(event) {
         var canvasNode = utils.findCanvasElement(event.meta.node);
         canvasNode.setWlxmlTag(event.meta.newTagName);
-        canvasNode.data('wlxmlNode', event.meta.node);
+        canvasNode.wlxmlNode = event.meta.node;
     },
     nodeAdded: function(event, checkForExistence) {
         if(event.meta.node.isRoot()) {

@@ -19,7 +19,6 @@ var DocumentElement = function(wlxmlNode, canvas) {
 
     this.$element = this.createDOM();
     this.$element.data('canvas-element', this);
-    this.data('wlxmlNode', wlxmlNode);
 };
 
 $.extend(DocumentElement.prototype, {

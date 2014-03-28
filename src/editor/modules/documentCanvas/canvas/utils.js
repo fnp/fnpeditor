@@ -45,7 +45,7 @@ var findCanvasElementInParent = function(wlxmlChildNode, wlxmlParentNode) {
     } else {
         parentElement = findCanvasElement(wlxmlParentNode);
         parentElement.children().forEach(function(child) {
-            if(child.data('wlxmlNode').sameNode(wlxmlChildNode)) { // czemu tu, przy drugim undo child nie mial data?
+            if(child.wlxmlNode.sameNode(wlxmlChildNode)) { // czemu tu, przy drugim undo child nie mial data?
                 toret = child;
             }
         });

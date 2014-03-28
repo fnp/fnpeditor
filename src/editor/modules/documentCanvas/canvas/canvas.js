@@ -177,8 +177,8 @@ $.extend(Canvas.prototype, {
 
                     //textElement.data('wlxmlNode').setText(toSet);
                     //textElement.data('wlxmlNode').document.transform('setText', {node: textElement.data('wlxmlNode'), text: toSet});
-                    if(textElement.data('wlxmlNode').getText() !== toSet) {
-                        canvas.textHandler.handle(textElement.data('wlxmlNode'), toSet);
+                    if(textElement.wlxmlNode.getText() !== toSet) {
+                        canvas.textHandler.handle(textElement.wlxmlNode, toSet);
                     }
                 }
             });
@@ -307,7 +307,7 @@ $.extend(Canvas.prototype, {
                 this._moveCaretToTextElement(textElementToLand, params.caretTo); // as method on element?
             }
             if(!(textElementToLand.sameNode(currentTextElement))) {
-                this.publisher('currentTextElementSet', textElementToLand.data('wlxmlNode'));
+                this.publisher('currentTextElementSet', textElementToLand.wlxmlNode);
             }
         } else {
             document.getSelection().removeAllRanges();
@@ -316,7 +316,7 @@ $.extend(Canvas.prototype, {
         if(!(currentNodeElement && currentNodeElement.sameNode(nodeElementToLand))) {
             _markAsCurrent(nodeElementToLand);
 
-            this.publisher('currentNodeElementSet', nodeElementToLand.data('wlxmlNode'));
+            this.publisher('currentNodeElementSet', nodeElementToLand.wlxmlNode);
         }
     },
 
