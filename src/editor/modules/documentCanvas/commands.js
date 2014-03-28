@@ -120,21 +120,21 @@ commands.register('newNodeRequested', function(canvas, params, user) {
         };
 
         if(params.wlxmlTag === 'aside' && params.wlxmlClass === 'comment') {
-            doc.startTransaction();
-            node = insertion();
-            if(user) {
-                creator = user.name;
-                if(user.email) {
-                    creator += ' (' + user.email + ')';
+            doc.transaction(function() {
+                node = insertion();
+                if(user) {
+                    creator = user.name;
+                    if(user.email) {
+                        creator += ' (' + user.email + ')';
+                    }
+                } else {
+                    creator = 'anonymous';
                 }
-            } else {
-                creator = 'anonymous';
-            }
 
-            metadata = node.getMetadata();
-            metadata.add({key: 'creator', value: creator});
-            metadata.add({key: 'date', value: datetime.currentStrfmt()});
-            doc.endTransaction();
+                metadata = node.getMetadata();
+                metadata.add({key: 'creator', value: creator});
+                metadata.add({key: 'date', value: datetime.currentStrfmt()});
+            });
             execCallback(node);
         } else if(params.wlxmlClass === 'link') {
             dialog = Dialog.create({
@@ -146,18 +146,18 @@ commands.register('newNodeRequested', function(canvas, params, user) {
                 ]
             });
             dialog.on('execute', function(event) {
-                doc.startTransaction();
-                node = insertion();
-                node.setAttr('href', event.formData.href);
-                doc.endTransaction();
-                event.success();
+                doc.transaction(function() {
+                    node = insertion();
+                    node.setAttr('href', event.formData.href);
+                    event.success();
+                });
                 execCallback(node);
             });
             dialog.show();
         } else {
-            doc.startTransaction();
-            node = insertion();
-            doc.endTransaction();
+            doc.transaction(function() {
+                node = insertion();
+            });
             execCallback(node);
         }
     };
@@ -228,9 +228,10 @@ commands.register('newNodeRequested', function(canvas, params, user) {
                     ]
                 });
                 dialog.on('execute', function(event) {
-                    canvas.wlxmlDocument.startTransaction();
-                    node.setAttr('href', event.formData.href);
-                    event.success();
+                    canvas.wlxmlDocument.transaction(function() {
+                        node.setAttr('href', event.formData.href);
+                        event.success();
+                    });
                     canvas.wlxmlDocument.endTransaction();
                 });
                 dialog.show();
