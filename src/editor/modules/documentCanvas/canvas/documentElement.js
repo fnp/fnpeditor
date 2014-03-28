@@ -10,58 +10,28 @@ define([
 
 
 // DocumentElement represents a text or an element node from WLXML document rendered inside Canvas
-var DocumentElement = function(htmlElement, canvas) {
+var DocumentElement = function(wlxmlNode, canvas) {
     if(arguments.length === 0) {
         return;
     }
+    this.wlxmlNode = wlxmlNode;
     this.canvas = canvas;
-    this._setupDOMHandler(htmlElement);
+
+    this.$element = this.createDOM();
+    this.$element.data('canvas-element', this);
 };
-
-
-var elementTypeFromWlxmlNode = function(wlxmlNode) {
-    return wlxmlNode.nodeType === Node.TEXT_NODE ? DocumentTextElement : DocumentNodeElement;
-};
-
-$.extend(DocumentElement, {
-    create: function(node, canvas) {
-        return elementTypeFromWlxmlNode(node).create(node, canvas);
-    },
-
-    fromHTMLElement: function(htmlElement, canvas) {
-        var $element = $(htmlElement);
-        if(htmlElement.nodeType === Node.ELEMENT_NODE && $element.attr('document-node-element') !== undefined) {
-            return DocumentNodeElement.fromHTMLElement(htmlElement, canvas);
-        }
-        if($element.attr('document-text-element') !== undefined || (htmlElement.nodeType === Node.TEXT_NODE && $element.parent().attr('document-text-element') !== undefined)) {
-            return DocumentTextElement.fromHTMLElement(htmlElement, canvas);
-        }
-        return undefined;
-    }
-});
 
 $.extend(DocumentElement.prototype, {
-    _setupDOMHandler: function(htmlElement) {
-        this.$element = $(htmlElement);
-    },
     bound: function() {
         return $.contains(document.documentElement, this.dom()[0]);
     },
     dom: function() {
         return this.$element;
     },
-    data: function() {
-        var dom = this.dom(),
-            args = Array.prototype.slice.call(arguments, 0);
-        if(args.length === 2 && args[1] === undefined) {
-            return dom.removeData(args[0]);
-        }
-        return dom.data.apply(dom, arguments);
-    },
     parent: function() {
         var parents = this.$element.parents('[document-node-element]');
         if(parents.length) {
-            return DocumentElement.fromHTMLElement(parents[0], this.canvas);
+            return this.canvas.getDocumentElement(parents[0]);
         }
         return null;
     },
@@ -128,29 +98,37 @@ $.extend(DocumentElement.prototype, {
     },
 
     exec: function(method) {
-        var manager = this.data('_wlxmlManager');
-        if(manager[method]) {
-            return manager[method].apply(manager, Array.prototype.slice.call(arguments, 1));
+        if(this.manager && this.manager[method]) {
+            return this.manager[method].apply(this.manager, Array.prototype.slice.call(arguments, 1));
         }
     }
 });
 
 
 // DocumentNodeElement represents an element node from WLXML document rendered inside Canvas
-var DocumentNodeElement = function(htmlElement, canvas) {
-    DocumentElement.call(this, htmlElement, canvas);
+var DocumentNodeElement = function(wlxmlNode, canvas) {
+    DocumentElement.call(this, wlxmlNode, canvas);
+    wlxmlNode.setData('canvasElement', this);
 };
 
-$.extend(DocumentNodeElement, {
-    create: function(wlxmlNode, canvas) {
-        return this.fromHTMLElement(this.createDOM(wlxmlNode, canvas)[0], canvas);
-    },
 
-    fromHTMLElement: function(htmlElement, canvas) {
-        return new this(htmlElement, canvas);
-    },
+var manipulate = function(e, params, action) {
+    var element;
+    if(params instanceof DocumentElement) {
+        element = params;
+    } else {
+        element = e.canvas.createElement(params);
+    }
+    var target = (action === 'append' || action === 'prepend') ? e._container() : e.dom();
+    target[action](element.dom());
+    return element;
+};
 
-    createDOM: function(wlxmlNode, canvas) {
+DocumentNodeElement.prototype = new DocumentElement();
+
+
+$.extend(DocumentNodeElement.prototype, {
+    createDOM: function() {
         var dom = $('<div>')
                 .attr('document-node-element', ''),
             widgetsContainer = $('<div>')
@@ -162,39 +140,14 @@ $.extend(DocumentNodeElement, {
         dom.append(widgetsContainer, container);
         // Make sure widgets aren't navigable with arrow keys
         widgetsContainer.find('*').add(widgetsContainer).attr('tabindex', -1);
+        this.$element = dom; //@!!!
+        this.setWlxml({tag: this.wlxmlNode.getTagName(), klass: this.wlxmlNode.getClass()});
 
-        var element = this.fromHTMLElement(dom[0], canvas);
-
-        element.data('wlxmlNode', wlxmlNode);
-        wlxmlNode.setData('canvasElement', element);
-
-        element.setWlxml({tag: wlxmlNode.getTagName(), klass: wlxmlNode.getClass()});
-
-        wlxmlNode.contents().forEach(function(node) {
-            container.append(DocumentElement.create(node, canvas).dom());
+        this.wlxmlNode.contents().forEach(function(node) {
+            container.append(this.canvas.createElement(node).dom());
         }.bind(this));
-
         return dom;
-    }
-
-});
-
-var manipulate = function(e, params, action) {
-    var element;
-    if(params instanceof DocumentElement) {
-        element = params;
-    } else {
-        element = DocumentElement.create(params);
-    }
-    var target = (action === 'append' || action === 'prepend') ? e._container() : e.dom();
-    target[action](element.dom());
-    return element;
-};
-
-DocumentNodeElement.prototype = new DocumentElement();
-
-
-$.extend(DocumentNodeElement.prototype, {
+    },
     _container: function() {
         return this.dom().children('[document-element-content]');
     },
@@ -226,7 +179,7 @@ $.extend(DocumentNodeElement.prototype, {
         var elementContent = this._container().contents();
         var element = this;
         elementContent.each(function() {
-            var childElement = DocumentElement.fromHTMLElement(this, element.canvas);
+            var childElement = element.canvas.getDocumentElement(this);
             if(childElement === undefined) {
                 return true;
             }
@@ -291,9 +244,8 @@ $.extend(DocumentNodeElement.prototype, {
         this.__updatingWlxml = false;
     },
     _updateWlxmlManager: function() {
-        var manager = wlxmlManagers.getFor(this);
-        this.data('_wlxmlManager', manager);
-        manager.setup();
+        this.manager = wlxmlManagers.getFor(this);
+        this.manager.setup();
     },
     is: function(what) {
         if(what === 'list' && _.contains(['list.items', 'list.items.enum'], this.getWlxmlClass())) {
@@ -313,36 +265,19 @@ $.extend(DocumentNodeElement.prototype, {
     },
 
     toggle: function(toggle) {
-        var mng = this.data('_wlxmlManager');
-        if(mng) {
-            mng.toggle(toggle);
+        if(this.manager) {
+            this.manager.toggle(toggle);
         }
     }
 });
 
 
 // DocumentNodeElement represents a text node from WLXML document rendered inside Canvas
-var DocumentTextElement = function(htmlElement, canvas) {
-    DocumentElement.call(this, htmlElement, canvas);
+var DocumentTextElement = function(wlxmlTextNode, canvas) {
+    DocumentElement.call(this, wlxmlTextNode, canvas);
 };
 
 $.extend(DocumentTextElement, {
-    createDOM: function(wlxmlTextNode, canvas) {
-        var dom = $('<div>')
-            .attr('document-text-element', '')
-            .text(wlxmlTextNode.getText() || utils.unicode.ZWS),
-        element = this.fromHTMLElement(dom[0], canvas);
-        element.data('wlxmlNode', wlxmlTextNode);
-        return dom;
-    },
-
-    create: function(wlxmlTextNode, canvas) {
-        return this.fromHTMLElement(this.createDOM(wlxmlTextNode, canvas)[0], canvas);
-    },
-
-    fromHTMLElement: function(htmlElement, canvas) {
-        return new this(htmlElement, canvas);
-    },
     isContentContainer: function(htmlElement) {
         return htmlElement.nodeType === Node.TEXT_NODE && $(htmlElement).parent().is('[document-text-element]');
     }
@@ -351,14 +286,10 @@ $.extend(DocumentTextElement, {
 DocumentTextElement.prototype = new DocumentElement();
 
 $.extend(DocumentTextElement.prototype, {
-    _setupDOMHandler: function(htmlElement) {
-        var $element = $(htmlElement);
-        if(htmlElement.nodeType === Node.TEXT_NODE) {
-            this.$element = $element.parent();
-        }
-        else {
-            this.$element = $element;
-        }
+    createDOM: function() {
+        return $('<div>')
+            .attr('document-text-element', '')
+            .text(this.wlxmlNode.getText() || utils.unicode.ZWS);
     },
     detach: function() {
         this.dom().detach();
@@ -388,7 +319,7 @@ $.extend(DocumentTextElement.prototype, {
         if(params instanceof DocumentNodeElement) {
             element = params;
         } else {
-            element = DocumentElement.create(params, this.canvas);
+            element = this.canvas.createElement(params);
         }
         this.dom().wrap('<div>');
         this.dom().parent().after(element.dom());
@@ -403,33 +334,12 @@ $.extend(DocumentTextElement.prototype, {
         if(params instanceof DocumentNodeElement) {
             element = params;
         } else {
-            element = DocumentNodeElement.create(params, this.canvas);
+            element = this.canvas.createElement(params);
         }
         this.dom().wrap('<div>');
         this.dom().parent().before(element.dom());
         this.dom().unwrap();
         return element;
-    },
-
-    divide: function(params) {
-        var myText = this.getText();
-
-        if(params.offset === myText.length) {
-            return this.after(params);
-        }
-        if(params.offset === 0) {
-            return this.before(params);
-        }
-
-        var lhsText = myText.substr(0, params.offset),
-            rhsText = myText.substr(params.offset),
-            newElement = DocumentNodeElement.create({tag: params.tag, klass: params.klass}, this.canvas),
-            rhsTextElement = DocumentTextElement.create({text: rhsText});
-
-        this.setText(lhsText);
-        this.after(newElement);
-        newElement.after(rhsTextElement);
-        return newElement;
     },
 
     toggleHighlight: function() {

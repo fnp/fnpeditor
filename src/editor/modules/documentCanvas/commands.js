@@ -34,7 +34,7 @@ commands.register('redo', function(canvas) {
 });
 
 commands.register('remove-node', function(canvas) {
-    canvas.getCurrentNodeElement().data('wlxmlNode').detach();
+    canvas.getCurrentNodeElement().wlxmlNode.detach();
 });
 
 commands.register('unwrap-node', function(canvas) {
@@ -45,14 +45,14 @@ commands.register('unwrap-node', function(canvas) {
         parent2 = selectionEnd.element.parent() || undefined;
 
     var selectionAnchor = cursor.getSelectionAnchor(),
-        node1 = parent1.data('wlxmlNode'),
-        node2 = parent2.data('wlxmlNode'),
+        node1 = parent1.wlxmlNode,
+        node2 = parent2.wlxmlNode,
         doc = node1.document;
     if(doc.areItemsOfSameList({node1: node1, node2: node2})) {
         doc.extractItems({item1: node1, item2: node2});
         canvas.setCurrentElement(selectionAnchor.element, {caretTo: selectionAnchor.offset});
     } else if(!cursor.isSelecting()) {
-        var nodeToUnwrap = cursor.getPosition().element.data('wlxmlNode'),
+        var nodeToUnwrap = cursor.getPosition().element.wlxmlNode,
             parentNode = nodeToUnwrap.unwrap();
         if(parentNode) {
             canvas.setCurrentElement(utils.findCanvasElement(parentNode));
@@ -67,8 +67,8 @@ commands.register('wrap-node', function(canvas) {
         parent1 = selectionStart.element.parent() || undefined,
         parent2 = selectionEnd.element.parent() || undefined;
 
-    var node1 = parent1.data('wlxmlNode'),
-        node2 = parent2.data('wlxmlNode'),
+    var node1 = parent1.wlxmlNode,
+        node2 = parent2.wlxmlNode,
         doc = node1.document;
 
     if(doc.areItemsOfSameList({node1: node1, node2: node2})) {
@@ -90,8 +90,8 @@ commands.register('list', function(canvas, params) {
         return;
     }
 
-    var node1 = parent1.data('wlxmlNode'),
-        node2 = parent2.data('wlxmlNode'),
+    var node1 = parent1.wlxmlNode,
+        node2 = parent2.wlxmlNode,
         doc = node1.document;
     
     doc.createList({node1: node1, node2: node2});
@@ -165,7 +165,7 @@ commands.register('newNodeRequested', function(canvas, params, user) {
     if(cursor.isSelecting()) {
         if(cursor.isSelectingSiblings()) {
             if(cursor.isSelectingWithinElement()) {
-                wlxmlNode = selectionStart.element.data('wlxmlNode');
+                wlxmlNode = selectionStart.element.wlxmlNode;
                 caretTo = selectionStart.offset < selectionEnd.offset ? 'start' : 'end';
 
                 insertNode(
@@ -179,7 +179,7 @@ commands.register('newNodeRequested', function(canvas, params, user) {
                 );
             }
             else {
-                wlxmlNode = selectionStart.element.data('wlxmlNode').parent();
+                wlxmlNode = selectionStart.element.wlxmlNode.parent();
                 caretTo = selectionStart.element.sameNode(cursor.getSelectionAnchor().element) ? 'end' : 'start';
 
                 insertNode(
@@ -188,7 +188,7 @@ commands.register('newNodeRequested', function(canvas, params, user) {
                             _with: {tagName: params.wlxmlTag, attrs: {'class': params.wlxmlClass}},
                             offsetStart: selectionStart.offset,
                             offsetEnd: selectionEnd.offset,
-                            textNodeIdx: [wlxmlNode.indexOf(selectionStart.element.data('wlxmlNode')), wlxmlNode.indexOf(selectionEnd.element.data('wlxmlNode'))] //parent.childIndex(selectionEnd.element)]
+                            textNodeIdx: [wlxmlNode.indexOf(selectionStart.element.wlxmlNode), wlxmlNode.indexOf(selectionEnd.element.wlxmlNode)] //parent.childIndex(selectionEnd.element)]
                         });
                     },
                     function(wrapper) {
@@ -198,8 +198,8 @@ commands.register('newNodeRequested', function(canvas, params, user) {
                 );
             }
         } else {
-            var node1 = selectionStart.element.data('wlxmlNode'),
-                node2 = selectionEnd.element.data('wlxmlNode'),
+            var node1 = selectionStart.element.wlxmlNode,
+                node2 = selectionEnd.element.wlxmlNode,
                 siblingParents = canvas.wlxmlDocument.getSiblingParents({node1: node1, node2: node2});
 
             if(siblingParents) {
@@ -215,7 +215,7 @@ commands.register('newNodeRequested', function(canvas, params, user) {
             }
         }
     } else if(canvas.getCurrentNodeElement()) {
-        wlxmlNode = canvas.getCurrentNodeElement().data('wlxmlNode');
+        wlxmlNode = canvas.getCurrentNodeElement().wlxmlNode;
 
         var linkFound = [wlxmlNode].concat(wlxmlNode.parents()).some(function(node) {
             if(node.getClass() === 'link') {
@@ -272,9 +272,9 @@ commands.register('footnote', function(canvas, params) {
         
 
     if(cursor.isSelectingWithinElement()) {
-        asideNode = position.element.data('wlxmlNode').wrapWith({tagName: 'aside', attrs:{'class': 'footnote'}, start: cursor.getSelectionStart().offset, end: cursor.getSelectionEnd().offset});
+        asideNode = position.element.wlxmlNode.wrapWith({tagName: 'aside', attrs:{'class': 'footnote'}, start: cursor.getSelectionStart().offset, end: cursor.getSelectionEnd().offset});
     } else {
-        node = position.element.data('wlxmlNode');
+        node = position.element.wlxmlNode;
         node.document.transaction(function() {
             asideNode = node.divideWithElementNode({tagName: 'aside', attrs:{'class': 'footnote'}}, {offset: position.offset});
             asideNode.append({text: ''});
@@ -295,7 +295,7 @@ commands.register('take-away-node', function(canvas) {
         return;
     }
 
-    var range = nodeElement.data('wlxmlNode').unwrapContent();
+    var range = nodeElement.wlxmlNode.unwrapContent();
 
     if(element) {
         var elementIsFirstChild = nodeElement.childIndex(element);

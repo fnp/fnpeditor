@@ -51,7 +51,7 @@ handlers.push({key: KEYS.ENTER,
             var currentElement = canvas.getCurrentNodeElement();
             if(currentElement) {
                 canvas.wlxmlDocument.startTransaction();
-                added = currentElement.data('wlxmlNode').after({
+                added = currentElement.wlxmlNode.after({
                     tagName: currentElement.getWlxmlTag() || 'div',
                     attrs: {'class': currentElement.getWlxmlClass() || 'p'}
                 });
@@ -69,7 +69,7 @@ handlers.push({key: KEYS.ENTER,
                 }
 
                 canvas.wlxmlDocument.startTransaction();
-                added = element.data('wlxmlNode').after(
+                added = element.wlxmlNode.after(
                     {tagName: element.getWlxmlTag() || 'div', attrs: {'class': element.getWlxmlClass() || 'p'}}
                 );
                 added.append({text: ''});
@@ -101,7 +101,7 @@ handlers.push({key: KEYS.ENTER,
                 //     gotoOptions = {caretTo: 'start'};
                 // }
 
-                var result = position.element.data('wlxmlNode').breakContent({offset: position.offset}),
+                var result = position.element.wlxmlNode.breakContent({offset: position.offset}),
                     goto, gotoOptions;
                 if(result.emptyText) {
                     goto = result.emptyText;
@@ -183,7 +183,7 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
         var cursor = canvas.getCursor(),
             position = canvas.getCursor().getPosition(),
             element = position.element,
-            node = element.data('wlxmlNode'),
+            node = element.wlxmlNode,
             direction = 'above',
             caretTo = 'end',
             goto;
@@ -219,11 +219,11 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
 
             canvas.wlxmlDocument.deleteText({
                 from: {
-                    node: start.element.data('wlxmlNode'),
+                    node: start.element.wlxmlNode,
                     offset: start.offset
                 },
                 to: {
-                    node: end.element.data('wlxmlNode'),
+                    node: end.element.wlxmlNode,
                     offset: end.offset
                 }
             });
@@ -256,14 +256,14 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
                 }
                 if(parent.children().length === 1 && parent.children()[0].sameNode(element)) {
                     if(grandParent && grandParent.children().length === 1) {
-                        goto = grandParent.data('wlxmlNode').append({text: ''});
+                        goto = grandParent.wlxmlNode.append({text: ''});
                     } else {
                         goto = element.getNearestTextElement(direction);
                     }
-                    parent.data('wlxmlNode').detach();
+                    parent.wlxmlNode.detach();
                 } else {
                     goto = element.getNearestTextElement(direction);
-                    element.data('wlxmlNode').detach();
+                    element.wlxmlNode.detach();
                 }
                 canvas.setCurrentElement(goto, {caretTo: caretTo});
             }
@@ -272,7 +272,7 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
                     element = element.getNearestTextElement(direction);
                 }
                 if(element) {
-                    goto = element.data('wlxmlNode').mergeContentUp();
+                    goto = element.wlxmlNode.mergeContentUp();
                     canvas.setCurrentElement(goto.node, {caretTo: goto.offset});
                 }
                 event.preventDefault();

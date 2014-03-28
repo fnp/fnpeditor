@@ -71,6 +71,31 @@ $.extend(Canvas.prototype, {
         this.reloadRoot();
     },
 
+    createElement: function(wlxmlNode) {
+        var Factory = wlxmlNode.nodeType === Node.TEXT_NODE ? documentElement.DocumentTextElement : documentElement.DocumentNodeElement;
+        return new Factory(wlxmlNode, this);
+    },
+
+    getDocumentElement: function(htmlElement) {
+        /* globals HTMLElement, Text */
+        if(!htmlElement || !(htmlElement instanceof HTMLElement || htmlElement instanceof Text)) {
+            return null;
+        }
+        var $element = $(htmlElement);
+        if(htmlElement.nodeType === Node.ELEMENT_NODE && $element.attr('document-node-element') !== undefined) {
+            return $element.data('canvas-element');
+        }
+
+        if(htmlElement.nodeType === Node.TEXT_NODE && $element.parent().attr('document-text-element') !== undefined) {
+            $element = $element.parent();
+        }
+
+        if($element.attr('document-text-element') !== undefined || (htmlElement.nodeType === Node.TEXT_NODE && $element.parent().attr('document-text-element') !== undefined)) {
+            //return DocumentTextElement.fromHTMLElement(htmlElement, canvas);
+            return $element.data('canvas-element');
+        }
+    },
+
     reloadRoot: function() {
         var canvasDOM = this.generateCanvasDOM(this.wlxmlDocument.root);
         //var canvasDOM = this.wlxmlDocument.root.getData('canvasElement') ? this.wlxmlDocument.root.getData('canvasElement').dom() : this.generateCanvasDOM(this.wlxmlDocument.root);
@@ -81,8 +106,9 @@ $.extend(Canvas.prototype, {
     },
 
     generateCanvasDOM: function(wlxmlNode) {
-        var element = documentElement.DocumentNodeElement.create(wlxmlNode, this);
-        return element.dom();
+        //var element = new documentElement.DocumentNodeElement(wlxmlNode, this);
+        //return element.dom();
+        return this.createElement(wlxmlNode).dom();
     },
 
     setupEventHandling: function() {
@@ -151,8 +177,8 @@ $.extend(Canvas.prototype, {
 
                     //textElement.data('wlxmlNode').setText(toSet);
                     //textElement.data('wlxmlNode').document.transform('setText', {node: textElement.data('wlxmlNode'), text: toSet});
-                    if(textElement.data('wlxmlNode').getText() !== toSet) {
-                        canvas.textHandler.handle(textElement.data('wlxmlNode'), toSet);
+                    if(textElement.wlxmlNode.getText() !== toSet) {
+                        canvas.textHandler.handle(textElement.wlxmlNode, toSet);
                     }
                 }
             });
@@ -199,7 +225,7 @@ $.extend(Canvas.prototype, {
         if(this.d === null) {
             return null;
         }
-        return documentElement.DocumentNodeElement.fromHTMLElement(this.d.get(0), this); //{wlxmlTag: this.d.prop('tagName')};
+        return this.getDocumentElement(this.d[0]);
     },
 
     toggleElementHighlight: function(node, toggle) {
@@ -207,27 +233,23 @@ $.extend(Canvas.prototype, {
         element.toggleHighlight(toggle);
     },
 
-    createNodeElement: function(params) {
-        return documentElement.DocumentNodeElement.create(params, this);
-    },
-
-    getDocumentElement: function(from) {
-        /* globals HTMLElement, Text */
-        if(from instanceof HTMLElement || from instanceof Text) {
-           return documentElement.DocumentElement.fromHTMLElement(from, this);
-        }
-    },
     getCursor: function() {
         return new Cursor(this);
     },
 
     
     getCurrentNodeElement: function() {
-        return this.getDocumentElement(this.wrapper.find('.current-node-element').parent()[0]);
+        var htmlElement = this.wrapper.find('.current-node-element').parent()[0];
+        if(htmlElement) {
+            return this.getDocumentElement(htmlElement);
+        }
     },
 
     getCurrentTextElement: function() {
-        return this.getDocumentElement(this.wrapper.find('.current-text-element')[0]);
+        var htmlElement = this.wrapper.find('.current-text-element')[0];
+        if(htmlElement) {
+            return this.getDocumentElement(htmlElement);
+        }
     },
 
     contains: function(element) {
@@ -285,7 +307,7 @@ $.extend(Canvas.prototype, {
                 this._moveCaretToTextElement(textElementToLand, params.caretTo); // as method on element?
             }
             if(!(textElementToLand.sameNode(currentTextElement))) {
-                this.publisher('currentTextElementSet', textElementToLand.data('wlxmlNode'));
+                this.publisher('currentTextElementSet', textElementToLand.wlxmlNode);
             }
         } else {
             document.getSelection().removeAllRanges();
@@ -294,7 +316,7 @@ $.extend(Canvas.prototype, {
         if(!(currentNodeElement && currentNodeElement.sameNode(nodeElementToLand))) {
             _markAsCurrent(nodeElementToLand);
 
-            this.publisher('currentNodeElementSet', nodeElementToLand.data('wlxmlNode'));
+            this.publisher('currentNodeElementSet', nodeElementToLand.wlxmlNode);
         }
     },
 
