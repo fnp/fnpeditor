@@ -2,7 +2,8 @@ define(function(require) {
     
 'use strict';
 
-var documentElement = require('./documentElement'),
+var $ = require('libs/jquery'),
+    documentElement = require('./documentElement'),
     utils = require('./utils'),
     wlxmlUtils = require('utils/wlxml');
 
@@ -143,6 +144,19 @@ var generic = {
         this.wlxmlNode.contents().forEach(function(node) {
             this._container().append(this.canvas.createElement(node).dom());
         }.bind(this));
+        this.refresh();
+
+    },
+    refresh: function() {
+        if(this.wlxmlNode.getTagName() === 'span') {
+            if(this.containsBlock()) {
+                this.displayAsBlock();
+            } else {
+                this.displayInline();
+            }
+        } else {
+            this.displayAsBlock();
+        }
     },
     containsBlock: function() {
         return this.children()
