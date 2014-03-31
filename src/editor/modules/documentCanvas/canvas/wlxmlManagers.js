@@ -69,8 +69,6 @@ $.extend(GenericManager.prototype, {
         this.el.setDisplayStyle(getDisplayStyle(this.el.tag(), this.el.klass()));
 
         this.el.clearWidgets();
-        this.el.addWidget(widgets.labelWidget(this.el.tag(), this.el.klass()));
-
     },
     toggle: function(toggle) {
         this.el.toggle(toggle);
@@ -137,7 +135,6 @@ var ListItemManager = function(wlxmlElement) {
 $.extend(ListItemManager.prototype, {
     setup: function() {
         this.el.clearWidgets();
-        this.el.addWidget(widgets.labelWidget(this.el.tag(), this.el.klass()));
         this.el.documentElement._container().css({display: 'list-item'});
     },
     toggleBullet: function(toggle) {
@@ -154,7 +151,6 @@ var CommentManager = function(wlxmlElement) {
 $.extend(CommentManager.prototype, {
     setup: function() {
         this.el.clearWidgets();
-        this.el.addWidget(widgets.labelWidget(this.el.tag(), this.el.klass()));
 
         this.widget = widgets.commentAdnotation(this.el.node);
         this.el.addWidget(this.widget);
