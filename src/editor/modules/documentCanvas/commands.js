@@ -94,8 +94,13 @@ commands.register('list', function(canvas, params) {
         node2 = parent2.wlxmlNode,
         doc = node1.document;
     
-    doc.createList({node1: node1, node2: node2});
-    canvas.setCurrentElement(selectionFocus.element, {caretTo: selectionFocus.offset});
+    doc.transaction(function() {
+        doc.createList({node1: node1, node2: node2});
+    }, {
+        success: function() {
+            canvas.setCurrentElement(selectionFocus.element, {caretTo: selectionFocus.offset});
+        }
+    });
 });
 
 commands.register('toggle-grid', function(canvas, params) {
