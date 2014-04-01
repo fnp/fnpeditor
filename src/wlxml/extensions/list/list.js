@@ -37,7 +37,8 @@ extension.document.transformations.createList = {
             parentContents = parent.contents(),
             nodeIndexes = [params.node1.getIndex(), params.node2.getIndex()].sort(function(a,b) { return a-b; }),
             nodesToWrap = [],
-            listNode = params.node1.document.createDocumentNode({tagName: 'div', attrs: {'class': 'list'}}),
+            listClass = params.klass || 'list',
+            listNode = params.node1.document.createDocumentNode({tagName: 'div', attrs: {'class': listClass}}),
             listPlacePtr = params.node1,
             node, i;
         
