@@ -94,13 +94,25 @@ commands.register('list', function(canvas, params) {
         node2 = parent2.wlxmlNode,
         doc = node1.document;
     
-    doc.transaction(function() {
-        doc.createList({node1: node1, node2: node2, klass: params.meta === 'num' ? 'list.enum' : 'list'});
-    }, {
-        success: function() {
-            canvas.setCurrentElement(selectionFocus.element, {caretTo: selectionFocus.offset});
+    if(cursor.isSelecting()) {
+        doc.transaction(function() {
+            doc.createList({node1: node1, node2: node2, klass: params.meta === 'num' ? 'list.enum' : 'list'});
+        }, {
+            success: function() {
+                canvas.setCurrentElement(selectionFocus.element, {caretTo: selectionFocus.offset});
+            }
+        });
+    } else {
+        var list;
+        if(node1.isInside('list')) {
+            list = node1.getParent('list');
+            if((params.meta === 'num' && list.getClass() === 'list.enum') || params.meta !== 'num' && list.getClass() === 'list') {
+                list.object.extractAllItems();
+            } else {
+                list.setClass(params.meta === 'num' ? 'list.enum' : 'list');
+            }
         }
-    });
+    }
 });
 
 commands.register('toggle-grid', function(canvas, params) {
