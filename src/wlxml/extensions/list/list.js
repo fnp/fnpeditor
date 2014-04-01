@@ -22,6 +22,13 @@ extension.wlxmlClass.list.methods = {
     }
 };
 
+extension.wlxmlClass.list.transformations = {
+    extractAllItems: function() {
+        var contents = this.contents();
+        return this.document.extractItems({item1: contents[0], item2: _.last(contents)});
+    }
+};
+
 extension.document.methods = {
     areItemsOfSameList: function(params) {
         return params.node1.parent().sameNode(params.node2.parent()) && params.node2.parent().is('list');
