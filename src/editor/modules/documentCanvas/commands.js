@@ -95,7 +95,7 @@ commands.register('list', function(canvas, params) {
         doc = node1.document;
     
     doc.transaction(function() {
-        doc.createList({node1: node1, node2: node2});
+        doc.createList({node1: node1, node2: node2, klass: params.meta === 'num' ? 'list.enum' : 'list'});
     }, {
         success: function() {
             canvas.setCurrentElement(selectionFocus.element, {caretTo: selectionFocus.offset});

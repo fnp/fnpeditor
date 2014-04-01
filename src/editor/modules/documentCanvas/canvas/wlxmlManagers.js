@@ -135,7 +135,6 @@ var ListItemManager = function(wlxmlElement) {
 $.extend(ListItemManager.prototype, {
     setup: function() {
         this.el.clearWidgets();
-        this.el.documentElement._container().css({display: 'list-item'});
     },
     toggleBullet: function(toggle) {
         this.el.documentElement._container().css({display : toggle ? 'list-item' : 'block'});
