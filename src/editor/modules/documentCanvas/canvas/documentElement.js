@@ -12,7 +12,7 @@ var DocumentElement = function(wlxmlNode, canvas) {
     this.wlxmlNode = wlxmlNode;
     this.canvas = canvas;
 
-    this.createDOM();
+    this.$element = this.createDOM();
     this.$element.data('canvas-element', this);
 };
 
@@ -80,10 +80,7 @@ $.extend(DocumentElement.prototype, {
 var DocumentNodeElement = function(wlxmlNode, canvas) {
     DocumentElement.call(this, wlxmlNode, canvas);
     wlxmlNode.setData('canvasElement', this);
-    if(this.init) {
-        this.init();
-    }
-
+    this.init(this.$element);
 };
 
 
@@ -126,8 +123,7 @@ $.extend(DocumentNodeElement.prototype, {
         
         wrapper.append(widgetsContainer, contentContainer);
         widgetsContainer.find('*').add(widgetsContainer).attr('tabindex', -1);
-        this.$element = wrapper;
-        this.displayAs(this.defaultDisplayStyle);
+        return wrapper;
     },
     _container: function() {
         return this.dom().children('[document-element-content]');
@@ -182,7 +178,7 @@ $.extend(DocumentNodeElement.prototype, {
         //     }
         // })
         this.dom().css('display', what);
-        this._container().css('display', what);   
+        this._container().css('display', what);
     }
 });
 
@@ -202,9 +198,10 @@ DocumentTextElement.prototype = Object.create(DocumentElement.prototype);
 
 $.extend(DocumentTextElement.prototype, {
     createDOM: function() {
-        this.$element = $('<div>')
+        var dom = $('<div>')
             .attr('document-text-element', '')
             .text(this.wlxmlNode.getText() || utils.unicode.ZWS);
+        return dom;
     },
     detach: function() {
         this.dom().detach();

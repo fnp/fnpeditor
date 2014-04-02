@@ -1,6 +1,7 @@
 define(function(require) {
     
 'use strict';
+var $ = require('libs/jquery');
 
 
 var widgets = {
@@ -49,7 +50,7 @@ var widgets = {
         });
         return mydom;
     }
-}
+};
 
 
 var comment = {
@@ -102,12 +103,12 @@ var footnote = {
             this.trigger('elementToggled', toggle, this.documentElement);
         }
     }
-}
+};
 
 
 return [
-    {klass: 'comment', element: comment},
-    {klass: 'footnote', element: footnote}
+    {tag: 'aside',   klass: 'comment', prototype: comment, extending: {tag: 'div'}},
+    {tag: 'aside', klass: 'footnote', prototype: footnote, extending: {tag: 'aside'}}
 ];
 
 

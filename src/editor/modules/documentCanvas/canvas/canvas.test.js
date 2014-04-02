@@ -12,8 +12,8 @@ define([
 
 var expect = chai.expect;
 
-var getCanvasFromXML = function(xml) {
-    return canvas.fromXMLDocument(getDocumentFromXML(xml), null);
+var getCanvasFromXML = function(xml, elements) {
+    return canvas.fromXMLDocument(getDocumentFromXML(xml), elements);
 };
 
 var getDocumentFromXML = function(xml) {
@@ -35,7 +35,7 @@ describe('wtf', function() {
         txtNode.wrapWith({tagName: 'header', start: 1, end: 2});
         expect(c.doc().children().length).to.equal(3);
     });
-})
+});
 
 describe('new Canvas', function() {
     it('abc', function() {
@@ -81,7 +81,6 @@ describe('Listening to document changes', function() {
             b = doc.root.contents()[1],
             c = canvas.fromXMLDocument(doc);
 
-        debugger;
         a.before(b);
         var sectionChildren = c.doc().children();
         expect(sectionChildren.length).to.equal(2);
@@ -229,34 +228,34 @@ describe('Default document changes handling', function() {
     
 describe('Custom elements based on wlxml class attribute', function() {
     it('allows custom rendering', function() {
-        var c = getCanvasFromXML('<section><div class="testClass"></div></section>', {
-            testClass: {
+        var c = getCanvasFromXML('<section><div class="testClass"></div></section>', [
+            {tag: 'div', klass: 'testClass', prototype: {
                 init: function() {
-                    debugger;
-                    this.dom.append('<test></test>');
+                    this._container().append('<test></test>');
                 }
-            }
-        });
+            }, extending: {tag: 'div'}}
+        ]);
+
         expect(c.doc().children()[0]._container().children('test').length).to.equal(1); // @!
     });
 
     it('allows handling changes to internal structure of rendered node', function() {
-        var c = getCanvasFromXML('<section><div class="testClass"><a></a></div></section>', {
-            testClass: {
+        var c = getCanvasFromXML('<section><div class="testClass"><a></a></div></section>', [
+            {tag: 'div', klass: 'testClass', prototype: {
                 init: function() {
                     this.header = $('<h1>');
-                    this.dom.append(this.header);
+                    this._container().append(this.header);
                     this.refresh2();
                 },
                 refresh2: function() {
-                    this.header.text(this.el.wlxmlNode.contents().length);
+                    this.header.text(this.wlxmlNode.contents().length);
                 },
                 onNodeAdded: function(event) {
                     void(event);
                     this.refresh2();
                 }
-            }
-        });
+            }, extending: {tag: 'div'}}
+        ]);
 
         var node = c.wlxmlDocument.root.contents()[0],
             element = node.getData('canvasElement');

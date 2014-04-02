@@ -3,13 +3,13 @@ define([
 'libs/underscore',
 'libs/backbone',
 'fnpjs/logging/logging',
-'wlxml/wlxml',
 'modules/documentCanvas/canvas/documentElement',
 'modules/documentCanvas/canvas/keyboard',
 'modules/documentCanvas/canvas/utils',
 'modules/documentCanvas/canvas/wlxmlListener',
-'modules/documentCanvas/canvas/genericElement'
-], function($, _, Backbone, logging, wlxml, documentElement, keyboard, utils, wlxmlListener, genericElement) {
+'modules/documentCanvas/canvas/elementsRegister',
+'modules/documentCanvas/canvas/genericElement',
+], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener, ElementsRegister, genericElement) {
     
 'use strict';
 /* global document:false, window:false, Node:false, gettext */
@@ -56,48 +56,20 @@ $.extend(TextHandler.prototype, {
 
 });
 
-var ElementsRegister = function() {
-    this._register = {
-        '': ElementsRegister.createCanvasElementType(genericElement, documentElement.DocumentNodeElement)
-    };
-
-}
-_.extend(ElementsRegister, {
-    createCanvasElementType: function(elementPrototype, inheritFrom) {
-        var Constructor = function() {
-            if(!this.super) {
-                this.super = inheritFrom.prototype;
-            }
-            inheritFrom.apply(this, Array.prototype.slice.call(arguments, 0));
-            
-        };
-        Constructor.prototype = Object.create(inheritFrom.prototype);
-        _.extend(Constructor.prototype, elementPrototype);
-        return Constructor;
-    }
-});
-_.extend(ElementsRegister.prototype, {
-    register: function(klass, elementPrototype) {
-        this._register[klass] = ElementsRegister.createCanvasElementType(elementPrototype, this.getFactoryFor(''));
-    },
-    getFactoryFor: function(klass) {
-        var Factory;
-        wlxml.getClassHierarchy(klass).reverse().some(function(klass) {
-            Factory = this._register[klass];
-            if(Factory) {
-                return true;
-            }
-        }.bind(this));
-        return Factory;
-    }
-});
-
-
 
 var Canvas = function(wlxmlDocument, elements) {
-    this.elementsRegister = new ElementsRegister();
-    (elements || []).forEach(function(elementDesc) {
-        this.elementsRegister.register(elementDesc.klass, elementDesc.element);
+    this.elementsRegister = new ElementsRegister(documentElement.DocumentNodeElement, genericElement);
+
+    elements = [
+        {tag: 'section', klass: null, prototype: genericElement},
+        {tag: 'div', klass: null, prototype: genericElement},
+        {tag: 'header', klass: null, prototype: genericElement},
+        {tag: 'span', klass: null, prototype: genericElement},
+        {tag: 'aside', klass: null, prototype: genericElement}
+    ].concat(elements || []);
+
+    (elements).forEach(function(elementDesc) {
+        this.elementsRegister.register(elementDesc);
     }.bind(this));
     this.eventBus = _.extend({}, Backbone.Events);
     this.wrapper = $('<div>').addClass('canvas-wrapper').attr('contenteditable', true);
@@ -122,12 +94,9 @@ $.extend(Canvas.prototype, Backbone.Events, {
     createElement: function(wlxmlNode) {
         var Factory;
         if(wlxmlNode.nodeType === Node.TEXT_NODE) {
-            Factory = documentElement.DocumentTextElement
+            Factory = documentElement.DocumentTextElement;
         } else {
-            if(wlxmlNode.getClass() === 'p') {
-               // debugger;
-            }
-            Factory = this.elementsRegister.getFactoryFor(wlxmlNode.getClass());
+            Factory = this.elementsRegister.getElement({tag: wlxmlNode.getTagName(), klass: wlxmlNode.getClass()});
         }
         return new Factory(wlxmlNode, this);
     },

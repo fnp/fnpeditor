@@ -43,12 +43,18 @@ var _metadataEventHandler = function(event) {
 var handlers = {
     nodeAttrChange: function(event) {
         var element = utils.getElementForNode(event.meta.node),
-            objectChanged;
+            newElement;
         if(event.meta.attr === 'class') {
-            objectChanged = element.updateObject();
-        }
+            if(element.wlxmlNode.getClass() !== event.meta.attr) {
+                if(event.meta.node.isRoot()) {
+                    this.canvas.reloadRoot();
+                } else {
+                    newElement = this.canvas.createElement(event.meta.node);
+                    element.dom().replaceWith(newElement.dom());
+                }
+            }
 
-        if(!objectChanged) {
+        } else {
             element.handle(event);
         }
     },
