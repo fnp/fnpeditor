@@ -1679,6 +1679,29 @@ describe('smartxml', function() {
                 doc.redo();
                 expect(doc.root.getAttr('t')).to.equal('1');
             });
+            it('can perform undo of an operation performed after automatic transaction rollback', function() {
+                var doc = getDocumentFromXML('<section></section>'),
+                    extension = {document: {transformations: {
+                        throwingTransformation: function() { throw new Error(); }
+                    }}};
+
+                doc.registerExtension(extension);
+
+                doc.throwingTransformation();
+
+                doc.transaction(function() {
+                    doc.root.setAttr('x', '2');
+                });
+
+                expect(doc.undoStack.length).to.equal(1);
+                expect(doc.root.getAttr('x')).to.equal('2');
+
+                doc.undo();
+
+                expect(doc.undoStack.length).to.equal(0);
+                expect(doc.root.getAttr('x')).to.be.undefined;
+
+            });
         });
     });
 

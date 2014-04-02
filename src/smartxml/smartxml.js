@@ -581,6 +581,7 @@ $.extend(Document.prototype, Backbone.Events, {
         this.replaceRoot(this._rollbackBackup);
         this._rollbackBackup = null;
         this._currentTransaction = null;
+        this._transformationLevel = 0;
     },
 
     transaction: function(callback, params) {
