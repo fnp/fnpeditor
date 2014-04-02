@@ -7,13 +7,18 @@ return {
     console: function(record) {
         /* global console */
         var level = record.level,
-            method;
+            method, msg;
         if(console) {
             if(level === 'warning') {
                 level = 'warn';
             }
             method = (typeof console[level] === 'function') ? level : 'log';
-            console[method](record.message);
+            if(record.data && record.data.exception && record.data.exception.stack) {
+                msg = record.data.exception.stack;
+            } else {
+                msg = record.message;
+            }
+            console[method](msg);
         }
     },
     raven: function(record) {
