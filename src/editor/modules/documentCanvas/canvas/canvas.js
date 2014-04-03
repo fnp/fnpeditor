@@ -233,7 +233,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
 
         this.eventBus.on('elementToggled', function(toggle, element) {
             if(!toggle) {
-                canvas.setCurrentElement(element.getPreviousTextElement());
+                canvas.setCurrentElement(canvas.getPreviousTextElement(element));
             }
         });
     },
@@ -268,6 +268,20 @@ $.extend(Canvas.prototype, Backbone.Events, {
         if(htmlElement) {
             return this.getDocumentElement(htmlElement);
         }
+    },
+
+    getPreviousTextElement: function(relativeToElement, includeInvisible) {
+        return this.getNearestTextElement('above', relativeToElement, includeInvisible);
+    },
+
+    getNextTextElement: function(relativeToElement, includeInvisible) {
+        return this.getNearestTextElement('below', relativeToElement, includeInvisible);
+    },
+
+    getNearestTextElement: function(direction, relativeToElement, includeInvisible) {
+        includeInvisible = includeInvisible !== undefined ? includeInvisible : false;
+        var selector = '[document-text-element]' + (includeInvisible ? '' : ':visible');
+        return this.getDocumentElement(utils.nearestInDocumentOrder(selector, direction, relativeToElement.dom()[0]));
     },
 
     contains: function(element) {

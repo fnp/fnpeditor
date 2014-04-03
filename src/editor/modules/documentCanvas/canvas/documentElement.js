@@ -51,20 +51,6 @@ $.extend(DocumentElement.prototype, {
         return other && (typeof other === typeof this) && other.dom()[0] === this.dom()[0];
     },
 
-    getPreviousTextElement: function(includeInvisible) {
-        return this.getNearestTextElement('above', includeInvisible);
-    },
-
-    getNextTextElement: function(includeInvisible) {
-        return this.getNearestTextElement('below', includeInvisible);
-    },
-
-    getNearestTextElement: function(direction, includeInvisible) {
-        includeInvisible = includeInvisible !== undefined ? includeInvisible : false;
-        var selector = '[document-text-element]' + (includeInvisible ? '' : ':visible');
-        return this.canvas.getDocumentElement(utils.nearestInDocumentOrder(selector, direction, this.dom()[0]));
-    },
-
     trigger: function() {
         //this.canvas.bus.trigger()
     }

@@ -226,7 +226,7 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
 
             if(direction === 'above') {
                 if(start.offsetAtBeginning) {
-                    goto = start.element.getNearestTextElement('above');
+                    goto = canvas.getNearestTextElement('above', start.element);
                     caretTo = 'end';
                 } else {
                     goto = start.element;
@@ -234,7 +234,7 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
                 }
             } else {
                 if(end.offsetAtEnd) {
-                    goto = start.element.getNearestTextElement('below');
+                    goto = canvas.getNearestTextElement('below', start.element);
                     caretTo = 'start';
                 } else {
                     goto = end.element;
@@ -283,18 +283,18 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
                     if(grandParent && grandParent.children().length === 1) {
                         goto = grandParent.wlxmlNode.append({text: ''});
                     } else {
-                        goto = element.getNearestTextElement(direction);
+                        goto = canvas.getNearestTextElement(direction, element);
                     }
                     parent.wlxmlNode.detach();
                 } else {
-                    goto = element.getNearestTextElement(direction);
+                    goto = canvas.getNearestTextElement(direction, element);
                     element.wlxmlNode.detach();
                 }
                 canvas.setCurrentElement(goto, {caretTo: caretTo});
             }
             else if(cursorAtOperationEdge) {
                 if(direction === 'below') {
-                    element = element.getNearestTextElement(direction);
+                    element = canvas.getNearestTextElement(direction, element);
                 }
                 if(element) {
                     goto = element.wlxmlNode.mergeContentUp();
