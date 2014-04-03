@@ -11,9 +11,6 @@ define([
 
 // DocumentElement represents a text or an element node from WLXML document rendered inside Canvas
 var DocumentElement = function(wlxmlNode, canvas) {
-    if(arguments.length === 0) {
-        return;
-    }
     this.wlxmlNode = wlxmlNode;
     this.canvas = canvas;
 
@@ -111,7 +108,7 @@ var manipulate = function(e, params, action) {
     return element;
 };
 
-DocumentNodeElement.prototype = new DocumentElement();
+DocumentNodeElement.prototype = Object.create(DocumentElement.prototype);
 
 
 $.extend(DocumentNodeElement.prototype, {
@@ -243,7 +240,7 @@ $.extend(DocumentTextElement, {
     }
 });
 
-DocumentTextElement.prototype = new DocumentElement();
+DocumentTextElement.prototype = Object.create(DocumentElement.prototype);
 
 $.extend(DocumentTextElement.prototype, {
     createDOM: function() {
