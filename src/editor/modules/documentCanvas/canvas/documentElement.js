@@ -265,35 +265,11 @@ $.extend(DocumentTextElement.prototype, {
 
 });
 
-var SpanElement = function() {
-    DocumentNodeElement.apply(this, Array.prototype.slice.call(arguments, 0));
-};
-SpanElement.prototype = $.extend(Object.create(DocumentNodeElement.prototype), {
-    defaultDisplayStyle: 'inline',
-    init: function() {
-        if(this.containsBlock()) {
-            this.displayAsBlock();
-        } else {
-            this.displayInline();
-        }
-    },
-    refresh: function() {
-        this.init();
-    }
-});
-
-var elements = {
-    span: SpanElement
-};
-
 
 return {
     DocumentElement: DocumentElement,
     DocumentNodeElement: DocumentNodeElement,
-    DocumentTextElement: DocumentTextElement, //,
-    factoryForTag: function(tagName) {
-        return elements[tagName] || DocumentNodeElement;
-    }
+    DocumentTextElement: DocumentTextElement
 };
 
 });
