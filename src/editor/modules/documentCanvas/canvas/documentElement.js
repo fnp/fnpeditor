@@ -5,7 +5,7 @@ define([
 ], function($, _, utils) {
     
 'use strict';
-/* global Node:false, document:false */
+/* global Node:false */
 
 // DocumentElement represents a text or an element node from WLXML document rendered inside Canvas
 var DocumentElement = function(wlxmlNode, canvas) {
@@ -25,9 +25,6 @@ $.extend(DocumentElement.prototype, {
     },
     refresh: function() {
         // noop
-    },
-    bound: function() {
-        return $.contains(document.documentElement, this.dom()[0]);
     },
     dom: function() {
         return this.$element;
