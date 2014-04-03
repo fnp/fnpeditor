@@ -78,7 +78,7 @@ var generic = {
         } else {
             element = this.canvas.createElement(param);
         }
-        this._container().prepend(element.dom());
+        this._container().prepend(element.dom);
         this.refreshPath();
         return element;
     },
@@ -142,7 +142,7 @@ var generic = {
             .attr('wlxml-tag', this.wlxmlNode.getTagName());
         this.setWlxmlClass(this.wlxmlNode.getClass());
         this.wlxmlNode.contents().forEach(function(node) {
-            this._container().append(this.canvas.createElement(node).dom());
+            this._container().append(this.canvas.createElement(node).dom);
         }.bind(this));
         this.refresh();
 

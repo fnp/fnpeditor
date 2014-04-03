@@ -50,7 +50,7 @@ var handlers = {
                     this.canvas.reloadRoot();
                 } else {
                     newElement = this.canvas.createElement(event.meta.node);
-                    element.dom().replaceWith(newElement.dom());
+                    element.dom.replaceWith(newElement.dom);
                 }
             }
 

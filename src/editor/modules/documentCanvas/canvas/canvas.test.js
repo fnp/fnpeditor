@@ -260,7 +260,7 @@ describe('Custom elements based on wlxml class attribute', function() {
         var node = c.wlxmlDocument.root.contents()[0],
             element = node.getData('canvasElement');
 
-        var header = element.dom().find('h1');
+        var header = element.dom.find('h1');
         expect(header.text()).to.equal('1', 'just <a>');
 
         node.append({tagName: 'div'});
@@ -301,7 +301,7 @@ describe('Cursor', function() {
 
     it('returns position when browser selection collapsed', function() {
         var c = getCanvasFromXML('<section>Alice has a cat</section>'),
-            dom = c.doc().dom(),
+            dom = c.doc().dom,
             text = findTextNode(dom, 'Alice has a cat');
 
         expect(text.nodeType).to.equal(Node.TEXT_NODE, 'correct node selected');
@@ -335,7 +335,7 @@ describe('Cursor', function() {
 
     it('recognizes selection start and end on document order', function() {
         var c = getCanvasFromXML('<section><span>Alice</span><span>has a cat</span><div>abc<span>...</span>cde</div></section>'),
-            dom = c.doc().dom(),
+            dom = c.doc().dom,
             textFirst = findTextNode(dom, 'Alice'),
             textSecond = findTextNode(dom, 'has a cat'),
             textAbc = findTextNode(dom, 'abc'),
@@ -436,7 +436,7 @@ describe('Cursor', function() {
 
     it('returns boundries of selection when browser selection not collapsed', function() {
         var c = getCanvasFromXML('<section>Alice <span>has</span> a <span>big</span> cat</section>'),
-            dom = c.doc().dom(),
+            dom = c.doc().dom,
             text = {
                 alice: findTextNode(dom, 'Alice '),
                 has: findTextNode(dom, 'has'),
@@ -468,7 +468,7 @@ describe('Cursor', function() {
 
     it('recognizes when browser selection boundries lies in sibling DocumentTextElements', function() {
         var c = getCanvasFromXML('<section>Alice <span>has</span> a <span>big</span> cat</section>'),
-            dom = c.doc().dom(),
+            dom = c.doc().dom,
             text = {
                 alice: findTextNode(dom, 'Alice '),
                 has: findTextNode(dom, 'has'),

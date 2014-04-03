@@ -124,7 +124,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
     reloadRoot: function() {
         this.rootElement = this.createElement(this.wlxmlDocument.root);
         this.wrapper.empty();
-        this.wrapper.append(this.rootElement.dom());
+        this.wrapper.append(this.rootElement.dom);
     },
 
     setupEventHandling: function() {
@@ -281,11 +281,11 @@ $.extend(Canvas.prototype, Backbone.Events, {
     getNearestTextElement: function(direction, relativeToElement, includeInvisible) {
         includeInvisible = includeInvisible !== undefined ? includeInvisible : false;
         var selector = '[document-text-element]' + (includeInvisible ? '' : ':visible');
-        return this.getDocumentElement(utils.nearestInDocumentOrder(selector, direction, relativeToElement.dom()[0]));
+        return this.getDocumentElement(utils.nearestInDocumentOrder(selector, direction, relativeToElement.dom[0]));
     },
 
     contains: function(element) {
-        return element.dom().parents().index(this.wrapper) !== -1;
+        return element.dom.parents().index(this.wrapper) !== -1;
     },
 
     triggerSelectionChanged: function() {
@@ -328,7 +328,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
         var _markAsCurrent = function(element) {
             if(element instanceof documentElement.DocumentTextElement) {
                 this.wrapper.find('.current-text-element').removeClass('current-text-element');
-                element.dom().addClass('current-text-element');
+                element.dom.addClass('current-text-element');
             } else {
                 this.wrapper.find('.current-node-element').removeClass('current-node-element');
                 element._container().addClass('current-node-element');
@@ -363,7 +363,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
 
     _moveCaretToTextElement: function(element, where) {
         var range = document.createRange(),
-            node = element.dom().contents()[0];
+            node = element.dom.contents()[0];
 
         if(typeof where !== 'number') {
             range.selectNodeContents(node);
