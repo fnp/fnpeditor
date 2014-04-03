@@ -100,7 +100,7 @@ var footnote = {
         }
         this._container().toggle(toggle);
         if(!options.silent) {
-            this.trigger('elementToggled', toggle, this.documentElement);
+            this.trigger('elementToggled', toggle, this);
         }
     }
 };

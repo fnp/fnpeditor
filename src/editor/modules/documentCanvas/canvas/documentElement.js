@@ -52,7 +52,7 @@ $.extend(DocumentElement.prototype, {
     },
 
     trigger: function() {
-        //this.canvas.bus.trigger()
+        this.canvas.eventBus.trigger.apply(this.canvas.eventBus, Array.prototype.slice.call(arguments, 0));
     }
 
 
