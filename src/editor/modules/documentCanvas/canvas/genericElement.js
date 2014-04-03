@@ -14,8 +14,11 @@ var labelWidget = function(tag, klass) {
 };
 void(labelWidget); // for linters; labelWidget is unused on purpose for now
 
+var DocumentNodeElement = documentElement.DocumentNodeElement;
 
-var generic = {
+var generic = Object.create(DocumentNodeElement.prototype);
+
+$.extend(generic, {
     onNodeAttrChange: function(event) {
         if(event.meta.attr === 'class') {
             this.setWlxmlClass(event.meta.newVal); //
@@ -138,6 +141,7 @@ var generic = {
         this.refreshPath();
     },
     init: function() {
+        DocumentNodeElement.prototype.init.call(this);
         this._container()
             .attr('wlxml-tag', this.wlxmlNode.getTagName());
         this.setWlxmlClass(this.wlxmlNode.getClass());
@@ -186,7 +190,7 @@ var generic = {
         });
         return toret;
     },
-};
+});
 
 
 return generic;

@@ -81,6 +81,7 @@ DocumentNodeElement.prototype = Object.create(DocumentElement.prototype);
 
 $.extend(DocumentNodeElement.prototype, {
     defaultDisplayStyle: 'block',
+    init: function() {},
     addWidget: function(widget) {
         this.dom.children('.canvas-widgets').append(widget.DOM ? widget.DOM : widget);
     },

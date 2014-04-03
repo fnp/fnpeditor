@@ -5,27 +5,18 @@ var _ = require('libs/underscore'),
     wlxml = require('wlxml/wlxml');
 
 
-var ElementsRegister = function(basePrototype, defaultPrototype) {
+var ElementsRegister = function(BaseType) {
     this._register = {};
-    this.basePrototype = basePrototype;
-    this.DefaultType = this.createCanvasElementType(defaultPrototype);
+    this.BaseType = BaseType;
 };
 
 _.extend(ElementsRegister.prototype, {
-    createCanvasElementType: function(elementPrototype, extending) {
-        var inheritFrom = this.basePrototype;
-        if(extending && extending.tag) {
-            inheritFrom = this.getElement(extending);
-        }
+    createCanvasElementType: function(elementPrototype) {
+        var register = this;
         var Constructor = function() {
-            if(!this.super) {
-                this.super = inheritFrom.prototype;
-            }
-            inheritFrom.apply(this, Array.prototype.slice.call(arguments, 0));
-            
+            register.BaseType.apply(this, Array.prototype.slice.call(arguments, 0));
         };
-        Constructor.prototype = Object.create(inheritFrom.prototype);
-        _.extend(Constructor.prototype, elementPrototype);
+        Constructor.prototype = elementPrototype;
         return Constructor;
     },
     register: function(params) {
@@ -33,7 +24,7 @@ _.extend(ElementsRegister.prototype, {
         params.prototype = params.prototype || Object.create({});
 
         this._register[params.tag] = this._register[params.tag] || {};
-        this._register[params.tag][params.klass] = this.createCanvasElementType(params.prototype, params.extending);
+        this._register[params.tag][params.klass] = this.createCanvasElementType(params.prototype);
     },
     getElement: function(params) {
         params.klass = params.klass || '';
@@ -47,7 +38,7 @@ _.extend(ElementsRegister.prototype, {
             }.bind(this));
         }
         if(!Factory) {
-            Factory = this.DefaultType;
+            Factory = this.BaseType;
         }
         return Factory;
     }

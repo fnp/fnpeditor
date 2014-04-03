@@ -4,8 +4,9 @@ define([
 'libs/sinon',
 'modules/documentCanvas/canvas/canvas',
 'modules/documentCanvas/canvas/utils',
+'modules/documentCanvas/canvas/documentElement',
 'wlxml/wlxml',
-], function($, chai, sinon, canvas, utils, wlxml) {
+], function($, chai, sinon, canvas, utils, documentElement, wlxml) {
     
 'use strict';
 /* global describe, it, beforeEach, afterEach */
@@ -228,20 +229,20 @@ describe('Default document changes handling', function() {
     
 describe('Custom elements based on wlxml class attribute', function() {
     it('allows custom rendering', function() {
-        var c = getCanvasFromXML('<section><div class="testClass"></div></section>', [
-            {tag: 'div', klass: 'testClass', prototype: {
+        var prototype = $.extend({}, documentElement.DocumentNodeElement.prototype, {
                 init: function() {
                     this._container().append('<test></test>');
                 }
-            }, extending: {tag: 'div'}}
+            }),
+            c = getCanvasFromXML('<section><div class="testClass"></div></section>', [
+            {tag: 'div', klass: 'testClass', prototype: prototype}
         ]);
 
         expect(c.doc().children()[0]._container().children('test').length).to.equal(1); // @!
     });
 
     it('allows handling changes to internal structure of rendered node', function() {
-        var c = getCanvasFromXML('<section><div class="testClass"><a></a></div></section>', [
-            {tag: 'div', klass: 'testClass', prototype: {
+        var prototype = $.extend({}, documentElement.DocumentNodeElement.prototype, {
                 init: function() {
                     this.header = $('<h1>');
                     this._container().append(this.header);
@@ -254,7 +255,10 @@ describe('Custom elements based on wlxml class attribute', function() {
                     void(event);
                     this.refresh2();
                 }
-            }, extending: {tag: 'div'}}
+        });
+
+        var c = getCanvasFromXML('<section><div class="testClass"><a></a></div></section>', [
+            {tag: 'div', klass: 'testClass', prototype: prototype}
         ]);
 
         var node = c.wlxmlDocument.root.contents()[0],

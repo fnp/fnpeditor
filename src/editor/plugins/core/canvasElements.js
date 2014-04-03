@@ -1,7 +1,8 @@
 define(function(require) {
     
 'use strict';
-var $ = require('libs/jquery');
+var $ = require('libs/jquery'),
+    genericElement = require('modules/documentCanvas/canvas/genericElement'); // TODO: This should be accessible via plugin infrastructure
 
 
 var widgets = {
@@ -53,9 +54,10 @@ var widgets = {
 };
 
 
-var comment = {
+var comment = Object.create(genericElement);
+$.extend(comment, {
     init: function() {
-        this.super.init.call(this);
+        genericElement.init.call(this);
         this.commentAdnotation = widgets.commentAdnotation(this.wlxmlNode);
         this.addWidget(this.commentAdnotation, 'show');
         this.commentAdnotation.DOM.show();
@@ -70,11 +72,12 @@ var comment = {
     onMetadataRemoved: function(event) {
         return this.onMetadataChanged(event);
     }
-};
+});
 
-var footnote = {
+var footnote = Object.create(genericElement);
+$.extend(footnote, {
     init: function() {
-        this.super.init.call(this);
+        genericElement.init.call(this);
         var clickHandler = function() {
             this.toggle(true);
         }.bind(this);
@@ -103,12 +106,12 @@ var footnote = {
             this.trigger('elementToggled', toggle, this);
         }
     }
-};
+});
 
 
 return [
-    {tag: 'aside',   klass: 'comment', prototype: comment, extending: {tag: 'div'}},
-    {tag: 'aside', klass: 'footnote', prototype: footnote, extending: {tag: 'aside'}}
+    {tag: 'aside', klass: 'comment', prototype: comment},
+    {tag: 'aside', klass: 'footnote', prototype: footnote}
 ];
 
 
