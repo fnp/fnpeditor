@@ -57,9 +57,6 @@ $.extend(DocumentElement.prototype, {
     getVerticallyFirstTextElement: function() {
         var toret;
         this.children().some(function(child) {
-            if(!child.isVisible()) {
-                return false; // continue
-            }
             if(child instanceof DocumentTextElement) {
                 toret = child;
                 return true; // break
@@ -85,16 +82,6 @@ $.extend(DocumentElement.prototype, {
         includeInvisible = includeInvisible !== undefined ? includeInvisible : false;
         var selector = '[document-text-element]' + (includeInvisible ? '' : ':visible');
         return this.canvas.getDocumentElement(utils.nearestInDocumentOrder(selector, direction, this.dom()[0]));
-    },
-
-    isVisible: function() {
-        return this instanceof DocumentTextElement || this.getWlxmlTag() !== 'metadata';
-    },
-
-    isInsideList: function() {
-        return this.parents().some(function(parent) {
-            return parent.is('list');
-        });
     },
 
     exec: function(method) {
@@ -225,12 +212,6 @@ $.extend(DocumentNodeElement.prototype, {
         }
         this.manager = wlxmlManagers.getFor(this);
         this.manager.setup();
-    },
-    is: function(what) {
-        if(what === 'list' && _.contains(['list.items', 'list.items.enum'], this.getWlxmlClass())) {
-            return true;
-        }
-        return false;
     },
     toggleLabel: function(toggle) {
         var displayCss = toggle ? 'inline-block' : 'none';

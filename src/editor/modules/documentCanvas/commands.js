@@ -82,15 +82,9 @@ commands.register('list', function(canvas, params) {
         selectionStart = cursor.getSelectionStart(),
         selectionEnd = cursor.getSelectionEnd(),
         parent1 = selectionStart.element.parent() || undefined,
-        parent2 = selectionEnd.element.parent() || undefined;
-
-    var selectionFocus = cursor.getSelectionFocus();
-
-    if(selectionStart.element.isInsideList() || selectionEnd.element.isInsideList()) {
-        return;
-    }
-
-    var node1 = parent1.wlxmlNode,
+        parent2 = selectionEnd.element.parent() || undefined,
+        selectionFocus = cursor.getSelectionFocus(),
+        node1 = parent1.wlxmlNode,
         node2 = parent2.wlxmlNode,
         doc = node1.document;
     
