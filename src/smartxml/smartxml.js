@@ -479,7 +479,7 @@ $.extend(Document.prototype, Backbone.Events, {
         if(!this._currentTransaction) {
             return this.transaction(function() {
                 return this.transform(Transformation, args);
-            }, this);
+            }, {context: this});
         }
 
         if(typeof Transformation === 'function') {
