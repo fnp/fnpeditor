@@ -246,7 +246,6 @@ commands.register('newNodeRequested', function(canvas, params, user) {
                         node.setAttr('href', event.formData.href);
                         event.success();
                     });
-                    canvas.wlxmlDocument.endTransaction();
                 });
                 dialog.show();
                 return true;
