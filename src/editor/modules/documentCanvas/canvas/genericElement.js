@@ -1,0 +1,182 @@
+define(function(require) {
+    
+'use strict';
+
+var documentElement = require('./documentElement'),
+    utils = require('./utils'),
+    wlxmlUtils = require('utils/wlxml');
+
+var labelWidget = function(tag, klass) {
+    return $('<span>')
+        .addClass('canvas-widget canvas-widget-label')
+        .text(wlxmlUtils.getTagLabel(tag) + (klass ? ' / ' + wlxmlUtils.getClassLabel(klass) : ''));
+};
+void(labelWidget); // for linters; labelWidget is unused on purpose for now
+
+
+var generic = {
+    onNodeAttrChange: function(event) {
+        if(event.meta.attr === 'class') {
+            this.setWlxmlClass(event.meta.newVal); //
+        }
+    },
+    onNodeAdded: function(event) {
+        if(event.meta.node.isRoot()) {
+            this.canvas.reloadRoot();
+            return;
+        }
+
+        var nodeIndex = event.meta.node.getIndex(),
+            referenceElement, referenceAction, actionArg;
+
+        if(nodeIndex === 0) {
+            referenceElement = this;
+            referenceAction = 'prepend';
+        } else {
+            referenceElement = this.children()[nodeIndex-1];
+            referenceAction = 'after';
+        }
+
+        actionArg = (event.type === 'nodeMoved' && utils.findCanvasElement(event.meta.node, event.meta.parent)) || event.meta.node;
+        referenceElement[referenceAction](actionArg);
+    },
+    onNodeMoved: function(event) {
+        return this.onNodeAdded.call(this, event, true);
+    },
+    onNodeDetached: function(event) {
+        if(event.meta.node.sameNode(this)) {
+            this.detach();
+        } else {
+            this.children().some(function(child) {
+                if(child.wlxmlNode.sameNode(event.meta.node)) {
+                    child.detach();
+                    return true;
+                }
+            });
+        }
+    },
+    onNodeTextChange: function(event) {
+        var toSet = event.meta.node.getText();
+        this.children().some(function(child) {
+            if(child.wlxmlNode.sameNode(event.meta.node)) {
+                if(toSet === '') {
+                    toSet = utils.unicode.ZWS;
+                }
+                if(toSet !== child.getText()) {
+                    child.setText(toSet);
+                }
+                return true;
+            }
+        });
+    },
+
+    prepend: function(param) {
+        var element;
+        if(param instanceof documentElement.DocumentElement) {
+            element = param;
+        } else {
+            element = this.canvas.createElement(param);
+        }
+        this._container().prepend(element.dom());
+        this.refreshPath();
+        return element;
+    },
+
+    children: function() {
+        var element = this,
+            toret = [];
+        this._container().contents().each(function() {
+            var childElement = element.canvas.getDocumentElement(this);
+            if(childElement === undefined) {
+                return true;
+            }
+
+            toret.push(childElement);
+        });
+        return toret;
+    },
+
+    getFirst: function(e1, e2) {
+        var idx1 = this.childIndex(e1),
+            idx2 = this.childIndex(e2);
+        if(e1 === null || e2 === null) {
+            return undefined;
+        }
+        return idx1 <= idx2 ? e1: e2;
+    },
+
+    childIndex: function(child) {
+        var children = this.children(),
+            toret = null;
+        children.forEach(function(c, idx) {
+            if(c.sameNode(child)) {
+                toret = idx;
+                return false;
+            }
+        });
+        return toret;
+    },
+
+    getWlxmlClass: function() {
+        var klass = this._container().attr('wlxml-class');
+        if(klass) {
+            return klass.replace(/-/g, '.');
+        }
+        return undefined;
+    },
+    setWlxmlClass: function(klass) {
+        if(klass === this.getWlxmlClass()) {
+            return;
+        }
+        if(klass) {
+            this._container().attr('wlxml-class', klass.replace(/\./g, '-'));
+        }
+        else {
+            this._container().removeAttr('wlxml-class');
+        }
+        this.refreshPath();
+    },
+    init: function() {
+        this._container()
+            .attr('wlxml-tag', this.wlxmlNode.getTagName());
+        this.setWlxmlClass(this.wlxmlNode.getClass());
+        this.wlxmlNode.contents().forEach(function(node) {
+            this._container().append(this.canvas.createElement(node).dom());
+        }.bind(this));
+    },
+    containsBlock: function() {
+        return this.children()
+            .filter(function(child) {
+                return child instanceof documentElement.DocumentNodeElement;
+            })
+            .some(function(child) {
+                if(child.isBlock()) {
+                    return true;
+                } else {
+                    return child.containsBlock();
+                }
+            });
+    },
+    getVerticallyFirstTextElement: function() {
+        var toret;
+        this.children().some(function(child) {
+            if(child instanceof documentElement.DocumentTextElement) {
+                toret = child;
+                return true; // break
+            } else {
+                toret = child.getVerticallyFirstTextElement();
+                if(toret) {
+                    return true; // break
+                }
+            }
+        });
+        return toret;
+    },
+};
+
+
+return generic;
+
+
+
+});

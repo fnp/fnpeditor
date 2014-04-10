@@ -14,9 +14,9 @@ var logger = logging.getLogger('documentCanvas');
 
 return function(sandbox) {
 
-    var canvasElements;
+    var canvasElements = [];
 
-    sandbox.getPlugins(function(plugin) {
+    sandbox.getPlugins().forEach(function(plugin) {
         canvasElements = canvasElements.concat(plugin.canvasElements || []);
     });
 

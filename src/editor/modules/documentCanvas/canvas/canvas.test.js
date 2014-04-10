@@ -4,7 +4,7 @@ define([
 'libs/sinon',
 'modules/documentCanvas/canvas/canvas',
 'modules/documentCanvas/canvas/utils',
-'wlxml/wlxml'
+'wlxml/wlxml',
 ], function($, chai, sinon, canvas, utils, wlxml) {
     
 'use strict';
@@ -13,7 +13,7 @@ define([
 var expect = chai.expect;
 
 var getCanvasFromXML = function(xml) {
-    return canvas.fromXMLDocument(getDocumentFromXML(xml));
+    return canvas.fromXMLDocument(getDocumentFromXML(xml), null);
 };
 
 var getDocumentFromXML = function(xml) {
@@ -25,6 +25,17 @@ var wait = function(callback, timeout) {
     return window.setTimeout(callback, timeout || 0.5);
 };
 
+
+describe('wtf', function() {
+    it('wtf!', function() {
+        var c = getCanvasFromXML('<section>Alice</section>'),
+            doc = c.wlxmlDocument;
+
+        var txtNode = doc.root.contents()[0];
+        txtNode.wrapWith({tagName: 'header', start: 1, end: 2});
+        expect(c.doc().children().length).to.equal(3);
+    });
+})
 
 describe('new Canvas', function() {
     it('abc', function() {
@@ -70,11 +81,12 @@ describe('Listening to document changes', function() {
             b = doc.root.contents()[1],
             c = canvas.fromXMLDocument(doc);
 
+        debugger;
         a.before(b);
         var sectionChildren = c.doc().children();
         expect(sectionChildren.length).to.equal(2);
-        expect(sectionChildren[0].getWlxmlTag()).to.equal('b');
-        expect(sectionChildren[1].getWlxmlTag()).to.equal('a');
+        expect(sectionChildren[0].wlxmlNode.getTagName()).to.equal('b');
+        expect(sectionChildren[1].wlxmlNode.getTagName()).to.equal('a');
     });
 
     it('Handling text node moved', function() {
@@ -87,7 +99,7 @@ describe('Listening to document changes', function() {
         var sectionChildren = c.doc().children();
         expect(sectionChildren.length).to.equal(2);
         expect(sectionChildren[0].getText()).to.equal('Alice');
-        expect(sectionChildren[1].getWlxmlTag()).to.equal('a');
+        expect(sectionChildren[1].wlxmlNode.getTagName()).to.equal('a');
     });
 
     it('Handles nodeTagChange event', function() {
@@ -100,7 +112,7 @@ describe('Listening to document changes', function() {
         var headerNode = doc.root.contents()[0],
             headerElement = c.doc().children()[0];
 
-        expect(headerElement.getWlxmlTag()).to.equal('header', 'element ok');
+        expect(headerElement.wlxmlNode.getTagName()).to.equal('header', 'element ok');
 
         /* Make sure we handle invalidation of reference to wlxmlNode after changing its tag */
         expect(headerNode.getData('canvasElement').sameNode(headerElement)).to.equal(true, 'node->element');
@@ -122,7 +134,7 @@ describe('Listening to document changes', function() {
             expect(aTextElement.getText({raw:true})).to.equal(utils.unicode.ZWS, 'canvas represents this as empty node');
             aTextElement.wlxmlNode.detach();
             expect(parent.children().length).to.equal(1);
-            expect(parent.children()[0].getWlxmlTag()).to.equal('span');
+            expect(parent.children()[0].wlxmlNode.getTagName()).to.equal('span');
             done();
         });
     });
@@ -164,6 +176,104 @@ describe('Displaying span nodes', function() {
             outerDivNode = outerDivElement.wlxmlNode;
         outerDivNode = outerDivNode.setTag('span');
         expect(c.doc().children()[0].isBlock()).to.equal(true);
+    });
+});
+
+
+describe('Default document changes handling', function() {
+    it('handles added node', function() {
+        var c = getCanvasFromXML('<section></section>');
+        c.wlxmlDocument.root.append({tagName:'div'});
+        expect(c.doc().children().length).to.equal(1);
+        c.wlxmlDocument.root.prepend({tagName:'div'});
+        expect(c.doc().children().length).to.equal(2);
+
+        var node = c.wlxmlDocument.root.contents()[1];
+        node.before({tagName: 'div'});
+        expect(c.doc().children().length).to.equal(3);
+        node.after({tagName: 'div'});
+        expect(c.doc().children().length).to.equal(4);
+    });
+
+    it('handles attribute value change for a class attribute', function() {
+        var c = getCanvasFromXML('<section></section>');
+        c.wlxmlDocument.root.setAttr('class', 'test');
+        expect(c.doc().wlxmlNode.getClass()).to.equal('test');
+    });
+
+    it('handles detached node', function() {
+        var c = getCanvasFromXML('<section><div></div></section>');
+        c.wlxmlDocument.root.contents()[0].detach();
+        expect(c.doc().children().length).to.equal(0);
+    });
+
+    it('handles moved node', function() {
+        var doc = getDocumentFromXML('<section><a></a><b></b></section>'),
+            a = doc.root.contents()[0],
+            b = doc.root.contents()[1],
+            c = canvas.fromXMLDocument(doc);
+
+        a.before(b);
+        var sectionChildren = c.doc().children();
+        expect(sectionChildren.length).to.equal(2);
+        expect(sectionChildren[0].wlxmlNode.getTagName()).to.equal('b');
+        expect(sectionChildren[1].wlxmlNode.getTagName()).to.equal('a');
+    });
+
+    it('handles change in a text node', function() {
+        var c = getCanvasFromXML('<section>Alice</section>');
+        c.wlxmlDocument.root.contents()[0].setText('cat');
+        expect(c.doc().children()[0].getText()).to.equal('cat');
+    });
+});
+    
+describe('Custom elements based on wlxml class attribute', function() {
+    it('allows custom rendering', function() {
+        var c = getCanvasFromXML('<section><div class="testClass"></div></section>', {
+            testClass: {
+                init: function() {
+                    debugger;
+                    this.dom.append('<test></test>');
+                }
+            }
+        });
+        expect(c.doc().children()[0]._container().children('test').length).to.equal(1); // @!
+    });
+
+    it('allows handling changes to internal structure of rendered node', function() {
+        var c = getCanvasFromXML('<section><div class="testClass"><a></a></div></section>', {
+            testClass: {
+                init: function() {
+                    this.header = $('<h1>');
+                    this.dom.append(this.header);
+                    this.refresh2();
+                },
+                refresh2: function() {
+                    this.header.text(this.el.wlxmlNode.contents().length);
+                },
+                onNodeAdded: function(event) {
+                    void(event);
+                    this.refresh2();
+                }
+            }
+        });
+
+        var node = c.wlxmlDocument.root.contents()[0],
+            element = node.getData('canvasElement');
+
+        var header = element.dom().find('h1');
+        expect(header.text()).to.equal('1', 'just <a>');
+
+        node.append({tagName: 'div'});
+
+        expect(header.text()).to.equal('2', 'added div');
+    });
+
+    describe('Handling unknown class', function() {
+        it('Inherits default behavior', function() {
+            var c = getCanvasFromXML('<section><div class="unknown">Hi!</div></section>');
+            expect(c.doc().children()[0].children()[0].getText()).to.equal('Hi!');
+        });
     });
 });
 

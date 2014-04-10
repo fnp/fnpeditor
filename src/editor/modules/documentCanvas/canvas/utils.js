@@ -53,13 +53,35 @@ var findCanvasElementInParent = function(wlxmlChildNode, wlxmlParentNode) {
     return toret;
 };
 
+var getElementForNode = function(node) {
+
+    var ptr = node.nodeType === Node.TEXT_NODE ? node.parent() : node;
+    while(!ptr.getData('canvasElement')) {
+        ptr = ptr.parent();
+    }
+    return ptr.getData('canvasElement');
+};
+
+var getElementForDetachedNode = function(node, originalParent) {
+    var ptr = originalParent;
+    if(ptr === null) {
+        return node.getData('canvasElement');
+    }
+    while(!ptr.getData('canvasElement')) {
+        ptr = ptr.parent();
+    }
+    return ptr.getData('canvasElement');
+};
+
 return {
     nearestInDocumentOrder: nearestInDocumentOrder,
     findCanvasElement: findCanvasElement,
     findCanvasElementInParent: findCanvasElementInParent,
     unicode: {
         ZWS: '\u200B'
-    }
+    },
+    getElementForNode: getElementForNode,
+    getElementForDetachedNode: getElementForDetachedNode
 };
 
 });
