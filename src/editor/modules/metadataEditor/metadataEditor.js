@@ -7,6 +7,7 @@ define([
 ], function($, _, mainTemplate, itemTemplate, OpenSelectView) {
 
 'use strict';
+/* globals gettext */
 
 return function(sandbox) {
 
@@ -41,11 +42,15 @@ return function(sandbox) {
             
             this.node.find('.rng-module-metadataEditor-addBtn').click(function() {
                 adding = true;
-                currentNode.getMetadata().add('','');
+                currentNode.document.transaction(function() {
+                    currentNode.getMetadata().add('','');
+                }, this, gettext('Add metadata row'));
             });
             
             this.metaTable.on('click', '.rng-visualEditor-metaRemoveBtn', function(e) {
-                $(e.target).closest('tr').data('row').remove();
+                currentNode.document.transaction(function() {
+                    $(e.target).closest('tr').data('row').remove();
+                }, this, gettext('Remove metadata row'));
             });
             
             this.metaTable.on('keydown', '[contenteditable]', function(e) {
@@ -70,7 +75,9 @@ return function(sandbox) {
                         row = editable.parents('tr').data('row'),
                         isKey = _.last(editable.attr('class').split('-')) === 'metaItemKey',
                         method = isKey ? 'setKey' : 'setValue';
-                    row[method](toSet);
+                    row.metadata.node.document.transaction(function() {
+                        row[method](toSet);
+                    }, this, gettext('Metadata edit'));
                 }
             }, 500));
         },

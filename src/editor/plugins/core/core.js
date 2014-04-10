@@ -62,6 +62,9 @@ var undoRedoAction = function(dir) {
             var allowed = params.document && !!(params.document[dir+'Stack'].length),
                 desc = dir === 'undo' ? gettext('Undo') : gettext('Redo'),
                 descEmpty = dir === 'undo' ? gettext('There is nothing to undo') : gettext('There is nothing to redo');
+            if(allowed) {
+                desc += ': ' + (_.last(params.document[dir+'Stack']).metadata || gettext('unknown operation'));
+            }
             return {
                 allowed: allowed,
                 description: allowed ? desc : descEmpty

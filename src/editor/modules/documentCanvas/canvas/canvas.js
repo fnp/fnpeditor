@@ -10,7 +10,7 @@ define([
 ], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener) {
     
 'use strict';
-/* global document:false, window:false, Node:false */
+/* global document:false, window:false, Node:false, gettext */
 
 var logger = logging.getLogger('canvas');
 
@@ -42,7 +42,13 @@ $.extend(TextHandler.prototype, {
     },
     setText: function(text, node) {
         //this.canvas.wlxmlDocument.transform('setText', {node:node, text: text});
-        node.setText(text);
+        node.document.transaction(function() {
+            node.setText(text);
+        }, {
+            metadata:{
+                description: gettext('Changing text')
+            }
+        });
 
     }
 
