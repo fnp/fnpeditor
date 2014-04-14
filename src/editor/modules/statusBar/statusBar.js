@@ -22,11 +22,19 @@ return function(sandbox){
         },
         showAction: function(action) {
             var state = action.getState(),
+                description;
+            
+            if(!state) {
+                description = gettext('error :(');
+                logger.error('Got undefined action state: ' + action.name);
+            } else {
                 description = state.description;
-            if(!description) {
-                description = state.allowed ? gettext('Undescribed action') : gettext('Action not allowed');
-                logger.info('Undescribed action: ' + action.name);
+                if(!description) {
+                    description = state.allowed ? gettext('Undescribed action') : gettext('Action not allowed');
+                    logger.info('Undescribed action: ' + action.name);
+                }
             }
+
             view.text(description);
             if(!state.allowed) {
                 view.prepend('<span class="badge badge-warning" style="margin-right: 5px">!</span>');

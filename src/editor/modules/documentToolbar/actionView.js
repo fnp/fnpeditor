@@ -1,6 +1,7 @@
 define(function(require) {
     
 'use strict';
+/* globals gettext */
 
 var $ = require('libs/jquery'),
     Backbone = require('libs/backbone'),
@@ -43,6 +44,12 @@ var ActionView = Backbone.View.extend({
         /* globals document */
 
         var actionState = this.action.getState();
+
+        if(!actionState) {
+            this.$el.html(buttonTemplate({label: gettext('error :('), iconName:''}));
+            this._button().attr('disabled', true);
+            return;
+        }
 
         var templateContext = {
             label: actionState.label || '?',
