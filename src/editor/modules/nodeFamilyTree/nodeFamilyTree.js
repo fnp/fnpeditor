@@ -29,7 +29,7 @@ return function(sandbox) {
         listens = true;
         document.on('change', function(event) {
             if(event.type === 'nodeTextChange' && event.meta.node.parent().sameNode(view.currentNodeElement)) {
-                view.setElement();
+                view.setElement(view.currentNodeElement);
             }
         }, this);
     };
@@ -52,50 +52,54 @@ return function(sandbox) {
             });
         },
         setElement: function(element) {
-            element = element || this.currentNodeElement;
-            var textElement = element.getText ? element : null,
-                nodeElement = element.getText ? element.parent() : element, // TODO: better type detection
-                nodeElementParent = nodeElement.parent(),
-                parent;
-            
-            this.currentNodeElement = nodeElement;
-            items = [];
+            var contents = [],
+                parent, nodeElementParent;
 
-            if(nodeElementParent) {
-                items.push(nodeElementParent);
-                parent = {
-                    id: items.length - 1,
-                    repr: wlxmlUtils.getTagLabel(nodeElementParent.getTagName()) + (nodeElementParent.getClass() ? ' / ' + wlxmlUtils.getClassLabel(nodeElementParent.getClass()) : '')
-                };
+            if(element) {
+                element = element || this.currentNodeElement;
+                var textElement = element.getText ? element : null,
+                    nodeElement = element.getText ? element.parent() : element, // TODO: better type detection
+                    items;
                 
-            }
-        
-            var nodeContents = nodeElement.contents(),
-                contents = [];
-            nodeContents.forEach(function(child) {
-                if(child.getText) {
-                    var text = child.getText();
-                    if(!text) {
-                        text = '<pusty tekst>';
-                    }
-                    else {
-                        if(text.length > 13) {
-                            text = text.substr(0,13) + '...';
-                        }
-                        text = '"' + text + '"';
-                    }
-                    contents.push({
-                        id: items.length,
-                        repr: _.escape(text), bold: child.sameNode(textElement)
-                    });
-                } else {
-                    contents.push({
-                        id: items.length,
-                        repr: wlxmlUtils.getTagLabel(child.getTagName()) + (child.getClass() ? ' / ' + wlxmlUtils.getClassLabel(child.getClass()) : '')
-                    });
+                this.currentNodeElement = nodeElement;
+                items = [];
+                nodeElementParent = nodeElement.parent();
+
+                if(nodeElementParent) {
+                    items.push(nodeElementParent);
+                    parent = {
+                        id: items.length - 1,
+                        repr: wlxmlUtils.getTagLabel(nodeElementParent.getTagName()) + (nodeElementParent.getClass() ? ' / ' + wlxmlUtils.getClassLabel(nodeElementParent.getClass()) : '')
+                    };
+                    
                 }
-                items.push(child);
-            });
+            
+                var nodeContents = nodeElement.contents();
+                nodeContents.forEach(function(child) {
+                    if(child.getText) {
+                        var text = child.getText();
+                        if(!text) {
+                            text = '<pusty tekst>';
+                        }
+                        else {
+                            if(text.length > 13) {
+                                text = text.substr(0,13) + '...';
+                            }
+                            text = '"' + text + '"';
+                        }
+                        contents.push({
+                            id: items.length,
+                            repr: _.escape(text), bold: child.sameNode(textElement)
+                        });
+                    } else {
+                        contents.push({
+                            id: items.length,
+                            repr: wlxmlUtils.getTagLabel(child.getTagName()) + (child.getClass() ? ' / ' + wlxmlUtils.getClassLabel(child.getClass()) : '')
+                        });
+                    }
+                    items.push(child);
+                });
+            }
             this.dom.empty();
             this.dom.append($(template({parent: parent, contents: contents})));
 
@@ -123,10 +127,10 @@ return function(sandbox) {
             sandbox.publish('ready');
         },
         setElement: function(element) {
-            if(!listens) {
+            if(!listens && element) {
                 startListening(element.document);
             }
-            if(!(element.sameNode(view.currentNodeElement))) {
+            if(!element || !(element.sameNode(view.currentNodeElement))) {
                 view.setElement(element);
             }
         },

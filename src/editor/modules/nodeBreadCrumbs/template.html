@@ -5,6 +5,6 @@
             <li><a href="#"> <%= utils.getTagLabel(parents[i].getTagName()) %><% if(parents[i].getClass()) { %>.<%= utils.getClassLabel(parents[i].getClass()) %> <% } %></a><span class="divider">/</span></li>
         <% } %>
             <li class="active"><%= utils.getTagLabel(node.getTagName()) %><% if(node.getClass()) { %>.<%= utils.getClassLabel(node.getClass()) %> <% } %></span></li>
-    <% } %>
+    <% } else { %> &nbsp; <% } %>
     </ul>
 </div>

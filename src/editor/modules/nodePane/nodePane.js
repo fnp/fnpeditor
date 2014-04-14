@@ -11,6 +11,7 @@ define([
 return function(sandbox) {
     
     var view = $(_.template(templateSrc)({utils: wlxmlUtils})),
+        listens = false,
         currentNode;
     
     view.on('change', 'select', function(e) {
@@ -19,6 +20,8 @@ return function(sandbox) {
             value = target.val().replace(/-/g, '.');
         currentNode['set' + attr](value);
     });
+
+
    
     return {
         start: function() {
@@ -28,28 +31,34 @@ return function(sandbox) {
             return view;
         },
         setNodeElement: function(wlxmlNodeElement) {
-            var module = this;
-            if(!currentNode) {
-                wlxmlNodeElement.document.on('change', function(event) {
-                    if(event.type === 'nodeAttrChange' && event.meta.node.sameNode(currentNode)) {
-                        module.setNodeElement(currentNode);
-                    }
+            if(wlxmlNodeElement) {
+                var module = this;
+                if(!listens) {
+                    wlxmlNodeElement.document.on('change', function(event) {
+                        if(event.type === 'nodeAttrChange' && event.meta.node.sameNode(currentNode)) {
+                            module.setNodeElement(currentNode);
+                        }
+                    });
+                    listens = true;
+                }
+
+                view.find('.rng-module-nodePane-tagSelect').attr('disabled', false).val(wlxmlNodeElement.getTagName());
+
+                var escapedClassName = (wlxmlNodeElement.getClass() || '').replace(/\./g, '-');
+                view.find('.rng-module-nodePane-classSelect').attr('disabled', false).val(escapedClassName);
+
+                var attrs = _.extend(wlxmlNodeElement.getMetaAttributes(), wlxmlNodeElement.getOtherAttributes());
+                var widget = metaWidget.create({attrs:attrs});
+                widget.on('valueChanged', function(key, value) {
+                    wlxmlNodeElement.setMetaAttribute(key, value);
+                    //wlxmlNodeElement.setMetaAttribute(key, value);
                 });
+                view.find('.metaFields').empty().append(widget.el);
+            } else {
+                view.find('.rng-module-nodePane-tagSelect').attr('disabled', true).val('');
+                view.find('.rng-module-nodePane-classSelect').attr('disabled', true).val('');
+                view.find('.metaFields').empty();
             }
-
-            view.find('.rng-module-nodePane-tagSelect').val(wlxmlNodeElement.getTagName());
-
-            var escapedClassName = (wlxmlNodeElement.getClass() || '').replace(/\./g, '-');
-            view.find('.rng-module-nodePane-classSelect').val(escapedClassName);
-
-            var attrs = _.extend(wlxmlNodeElement.getMetaAttributes(), wlxmlNodeElement.getOtherAttributes());
-            var widget = metaWidget.create({attrs:attrs});
-            widget.on('valueChanged', function(key, value) {
-                wlxmlNodeElement.setMetaAttribute(key, value);
-                //wlxmlNodeElement.setMetaAttribute(key, value);
-            });
-            view.find('.metaFields').empty().append(widget.el);
-
             currentNode = wlxmlNodeElement;
         }
     };

@@ -23,6 +23,10 @@ $.extend(Listener.prototype, {
             }
         }, this);
 
+        wlxmlDocument.on('operationEnd', function() {
+            this.canvas.triggerSelectionChanged();
+        }, this);
+
         wlxmlDocument.on('contentSet', function() {
             this.canvas.loadWlxmlDocument(wlxmlDocument);
         }, this);

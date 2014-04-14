@@ -77,6 +77,7 @@ return function(sandbox) {
         clear: function() {
         },
         setMetadata: function(node) {
+            this.node.find('.rng-module-metadataEditor-addBtn').attr('disabled', !node);
             if(!node) {
                 this.metaTable.html('');
                 return;

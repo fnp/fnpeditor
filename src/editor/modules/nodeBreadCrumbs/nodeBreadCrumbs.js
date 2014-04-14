@@ -31,7 +31,11 @@ return function(sandbox) {
         setNodeElement: function(nodeElement) {
             this.dom.empty();
             this.currentNodeElement = nodeElement;
-            var parents = nodeElement.parents();
+            var parents;
+            if(nodeElement) {
+                parents = nodeElement.parents();
+            }
+
             this.dom.html(template({node: nodeElement, parents: parents, utils: wlxmlUtils}));
 
             this.dom.find('li > a[href="#"]').each(function(idx, a) {

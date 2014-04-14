@@ -2,20 +2,26 @@
 
 define([
 'libs/jquery',
+'libs/underscore',
 './canvas/canvas',
-'./commands',
-'libs/text!./template.html'], function($, canvas3, commands, template) {
+'libs/text!./template.html'], function($, _, canvas3, template) {
 
 'use strict';
 
 return function(sandbox) {
 
-    var canvas = canvas3.fromXMLDocument(null, sandbox.publish);
+    var canvas = canvas3.fromXMLDocument(null);
     var canvasWrapper = $(template);
     var shownAlready = false;
     var scrollbarPosition = 0,
+        actionHandlers = {},
         cursorPosition;
+        
     
+    canvas.on('selectionChanged', function(selection) {
+        sandbox.publish('selectionChanged', selection);
+    });
+
     canvasWrapper.onShow = function() {
         if(!shownAlready) {
             shownAlready = true;
@@ -33,9 +39,24 @@ return function(sandbox) {
 
     /* public api */
     return {
-        start: function() { sandbox.publish('ready'); },
+        start: function() {
+            sandbox.getPlugins().forEach(function(plugin) {
+                var handlers;
+                if(plugin.canvas) {
+                    handlers = plugin.canvas.actionHandlers;
+                    if(handlers && !_.isArray(handlers)) {
+                        handlers = [handlers];
+                    }
+                    actionHandlers[plugin.name] = handlers;
+                }
+            });
+            sandbox.publish('ready');
+        },
         getView: function() {
             return canvasWrapper;
+        },
+        getCanvas: function() {
+            return canvas;
         },
         setDocument: function(wlxmlDocument) {
             canvas.loadWlxmlDocument(wlxmlDocument);
@@ -50,8 +71,10 @@ return function(sandbox) {
         jumpToElement: function(node) {
             canvas.setCurrentElement(node);
         },
-        command: function(command, params) {
-            commands.run(command, params, canvas, sandbox.getConfig().user);
+        onAfterActionExecuted: function(action, ret) {
+            (actionHandlers[action.getPluginName()] || []).forEach(function(handler) {
+                handler(canvas, action, ret);
+            });
         }
     };
     
