@@ -19,45 +19,35 @@ _.extend(Action.prototype, Backbone.Events, {
     getPluginName: function() {
         return this.fqName.split('.')[0];
     },
-    updateContextParam: function(contextName, value) {
+    updateParam: function(filter, value) {
         var changed = false;
         _.pairs(this.definition.params).forEach(function(pair) {
             var paramName = pair[0],
                 paramDesc = pair[1];
-            if(paramDesc.type === 'context' && paramDesc.name === contextName) {
-                 this.params[paramName] = value;
-                 changed = true;
+            if(filter(paramDesc, paramName)) {
+                this.params[paramName] = value;
+                changed = true;
             }
         }.bind(this));
         if(changed) {
             this._cache = null;
             this.trigger('paramsChanged');
         }
+    },
+    updateContextParam: function(contextName, value) {
+        this.updateParam(function(paramDesc) {
+            return paramDesc.type === 'context' && paramDesc.name === contextName;
+        }, value);
     },
     updateKeyParam: function(keyName, toggled) {
-        var changed = false;
-        _.pairs(this.definition.params).forEach(function(pair) {
-            var paramName = pair[0],
-                paramDesc = pair[1];
-            if(paramDesc.type === 'key' && paramDesc.key === keyName) {
-                 this.params[paramName] = toggled;
-                 changed = true;
-            }
-        }.bind(this));
-
-        if(changed) {
-            this._cache = null;
-            this.trigger('paramsChanged');
-        }
+        this.updateParam(function(paramDesc) {
+            return paramDesc.type === 'key' && paramDesc.key === keyName;
+        }, toggled);
     },
     updateWidgetParam: function(name, value) {
-        var paramDesc = this.definition.params[name];
-        if(paramDesc.type === 'context' || paramDesc.type === 'key') {
-            throw new Error('');
-        }
-        this.params[name] = value;
-        this._cache = null;
-        this.trigger('paramsChanged');
+        this.updateParam(function(paramDesc, paramName) {
+            return !_.contains(['context', 'key'], paramDesc.type) && paramName === name;
+        }, value);
     },
     getState: function() {
         var gotState;
