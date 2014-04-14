@@ -3,7 +3,11 @@ define(function(require) {
 'use strict';
 
 var _ = require('libs/underscore'),
-    Backbone = require('libs/backbone');
+    Backbone = require('libs/backbone'),
+    logging = require('fnpjs/logging/logging');
+
+var logger = logging.getLogger('fnpjs.actions');
+
 
 var Action = function(fqName, definition, config, appObject) {
     this.fqName = fqName;
@@ -52,7 +56,12 @@ _.extend(Action.prototype, Backbone.Events, {
     getState: function() {
         var gotState;
         if(!this._cache) {
-            gotState = this.definition.getState.call(this, this.params);
+            try {
+                gotState = this.definition.getState.call(this, this.params);
+            } catch(e) {
+                logger.exception(e);
+                return;
+            }
             if(typeof gotState === 'boolean') {
                 gotState = {allowed: gotState};
             }
