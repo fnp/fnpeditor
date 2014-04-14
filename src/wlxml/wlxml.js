@@ -12,16 +12,16 @@ define([
 
 
 var WLXMLDocumentNodeMethods =  {
-    isInside: function(klass) {
-        var parent = this.getParent(klass);
+    isInside: function(query) {
+        var parent = this.getParent(query);
         return !!parent;
     },
-    getParent: function(klass) {
+    getParent: function(query) {
         /* globals Node */
         var me = this.nodeType === Node.ELEMENT_NODE ? [this] : [],
             toret;
         me.concat(this.parents()).some(function(node) {
-            if(node.is(klass)) {
+            if(node.is(query)) {
                 toret = node;
                 return true;
             }
@@ -78,8 +78,12 @@ $.extend(WLXMLElementNode.prototype, WLXMLDocumentNodeMethods, smartxml.ElementN
             return this.setAttr('class', klass);
         }
     },
-    is: function(klass) {
-        return this.getClass().substr(0, klass.length) === klass;
+    is: function(query) {
+        if(typeof query === 'string') {
+            query = {klass: query};
+        }
+        return (_.isUndefined(query.klass) || this.getClass().substr(0, query.klass.length) === query.klass) &&
+               (_.isUndefined(query.tagName) || this.getTagName() === query.tagName);
     },
     getMetaAttributes: function() {
         var toret = new AttributesList(),
