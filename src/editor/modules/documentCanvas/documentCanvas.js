@@ -41,15 +41,6 @@ return function(sandbox) {
             canvas.loadWlxmlDocument(wlxmlDocument);
             canvasWrapper.find('#rng-module-documentCanvas-content').empty().append(canvas.view());
         },
-        modifyCurrentNodeElement: function(attr, value) {
-            var currentNodeElement = canvas.getCurrentNodeElement();
-            if(attr === 'class' || attr === 'tag') {
-                currentNodeElement['setWlxml'+(attr[0].toUpperCase() + attr.substring(1))](value);
-            } else {
-                currentNodeElement.setWlxmlMetaAttr(attr, value);
-            }
-            sandbox.publish('currentNodeElementChanged', currentNodeElement);
-        },
         highlightElement: function(node) {
             canvas.toggleElementHighlight(node, true);
         },

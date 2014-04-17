@@ -47,10 +47,6 @@ $.extend(DocumentElement.prototype, {
         return other && (typeof other === typeof this) && other.dom()[0] === this.dom()[0];
     },
 
-    markAsCurrent: function() {
-        this.canvas.markAsCurrent(this);
-    },
-
     getVerticallyFirstTextElement: function() {
         var toret;
         this.children().some(function(child) {

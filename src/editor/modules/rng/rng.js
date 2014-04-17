@@ -220,10 +220,6 @@ return function(sandbox) {
     eventHandlers.nodePane = {
         ready: function() {
             views.currentNodePaneLayout.appendView(sandbox.getModule('nodePane').getView());
-        },
-        
-        nodeElementChange: function(attr, value) {
-            sandbox.getModule('documentCanvas').modifyCurrentNodeElement(attr, value);
         }
     };
     
