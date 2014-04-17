@@ -63,7 +63,10 @@ var undoRedoAction = function(dir) {
                 desc = dir === 'undo' ? gettext('Undo') : gettext('Redo'),
                 descEmpty = dir === 'undo' ? gettext('There is nothing to undo') : gettext('There is nothing to redo');
             if(allowed) {
-                desc += ': ' + (_.last(params.document[dir+'Stack']).metadata || gettext('unknown operation'));
+                var metadata = _.last(params.document[dir+'Stack']).metadata;
+                if(metadata) {
+                    desc += ': ' + (metadata.description || gettext('unknown operation'));
+                }
             }
             return {
                 allowed: allowed,
@@ -89,7 +92,8 @@ var commentAction = {
         icon: 'comment',
         execute: function(params, editor) {
             /* globals Node */
-            var node = params.fragment.node;
+            var node = params.fragment.node,
+                action = this;
             if(node.nodeType === Node.TEXT_NODE) {
                 node = node.parent();
             }
@@ -117,6 +121,10 @@ var commentAction = {
                 var metadata = comment.getMetadata();
                 metadata.add({key: 'creator', value: creator});
                 metadata.add({key: 'date', value: dt});
+            }, {
+                metadata: {
+                    description: action.getState().description
+                }
             });
         },
     },
@@ -159,6 +167,7 @@ var createWrapTextAction = function(createParams) {
 
             return _.extend(state, {
                 allowed: true,
+                description: createParams.description,
                 execute: function(params) {
                     params.fragment.document.transaction(function() {
                         var parent = params.fragment.startNode.parent();
@@ -168,6 +177,10 @@ var createWrapTextAction = function(createParams) {
                             offsetEnd: params.fragment.endOffset,
                             textNodeIdx: [params.fragment.startNode.getIndex(), params.fragment.endNode.getIndex()]
                         });
+                    }, {
+                        metadata: {
+                            description: createParams.description
+                        }
                     });
                 }
             });
@@ -185,7 +198,8 @@ var createLinkFromSelection = function(params) {
             fields: [
                 {label: gettext('Link'), name: 'href', type: 'input'}
             ]
-        });
+        }),
+        action = this;
     
     dialog.on('execute', function(event) {
         doc.transaction(function() {
@@ -198,6 +212,10 @@ var createLinkFromSelection = function(params) {
             span.setAttr('href', event.formData.href);
             event.success();
             return span;
+        }, {
+            metadata: {
+                description: action.getState().description
+            }
         });
     });
     dialog.show();
@@ -213,12 +231,17 @@ var editLink = function(params) {
             fields: [
                 {label: gettext('Link'), name: 'href', type: 'input', initialValue: link.getAttr('href')}
             ]
-        });
+        }),
+        action = this;
     
     dialog.on('execute', function(event) {
         doc.transaction(function() {
             link.setAttr('href', event.formData.href);
             event.success();
+        }, {
+            metadata: {
+                description: action.getState().description
+            }
         });
     });
     dialog.show();
@@ -262,8 +285,8 @@ plugin.actions = [
     undoRedoAction('undo'),
     undoRedoAction('redo'),
     commentAction,
-    createWrapTextAction({name: 'emphasis', klass: 'emp'}),
-    createWrapTextAction({name: 'cite', klass: 'cite'}),
+    createWrapTextAction({name: 'emphasis', klass: 'emp', description: gettext('Mark as emphasized')}),
+    createWrapTextAction({name: 'cite', klass: 'cite', description: gettext('Mark as citation')}),
     linkAction
 ].concat(plugin.actions, templates.actions, footnote.actions, switchTo.actions, lists.actions);
 

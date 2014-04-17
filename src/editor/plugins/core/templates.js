@@ -16,6 +16,8 @@ var insertTemplateAction = {
         icon: 'core.plus'
     },
     getState: function(params) {
+        var description;
+
         if(!(params.template && params.template.id)) {
             return {
                 allowed: false,
@@ -31,13 +33,21 @@ var insertTemplateAction = {
                     description: gettext('Wrong node selected')
             };
         }
+
+        description = interpolate(gettext('Insert template %s after %s'), [params.template.name, params.fragment.node.getNearestElementNode().getTagName()]);
         return {
             allowed: true,
-            description: interpolate(gettext('Insert template %s after %s'), [params.template.name, params.fragment.node.getNearestElementNode().getTagName()]),
+            description: description,
             execute: function(params) {
                 var node = params.fragment.node.getNearestElementNode();
-                var toAdd = node.document.createDocumentNode(params.template.content);
-                node.after(toAdd);
+                node.document.transaction(function() {
+                    var toAdd = node.document.createDocumentNode(params.template.content);
+                    node.after(toAdd);
+                }, {
+                    metadata: {
+                        description: description
+                    }
+                });
             }
         };
     }

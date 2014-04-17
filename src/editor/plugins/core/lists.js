@@ -34,30 +34,54 @@ var toggleListAction = function(type) {
     var execute = {
         add: function(params) {
             var boundries = getBoundriesForAList(params.fragment),
-                listParams = {klass: type === 'Bullet' ? 'list' : 'list.enum'};
+                listParams = {klass: type === 'Bullet' ? 'list' : 'list.enum'},
+                action = this;
+
             if(boundries && boundries.node1) {
                 listParams.node1 = boundries.node1;
                 listParams.node2 = boundries.node2;
-                boundries.node1.document.createList(listParams);
+                boundries.node1.document.transaction(function() {
+                    boundries.node1.document.createList(listParams);
+                }, {
+                    metadata: {
+                        description: action.getState().description
+                    }
+                });
             } else {
                 throw new Error('Invalid boundries');
             }
         },
         remove: function(params) {
             /* globals Node */
-            var current = params.fragment.node;
+            var current = params.fragment.node,
+                action = this;
 
             var toSearch = current.nodeType === Node.ELEMENT_NODE ? [current] : [];
             toSearch = toSearch.concat(current.parents());
             toSearch.some(function(node) {
                 if(node.is('list')) {
-                    node.object.extractListItems();
+                    node.document.transaction(function() {
+                        node.object.extractListItems();
+                    }, {
+                        metadata: {
+                            description: action.getState().description
+                        }
+                    });
+                    
                     return true; // break
                 }
-            });
+            }.bind(this));
         },
         changeType: function(params) {
-            params.fragment.node.getParent('list').setClass(type === 'Bullet' ? 'list' : 'list.enum');
+            var node = params.fragment.node,
+                action = this;
+            node.document.transaction(function() {
+                node.getParent('list').setClass(type === 'Bullet' ? 'list' : 'list.enum');
+            }, {
+                metadata: {
+                    description: action.getState().description
+                }
+            });
         }
     };
 

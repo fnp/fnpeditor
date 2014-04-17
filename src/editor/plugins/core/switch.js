@@ -16,7 +16,8 @@ var createSwitchAction = function(createParams) {
             var state = {
                     label: this.config.label
                 },
-                f = params.fragment;
+                f = params.fragment,
+                description;
 
 
             if(
@@ -37,10 +38,11 @@ var createSwitchAction = function(createParams) {
                 toSwitch = toSwitch.getParent(createParams.from);
             }
 
+            description = 'Switch to ' + createParams.to.name;
             return _.extend(state, {
                 allowed: !!toSwitch,
                 toggled: alreadyInTarget,
-                description: 'Switch to ' + createParams.to.name,
+                description: description,
                 execute: alreadyInTarget ? function() {} : function() {
                     f.document.transaction(function() {
                         if(createParams.to.tagName) {
@@ -48,6 +50,10 @@ var createSwitchAction = function(createParams) {
                         }
                         if(!_.isUndefined(createParams.to.klass)) {
                             toSwitch.setClass(createParams.to.klass);
+                        }
+                    }, {
+                        metadata: {
+                            description: description
                         }
                     });
                 }
