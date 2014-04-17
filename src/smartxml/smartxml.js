@@ -4,8 +4,9 @@ define([
     'libs/backbone',
     'smartxml/events',
     'smartxml/transformations',
-    'smartxml/core'
-], function($, _, Backbone, events, transformations, coreTransformations) {
+    'smartxml/core',
+    'smartxml/fragments'
+], function($, _, Backbone, events, transformations, coreTransformations, fragments) {
     
 'use strict';
 /* globals Node */
@@ -299,7 +300,7 @@ var Document = function(xml, extensions) {
     this.loadXML(xml);
 };
 
-$.extend(Document.prototype, Backbone.Events, {
+$.extend(Document.prototype, Backbone.Events, fragments, {
     ElementNodeFactory: ElementNode,
     TextNodeFactory: TextNode,
 
@@ -638,6 +639,13 @@ $.extend(Document.prototype, Backbone.Events, {
             }
             return $document[0];
         }, configurable: true});
+    },
+
+    createFragment: function(Type, params) {
+        if(!Type.prototype instanceof fragments.Fragment) {
+            throw new Error('Can\'t create a fragment: `Type` is not a valid Fragment');
+        }
+        return new Type(this, params);
     }
 });
 
