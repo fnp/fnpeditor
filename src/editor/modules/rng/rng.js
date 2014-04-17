@@ -107,7 +107,7 @@ return function(sandbox) {
             sandbox.getModule('mainBar').setCommandEnabled('drop-draft', usingDraft);
             sandbox.getModule('mainBar').setCommandEnabled('save', usingDraft);
 
-            _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'metadataEditor', 'nodeBreadCrumbs', 'mainBar', 'indicator', 'documentHistory', 'diffViewer'], function(moduleName) {
+            _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'metadataEditor', 'nodeBreadCrumbs', 'mainBar', 'indicator', 'documentHistory', 'diffViewer', 'statusBar'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
             
@@ -294,6 +294,21 @@ return function(sandbox) {
         }
     };
 
+    eventHandlers.statusBar = {
+        ready: function() {
+            views.mainLayout.setView('bottomPanel', sandbox.getModule('statusBar').getView());
+        }
+    };
+
+    eventHandlers.__all__ = {
+        actionHovered: function(action) {
+            sandbox.getModule('statusBar').showAction(action);
+        },
+        actionOff: function() {
+            sandbox.getModule('statusBar').clearAction();
+        }
+    };
+
     window.addEventListener('beforeunload', function(event) {
         var txt = gettext('Do you really want to exit?');
         if(documentIsDirty) {
@@ -319,10 +334,16 @@ return function(sandbox) {
             if(eventHandlers[moduleName] && eventHandlers[moduleName][eventName]) {
                 logger.debug('Handling event ' + eventRepr);
                 eventHandlers[moduleName][eventName].apply(eventHandlers, args);
-            } else {
-                logger.warning('No event handler for ' + eventRepr);
+                return;
             }
 
+            if(eventHandlers.__all__[eventName]) {
+                logger.debug('Handling event ' + eventRepr);
+                eventHandlers.__all__[eventName].apply(eventHandlers.__all__, args);
+                return;
+            }
+
+            logger.warning('No event handler for ' + eventRepr);
         }
     };
 };

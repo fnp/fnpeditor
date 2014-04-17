@@ -10,6 +10,7 @@ define(function(require) {
         data: require('modules/data/data'),
         rng: require('modules/rng/rng'),
         mainBar: require('modules/mainBar/mainBar'),
+        statusBar: require('modules/statusBar/statusBar'),
         indicator: require('modules/indicator/indicator'),
         
         sourceEditor: require('modules/sourceEditor/sourceEditor'),
