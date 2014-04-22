@@ -172,13 +172,21 @@ var createWrapTextAction = function(createParams) {
                 description: createParams.description,
                 execute: function(callback, params) {
                     params.fragment.document.transaction(function() {
-                        var parent = params.fragment.startNode.parent();
-                        return parent.wrapText({
+                        var parent = params.fragment.startNode.parent(),
+                            doc = params.fragment.document,
+                            wrapper, lastTextNode;
+                        
+                        wrapper = parent.wrapText({
                             _with: {tagName: 'span', attrs: {'class': createParams.klass}},
                             offsetStart: params.fragment.startOffset,
                             offsetEnd: params.fragment.endOffset,
                             textNodeIdx: [params.fragment.startNode.getIndex(), params.fragment.endNode.getIndex()]
                         });
+                            
+                        lastTextNode = wrapper.getLastTextNode();
+                        if(lastTextNode) {
+                            return doc.createFragment(doc.CaretFragment, {node: lastTextNode, offset: lastTextNode.getText().length});
+                        }
                     }, {
                         metadata: {
                             description: createParams.description
