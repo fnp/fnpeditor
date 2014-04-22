@@ -4,6 +4,7 @@ define(function(require) {
 /* globals describe, it */
 
 var chai = require('libs/chai'),
+    sinon = require('libs/sinon'),
     wlxml = require('wlxml/wlxml'),
     corePlugin = require('./core.js'),
     expect = chai.expect;
@@ -88,65 +89,47 @@ describe('Document extensions', function() {
         });
     });
 
-    describe('merging with adjacent content', function() {
+    describe('mergin text with preceding content', function() {
+        it('does nothing if text node parent has no preceding element', function() {
+            var doc = getDocumentFromXML('<section><div><div>some text</div></div></section>'),
+                text = getTextNode('some text', doc),
+                spy = sinon.spy();
 
-            describe('when text preceded by element', function() {
-                describe('when text followed by element', function() {
-                    it('appends text to the preceding element, following elements stays in place', function() {
-                        var doc = getDocumentFromXML('<section><a>A</a>text<b>B</b></section>'),
-                            text = getTextNode('text', doc);
-                        
-                        text.mergeContentUp();
-                        var contents = doc.root.contents();
-                        
-                        expect(contents.length).to.equal(2);
-                        expect(contents[0].getTagName()).to.equal('a');
-                        expect(contents[0].contents()[0].getText()).to.equal('Atext');
-                        expect(contents[1].getTagName()).to.equal('b');
-                    });
-                });
-                describe('when text is a last child', function() {
-                    it('appends text to the preceding element', function() {
-                        var doc = getDocumentFromXML('<section><a>A</a>text</section>'),
-                            text = getTextNode('text', doc);
-                        
-                        text.mergeContentUp();
-                        var contents = doc.root.contents();
-                        
-                        expect(contents.length).to.equal(1);
-                        expect(contents[0].getTagName()).to.equal('a');
-                        expect(contents[0].contents()[0].getText()).to.equal('Atext');
-                    });
-                });
-            });
+            doc.on('change', spy);
+            text.mergeContentUp();
+            expect(spy.callCount).to.equal(0);
+        });
+        it('does nothing if text node parent is precedeed by text node', function() {
+            var doc = getDocumentFromXML('<section><div></div>another text<div>some text</div></section>'),
+                text = getTextNode('some text', doc),
+                spy = sinon.spy();
 
-            describe('when text is a first child', function() {
-                describe('when text followed by element', function() {
-                    it('appends text and its siblings to the parent preceding element', function() {
-                        var doc = getDocumentFromXML('<section><b>B</b><div>text<a>A</a></div></section>'),
-                            text = getTextNode('text', doc);
-                        
-                        text.mergeContentUp();
-                        var contents = doc.root.contents();
-                        
-                        expect(contents.length).to.equal(3);
-                        expect(contents[0].getTagName()).to.equal('b');
-                        expect(contents[1].getText()).to.equal('text');
-                        expect(contents[2].getTagName()).to.equal('a');
-                    });
-                    it('appends text and its siblings after the parent preceding text', function() {
-                        var doc = getDocumentFromXML('<section>B<div>text<a>A</a></div></section>'),
-                            text = getTextNode('text', doc);
-                        
-                        text.mergeContentUp();
-                        var contents = doc.root.contents();
-                        
-                        expect(contents.length).to.equal(2);
-                        expect(contents[0].getText()).to.equal('Btext');
-                        expect(contents[1].getTagName()).to.equal('a');
-                    });
-                });
-            });
+            doc.on('change', spy);
+            text.mergeContentUp();
+            expect(spy.callCount).to.equal(0);
+        });
+        it('does nothing if text node is not first child of its parent', function() {
+            var doc = getDocumentFromXML('<section><div></div><div><a></a>some text</div></section>'),
+                text = getTextNode('some text', doc),
+                spy = sinon.spy();
+
+            doc.on('change', spy);
+            text.mergeContentUp();
+            expect(spy.callCount).to.equal(0);
+        });
+        it('moves text node and its siblings to the block element preceding text node parent', function() {
+            var doc = getDocumentFromXML('<section><div></div><div>some text<span>is</span> here!</div></section>'),
+                text = getTextNode('some text', doc);
+            
+            text.mergeContentUp();
+            
+            var contents = doc.root.contents();
+            expect(contents.length).to.equal(1);
+            expect(contents[0].contents().length).to.equal(3);
+            expect(contents[0].contents()[0].getText()).to.equal('some text');
+            expect(contents[0].contents()[1].getTagName()).to.equal('span');
+            expect(contents[0].contents()[2].getText()).to.equal(' here!');
+        });
     });
 });
 

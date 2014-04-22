@@ -298,7 +298,9 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
                 }
                 if(element) {
                     goto = element.wlxmlNode.mergeContentUp();
-                    canvas.setCurrentElement(goto.node, {caretTo: goto.offset});
+                    if(goto) {
+                        canvas.setCurrentElement(goto.node, {caretTo: goto.offset});
+                    }
                 }
                 event.preventDefault();
             }

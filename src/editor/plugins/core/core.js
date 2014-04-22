@@ -31,15 +31,37 @@ plugin.documentExtension.textNode.transformations = {
         }
     },
     mergeContentUp: function() {
-        var myPrev = this.prev(),
+        /* globals Node */
+        var myPrev = this,
+            base = this,
             ret;
 
-        if(myPrev) {
-            ret = myPrev.append(this);
+        if(myPrev.nodeType === Node.TEXT_NODE) {
+            if(myPrev.getIndex() > 0) {
+                return;
+            }
+            myPrev = base = myPrev.parent();
+        }
+
+        myPrev = myPrev && myPrev.prev();
+
+        if(myPrev && myPrev.nodeType === Node.ELEMENT_NODE)  {
+            var ptr = this,
+                next;
+            while(ptr) {
+                next = ptr.next();
+                if(!ret) {
+                    ret = myPrev.append(ptr);
+                } else {
+                    myPrev.append(ptr);
+                }
+                
+                ptr = next;
+            }
+            if(base !== this) {
+                base.detach();
+            }
             return {node: ret, offset: ret.sameNode(this) ? null : ret.getText().length - this.getText().length};
-        } else {
-            var range = this.parent().unwrapContent();
-            return {node: range.element1, offset: 0};
         }
     }
 };
