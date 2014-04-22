@@ -7,8 +7,6 @@ return function(sandbox) {
     
     var addedActions = [],
         contextParams = {},
-        contextDefer = {},
-        duringClick = false,
         document, canvas;
 
     var view = {
@@ -31,17 +29,6 @@ return function(sandbox) {
             group.append(view.dom);
             view.on('actionExecuted', function(action, ret) {
                 sandbox.publish('actionExecuted', action, ret);
-                duringClick = false;
-                _.pairs(contextDefer).forEach(function(pair) {
-                    var what = pair[0],
-                        deferred = pair[1];
-                    if(deferred) {
-                        refreshContextParam(what);
-                    }
-                });
-            });
-            view.on('mousedown', function() {
-                duringClick = true;
             });
 
             view.on('hover', function() {
@@ -61,14 +48,6 @@ return function(sandbox) {
     
     var setContextParam = function(what, ctx) {
         contextParams[what] = ctx;
-        if(duringClick) {
-            contextDefer[what] = true;
-        } else {
-            refreshContextParam(what);
-        }
-    };
-
-    var refreshContextParam = function(what) {
         addedActions.forEach(function(action) {
             action.updateContextParam(what, contextParams[what]);
         });
