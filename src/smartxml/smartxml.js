@@ -223,6 +223,22 @@ $.extend(ElementNode.prototype, {
         return node && (node.nativeNode === this.nativeNode || node._$.parents().index(this._$) !== -1);
     },
 
+    getLastTextNode: function() {
+        var contents = this.contents(),
+            toret;
+
+        contents.reverse().some(function(node) {
+            if(node.nodeType === Node.TEXT_NODE) {
+                toret = node;
+                return true;
+            }
+            toret = node.getLastTextNode();
+            return !!toret;
+        });
+
+        return toret;
+    },
+
     toXML: function() {
         var wrapper = $('<div>');
         wrapper.append(this._getXMLDOMToDump());
