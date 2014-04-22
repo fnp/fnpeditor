@@ -54,8 +54,9 @@ var undoRedoAction = function(dir) {
             label: dir === 'undo' ? '<-' : '->',
             icon: 'share-alt',
             iconStyle: dir === 'undo' ? '-webkit-transform: scale(-1,1); transform: scale(-1, 1)' : '',
-            execute: function(params) {
+            execute: function(callback, params) {
                 params.document[dir]();
+                callback();
             },
         },
         getState: function(params) {
@@ -90,7 +91,7 @@ var commentAction = {
     },
     stateDefaults: {
         icon: 'comment',
-        execute: function(params, editor) {
+        execute: function(callback, params, editor) {
             /* globals Node */
             var node = params.fragment.node,
                 action = this;
@@ -124,7 +125,8 @@ var commentAction = {
             }, {
                 metadata: {
                     description: action.getState().description
-                }
+                },
+                success: callback
             });
         },
     },
@@ -168,7 +170,7 @@ var createWrapTextAction = function(createParams) {
             return _.extend(state, {
                 allowed: true,
                 description: createParams.description,
-                execute: function(params) {
+                execute: function(callback, params) {
                     params.fragment.document.transaction(function() {
                         var parent = params.fragment.startNode.parent();
                         return parent.wrapText({
@@ -180,7 +182,8 @@ var createWrapTextAction = function(createParams) {
                     }, {
                         metadata: {
                             description: createParams.description
-                        }
+                        },
+                        success: callback
                     });
                 }
             });
@@ -189,7 +192,7 @@ var createWrapTextAction = function(createParams) {
 };
 
 
-var createLinkFromSelection = function(params) {
+var createLinkFromSelection = function(callback, params) {
     var doc = params.fragment.document,
         dialog = Dialog.create({
             title: gettext('Create link'),
@@ -215,13 +218,14 @@ var createLinkFromSelection = function(params) {
         }, {
             metadata: {
                 description: action.getState().description
-            }
+            },
+            success: callback
         });
     });
     dialog.show();
 };
 
-var editLink = function(params) {
+var editLink = function(callback, params) {
     var doc = params.fragment.document,
         link = params.fragment.node.getParent('link'),
         dialog = Dialog.create({
@@ -241,7 +245,8 @@ var editLink = function(params) {
         }, {
             metadata: {
                 description: action.getState().description
-            }
+            },
+            success: callback
         });
     });
     dialog.show();

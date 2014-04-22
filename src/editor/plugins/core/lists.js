@@ -32,7 +32,7 @@ var countItems = function(boundries) {
 var toggleListAction = function(type) {
     
     var execute = {
-        add: function(params) {
+        add: function(callback, params) {
             var boundries = getBoundriesForAList(params.fragment),
                 listParams = {klass: type === 'Bullet' ? 'list' : 'list.enum'},
                 action = this;
@@ -45,13 +45,14 @@ var toggleListAction = function(type) {
                 }, {
                     metadata: {
                         description: action.getState().description
-                    }
+                    },
+                    success: callback
                 });
             } else {
                 throw new Error('Invalid boundries');
             }
         },
-        remove: function(params) {
+        remove: function(callback, params) {
             /* globals Node */
             var current = params.fragment.node,
                 action = this;
@@ -65,14 +66,15 @@ var toggleListAction = function(type) {
                     }, {
                         metadata: {
                             description: action.getState().description
-                        }
+                        },
+                        success: callback
                     });
                     
                     return true; // break
                 }
             }.bind(this));
         },
-        changeType: function(params) {
+        changeType: function(callback, params) {
             var node = params.fragment.node,
                 action = this;
             node.document.transaction(function() {
@@ -80,7 +82,8 @@ var toggleListAction = function(type) {
             }, {
                 metadata: {
                     description: action.getState().description
-                }
+                },
+                success: callback
             });
         }
     };

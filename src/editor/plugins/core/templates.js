@@ -38,7 +38,7 @@ var insertTemplateAction = {
         return {
             allowed: true,
             description: description,
-            execute: function(params) {
+            execute: function(callback, params) {
                 var node = params.fragment.node.getNearestElementNode();
                 node.document.transaction(function() {
                     var toAdd = node.document.createDocumentNode(params.template.content);
@@ -46,7 +46,8 @@ var insertTemplateAction = {
                 }, {
                     metadata: {
                         description: description
-                    }
+                    },
+                    success: callback
                 });
             }
         };

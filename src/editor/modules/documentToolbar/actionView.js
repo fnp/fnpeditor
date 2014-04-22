@@ -108,8 +108,9 @@ var ActionView = Backbone.View.extend({
         this.trigger('mousedown');
     },
     onExecute: function() {
-        var ret = this.action.execute();
-        this.trigger('actionExecuted', this.action, ret);
+        this.action.execute(function(ret) {
+            this.trigger('actionExecuted', this.action, ret);
+        }.bind(this));
     },
     onSelectionChange: function(e) {
         var select = $(e.target),

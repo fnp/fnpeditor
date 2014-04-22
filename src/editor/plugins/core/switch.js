@@ -43,7 +43,7 @@ var createSwitchAction = function(createParams) {
                 allowed: !!toSwitch,
                 toggled: alreadyInTarget,
                 description: description,
-                execute: alreadyInTarget ? function() {} : function() {
+                execute: alreadyInTarget ? function() {} : function(callback) {
                     f.document.transaction(function() {
                         if(createParams.to.tagName) {
                             toSwitch = toSwitch.setTag(createParams.to.tagName);
@@ -54,7 +54,8 @@ var createSwitchAction = function(createParams) {
                     }, {
                         metadata: {
                             description: description
-                        }
+                        },
+                        success: callback
                     });
                 }
             });
