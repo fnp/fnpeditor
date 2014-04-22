@@ -77,6 +77,7 @@ extension.document.transformations.createList = {
         nodesToWrap.forEach(function(node) {
             listNode.append(node);
         });
+        return listNode;
     },
     getChangeRoot: function() {
         return this.args[0].node1.parent();
