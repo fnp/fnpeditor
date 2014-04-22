@@ -72,10 +72,11 @@ _.extend(Action.prototype, Backbone.Events, {
         }
         return this._cache;
     },
-    execute: function() {
+    execute: function(callback) {
         var state = this.getState();
+        callback = callback || function() {};
         if(state.allowed) {
-            return state.execute.call(this, this.params, this.appObject);
+            return state.execute.call(this, callback, this.params, this.appObject);
         }
         throw new Error('Execution not allowed');
     }
