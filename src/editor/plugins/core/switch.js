@@ -32,7 +32,8 @@ var createSwitchAction = function(createParams) {
 
             var node = f instanceof f.CaretFragment ? f.node.parent() : f.getCommonParent(),
                 alreadyInTarget = node.isInside(createParams.to),
-                toSwitch = node;
+                toSwitch = node,
+                textNodePath = (f.node || f.startNode).getPath();
 
             if(!toSwitch.is(createParams.from)) {
                 toSwitch = toSwitch.getParent(createParams.from);
@@ -51,6 +52,7 @@ var createSwitchAction = function(createParams) {
                         if(!_.isUndefined(createParams.to.klass)) {
                             toSwitch.setClass(createParams.to.klass);
                         }
+                        return f.document.createFragment(f.CaretFragment, {node: f.document.getNodeByPath(textNodePath), offset: f.offset});
                     }, {
                         metadata: {
                             description: description
@@ -63,12 +65,25 @@ var createSwitchAction = function(createParams) {
     };
 };
 
+var headerAction = createSwitchAction({name: 'switchToHeader', from: {tagName: 'div', klass: 'p'}, to: {tagName: 'header', klass: '', name: gettext('header')}}),
+    paragraphAction = createSwitchAction({name: 'switchToParagraph', from: {tagName: 'header'}, to: {tagName: 'div', klass: 'p', name: gettext('paragraf')}});
 
 return {
-    actions: [
-        createSwitchAction({name: 'switchToHeader', from: {tagName: 'div', klass: 'p'}, to: {tagName: 'header', klass: '', name: gettext('header')}}),
-        createSwitchAction({name: 'switchToParagraph', from: {tagName: 'header'}, to: {tagName: 'div', klass: 'p', name: gettext('paragraf')}})
-    ]
+    actions: [headerAction, paragraphAction],
+    canvasActionHandler: {
+        handles: [headerAction, paragraphAction],
+        // handle: function(canvas, action, ret) {
+        //     var params = {},
+        //         f;
+        //     if(ret && ret.node2) {
+        //         f = ret.oldFragment;
+        //         if(f && f instanceof f.CaretFragment) {
+        //             params.caretTo = f.offset;
+        //         }
+        //         canvas.setCurrentElement(ret.node2, params);
+        //     }
+        // }
+    }
 };
 
 });

@@ -3,10 +3,14 @@
 define([
 'libs/jquery',
 'libs/underscore',
+'fnpjs/logging/logging',
 './canvas/canvas',
-'libs/text!./template.html'], function($, _, canvas3, template) {
+'libs/text!./template.html'], function($, _, logging, canvas3, template) {
 
 'use strict';
+
+
+var logger = logging.getLogger('documentCanvas');
 
 return function(sandbox) {
 
@@ -72,6 +76,13 @@ return function(sandbox) {
             canvas.setCurrentElement(node);
         },
         onAfterActionExecuted: function(action, ret) {
+            if(ret && ret instanceof canvas.wlxmlDocument.CaretFragment && ret.isValid()) {
+                logger.debug('The action returned a valid fragment');
+                canvas.setCurrentElement(ret.node, {caretTo: ret.offset});
+                return;
+            }
+            logger.debug('No valid fragment returned from the action');
+
             (actionHandlers[action.getPluginName()] || []).forEach(function(handler) {
                 handler(canvas, action, ret);
             });

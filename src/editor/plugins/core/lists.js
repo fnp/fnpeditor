@@ -41,7 +41,12 @@ var toggleListAction = function(type) {
                 listParams.node1 = boundries.node1;
                 listParams.node2 = boundries.node2;
                 boundries.node1.document.transaction(function() {
-                    boundries.node1.document.createList(listParams);
+                    var list = boundries.node1.document.createList(listParams),
+                        item1 = list.object.getItem(0),
+                        text = item1 ? item1.contents()[0] : undefined, //
+                        doc = boundries.node1.document;
+
+                   return doc.createFragment(doc.CaretFragment, {node: text, offset:0});
                 }, {
                     metadata: {
                         description: action.getState().description
