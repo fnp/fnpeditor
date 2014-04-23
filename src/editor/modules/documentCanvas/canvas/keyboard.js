@@ -4,7 +4,7 @@ define([
 ], function(documentElement, utils) {
     
 'use strict';
-
+/* globals gettext */
 
 var KEYS = {
     ENTER: 13,
@@ -44,20 +44,27 @@ handlers.push({key: KEYS.ENTER,
         event.preventDefault();
         var cursor = canvas.getCursor(),
             position = cursor.getPosition(),
-            element = position.element,
-            added;
+            element = position.element;
 
         if(Object.keys(cursor.getPosition()).length === 0) {
             var currentElement = canvas.getCurrentNodeElement();
             if(currentElement) {
-                canvas.wlxmlDocument.startTransaction();
-                added = currentElement.wlxmlNode.after({
-                    tagName: currentElement.getWlxmlTag() || 'div',
-                    attrs: {'class': currentElement.getWlxmlClass() || 'p'}
+                canvas.wlxmlDocument.transaction(function() {
+                    var added = currentElement.wlxmlNode.after({
+                        tagName: currentElement.getWlxmlTag() || 'div',
+                        attrs: {'class': currentElement.getWlxmlClass() || 'p'}
+                    });
+                    added.append({text:''});
+                    return added;
+                }, {
+                    metadata: {
+                        description: gettext('Splitting text')
+                    },
+                    success: function(ret) {
+                        canvas.setCurrentElement(utils.findCanvasElement(ret), {caretTo: 'start'});
+                    }
                 });
-                added.append({text:''});
-                canvas.wlxmlDocument.endTransaction();
-                canvas.setCurrentElement(utils.findCanvasElement(added), {caretTo: 'start'});
+
             }
             return;
         }
@@ -68,13 +75,20 @@ handlers.push({key: KEYS.ENTER,
                     element = element.parent();
                 }
 
-                canvas.wlxmlDocument.startTransaction();
-                added = element.wlxmlNode.after(
-                    {tagName: element.getWlxmlTag() || 'div', attrs: {'class': element.getWlxmlClass() || 'p'}}
-                );
-                added.append({text: ''});
-                canvas.wlxmlDocument.endTransaction();
-                canvas.setCurrentElement(utils.findCanvasElement(added), {caretTo: 'start'});
+                canvas.wlxmlDocument.transaction(function() {
+                    var added = element.wlxmlNode.after(
+                        {tagName: element.getWlxmlTag() || 'div', attrs: {'class': element.getWlxmlClass() || 'p'}}
+                    );
+                    added.append({text: ''});
+                    return added;
+                }, {
+                    metadata: {
+                        description: gettext('Splitting text')
+                    },
+                    success: function(ret) {
+                        canvas.setCurrentElement(utils.findCanvasElement(ret), {caretTo: 'start'});
+                    }
+                });
 
             } else {
 
@@ -100,9 +114,17 @@ handlers.push({key: KEYS.ENTER,
                 //     goto = nodes.second;
                 //     gotoOptions = {caretTo: 'start'};
                 // }
+                var node = position.element.wlxmlNode,
+                    result, goto, gotoOptions;
 
-                var result = position.element.wlxmlNode.breakContent({offset: position.offset}),
-                    goto, gotoOptions;
+                node.document.transaction(function() {
+                    result = position.element.wlxmlNode.breakContent({offset: position.offset});
+                }, {
+                    metadata: {
+                        description: gettext('Splitting text')
+                    }
+                });
+
                 if(result.emptyText) {
                     goto = result.emptyText;
                     gotoOptions = {};
@@ -279,6 +301,10 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
                     canvas.setCurrentElement(goto.node, {caretTo: goto.offset});
                 }
                 event.preventDefault();
+            }
+        }, {
+            metadata: {
+                description: gettext('Remove text')
             }
         });
     }

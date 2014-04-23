@@ -8,7 +8,8 @@ define([
 
 return function(sandbox) {
     
-    var template = _.template(templateSrc);
+    var template = _.template(templateSrc),
+        listens = false;
     
     var view = {
         dom: $('<div>' + template({node:null, parents: null}) + '</div>'),
@@ -31,7 +32,11 @@ return function(sandbox) {
         setNodeElement: function(nodeElement) {
             this.dom.empty();
             this.currentNodeElement = nodeElement;
-            var parents = nodeElement.parents();
+            var parents;
+            if(nodeElement) {
+                parents = nodeElement.parents();
+            }
+
             this.dom.html(template({node: nodeElement, parents: parents, utils: wlxmlUtils}));
 
             this.dom.find('li > a[href="#"]').each(function(idx, a) {
@@ -54,6 +59,14 @@ return function(sandbox) {
         start: function() { sandbox.publish('ready'); },
         getView: function() { return view.dom; },
         setNodeElement: function(nodeElement) {
+            if(!listens && nodeElement) {
+                nodeElement.document.on('change', function() {
+                    if(view.currentNodeElement && !view.currentNodeElement.isInDocument()) {
+                        view.setNodeElement(null);
+                    }
+                });
+                listens = true;
+            }
             view.setNodeElement(nodeElement);
         },
         highlightNode: function(id) { view.highlightNode(id); },

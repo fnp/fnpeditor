@@ -1,0 +1,7 @@
+<button class="btn btn-mini">
+<% if(iconName) { %>
+    <i class="icon-<%= iconName %>" style="<%= iconStyle || '' %>"></i>
+<% } else { %>
+    <%= label %>
+<% } %>
+</button>

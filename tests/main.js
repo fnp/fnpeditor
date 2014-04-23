@@ -6,6 +6,12 @@
       return (/\.test\.js$/).test(file);
     });
 
+    /* globals window */
+    // This installs noop i18n functions so that tests can work with i18nized code
+    window.gettext = window.interpolate = function() {
+        return Array.prototype.slice.call(arguments, 0);
+    };
+
     require({
       baseUrl: '/base/src/editor',
       deps: tests,

@@ -4,8 +4,9 @@ define([
     'libs/backbone',
     'smartxml/events',
     'smartxml/transformations',
-    'smartxml/core'
-], function($, _, Backbone, events, transformations, coreTransformations) {
+    'smartxml/core',
+    'smartxml/fragments'
+], function($, _, Backbone, events, transformations, coreTransformations, fragments) {
     
 'use strict';
 /* globals Node */
@@ -78,6 +79,14 @@ $.extend(DocumentNode.prototype, {
         return this.document.root.sameNode(this);
     },
 
+    isInDocument: function() {
+        return this.document.containsNode(this);
+    },
+
+    isSiblingOf: function(node) {
+        return node && this.parent().sameNode(node.parent());
+    },
+
     sameNode: function(otherNode) {
         return !!(otherNode) && this.nativeNode === otherNode.nativeNode;
     },
@@ -143,6 +152,10 @@ $.extend(DocumentNode.prototype, {
             return 0;
         }
         return this.parent().indexOf(this);
+    },
+
+    getNearestElementNode: function() {
+        return this.nodeType === Node.ELEMENT_NODE ? this : this.parent();
     }
 });
 
@@ -210,6 +223,22 @@ $.extend(ElementNode.prototype, {
         return node && (node.nativeNode === this.nativeNode || node._$.parents().index(this._$) !== -1);
     },
 
+    getLastTextNode: function() {
+        var contents = this.contents(),
+            toret;
+
+        contents.reverse().some(function(node) {
+            if(node.nodeType === Node.TEXT_NODE) {
+                toret = node;
+                return true;
+            }
+            toret = node.getLastTextNode();
+            return !!toret;
+        });
+
+        return toret;
+    },
+
     toXML: function() {
         var wrapper = $('<div>');
         wrapper.append(this._getXMLDOMToDump());
@@ -232,6 +261,11 @@ $.extend(TextNode.prototype, {
 
     getText: function() {
         return this.nativeNode.data;
+    },
+
+
+    containsNode: function() {
+        return false;
     },
 
     triggerTextChangeEvent: function() {
@@ -291,7 +325,7 @@ var Document = function(xml, extensions) {
     this.loadXML(xml);
 };
 
-$.extend(Document.prototype, Backbone.Events, {
+$.extend(Document.prototype, Backbone.Events, fragments, {
     ElementNodeFactory: ElementNode,
     TextNodeFactory: TextNode,
 
@@ -542,6 +576,7 @@ $.extend(Document.prototype, Backbone.Events, {
 
             this._undoInProgress = false;
             this.redoStack.push(transaction);
+            this.trigger('operationEnd');
         }
     },
     redo: function() {
@@ -553,6 +588,8 @@ $.extend(Document.prototype, Backbone.Events, {
             });
             this._transformationLevel--;
             this.undoStack.push(transaction);
+            this.trigger('operationEnd');
+
         }
     },
 
@@ -570,6 +607,7 @@ $.extend(Document.prototype, Backbone.Events, {
         }
         if(this._currentTransaction.hasTransformations()) {
             this.undoStack.push(this._currentTransaction);
+            this.trigger('operationEnd');
         }
         this._currentTransaction = null;
     },
@@ -626,6 +664,13 @@ $.extend(Document.prototype, Backbone.Events, {
             }
             return $document[0];
         }, configurable: true});
+    },
+
+    createFragment: function(Type, params) {
+        if(!Type.prototype instanceof fragments.Fragment) {
+            throw new Error('Can\'t create a fragment: `Type` is not a valid Fragment');
+        }
+        return new Type(this, params);
     }
 });
 

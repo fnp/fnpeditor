@@ -42,16 +42,25 @@ return function(sandbox) {
         jumpToDocumentElement: function(element) {
             sandbox.getModule('documentCanvas').jumpToElement(element);
         },
-        updateCurrentNodeElement: function(nodeElement) {
-            sandbox.getModule('nodePane').setNodeElement(nodeElement);
-            sandbox.getModule('nodeFamilyTree').setElement(nodeElement);
-            sandbox.getModule('nodeBreadCrumbs').setNodeElement(nodeElement);
-            sandbox.getModule('documentToolbar').setNodeElement(nodeElement);
-            sandbox.getModule('metadataEditor').setNodeElement(nodeElement);
+        refreshCanvasSelection: function(selection) {
+            var fragment = selection.toDocumentFragment(),
+                elementParent;
+            
+            sandbox.getModule('documentToolbar').setDocumentFragment(fragment);
+            
+            if(fragment && fragment.node) {
+                elementParent = fragment.node.getNearestElementNode();
+                sandbox.getModule('nodePane').setNodeElement(elementParent);
+                sandbox.getModule('nodeFamilyTree').setElement(fragment.node);
+                sandbox.getModule('nodeBreadCrumbs').setNodeElement(elementParent);
+                sandbox.getModule('metadataEditor').setNodeElement(elementParent);
+            } else {
+                sandbox.getModule('nodePane').setNodeElement(null);
+                sandbox.getModule('nodeFamilyTree').setElement(null);
+                sandbox.getModule('nodeBreadCrumbs').setNodeElement(null);
+                sandbox.getModule('metadataEditor').setNodeElement(null);
+            }
         },
-        updateCurrentTextElement: function(textElement) {
-            sandbox.getModule('nodeFamilyTree').setElement(textElement);
-        }
     };
     
 
@@ -98,7 +107,7 @@ return function(sandbox) {
             sandbox.getModule('mainBar').setCommandEnabled('drop-draft', usingDraft);
             sandbox.getModule('mainBar').setCommandEnabled('save', usingDraft);
 
-            _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'metadataEditor', 'nodeBreadCrumbs', 'mainBar', 'indicator', 'documentHistory', 'diffViewer'], function(moduleName) {
+            _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'metadataEditor', 'nodeBreadCrumbs', 'mainBar', 'indicator', 'documentHistory', 'diffViewer', 'statusBar'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
             
@@ -196,24 +205,16 @@ return function(sandbox) {
             views.visualEditing.setView('leftColumn', sandbox.getModule('documentCanvas').getView());
         },
         
-        currentTextElementSet: function(textElement) {
-            commands.updateCurrentTextElement(textElement);
-        },
-
-        currentNodeElementSet: function(nodeElement) {
-            commands.updateCurrentNodeElement(nodeElement);
-        },
-        
-        currentNodeElementChanged: function(nodeElement) {
-            commands.updateCurrentNodeElement(nodeElement);
-        },
-
         nodeHovered: function(canvasNode) {
             commands.highlightDocumentNode(canvasNode);
         },
         
         nodeBlured: function(canvasNode) {
             commands.dimDocumentNode(canvasNode);
+        },
+
+        selectionChanged: function(selection) {
+            commands.refreshCanvasSelection(selection);
         }
     };
 
@@ -248,9 +249,10 @@ return function(sandbox) {
     eventHandlers.documentToolbar = {
         ready: function() {
             views.visualEditing.setView('toolbar', sandbox.getModule('documentToolbar').getView());
+            sandbox.getModule('documentToolbar').setCanvas(sandbox.getModule('documentCanvas').getCanvas());
         },
-        command: function(cmd, params) {
-            sandbox.getModule('documentCanvas').command(cmd, params);
+        actionExecuted: function(action, ret) {
+            sandbox.getModule('documentCanvas').onAfterActionExecuted(action, ret);
         }
     };
     
@@ -292,6 +294,21 @@ return function(sandbox) {
         }
     };
 
+    eventHandlers.statusBar = {
+        ready: function() {
+            views.mainLayout.setView('bottomPanel', sandbox.getModule('statusBar').getView());
+        }
+    };
+
+    eventHandlers.__all__ = {
+        actionHovered: function(action) {
+            sandbox.getModule('statusBar').showAction(action);
+        },
+        actionOff: function() {
+            sandbox.getModule('statusBar').clearAction();
+        }
+    };
+
     window.addEventListener('beforeunload', function(event) {
         var txt = gettext('Do you really want to exit?');
         if(documentIsDirty) {
@@ -305,6 +322,11 @@ return function(sandbox) {
     
     return {
         start: function() {
+            sandbox.registerActionsAppObject({
+                getUser: function() {
+                    return sandbox.getConfig().user;
+                }
+            });
             sandbox.getModule('data').start();
         },
         handleEvent: function(moduleName, eventName, args) {
@@ -312,10 +334,16 @@ return function(sandbox) {
             if(eventHandlers[moduleName] && eventHandlers[moduleName][eventName]) {
                 logger.debug('Handling event ' + eventRepr);
                 eventHandlers[moduleName][eventName].apply(eventHandlers, args);
-            } else {
-                logger.warning('No event handler for ' + eventRepr);
+                return;
             }
 
+            if(eventHandlers.__all__[eventName]) {
+                logger.debug('Handling event ' + eventRepr);
+                eventHandlers.__all__[eventName].apply(eventHandlers.__all__, args);
+                return;
+            }
+
+            logger.warning('No event handler for ' + eventRepr);
         }
     };
 };

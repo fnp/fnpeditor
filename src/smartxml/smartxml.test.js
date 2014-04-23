@@ -219,6 +219,21 @@ describe('smartxml', function() {
                 expect(event.meta.oldVal).to.equal('value1');
             });
         });
+
+        describe('Searching for the last child text node', function() {
+            [
+                '<div>xxx<div></div>last</div>',
+                '<div><div>last</div></div>',
+                '<div>xxx<div>last</div><div></div></div>'
+            ].forEach(function(xml, i) {
+                var example = 'example ' + i;
+                it('returns last child text node ' + example + ')', function() {
+                    var doc = getDocumentFromXML(xml),
+                        lastTextNode = doc.root.getLastTextNode();
+                    expect(lastTextNode.getText()).to.equal('last', example);
+                });
+            });
+        });
     });
 
     describe('Basic TextNode properties', function() {

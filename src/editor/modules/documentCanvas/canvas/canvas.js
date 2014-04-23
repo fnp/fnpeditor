@@ -10,7 +10,7 @@ define([
 ], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener) {
     
 'use strict';
-/* global document:false, window:false, Node:false */
+/* global document:false, window:false, Node:false, gettext */
 
 var logger = logging.getLogger('canvas');
 
@@ -42,24 +42,29 @@ $.extend(TextHandler.prototype, {
     },
     setText: function(text, node) {
         //this.canvas.wlxmlDocument.transform('setText', {node:node, text: text});
-        node.setText(text);
+        node.document.transaction(function() {
+            node.setText(text);
+        }, {
+            metadata:{
+                description: gettext('Changing text')
+            }
+        });
 
     }
 
 });
 
 
-var Canvas = function(wlxmlDocument, publisher) {
+var Canvas = function(wlxmlDocument) {
     this.eventBus = _.extend({}, Backbone.Events);
     this.wrapper = $('<div>').addClass('canvas-wrapper').attr('contenteditable', true);
     this.wlxmlListener = wlxmlListener.create(this);
     this.loadWlxmlDocument(wlxmlDocument);
     this.setupEventHandling();
-    this.publisher = publisher ? publisher : function() {};
     this.textHandler = new TextHandler(this);
 };
 
-$.extend(Canvas.prototype, {
+$.extend(Canvas.prototype, Backbone.Events, {
 
     loadWlxmlDocument: function(wlxmlDocument) {
         if(!wlxmlDocument) {
@@ -104,9 +109,14 @@ $.extend(Canvas.prototype, {
 
     setupEventHandling: function() {
         var canvas = this;
+
         this.wrapper.on('keyup keydown keypress', function(e) {
-            keyboard.handleKey(e, this);
-        }.bind(this));
+            keyboard.handleKey(e, canvas);
+        });
+
+        this.wrapper.on('mouseup', function() {
+            canvas.triggerSelectionChanged();
+        });
 
         var mouseDown;
         this.wrapper.on('mousedown', '[document-node-element], [document-text-element]', function(e) {
@@ -244,6 +254,14 @@ $.extend(Canvas.prototype, {
         return element.dom().parents().index(this.wrapper) !== -1;
     },
 
+    triggerSelectionChanged: function() {
+        this.trigger('selectionChanged', this.getSelection());
+    },
+
+    getSelection: function() {
+        return new Selection(this);
+    },
+
     setCurrentElement: function(element, params) {
         if(!element) {
             logger.debug('Invalid element passed to setCurrentElement: ' + element);
@@ -299,18 +317,14 @@ $.extend(Canvas.prototype, {
             if(params.caretTo || !textElementToLand.sameNode(this.getCursor().getPosition().element)) {
                 this._moveCaretToTextElement(textElementToLand, params.caretTo); // as method on element?
             }
-            if(!(textElementToLand.sameNode(currentTextElement))) {
-                this.publisher('currentTextElementSet', textElementToLand.wlxmlNode);
-            }
         } else {
             document.getSelection().removeAllRanges();
         }
 
         if(!(currentNodeElement && currentNodeElement.sameNode(nodeElementToLand))) {
             _markAsCurrent(nodeElementToLand);
-
-            this.publisher('currentNodeElementSet', nodeElementToLand.wlxmlNode);
         }
+        this.triggerSelectionChanged();
     },
 
     _moveCaretToTextElement: function(element, where) {
@@ -320,7 +334,7 @@ $.extend(Canvas.prototype, {
         if(typeof where !== 'number') {
             range.selectNodeContents(node);
         } else {
-            range.setStart(node, where);
+            range.setStart(node, Math.min(node.data.length, where));
         }
         
         if(where !== 'whole') {
@@ -341,15 +355,103 @@ $.extend(Canvas.prototype, {
         if(position.element) {
             this._moveCaretToTextElement(position.element, position.offset);
         }
+    },
+
+    findCanvasElement: function(node) {
+        return utils.findCanvasElement(node);
+    },
+
+    toggleGrid: function() {
+        this.wrapper.toggleClass('grid-on');
+        this.trigger('changed');
+    },
+    isGridToggled: function() {
+        return this.wrapper.hasClass('grid-on');
     }
 });
 
 
+var isText = function(node) {
+    return node && node.nodeType === Node.TEXT_NODE && $(node.parentNode).is('[document-text-element]');
+};
+
+var Selection = function(canvas) {
+    this.canvas = canvas;
+    var nativeSelection = this.nativeSelection = window.getSelection();
+    Object.defineProperty(this, 'type', {
+        get: function() {
+            if(nativeSelection.focusNode) {
+                if(nativeSelection.isCollapsed && isText(nativeSelection.focusNode)) {
+                    return 'caret';
+                }
+                if(isText(nativeSelection.focusNode) && isText(nativeSelection.anchorNode)) {
+                    return 'textSelection';
+                }
+            }
+            if(canvas.getCurrentNodeElement()) {
+                return 'node';
+            }
+        }
+    });
+};
+
+$.extend(Selection.prototype, {
+    toDocumentFragment: function() {
+        var doc = this.canvas.wlxmlDocument,
+            anchorElement = this.canvas.getDocumentElement(this.nativeSelection.anchorNode),
+            focusElement = this.canvas.getDocumentElement(this.nativeSelection.focusNode),
+            anchorNode = anchorElement ? anchorElement.wlxmlNode : null,
+            focusNode = focusElement ? focusElement.wlxmlNode : null;
+        if(this.type === 'caret') {
+            return doc.createFragment(doc.CaretFragment, {node: anchorNode, offset: this.nativeSelection.anchorOffset});
+        }
+        if(this.type === 'textSelection') {
+            if(anchorNode.isSiblingOf(focusNode)) {
+                return doc.createFragment(doc.TextRangeFragment, {
+                    node1: anchorNode,
+                    offset1: this.nativeSelection.anchorOffset,
+                    node2: focusNode,
+                    offset2: this.nativeSelection.focusOffset,
+                });
+            }
+            else {
+                var siblingParents = doc.getSiblingParents({node1: anchorNode, node2: focusNode});
+                return doc.createFragment(doc.RangeFragment, {
+                    node1: siblingParents.node1,
+                    node2: siblingParents.node2
+                });
+            }
+        }
+        if(this.type === 'node') {
+            return doc.createFragment(doc.NodeFragment, {node: this.canvas.getCurrentNodeElement().wlxmlNode});
+        }
+    },
+    sameAs: function(other) {
+        void(other);
+    }
+});
+
 var Cursor = function(canvas) {
     this.canvas = canvas;
+    this.selection = window.getSelection();
 };
 
 $.extend(Cursor.prototype, {
+    sameAs: function(other) {
+        var same = true;
+        if(!other) {
+            return false;
+        }
+
+        ['focusNode', 'focusOffset', 'anchorNode', 'anchorOffset'].some(function(prop) {
+            same = same && this.selection[prop] === other.selection[prop];
+            if(!same) {
+                return true; // break
+            }
+        }.bind(this));
+
+        return same;
+    },
     isSelecting: function() {
         var selection = window.getSelection();
         return !selection.isCollapsed;
@@ -456,8 +558,8 @@ $.extend(Cursor.prototype, {
 });
 
 return {
-    fromXMLDocument: function(wlxmlDocument, publisher) {
-        return new Canvas(wlxmlDocument, publisher);
+    fromXMLDocument: function(wlxmlDocument) {
+        return new Canvas(wlxmlDocument);
     }
 };
 

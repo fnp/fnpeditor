@@ -1,0 +1,6 @@
+<select param="<%= paramName %>">
+    <option value=""></option>
+    <% options.forEach(function(option) { %>
+        <option value="<%= option.id %>"><%= option.name %></option>
+    <% }); %>
+</select>

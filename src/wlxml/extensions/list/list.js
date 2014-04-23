@@ -29,13 +29,28 @@ extension.wlxmlClass.list.transformations = {
     }
 };
 
+extension.wlxmlClass.list.transformations = {
+    extractListItems: function() {
+        var contents = this.contents(),
+            first = contents[0],
+            last;
+        if(contents.length) {
+            last = contents[contents.length-1];
+            this.document.extractItems({
+                item1: first,
+                item2: last
+            });
+        } else {
+            this.detach();
+        }
+    }
+};
+
 extension.document.methods = {
     areItemsOfSameList: function(params) {
         return params.node1.parent().sameNode(params.node2.parent()) && params.node2.parent().is('list');
     }
 };
-
-
 
 extension.document.transformations.createList = {
     impl: function(params) {
