@@ -158,7 +158,7 @@ var commentAction = {
                         params.fragment instanceof params.fragment.NodeFragment && !params.fragment.node.isRoot()
         };
         if(state.allowed) {
-            state.description = gettext('Insert comment after current node');
+            state.description = gettext('Insert comment');
         }
         return state;
     }
@@ -310,7 +310,12 @@ var linkAction = {
 
         if(params.fragment instanceof params.fragment.CaretFragment) {
             if(params.fragment.node.isInside('link')) {
-                return {allowed: true, toggled: true, execute: editLink};
+                return {
+                    allowed: true,
+                    toggled: true,
+                    description: gettext('Edit link'),
+                    execute: editLink
+                };
             }
         }
         return {allowed: false};

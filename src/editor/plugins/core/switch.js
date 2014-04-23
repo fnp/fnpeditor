@@ -14,7 +14,7 @@ var createSwitchAction = function(createParams) {
         },
         getState: function(params) {
             var state = {
-                    label: this.config.label
+                    label: createParams.to.name
                 },
                 f = params.fragment,
                 description;
@@ -39,7 +39,7 @@ var createSwitchAction = function(createParams) {
                 toSwitch = toSwitch.getParent(createParams.from);
             }
 
-            description = 'Switch to ' + createParams.to.name;
+            description = gettext('Switch to') + ' ' + createParams.to.name;
             return _.extend(state, {
                 allowed: !!toSwitch,
                 toggled: alreadyInTarget,

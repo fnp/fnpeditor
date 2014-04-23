@@ -101,6 +101,7 @@ var toggleListAction = function(type) {
         return false;
     };
 
+    var label = type === 'Bullet' ? gettext('bull. list') : gettext('num. list');
 
     return {
         name: 'toggle' + type + 'List',
@@ -109,7 +110,7 @@ var toggleListAction = function(type) {
             fragment: {type: 'context', name: 'fragment'}
         },
         stateDefaults: {
-            label: type === 'Bullet' ? gettext('bull. list') : gettext('num. list')
+            label: label
         },
         getState: function(params) {
             if(!params.fragment || !params.fragment.isValid()) {
@@ -121,7 +122,7 @@ var toggleListAction = function(type) {
                 if((list.getClass() === 'list' && type === 'Enum') || (list.getClass() === 'list.enum' && type === 'Bullet')) {
                     return {
                         allowed: true,
-                        description: interpolate(gettext('Change list type to %s'), [type]),
+                        description: interpolate(gettext('Change list type to %s'), [label]),
                         execute: execute.changeType
                     };
                 }

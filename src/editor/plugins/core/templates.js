@@ -34,7 +34,7 @@ var insertTemplateAction = {
             };
         }
 
-        description = interpolate(gettext('Insert template %s after %s'), [params.template.name, params.fragment.node.getNearestElementNode().getTagName()]);
+        description = interpolate(gettext('Insert template %s'), [params.template.name]);
         return {
             allowed: true,
             description: description,
