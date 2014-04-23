@@ -245,6 +245,11 @@ $.extend(Canvas.prototype, {
     },
 
     setCurrentElement: function(element, params) {
+        if(!element) {
+            logger.debug('Invalid element passed to setCurrentElement: ' + element);
+            return;
+        }
+
         if(!(element instanceof documentElement.DocumentElement)) {
             element = utils.findCanvasElement(element);
         }
