@@ -183,11 +183,14 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
         var cursor = canvas.getCursor(),
             position = canvas.getCursor().getPosition(),
             element = position.element,
-            node = element.wlxmlNode,
+            node = element ? element.wlxmlNode : null,
             direction = 'above',
             caretTo = 'end',
             goto;
 
+        if(!element || !node) {
+            return;
+        }
             
         if(event.which === KEYS.DELETE) {
             direction = 'below';
