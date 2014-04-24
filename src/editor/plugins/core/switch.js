@@ -41,7 +41,7 @@ var createSwitchAction = function(createParams) {
 
             description = gettext('Switch to') + ' ' + createParams.to.name;
             return _.extend(state, {
-                allowed: !!toSwitch,
+                allowed: !!toSwitch || alreadyInTarget,
                 toggled: alreadyInTarget,
                 description: description,
                 execute: alreadyInTarget ? function() {} : function(callback) {
