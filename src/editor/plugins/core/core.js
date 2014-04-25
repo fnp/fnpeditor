@@ -9,7 +9,9 @@ var _ = require('libs/underscore'),
     switchTo = require('plugins/core/switch'),
     lists = require('plugins/core/lists'),
     plugin = {name: 'core', actions: [], canvas: {}, documentExtension: {textNode: {}}},
-    Dialog = require('views/dialog/dialog');
+    Dialog = require('views/dialog/dialog'),
+    canvasElements = require('plugins/core/canvasElements');
+
 
 
 plugin.documentExtension.textNode.transformations = {
@@ -373,6 +375,8 @@ plugin.config = function(config) {
     // templates.actions[0].config(config.templates);
     templates.actions[0].params.template.options = config.templates;
 };
+
+plugin.canvasElements = canvasElements;
 
 return plugin;
 
