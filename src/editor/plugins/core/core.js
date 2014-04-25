@@ -177,46 +177,81 @@ var createWrapTextAction = function(createParams) {
                 },
                 parent;
             
-            if(
-                !params.fragment || !params.fragment.isValid() ||
-                !(params.fragment instanceof params.fragment.TextRangeFragment) ||
-                !params.fragment.hasSiblingBoundries()) {
-                    return _.extend(state, {allowed: false});
-            }
-            
-            parent = params.fragment.startNode.parent();
-            if(parent && parent.is(createParams.klass) || parent.isInside(createParams.klass)) {
+            if(!params.fragment || !params.fragment.isValid()) {
                 return _.extend(state, {allowed: false});
             }
 
-            return _.extend(state, {
-                allowed: true,
-                description: createParams.description,
-                execute: function(callback, params) {
-                    params.fragment.document.transaction(function() {
-                        var parent = params.fragment.startNode.parent(),
-                            doc = params.fragment.document,
-                            wrapper, lastTextNode;
-                        
-                        wrapper = parent.wrapText({
-                            _with: {tagName: 'span', attrs: {'class': createParams.klass}},
-                            offsetStart: params.fragment.startOffset,
-                            offsetEnd: params.fragment.endOffset,
-                            textNodeIdx: [params.fragment.startNode.getIndex(), params.fragment.endNode.getIndex()]
-                        });
-                            
-                        lastTextNode = wrapper.getLastTextNode();
-                        if(lastTextNode) {
-                            return doc.createFragment(doc.CaretFragment, {node: lastTextNode, offset: lastTextNode.getText().length});
+            if(params.fragment instanceof params.fragment.CaretFragment && params.fragment.node.isInside(createParams.klass)) {
+                return _.extend(state, {
+                    allowed: true,
+                    toggled: true,
+                    description: createParams.unwrapDescription,
+                    execute: function(callback, params) {
+                        var node = params.fragment.node,
+                            doc = node.document,
+                            toRemove = node.getParent(createParams.klass),
+                            prefLen = 0;
+
+                        if(node.sameNode(toRemove.contents()[0]) && toRemove.isPrecededByTextNode()) {
+                            prefLen = toRemove.prev().getText().length;
                         }
-                    }, {
-                        metadata: {
-                            description: createParams.description
-                        },
-                        success: callback
-                    });
+
+                        doc.transaction(function() {
+                            var ret = toRemove.unwrapContent(),
+                                newFragment = params.fragment;
+                            if(!newFragment.isValid()) {
+                                newFragment =  doc.createFragment(doc.CaretFragment, {
+                                    node: ret.element1,
+                                    offset: prefLen + params.fragment.offset
+                                });
+                            }
+                            return newFragment;
+                        }, {
+                            metadata: {
+                                description: createParams.unwrapDescription
+                            },
+                            success: callback
+                        });
+                    }
+                });
+            }
+
+            if(params.fragment instanceof params.fragment.TextRangeFragment && params.fragment.hasSiblingBoundries()) {
+                parent = params.fragment.startNode.parent();
+                if(parent && parent.is(createParams.klass) || parent.isInside(createParams.klass)) {
+                    return _.extend(state, {allowed: false});
                 }
-            });
+
+                return _.extend(state, {
+                    allowed: true,
+                    description: createParams.wrapDescription,
+                    execute: function(callback, params) {
+                        params.fragment.document.transaction(function() {
+                            var parent = params.fragment.startNode.parent(),
+                                doc = params.fragment.document,
+                                wrapper, lastTextNode;
+                            
+                            wrapper = parent.wrapText({
+                                _with: {tagName: 'span', attrs: {'class': createParams.klass}},
+                                offsetStart: params.fragment.startOffset,
+                                offsetEnd: params.fragment.endOffset,
+                                textNodeIdx: [params.fragment.startNode.getIndex(), params.fragment.endNode.getIndex()]
+                            });
+                                
+                            lastTextNode = wrapper.getLastTextNode();
+                            if(lastTextNode) {
+                                return doc.createFragment(doc.CaretFragment, {node: lastTextNode, offset: lastTextNode.getText().length});
+                            }
+                        }, {
+                            metadata: {
+                                description: createParams.wrapDescription
+                            },
+                            success: callback
+                        });
+                    }
+                });
+            }
+            return _.extend(state, {allowed: false});
         }
     };
 };
@@ -327,8 +362,8 @@ plugin.actions = [
     undoRedoAction('undo'),
     undoRedoAction('redo'),
     commentAction,
-    createWrapTextAction({name: 'emphasis', klass: 'emp', description: gettext('Mark as emphasized')}),
-    createWrapTextAction({name: 'cite', klass: 'cite', description: gettext('Mark as citation')}),
+    createWrapTextAction({name: 'emphasis', klass: 'emp', wrapDescription: gettext('Mark as emphasized'), unwrapDescription: gettext('Remove emphasis')}),
+    createWrapTextAction({name: 'cite', klass: 'cite', wrapDescription: gettext('Mark as citation'), unwrapDescription: gettext('Remove citation')}),
     linkAction
 ].concat(plugin.actions, templates.actions, footnote.actions, switchTo.actions, lists.actions);
 
