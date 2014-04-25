@@ -123,9 +123,17 @@ $.extend(DocumentNode.prototype, {
     },
 
     isSurroundedByTextNodes: function() {
-        var prev = this.prev(),
-            next = this.next();
-        return prev && (prev.nodeType === Node.TEXT_NODE) && next && (next.nodeType === Node.TEXT_NODE);
+        return this.isPrecededByTextNode() && this.isFollowedByTextNode();
+    },
+
+    isPrecededByTextNode: function() {
+        var prev = this.prev();
+        return prev && prev.nodeType === Node.TEXT_NODE;
+    },
+
+    isFollowedByTextNode: function() {
+        var next = this.next();
+        return next && next.nodeType === Node.TEXT_NODE;
     },
 
     triggerChangeEvent: function(type, metaData, origParent, nodeWasContained) {
