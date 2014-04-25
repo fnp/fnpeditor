@@ -122,7 +122,7 @@ $.extend(DocumentNode.prototype, {
         return myIdx < parentContents.length - 1 ? parentContents[myIdx+1] : null;
     },
 
-    isSurroundedByTextElements: function() {
+    isSurroundedByTextNodes: function() {
         var prev = this.prev(),
             next = this.next();
         return prev && (prev.nodeType === Node.TEXT_NODE) && next && (next.nodeType === Node.TEXT_NODE);

@@ -106,7 +106,7 @@ var elementNodeTransformations = {
 
     detach: function() {
         var next;
-        if(this.parent() && this.isSurroundedByTextElements()) {
+        if(this.parent() && this.isSurroundedByTextNodes()) {
             next = this.next();
             this.prev().appendText(next.getText());
             next.detach();
