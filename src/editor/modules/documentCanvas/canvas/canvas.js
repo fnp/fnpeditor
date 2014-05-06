@@ -58,7 +58,7 @@ $.extend(TextHandler.prototype, {
 
 
 var Canvas = function(wlxmlDocument, elements) {
-    this.elementsRegister = new ElementsRegister(documentElement.DocumentNodeElement, genericElement);
+    this.elementsRegister = new ElementsRegister(documentElement.DocumentNodeElement);
 
     elements = [
         {tag: 'section', klass: null, prototype: genericElement},
