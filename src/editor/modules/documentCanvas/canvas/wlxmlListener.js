@@ -79,7 +79,7 @@ var handlers = {
     },
     nodeTextChange: function(event) {
         var element = utils.getElementForNode(event.meta.node);
-        element.handle(event);
+        element.setText(event.meta.node.getText());
     },
 
     metadataChanged: _metadataEventHandler,

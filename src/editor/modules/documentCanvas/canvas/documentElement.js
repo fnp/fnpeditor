@@ -189,17 +189,13 @@ $.extend(DocumentTextElement.prototype, {
         this.canvas = null;
         return this;
     },
-    handle: function(event) {
-        var toSet = event.meta.node.getText();
-        if(toSet === '') {
-            toSet = utils.unicode.ZWS;
-        }
-        if(toSet !== this.getText()) {
-            this.setText(toSet);
-        }
-    },
     setText: function(text) {
-        this.dom.contents()[0].data = text;
+        if(text === '') {
+            text = utils.unicode.ZWS;
+        }
+        if(text !== this.getText()) {
+            this.dom.contents()[0].data = text;
+        }
     },
     getText: function(options) {
         options = _.extend({raw: false}, options || {});
