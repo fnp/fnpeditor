@@ -14,7 +14,13 @@ var logger = logging.getLogger('documentCanvas');
 
 return function(sandbox) {
 
-    var canvas = canvas3.fromXMLDocument(null);
+    var canvasElements = [];
+
+    sandbox.getPlugins().forEach(function(plugin) {
+        canvasElements = canvasElements.concat(plugin.canvasElements || []);
+    });
+
+    var canvas = canvas3.fromXMLDocument(null, canvasElements);
     var canvasWrapper = $(template);
     var shownAlready = false;
     var scrollbarPosition = 0,

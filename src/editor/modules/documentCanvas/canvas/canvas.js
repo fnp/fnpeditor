@@ -6,8 +6,10 @@ define([
 'modules/documentCanvas/canvas/documentElement',
 'modules/documentCanvas/canvas/keyboard',
 'modules/documentCanvas/canvas/utils',
-'modules/documentCanvas/canvas/wlxmlListener'
-], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener) {
+'modules/documentCanvas/canvas/wlxmlListener',
+'modules/documentCanvas/canvas/elementsRegister',
+'modules/documentCanvas/canvas/genericElement',
+], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener, ElementsRegister, genericElement) {
     
 'use strict';
 /* global document:false, window:false, Node:false, gettext */
@@ -55,7 +57,20 @@ $.extend(TextHandler.prototype, {
 });
 
 
-var Canvas = function(wlxmlDocument) {
+var Canvas = function(wlxmlDocument, elements) {
+    this.elementsRegister = new ElementsRegister(documentElement.DocumentNodeElement);
+
+    elements = [
+        {tag: 'section', klass: null, prototype: genericElement},
+        {tag: 'div', klass: null, prototype: genericElement},
+        {tag: 'header', klass: null, prototype: genericElement},
+        {tag: 'span', klass: null, prototype: genericElement},
+        {tag: 'aside', klass: null, prototype: genericElement}
+    ].concat(elements || []);
+
+    (elements).forEach(function(elementDesc) {
+        this.elementsRegister.register(elementDesc);
+    }.bind(this));
     this.eventBus = _.extend({}, Backbone.Events);
     this.wrapper = $('<div>').addClass('canvas-wrapper').attr('contenteditable', true);
     this.wlxmlListener = wlxmlListener.create(this);
@@ -77,7 +92,12 @@ $.extend(Canvas.prototype, Backbone.Events, {
     },
 
     createElement: function(wlxmlNode) {
-        var Factory = wlxmlNode.nodeType === Node.TEXT_NODE ? documentElement.DocumentTextElement : documentElement.DocumentNodeElement;
+        var Factory;
+        if(wlxmlNode.nodeType === Node.TEXT_NODE) {
+            Factory = documentElement.DocumentTextElement;
+        } else {
+            Factory = this.elementsRegister.getElement({tag: wlxmlNode.getTagName(), klass: wlxmlNode.getClass()});
+        }
         return new Factory(wlxmlNode, this);
     },
 
@@ -104,7 +124,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
     reloadRoot: function() {
         this.rootElement = this.createElement(this.wlxmlDocument.root);
         this.wrapper.empty();
-        this.wrapper.append(this.rootElement.dom());
+        this.wrapper.append(this.rootElement.dom);
     },
 
     setupEventHandling: function() {
@@ -213,7 +233,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
 
         this.eventBus.on('elementToggled', function(toggle, element) {
             if(!toggle) {
-                canvas.setCurrentElement(element.getPreviousTextElement());
+                canvas.setCurrentElement(canvas.getPreviousTextElement(element));
             }
         });
     },
@@ -227,7 +247,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
     },
 
     toggleElementHighlight: function(node, toggle) {
-        var element = utils.findCanvasElement(node);
+        var element = utils.getElementForNode(node);
         element.toggleHighlight(toggle);
     },
 
@@ -250,8 +270,22 @@ $.extend(Canvas.prototype, Backbone.Events, {
         }
     },
 
+    getPreviousTextElement: function(relativeToElement, includeInvisible) {
+        return this.getNearestTextElement('above', relativeToElement, includeInvisible);
+    },
+
+    getNextTextElement: function(relativeToElement, includeInvisible) {
+        return this.getNearestTextElement('below', relativeToElement, includeInvisible);
+    },
+
+    getNearestTextElement: function(direction, relativeToElement, includeInvisible) {
+        includeInvisible = includeInvisible !== undefined ? includeInvisible : false;
+        var selector = '[document-text-element]' + (includeInvisible ? '' : ':visible');
+        return this.getDocumentElement(utils.nearestInDocumentOrder(selector, direction, relativeToElement.dom[0]));
+    },
+
     contains: function(element) {
-        return element.dom().parents().index(this.wrapper) !== -1;
+        return element.dom.parents().index(this.wrapper) !== -1;
     },
 
     triggerSelectionChanged: function() {
@@ -269,7 +303,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
         }
 
         if(!(element instanceof documentElement.DocumentElement)) {
-            element = utils.findCanvasElement(element);
+            element = utils.getElementForNode(element);
         }
 
         if(!element || !this.contains(element)) {
@@ -283,18 +317,12 @@ $.extend(Canvas.prototype, Backbone.Events, {
             if(byBrowser && byBrowser.parent().sameNode(nodeToLand)) {
                 return byBrowser;
             }
-            var children = e.children();
-            for(var i = 0; i < children.length; i++) {
-                if(children[i] instanceof documentElement.DocumentTextElement) {
-                    return children[i];
-                }
-            }
-            return null;
+            return e.getVerticallyFirstTextElement();
         }.bind(this);
         var _markAsCurrent = function(element) {
             if(element instanceof documentElement.DocumentTextElement) {
                 this.wrapper.find('.current-text-element').removeClass('current-text-element');
-                element.dom().addClass('current-text-element');
+                element.dom.addClass('current-text-element');
             } else {
                 this.wrapper.find('.current-node-element').removeClass('current-node-element');
                 element._container().addClass('current-node-element');
@@ -329,7 +357,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
 
     _moveCaretToTextElement: function(element, where) {
         var range = document.createRange(),
-            node = element.dom().contents()[0];
+            node = element.dom.contents()[0];
 
         if(typeof where !== 'number') {
             range.selectNodeContents(node);
@@ -355,10 +383,6 @@ $.extend(Canvas.prototype, Backbone.Events, {
         if(position.element) {
             this._moveCaretToTextElement(position.element, position.offset);
         }
-    },
-
-    findCanvasElement: function(node) {
-        return utils.findCanvasElement(node);
     },
 
     toggleGrid: function() {
@@ -538,7 +562,7 @@ $.extend(Cursor.prototype, {
             if(selection.anchorNode === selection.focusNode) {
                 anchorFirst = selection.anchorOffset <= selection.focusOffset;
             } else {
-                anchorFirst = parent.childIndex(anchorElement) < parent.childIndex(focusElement);
+                anchorFirst = (parent.getFirst(anchorElement, focusElement) === anchorElement);
             }
             placeData = getPlaceData(anchorFirst);
         } else {
@@ -558,8 +582,8 @@ $.extend(Cursor.prototype, {
 });
 
 return {
-    fromXMLDocument: function(wlxmlDocument) {
-        return new Canvas(wlxmlDocument);
+    fromXMLDocument: function(wlxmlDocument, elements) {
+        return new Canvas(wlxmlDocument, elements);
     }
 };
 

@@ -27,6 +27,11 @@ describe('WLXMLDocument', function() {
             expect(node.getClass()).to.equal('class.subclass');
         });
 
+        it('returns its class hierarchy', function() {
+            var node = nodeFromXML('<div class="a.b.c"></div>');
+            expect(node.getClassHierarchy()).to.eql(['', 'a', 'a.b', 'a.b.c']);
+        });
+
         it('returns unregistered attributes', function() {
             var testClasses = {
                     'testClass': {

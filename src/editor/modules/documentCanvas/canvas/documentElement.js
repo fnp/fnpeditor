@@ -1,32 +1,33 @@
 define([
 'libs/jquery',
 'libs/underscore',
-'modules/documentCanvas/canvas/utils',
-'modules/documentCanvas/canvas/wlxmlManagers'
-], function($, _, utils, wlxmlManagers) {
+'modules/documentCanvas/canvas/utils'
+], function($, _, utils) {
     
 'use strict';
-/* global Node:false, document:false */
-
+/* global Node:false */
 
 // DocumentElement represents a text or an element node from WLXML document rendered inside Canvas
 var DocumentElement = function(wlxmlNode, canvas) {
     this.wlxmlNode = wlxmlNode;
     this.canvas = canvas;
 
-    this.$element = this.createDOM();
-    this.$element.data('canvas-element', this);
+    this.dom = this.createDOM();
+    this.dom.data('canvas-element', this);
 };
 
 $.extend(DocumentElement.prototype, {
-    bound: function() {
-        return $.contains(document.documentElement, this.dom()[0]);
+    refreshPath: function() {
+        this.parents().forEach(function(parent) {
+            parent.refresh();
+        });
+        this.refresh();
     },
-    dom: function() {
-        return this.$element;
+    refresh: function() {
+        // noop
     },
     parent: function() {
-        var parents = this.$element.parents('[document-node-element]');
+        var parents = this.dom.parents('[document-node-element]');
         if(parents.length) {
             return this.canvas.getDocumentElement(parents[0]);
         }
@@ -44,44 +45,14 @@ $.extend(DocumentElement.prototype, {
     },
 
     sameNode: function(other) {
-        return other && (typeof other === typeof this) && other.dom()[0] === this.dom()[0];
+        return other && (typeof other === typeof this) && other.dom[0] === this.dom[0];
     },
 
-    getVerticallyFirstTextElement: function() {
-        var toret;
-        this.children().some(function(child) {
-            if(child instanceof DocumentTextElement) {
-                toret = child;
-                return true; // break
-            } else {
-                toret = child.getVerticallyFirstTextElement();
-                if(toret) {
-                    return true; // break
-                }
-            }
-        });
-        return toret;
-    },
-
-    getPreviousTextElement: function(includeInvisible) {
-        return this.getNearestTextElement('above', includeInvisible);
-    },
-
-    getNextTextElement: function(includeInvisible) {
-        return this.getNearestTextElement('below', includeInvisible);
-    },
-
-    getNearestTextElement: function(direction, includeInvisible) {
-        includeInvisible = includeInvisible !== undefined ? includeInvisible : false;
-        var selector = '[document-text-element]' + (includeInvisible ? '' : ':visible');
-        return this.canvas.getDocumentElement(utils.nearestInDocumentOrder(selector, direction, this.dom()[0]));
-    },
-
-    exec: function(method) {
-        if(this.manager && this.manager[method]) {
-            return this.manager[method].apply(this.manager, Array.prototype.slice.call(arguments, 1));
-        }
+    trigger: function() {
+        this.canvas.eventBus.trigger.apply(this.canvas.eventBus, Array.prototype.slice.call(arguments, 0));
     }
+
+
 });
 
 
@@ -89,6 +60,7 @@ $.extend(DocumentElement.prototype, {
 var DocumentNodeElement = function(wlxmlNode, canvas) {
     DocumentElement.call(this, wlxmlNode, canvas);
     wlxmlNode.setData('canvasElement', this);
+    this.init(this.dom);
 };
 
 
@@ -99,8 +71,8 @@ var manipulate = function(e, params, action) {
     } else {
         element = e.canvas.createElement(params);
     }
-    var target = (action === 'append' || action === 'prepend') ? e._container() : e.dom();
-    target[action](element.dom());
+    e.dom[action](element.dom);
+    e.refreshPath();
     return element;
 };
 
@@ -108,41 +80,43 @@ DocumentNodeElement.prototype = Object.create(DocumentElement.prototype);
 
 
 $.extend(DocumentNodeElement.prototype, {
+    defaultDisplayStyle: 'block',
+    init: function() {},
+    addWidget: function(widget) {
+        this.dom.children('.canvas-widgets').append(widget.DOM ? widget.DOM : widget);
+    },
+    clearWidgets: function() {
+        this.dom.children('.canvas-widgets').empty();
+    },
+    handle: function(event) {
+        var method = 'on' + event.type[0].toUpperCase() + event.type.substr(1);
+        if(this[method]) {
+            this[method](event);
+        }
+    },
     createDOM: function() {
-        var dom = $('<div>')
-                .attr('document-node-element', ''),
+        var wrapper = $('<div>').attr('document-node-element', ''),
             widgetsContainer = $('<div>')
                 .addClass('canvas-widgets')
                 .attr('contenteditable', false),
-            container = $('<div>')
+            contentContainer = $('<div>')
                 .attr('document-element-content', '');
         
-        dom.append(widgetsContainer, container);
-        // Make sure widgets aren't navigable with arrow keys
+        wrapper.append(widgetsContainer, contentContainer);
         widgetsContainer.find('*').add(widgetsContainer).attr('tabindex', -1);
-        this.$element = dom; //@!!!
-
-        this.setWlxmlTag(this.wlxmlNode.getTagName());
-        this.setWlxmlClass(this.wlxmlNode.getClass());
-
-        this.wlxmlNode.contents().forEach(function(node) {
-            container.append(this.canvas.createElement(node).dom());
-        }.bind(this));
-        return dom;
+        return wrapper;
     },
     _container: function() {
-        return this.dom().children('[document-element-content]');
+        return this.dom.children('[document-element-content]');
     },
     detach: function() {
-        this.dom().detach();
+        var parents = this.parents();
+        this.dom.detach();
         this.canvas = null;
-        return this;
-    },
-    append: function(params) {
-        return manipulate(this, params, 'append');
-    },
-    prepend: function(params) {
-        return manipulate(this, params, 'prepend');
+        if(parents[0]) {
+            parents[0].refreshPath();
+        }
+         return this;
     },
     before: function(params) {
         return manipulate(this, params, 'before');
@@ -151,64 +125,10 @@ $.extend(DocumentNodeElement.prototype, {
     after: function(params) {
         return manipulate(this, params, 'after');
     },
-    children: function() {
-        var toret = [];
-        if(this instanceof DocumentTextElement) {
-            return toret;
-        }
 
-
-        var elementContent = this._container().contents();
-        var element = this;
-        elementContent.each(function() {
-            var childElement = element.canvas.getDocumentElement(this);
-            if(childElement === undefined) {
-                return true;
-            }
-            toret.push(childElement);
-        });
-        return toret;
-    },
-    childIndex: function(child) {
-        var children = this.children(),
-            toret = null;
-        children.forEach(function(c, idx) {
-            if(c.sameNode(child)) {
-                toret = idx;
-                return false;
-            }
-        });
-        return toret;
-    },
-    getWlxmlTag: function() {
-        return this._container().attr('wlxml-tag');
-    },
-    setWlxmlTag: function(tag) {
-        this._container().attr('wlxml-tag', tag);
-    },
-    getWlxmlClass: function() {
-        var klass = this._container().attr('wlxml-class');
-        if(klass) {
-            return klass.replace(/-/g, '.');
-        }
-        return undefined;
-    },
-    setWlxmlClass: function(klass) {
-        if(klass === this.getWlxmlClass()) {
-            return;
-        }
-        if(klass) {
-            this._container().attr('wlxml-class', klass.replace(/\./g, '-'));
-        }
-        else {
-            this._container().removeAttr('wlxml-class');
-        }
-        this.manager = wlxmlManagers.getFor(this);
-        this.manager.setup();
-    },
     toggleLabel: function(toggle) {
         var displayCss = toggle ? 'inline-block' : 'none';
-        var label = this.dom().children('.canvas-widgets').find('.canvas-widget-label');
+        var label = this.dom.children('.canvas-widgets').find('.canvas-widget-label');
         label.css('display', displayCss);
         this.toggleHighlight(toggle);
     },
@@ -217,10 +137,29 @@ $.extend(DocumentNodeElement.prototype, {
         this._container().toggleClass('highlighted-element', toggle);
     },
 
-    toggle: function(toggle) {
-        if(this.manager) {
-            this.manager.toggle(toggle);
-        }
+    isBlock: function() {
+        return this.dom.css('display') === 'block';
+    },
+
+    displayAsBlock: function() {
+        this.dom.css('display', 'block');
+        this._container().css('display', 'block');
+    },
+    displayInline: function() {
+        this.dom.css('display', 'inline');
+        this._container().css('display', 'inline');
+    },
+    displayAs: function(what) {
+        // [this.dom(), this._container()].forEach(e) {
+        //     var isBlock = window.getComputedStyle(e).display === 'block';
+        //     if(!isBlock && what === 'block') {
+        //         e.css('display', what);
+        //     } else if(isBlock && what === 'inline') {
+        //         e.css('display')
+        //     }
+        // })
+        this.dom.css('display', what);
+        this._container().css('display', what);
     }
 });
 
@@ -240,21 +179,27 @@ DocumentTextElement.prototype = Object.create(DocumentElement.prototype);
 
 $.extend(DocumentTextElement.prototype, {
     createDOM: function() {
-        return $('<div>')
+        var dom = $('<div>')
             .attr('document-text-element', '')
             .text(this.wlxmlNode.getText() || utils.unicode.ZWS);
+        return dom;
     },
     detach: function() {
-        this.dom().detach();
+        this.dom.detach();
         this.canvas = null;
         return this;
     },
     setText: function(text) {
-        this.dom().contents()[0].data = text;
+        if(text === '') {
+            text = utils.unicode.ZWS;
+        }
+        if(text !== this.getText()) {
+            this.dom.contents()[0].data = text;
+        }
     },
     getText: function(options) {
         options = _.extend({raw: false}, options || {});
-        var toret = this.dom().text();
+        var toret = this.dom.text();
         if(!options.raw) {
             toret = toret.replace(utils.unicode.ZWS, '');
         }
@@ -262,7 +207,7 @@ $.extend(DocumentTextElement.prototype, {
     },
     isEmpty: function() {
         // Having at least Zero Width Space is guaranteed be Content Observer
-        return this.dom().contents()[0].data === utils.unicode.ZWS;
+        return this.dom.contents()[0].data === utils.unicode.ZWS;
     },
     after: function(params) {
         if(params instanceof DocumentTextElement || params.text) {
@@ -274,9 +219,10 @@ $.extend(DocumentTextElement.prototype, {
         } else {
             element = this.canvas.createElement(params);
         }
-        this.dom().wrap('<div>');
-        this.dom().parent().after(element.dom());
-        this.dom().unwrap();
+        this.dom.wrap('<div>');
+        this.dom.parent().after(element.dom);
+        this.dom.unwrap();
+        this.refreshPath();
         return element;
     },
     before: function(params) {
@@ -289,16 +235,22 @@ $.extend(DocumentTextElement.prototype, {
         } else {
             element = this.canvas.createElement(params);
         }
-        this.dom().wrap('<div>');
-        this.dom().parent().before(element.dom());
-        this.dom().unwrap();
+        this.dom.wrap('<div>');
+        this.dom.parent().before(element.dom);
+        this.dom.unwrap();
+        this.refreshPath();
         return element;
     },
 
     toggleHighlight: function() {
         // do nothing for now
+    },
+    children: function() {
+        return [];
     }
+
 });
+
 
 return {
     DocumentElement: DocumentElement,

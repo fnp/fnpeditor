@@ -35,54 +35,51 @@ $.extend(Listener.prototype, {
 
 
 var _metadataEventHandler = function(event) {
-    var canvasNode = utils.findCanvasElement(event.meta.node);
-    canvasNode.exec('updateMetadata');
+    var element = utils.getElementForNode(event.meta.node);
+    element.handle(event);
 };
+
 
 var handlers = {
     nodeAttrChange: function(event) {
+        var element = utils.getElementForNode(event.meta.node),
+            newElement;
         if(event.meta.attr === 'class') {
-            var canvasNode = utils.findCanvasElement(event.meta.node);
-            canvasNode.setWlxmlClass(event.meta.newVal);
+            if(element.wlxmlNode.getClass() !== event.meta.attr) {
+                if(event.meta.node.isRoot()) {
+                    this.canvas.reloadRoot();
+                } else {
+                    newElement = this.canvas.createElement(event.meta.node);
+                    element.dom.replaceWith(newElement.dom);
+                }
+            }
+
+        } else {
+            element.handle(event);
         }
     },
-    nodeAdded: function(event, checkForExistence) {
+    nodeAdded: function(event) {
         if(event.meta.node.isRoot()) {
             this.canvas.reloadRoot();
             return;
         }
-        var parentElement = utils.findCanvasElement(event.meta.node.parent()),
-            nodeIndex = event.meta.node.getIndex(),
-            referenceElement, referenceAction, actionArg;
 
-        if(nodeIndex === 0) {
-            referenceElement = parentElement;
-            referenceAction = 'prepend';
-        } else {
-            referenceElement = parentElement.children()[nodeIndex-1];
-            referenceAction = 'after';
-        }
+        var containingNode = event.meta.node.parent(),
+            containingElement = utils.getElementForNode(containingNode);
 
-        actionArg = (checkForExistence && utils.findCanvasElement(event.meta.node, event.meta.parent)) || event.meta.node;
-        referenceElement[referenceAction](actionArg);
+        containingElement.handle(event);
     },
     nodeMoved: function(event) {
-        return handlers.nodeAdded.call(this, event, true);
+        return handlers.nodeAdded.call(this, event); //
+        //
     },
     nodeDetached: function(event) {
-        var canvasNode = utils.findCanvasElementInParent(event.meta.node, event.meta.parent);
-        canvasNode.detach();
+        var element = utils.getElementForDetachedNode(event.meta.node, event.meta.parent);
+        element.handle(event);
     },
     nodeTextChange: function(event) {
-        //console.log('wlxmlListener: ' + event.meta.node.getText());
-        var canvasElement = utils.findCanvasElement(event.meta.node),
-            toSet = event.meta.node.getText();
-        if(toSet === '') {
-            toSet = utils.unicode.ZWS;
-        }
-        if(toSet !== canvasElement.getText()) {
-            canvasElement.setText(toSet);
-        }
+        var element = utils.getElementForNode(event.meta.node);
+        element.setText(event.meta.node.getText());
     },
 
     metadataChanged: _metadataEventHandler,
