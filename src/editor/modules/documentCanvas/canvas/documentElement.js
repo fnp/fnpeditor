@@ -133,6 +133,8 @@ $.extend(DocumentNodeElement.prototype, {
         this.toggleHighlight(toggle);
     },
 
+    markAsCurrent: function() {},
+
     toggleHighlight: function(toggle) {
         this._container().toggleClass('highlighted-element', toggle);
     },

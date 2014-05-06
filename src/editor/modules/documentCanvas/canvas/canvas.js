@@ -290,6 +290,19 @@ $.extend(Canvas.prototype, Backbone.Events, {
 
     triggerSelectionChanged: function() {
         this.trigger('selectionChanged', this.getSelection());
+        var s = this.getSelection(),
+            f = s.toDocumentFragment();
+        if(f && f instanceof f.RangeFragment) {
+                var $current = this.wrapper.find('.current-node-element');
+                var current = $current && this.getDocumentElement($current.parent()[0]);
+                
+                if($current) {
+                    $current.removeClass('current-node-element');
+                }
+                if(current) {
+                    current.markAsCurrent(false);
+                }
+        }
     },
 
     getSelection: function() {
@@ -324,8 +337,15 @@ $.extend(Canvas.prototype, Backbone.Events, {
                 this.wrapper.find('.current-text-element').removeClass('current-text-element');
                 element.dom.addClass('current-text-element');
             } else {
-                this.wrapper.find('.current-node-element').removeClass('current-node-element');
+                var $current = this.wrapper.find('.current-node-element');
+                var current = this.getDocumentElement($current.parent()[0]);
+                $current.removeClass('current-node-element');
+
+                if(current) {
+                    current.markAsCurrent(false);
+                }
                 element._container().addClass('current-node-element');
+                element.markAsCurrent(true);
             }
         }.bind(this);
 
