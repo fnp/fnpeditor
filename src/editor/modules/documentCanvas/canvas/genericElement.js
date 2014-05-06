@@ -19,6 +19,68 @@ var DocumentNodeElement = documentElement.DocumentNodeElement;
 var generic = Object.create(DocumentNodeElement.prototype);
 
 $.extend(generic, {
+    init: function() {
+        DocumentNodeElement.prototype.init.call(this);
+        this._container()
+            .attr('wlxml-tag', this.wlxmlNode.getTagName());
+        this.setWlxmlClass(this.wlxmlNode.getClass());
+        this.wlxmlNode.contents().forEach(function(node) {
+            this._container().append(this.canvas.createElement(node).dom);
+        }.bind(this));
+        this.refresh();
+    },
+    
+    refresh: function() {
+        if(this.wlxmlNode.getTagName() === 'span') {
+            if(this.containsBlock()) {
+                this.displayAsBlock();
+            } else {
+                this.displayInline();
+            }
+        } else {
+            this.displayAsBlock();
+        }
+    },
+
+    getFirst: function(e1, e2) {
+        var idx1 = this.childIndex(e1),
+            idx2 = this.childIndex(e2);
+        if(e1 === null || e2 === null) {
+            return undefined;
+        }
+        return idx1 <= idx2 ? e1: e2;
+    },
+
+    children: function() {
+        var element = this,
+            toret = [];
+        this._container().contents().each(function() {
+            var childElement = element.canvas.getDocumentElement(this);
+            if(childElement === undefined) {
+                return true;
+            }
+
+            toret.push(childElement);
+        });
+        return toret;
+    },
+
+    getVerticallyFirstTextElement: function() {
+        var toret;
+        this.children().some(function(child) {
+            if(child instanceof documentElement.DocumentTextElement) {
+                toret = child;
+                return true; // break
+            } else {
+                toret = child.getVerticallyFirstTextElement();
+                if(toret) {
+                    return true; // break
+                }
+            }
+        });
+        return toret;
+    },
+
     onNodeAttrChange: function(event) {
         if(event.meta.attr === 'class') {
             this.setWlxmlClass(event.meta.newVal); //
@@ -40,12 +102,22 @@ $.extend(generic, {
             referenceElement = this.children()[nodeIndex-1];
             referenceAction = 'after';
         }
+      
+        if(event.type === 'nodeMoved') {
+            /* globals Node */
+            if(event.meta.node.nodeType === Node.TEXT_NODE) {
+                actionArg = utils.getElementForTextNode(event.meta.node);
+            } else {
+                actionArg = utils.getElementForNode(event.meta.node);
+            }
+        } else {
+            actionArg = event.meta.node;
+        }
 
-        actionArg = (event.type === 'nodeMoved' && utils.findCanvasElement(event.meta.node, event.meta.parent)) || event.meta.node;
         referenceElement[referenceAction](actionArg);
     },
     onNodeMoved: function(event) {
-        return this.onNodeAdded.call(this, event, true);
+        return this.onNodeAdded.call(this, event);
     },
     onNodeDetached: function(event) {
         if(event.meta.node.sameNode(this)) {
@@ -74,6 +146,23 @@ $.extend(generic, {
         });
     },
 
+
+    ///
+    
+    containsBlock: function() {
+        return this.children()
+            .filter(function(child) {
+                return child instanceof documentElement.DocumentNodeElement;
+            })
+            .some(function(child) {
+                if(child.isBlock()) {
+                    return true;
+                } else {
+                    return child.containsBlock();
+                }
+            });
+    },
+
     prepend: function(param) {
         var element;
         if(param instanceof documentElement.DocumentElement) {
@@ -84,29 +173,6 @@ $.extend(generic, {
         this._container().prepend(element.dom);
         this.refreshPath();
         return element;
-    },
-
-    children: function() {
-        var element = this,
-            toret = [];
-        this._container().contents().each(function() {
-            var childElement = element.canvas.getDocumentElement(this);
-            if(childElement === undefined) {
-                return true;
-            }
-
-            toret.push(childElement);
-        });
-        return toret;
-    },
-
-    getFirst: function(e1, e2) {
-        var idx1 = this.childIndex(e1),
-            idx2 = this.childIndex(e2);
-        if(e1 === null || e2 === null) {
-            return undefined;
-        }
-        return idx1 <= idx2 ? e1: e2;
     },
 
     childIndex: function(child) {
@@ -139,57 +205,7 @@ $.extend(generic, {
             this._container().removeAttr('wlxml-class');
         }
         this.refreshPath();
-    },
-    init: function() {
-        DocumentNodeElement.prototype.init.call(this);
-        this._container()
-            .attr('wlxml-tag', this.wlxmlNode.getTagName());
-        this.setWlxmlClass(this.wlxmlNode.getClass());
-        this.wlxmlNode.contents().forEach(function(node) {
-            this._container().append(this.canvas.createElement(node).dom);
-        }.bind(this));
-        this.refresh();
-
-    },
-    refresh: function() {
-        if(this.wlxmlNode.getTagName() === 'span') {
-            if(this.containsBlock()) {
-                this.displayAsBlock();
-            } else {
-                this.displayInline();
-            }
-        } else {
-            this.displayAsBlock();
-        }
-    },
-    containsBlock: function() {
-        return this.children()
-            .filter(function(child) {
-                return child instanceof documentElement.DocumentNodeElement;
-            })
-            .some(function(child) {
-                if(child.isBlock()) {
-                    return true;
-                } else {
-                    return child.containsBlock();
-                }
-            });
-    },
-    getVerticallyFirstTextElement: function() {
-        var toret;
-        this.children().some(function(child) {
-            if(child instanceof documentElement.DocumentTextElement) {
-                toret = child;
-                return true; // break
-            } else {
-                toret = child.getVerticallyFirstTextElement();
-                if(toret) {
-                    return true; // break
-                }
-            }
-        });
-        return toret;
-    },
+    }
 });
 
 

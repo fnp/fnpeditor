@@ -247,7 +247,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
     },
 
     toggleElementHighlight: function(node, toggle) {
-        var element = utils.findCanvasElement(node);
+        var element = utils.getElementForNode(node);
         element.toggleHighlight(toggle);
     },
 
@@ -303,7 +303,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
         }
 
         if(!(element instanceof documentElement.DocumentElement)) {
-            element = utils.findCanvasElement(element);
+            element = utils.getElementForNode(element);
         }
 
         if(!element || !this.contains(element)) {
@@ -317,13 +317,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
             if(byBrowser && byBrowser.parent().sameNode(nodeToLand)) {
                 return byBrowser;
             }
-            var children = e.children();
-            for(var i = 0; i < children.length; i++) {
-                if(children[i] instanceof documentElement.DocumentTextElement) {
-                    return children[i];
-                }
-            }
-            return null;
+            return e.getVerticallyFirstTextElement();
         }.bind(this);
         var _markAsCurrent = function(element) {
             if(element instanceof documentElement.DocumentTextElement) {
@@ -389,10 +383,6 @@ $.extend(Canvas.prototype, Backbone.Events, {
         if(position.element) {
             this._moveCaretToTextElement(position.element, position.offset);
         }
-    },
-
-    findCanvasElement: function(node) {
-        return utils.findCanvasElement(node);
     },
 
     toggleGrid: function() {
@@ -572,7 +562,7 @@ $.extend(Cursor.prototype, {
             if(selection.anchorNode === selection.focusNode) {
                 anchorFirst = selection.anchorOffset <= selection.focusOffset;
             } else {
-                anchorFirst = parent.childIndex(anchorElement) < parent.childIndex(focusElement);
+                anchorFirst = (parent.getFirst(anchorElement, focusElement) === anchorElement);
             }
             placeData = getPlaceData(anchorFirst);
         } else {

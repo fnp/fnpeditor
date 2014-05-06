@@ -125,7 +125,7 @@ describe('Listening to document changes', function() {
             aTextElement;
 
         canvas.fromXMLDocument(doc);
-        aTextElement = utils.findCanvasElementInParent(aTextNode, aTextNode.parent()); // TODO: This really should be easier...
+        aTextElement = utils.getElementForTextNode(aTextNode);
 
         aTextElement.setText('');
 

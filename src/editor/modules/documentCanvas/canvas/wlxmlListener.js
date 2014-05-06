@@ -70,7 +70,7 @@ var handlers = {
         containingElement.handle(event);
     },
     nodeMoved: function(event) {
-        return handlers.nodeAdded.call(this, event, true); //
+        return handlers.nodeAdded.call(this, event); //
         //
     },
     nodeDetached: function(event) {
@@ -78,7 +78,7 @@ var handlers = {
         element.handle(event);
     },
     nodeTextChange: function(event) {
-        var element = utils.getElementForNode(event.meta.node.parent());
+        var element = utils.getElementForTextNode(event.meta.node);
         element.handle(event);
     },
 

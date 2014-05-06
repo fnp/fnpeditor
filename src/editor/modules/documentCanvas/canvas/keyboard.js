@@ -61,7 +61,7 @@ handlers.push({key: KEYS.ENTER,
                         description: gettext('Splitting text')
                     },
                     success: function(ret) {
-                        canvas.setCurrentElement(utils.findCanvasElement(ret), {caretTo: 'start'});
+                        canvas.setCurrentElement(utils.getElementForNode(ret), {caretTo: 'start'});
                     }
                 });
 
@@ -86,7 +86,7 @@ handlers.push({key: KEYS.ENTER,
                         description: gettext('Splitting text')
                     },
                     success: function(ret) {
-                        canvas.setCurrentElement(utils.findCanvasElement(ret), {caretTo: 'start'});
+                        canvas.setCurrentElement(utils.getElementForNode(ret), {caretTo: 'start'});
                     }
                 });
 
@@ -133,7 +133,7 @@ handlers.push({key: KEYS.ENTER,
                     gotoOptions = {caretTo: 'start'};
                 }
 
-                canvas.setCurrentElement(utils.findCanvasElement(goto), gotoOptions);
+                canvas.setCurrentElement(utils.getElementForNode(goto), gotoOptions);
             }
         }
     }
