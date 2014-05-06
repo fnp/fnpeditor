@@ -18,7 +18,7 @@ _.extend(linkElement, {
         _.bindAll(this, 'changeLink', 'deleteLink');
 
         var linkText = this.wlxmlNode.getAttr('href'),
-            linkUrl = this.wlxmlNode.document.getUrlForLink(linkText);
+            linkUrl = this.getUrl(linkText);
 
         this.box = $(_.template(boxTemplate)({text: linkText, url: linkUrl}));
         this.box.find('.change').on('click', this.changeLink);
@@ -33,7 +33,7 @@ _.extend(linkElement, {
         if(event.meta.attr === 'href') {
             var link = this.box.find('[link]');
             link.text(event.meta.newVal);
-            link.attr('href', this.wlxmlNode.document.getUrlForLink(event.meta.newVal));
+            link.attr('href', this.getUrl(event.meta.newVal));
         }
     },
 
@@ -72,6 +72,14 @@ _.extend(linkElement, {
                 description: gettext('Remove link')
             }
         });
+    },
+
+    getUrl: function(link) {
+        var pattern = /^[a-z]*:\/\//g;
+        if(!pattern.test(link)) {
+            link = 'http://' + link;
+        }
+        return this.wlxmlNode.document.getUrlForLink(link);
     }
 });
 
