@@ -125,7 +125,7 @@ describe('Listening to document changes', function() {
             aTextElement;
 
         canvas.fromXMLDocument(doc);
-        aTextElement = utils.getElementForTextNode(aTextNode);
+        aTextElement = utils.getElementForNode(aTextNode);
 
         aTextElement.setText('');
 
@@ -218,6 +218,24 @@ describe('Default document changes handling', function() {
         expect(sectionChildren.length).to.equal(2);
         expect(sectionChildren[0].wlxmlNode.getTagName()).to.equal('b');
         expect(sectionChildren[1].wlxmlNode.getTagName()).to.equal('a');
+    });
+
+    it('handles moving text node to another parent', function() {
+        var c = getCanvasFromXML('<section>Alice<div><span>has</span></div>a cat.</section>'),
+            doc = c.wlxmlDocument,
+            text = doc.root.contents()[0],
+            div = doc.root.contents()[1];
+        
+        div.append(text);
+        
+        var sectionChildren = c.doc().children();
+        expect(sectionChildren.length).to.equal(2);
+        expect(sectionChildren[0].wlxmlNode.sameNode(div)).to.equal(true);
+        expect(sectionChildren[1].getText()).to.equal('a cat.');
+
+        expect(div.contents().length).to.equal(2);
+        expect(div.contents()[0].getTagName()).to.equal('span');
+        expect(div.contents()[1].getText()).to.equal('Alice');
     });
 
     it('handles change in a text node', function() {

@@ -21,13 +21,26 @@ var nearestInDocumentOrder = function(selector, direction, element) {
 };
 
 
-var getElementForNode = function(node) {
-
-    var ptr = node.nodeType === Node.TEXT_NODE ? node.parent() : node;
-    while(!ptr.getData('canvasElement')) {
-        ptr = ptr.parent();
+var getElementForNode = function(node, withParent) {
+    if(node.nodeType === Node.TEXT_NODE) {
+        return _getElementForTextNode(node, withParent);
     }
-    return ptr.getData('canvasElement');
+    while(!node.getData('canvasElement')) {
+        node = node.parent();
+    }
+    return node.getData('canvasElement');
+};
+
+var _getElementForTextNode = function(textNode, withParent) {
+    var parentElement = getElementForNode(withParent || textNode.parent()),
+        toret;
+    parentElement.children().some(function(child) {
+        if(child.wlxmlNode.sameNode(textNode)) {
+            toret = child;
+            return true;
+        }
+    });
+    return toret;
 };
 
 var getElementForDetachedNode = function(node, originalParent) {
@@ -41,17 +54,7 @@ var getElementForDetachedNode = function(node, originalParent) {
     return ptr.getData('canvasElement');
 };
 
-var getElementForTextNode = function(textNode) {
-    var parentElement = getElementForNode(textNode.parent()),
-        toret;
-    parentElement.children().some(function(child) {
-        if(child.wlxmlNode.sameNode(textNode)) {
-            toret = child;
-            return true;
-        }
-    });
-    return toret;
-};
+
 
 return {
     nearestInDocumentOrder: nearestInDocumentOrder,
@@ -59,8 +62,7 @@ return {
         ZWS: '\u200B'
     },
     getElementForNode: getElementForNode,
-    getElementForDetachedNode: getElementForDetachedNode,
-    getElementForTextNode: getElementForTextNode
+    getElementForDetachedNode: getElementForDetachedNode
 };
 
 });

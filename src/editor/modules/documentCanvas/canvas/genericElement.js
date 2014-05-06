@@ -104,12 +104,7 @@ $.extend(generic, {
         }
       
         if(event.type === 'nodeMoved') {
-            /* globals Node */
-            if(event.meta.node.nodeType === Node.TEXT_NODE) {
-                actionArg = utils.getElementForTextNode(event.meta.node);
-            } else {
-                actionArg = utils.getElementForNode(event.meta.node);
-            }
+            actionArg = utils.getElementForNode(event.meta.node, event.meta.parent);
         } else {
             actionArg = event.meta.node;
         }

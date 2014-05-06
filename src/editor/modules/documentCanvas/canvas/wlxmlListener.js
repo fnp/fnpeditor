@@ -78,7 +78,7 @@ var handlers = {
         element.handle(event);
     },
     nodeTextChange: function(event) {
-        var element = utils.getElementForTextNode(event.meta.node);
+        var element = utils.getElementForNode(event.meta.node);
         element.handle(event);
     },
 
