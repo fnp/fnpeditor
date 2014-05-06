@@ -38,6 +38,13 @@ _.extend(Document.prototype, {
             });
         }.bind(this);
         return wlxml.WLXMLDocument.prototype.transaction.call(this, body, params);
+    },
+    getUrlForLink: function(link) {
+        var cfg = this.options.editorConfig;
+        if(link.substr(0, 7) === 'file://' && cfg && cfg.documentAttachmentUrl) {
+            link = cfg.documentAttachmentUrl(link.substr(7));
+        }
+        return link;
     }
 });
 

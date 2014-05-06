@@ -37,7 +37,7 @@ return function(sandbox) {
     var loadDocument = function(text, isDraft, draftTimestamp) {
         logger.debug('loading document');
         try {
-            wlxmlDocument = wlxml.WLXMLDocumentFromXML(text, {}, Document);
+            wlxmlDocument = wlxml.WLXMLDocumentFromXML(text, {editorConfig: sandbox.getConfig()}, Document);
         } catch(e) {
             logger.exception(e);
             alert(gettext('This document contains errors and can\'t be loaded. :(')); // TODO

@@ -17,7 +17,10 @@ _.extend(linkElement, {
         genericElement.init.call(this);
         _.bindAll(this, 'changeLink', 'deleteLink');
 
-        this.box = $(_.template(boxTemplate)({href: this.wlxmlNode.getAttr('href')}));
+        var linkText = this.wlxmlNode.getAttr('href'),
+            linkUrl = this.wlxmlNode.document.getUrlForLink(linkText);
+
+        this.box = $(_.template(boxTemplate)({text: linkText, url: linkUrl}));
         this.box.find('.change').on('click', this.changeLink);
         this.box.find('.delete').on('click', this.deleteLink);
         this.box.hide();
@@ -30,7 +33,7 @@ _.extend(linkElement, {
         if(event.meta.attr === 'href') {
             var link = this.box.find('[link]');
             link.text(event.meta.newVal);
-            link.attr('href', event.meta.newVal);
+            link.attr('href', this.wlxmlNode.document.getUrlForLink(event.meta.newVal));
         }
     },
 
