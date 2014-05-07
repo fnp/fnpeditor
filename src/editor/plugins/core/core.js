@@ -274,13 +274,12 @@ var createLinkFromSelection = function(callback, params) {
     dialog.on('execute', function(event) {
         doc.transaction(function() {
             var span =  action.params.fragment.startNode.parent().wrapText({
-                _with: {tagName: 'span', attrs: {'class': 'link'}},
+                _with: {tagName: 'span', attrs: {'class': 'link', href: event.formData.href }},
                 offsetStart: params.fragment.startOffset,
                 offsetEnd: params.fragment.endOffset,
                 textNodeIdx: [params.fragment.startNode.getIndex(), params.fragment.endNode.getIndex()]
             }),
                 doc = params.fragment.document;
-            span.setAttr('href', event.formData.href);
             event.success();
             return doc.createFragment(doc.CaretFragment, {node: span.contents()[0], offset:0});
         }, {

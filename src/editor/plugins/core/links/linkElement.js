@@ -17,7 +17,7 @@ _.extend(linkElement, {
         genericElement.init.call(this);
         _.bindAll(this, 'changeLink', 'deleteLink');
 
-        var linkText = this.wlxmlNode.getAttr('href'),
+        var linkText = this.wlxmlNode.getAttr('href') || '',
             linkUrl = this.getUrl(linkText);
 
         this.box = $(_.template(boxTemplate)({text: linkText, url: linkUrl}));
