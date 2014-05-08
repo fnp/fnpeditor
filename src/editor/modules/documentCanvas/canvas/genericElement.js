@@ -3,6 +3,7 @@ define(function(require) {
 'use strict';
 
 var $ = require('libs/jquery'),
+    _ = require('libs/underscore'),
     documentElement = require('./documentElement'),
     utils = require('./utils'),
     wlxmlUtils = require('utils/wlxml');
@@ -143,8 +144,20 @@ $.extend(generic, {
         });
     },
 
+    onStateChange: function(changes) {
+        if(_.isBoolean(changes.exposed) && !this.isSpan()) {
+            this._container().toggleClass('highlighted-element', changes.exposed);
+        }
+        if(_.isBoolean(changes.active) && !this.isSpan()) {
+            this._container().toggleClass('current-node-element', changes.active);
+        }
+    },
 
     ///
+
+    isSpan: function() {
+        return this.wlxmlNode.getTagName() === 'span';
+    },
     
     containsBlock: function() {
         return this.children()

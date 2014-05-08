@@ -208,8 +208,12 @@ $.extend(Canvas.prototype, Backbone.Events, {
         observer.observe(this.wrapper[0], config);
 
 
-        this.wrapper.on('mouseover', '[document-node-element], [document-text-element]', function(e) {
-            var el = canvas.getDocumentElement(e.currentTarget);
+        var hoverHandler = function(e) {
+            var el = canvas.getDocumentElement(e.currentTarget),
+                expose = {
+                    mouseover: true,
+                    mouseout: false
+                };
             if(!el) {
                 return;
             }
@@ -217,19 +221,11 @@ $.extend(Canvas.prototype, Backbone.Events, {
             if(el instanceof documentElement.DocumentTextElement) {
                 el = el.parent();
             }
-            el.toggleLabel(true);
-        });
-        this.wrapper.on('mouseout', '[document-node-element], [document-text-element]', function(e) {
-            var el = canvas.getDocumentElement(e.currentTarget);
-            if(!el) {
-                return;
-            }
-            e.stopPropagation();
-            if(el instanceof documentElement.DocumentTextElement) {
-                el = el.parent();
-            }
-            el.toggleLabel(false);
-        });
+            el.updateState({exposed:expose[e.type]});
+        };
+
+        this.wrapper.on('mouseover', '[document-node-element], [document-text-element]', hoverHandler);
+        this.wrapper.on('mouseout', '[document-node-element], [document-text-element]', hoverHandler);
 
         this.eventBus.on('elementToggled', function(toggle, element) {
             if(!toggle) {
@@ -248,7 +244,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
 
     toggleElementHighlight: function(node, toggle) {
         var element = utils.getElementForNode(node);
-        element.toggleHighlight(toggle);
+        element.updateState({exposed: toggle});
     },
 
     getCursor: function() {
@@ -257,10 +253,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
 
     
     getCurrentNodeElement: function() {
-        var htmlElement = this.wrapper.find('.current-node-element').parent()[0];
-        if(htmlElement) {
-            return this.getDocumentElement(htmlElement);
-        }
+        return this.currentNodeElement;
     },
 
     getCurrentTextElement: function() {
@@ -293,15 +286,10 @@ $.extend(Canvas.prototype, Backbone.Events, {
         var s = this.getSelection(),
             f = s.toDocumentFragment();
         if(f && f instanceof f.RangeFragment) {
-                var $current = this.wrapper.find('.current-node-element');
-                var current = $current && this.getDocumentElement($current.parent()[0]);
-                
-                if($current) {
-                    $current.removeClass('current-node-element');
-                }
-                if(current) {
-                    current.markAsCurrent(false);
-                }
+            if(this.currentNodeElement) {
+                this.currentNodeElement.updateState({active: false});
+                this.currentNodeElement = null;
+            }
         }
     },
 
@@ -350,15 +338,11 @@ $.extend(Canvas.prototype, Backbone.Events, {
                 this.wrapper.find('.current-text-element').removeClass('current-text-element');
                 element.dom.addClass('current-text-element');
             } else {
-                var $current = this.wrapper.find('.current-node-element');
-                var current = this.getDocumentElement($current.parent()[0]);
-                $current.removeClass('current-node-element');
-
-                if(current) {
-                    current.markAsCurrent(false);
+                if(this.currentNodeElement) {
+                    this.currentNodeElement.updateState({active: false});
                 }
-                element._container().addClass('current-node-element');
-                element.markAsCurrent(true);
+                element.updateState({active: true});
+                this.currentNodeElement = element;
             }
         }.bind(this);
 

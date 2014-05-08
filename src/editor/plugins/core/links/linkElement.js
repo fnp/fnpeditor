@@ -26,8 +26,11 @@ _.extend(linkElement, {
         this.box.hide();
         this.addWidget(this.box);
     },
-    markAsCurrent: function(toggle) {
-        this.box.toggle(toggle);
+    onStateChange: function(changes) {
+        genericElement.onStateChange.call(this, changes);
+        if(_.isBoolean(changes.active)) {
+            this.box.toggle(changes.active);
+        }
     },
     onNodeAttrChange: function(event) {
         if(event.meta.attr === 'href') {

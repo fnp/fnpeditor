@@ -11,6 +11,10 @@ define([
 var DocumentElement = function(wlxmlNode, canvas) {
     this.wlxmlNode = wlxmlNode;
     this.canvas = canvas;
+    this.state = {
+        exposed: false,
+        active: false
+    };
 
     this.dom = this.createDOM();
     this.dom.data('canvas-element', this);
@@ -25,6 +29,21 @@ $.extend(DocumentElement.prototype, {
     },
     refresh: function() {
         // noop
+    },
+    updateState: function(toUpdate) {
+        var changes = {};
+        _.keys(toUpdate)
+            .filter(function(key) {
+                return this.state.hasOwnProperty(key);
+            }.bind(this))
+            .forEach(function(key) {
+                if(this.state !== toUpdate[key]) {
+                    this.state[key] = changes[key] = toUpdate[key];
+                }
+            }.bind(this));
+        if(_.isFunction(this.onStateChange)) {
+            this.onStateChange(changes);
+        }
     },
     parent: function() {
         var parents = this.dom.parents('[document-node-element]');
@@ -123,19 +142,6 @@ $.extend(DocumentNodeElement.prototype, {
     },
     after: function(params) {
         return manipulate(this, params, 'after');
-    },
-
-    toggleLabel: function(toggle) {
-        var displayCss = toggle ? 'inline-block' : 'none';
-        var label = this.dom.children('.canvas-widgets').find('.canvas-widget-label');
-        label.css('display', displayCss);
-        this.toggleHighlight(toggle);
-    },
-
-    markAsCurrent: function() {},
-
-    toggleHighlight: function(toggle) {
-        this._container().toggleClass('highlighted-element', toggle);
     },
 
     isBlock: function() {
@@ -242,9 +248,6 @@ $.extend(DocumentTextElement.prototype, {
         return element;
     },
 
-    toggleHighlight: function() {
-        // do nothing for now
-    },
     children: function() {
         return [];
     }
