@@ -20,6 +20,24 @@ var nearestInDocumentOrder = function(selector, direction, element) {
     return null;
 };
 
+var getElementForElementRootNode = function(node, withParent) {
+    if(node.nodeType === Node.TEXT_NODE) {
+        return _getElementForRootTextNode(node, withParent);
+    }
+    return node.getData('canvasElement');
+};
+
+var _getElementForRootTextNode = function(textNode, withParent) {
+    var parentElement = getElementForNode(withParent || textNode.parent()),
+        toret;
+    parentElement.children().some(function(child) {
+        if(child.wlxmlNode.sameNode(textNode)) {
+            toret = child;
+            return true;
+        }
+    });
+    return toret;
+};
 
 var getElementForNode = function(node, withParent) {
     if(node.nodeType === Node.TEXT_NODE) {
@@ -62,7 +80,8 @@ return {
         ZWS: '\u200B'
     },
     getElementForNode: getElementForNode,
-    getElementForDetachedNode: getElementForDetachedNode
+    getElementForDetachedNode: getElementForDetachedNode,
+    getElementForElementRootNode: getElementForElementRootNode
 };
 
 });

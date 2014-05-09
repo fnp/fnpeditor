@@ -103,19 +103,18 @@ $.extend(generic, {
             referenceAction = 'after';
         }
       
-        if(event.type === 'nodeMoved') {
-            actionArg = utils.getElementForNode(event.meta.node, event.meta.parent);
-            if(actionArg.sameNode(referenceElement)) {
+        if(event.meta.move) {
+            /* Let's check if this node had its own canvas element and it's accessible. */
+            actionArg = utils.getElementForElementRootNode(event.meta.node);
+            if(actionArg && actionArg.sameNode(referenceElement)) {
                 referenceElement = this.children()[nodeIndex];
             }
-        } else {
+        }
+        if(!actionArg) {
             actionArg = event.meta.node;
         }
 
         referenceElement[referenceAction](actionArg);
-    },
-    onNodeMoved: function(event) {
-        return this.onNodeAdded.call(this, event);
     },
     onNodeDetached: function(event) {
         if(event.meta.node.sameNode(this)) {

@@ -69,10 +69,6 @@ var handlers = {
 
         containingElement.handle(event);
     },
-    nodeMoved: function(event) {
-        return handlers.nodeAdded.call(this, event); //
-        //
-    },
     nodeDetached: function(event) {
         var element = utils.getElementForDetachedNode(event.meta.node, event.meta.parent);
         element.handle(event);
