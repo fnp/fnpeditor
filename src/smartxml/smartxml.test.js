@@ -957,7 +957,7 @@ describe('smartxml', function() {
             expect(event.meta.node.sameNode(appended)).to.be.true;
         });
         
-        it('emits nodeMoved when appending aready existing node', function() {
+        it('emits nodeDetached/nodeAdded events with `move` flag when appending aready existing node', function() {
             var node = elementNodeFromXML('<div><a></a><b></b></div>'),
                 a = node.contents()[0],
                 b = node.contents()[1],
@@ -965,12 +965,17 @@ describe('smartxml', function() {
             node.document.on('change', spy);
             
             var appended = a.append(b),
-                event = spy.args[0][0];
+                detachedEvent = spy.args[0][0],
+                addedEvent = spy.args[1][0];
 
-            expect(spy.callCount).to.equal(1);
-            expect(event.type).to.equal('nodeMoved');
-            expect(event.meta.node.sameNode(appended)).to.be.true;
-            expect(node.document.root.sameNode(event.meta.parent)).to.equal(true, 'previous parent attached to event meta');
+            expect(spy.callCount).to.equal(2);
+            expect(detachedEvent.type).to.equal('nodeDetached');
+            expect(detachedEvent.meta.node.sameNode(appended)).to.be.true;
+            expect(detachedEvent.meta.move).to.equal(true, 'move flag set to true for nodeDetachedEvent');
+            expect(addedEvent.type).to.equal('nodeAdded');
+            expect(addedEvent.meta.node.sameNode(appended)).to.be.true;
+            expect(addedEvent.meta.move).to.equal(true, 'move flag set to true for nodeAddedEvent');
+
         });
         
         it('emits nodeAdded event when prepending new node', function() {
@@ -984,18 +989,24 @@ describe('smartxml', function() {
             expect(event.meta.node.sameNode(prepended)).to.be.true;
         });
         
-        it('emits nodeMoved when prepending aready existing node', function() {
+        it('emits nodeDetached/nodeAdded events with `move` flag when prepending aready existing node', function() {
             var node = elementNodeFromXML('<div><a></a><b></b></div>'),
                 a = node.contents()[0],
                 b = node.contents()[1],
                 spy = sinon.spy();
             node.document.on('change', spy);
-            
+
             var prepended = a.prepend(b),
-                event = spy.args[0][0];
-            expect(spy.callCount).to.equal(1);
-            expect(event.type).to.equal('nodeMoved');
-            expect(event.meta.node.sameNode(prepended)).to.be.true;
+                detachedEvent = spy.args[0][0],
+                addedEvent = spy.args[1][0];
+
+            expect(spy.callCount).to.equal(2);
+            expect(detachedEvent.type).to.equal('nodeDetached');
+            expect(detachedEvent.meta.node.sameNode(prepended)).to.be.true;
+            expect(detachedEvent.meta.move).to.equal(true, 'move flag set to true for nodeDetachedEvent');
+            expect(addedEvent.type).to.equal('nodeAdded');
+            expect(addedEvent.meta.node.sameNode(prepended)).to.be.true;
+            expect(addedEvent.meta.move).to.equal(true, 'move flag set to true for nodeAddedEvent');
         });
         
         it('emits nodeAdded event when inserting node after another', function() {
@@ -1009,18 +1020,23 @@ describe('smartxml', function() {
             expect(event.meta.node.sameNode(inserted)).to.be.true;
         });
         
-        it('emits nodeMoved when inserting aready existing node after another', function() {
+        it('emits nodeDetached/nodeAdded events with `move` flag when inserting aready existing node after another', function() {
             var node = elementNodeFromXML('<div><a></a><b></b></div>'),
                 a = node.contents()[0],
                 b = node.contents()[1],
                 spy = sinon.spy();
             node.document.on('change', spy);
             var inserted = b.after(a),
-                event = spy.args[0][0];
+                detachedEvent = spy.args[0][0],
+                addedEvent = spy.args[1][0];
 
-            expect(spy.callCount).to.equal(1);
-            expect(event.type).to.equal('nodeMoved');
-            expect(event.meta.node.sameNode(inserted)).to.be.true;
+            expect(spy.callCount).to.equal(2);
+            expect(detachedEvent.type).to.equal('nodeDetached');
+            expect(detachedEvent.meta.node.sameNode(inserted)).to.be.true;
+            expect(detachedEvent.meta.move).to.equal(true, 'move flag set to true for nodeDetachedEvent');
+            expect(addedEvent.type).to.equal('nodeAdded');
+            expect(addedEvent.meta.node.sameNode(inserted)).to.be.true;
+            expect(addedEvent.meta.move).to.equal(true, 'move flag set to true for nodeAddedEvent');
         });
 
         it('emits nodeAdded event when inserting node before another', function() {
@@ -1034,18 +1050,23 @@ describe('smartxml', function() {
             expect(event.meta.node.sameNode(inserted)).to.be.true;
         });
         
-        it('emits nodeAdded when inserting aready existing node before another', function() {
+        it('emits nodeDetached/nodeAdded events with `move` flag when inserting aready existing node before another', function() {
             var node = elementNodeFromXML('<div><a></a><b></b></div>'),
                 a = node.contents()[0],
                 b = node.contents()[1],
                 spy = sinon.spy();
             node.document.on('change', spy);
             var inserted = a.before(b),
-                event = spy.args[0][0];
+                detachedEvent = spy.args[0][0],
+                addedEvent = spy.args[1][0];
 
-            expect(spy.callCount).to.equal(1);
-            expect(event.type).to.equal('nodeMoved');
-            expect(event.meta.node.sameNode(inserted)).to.be.true;
+            expect(spy.callCount).to.equal(2);
+            expect(detachedEvent.type).to.equal('nodeDetached');
+            expect(detachedEvent.meta.node.sameNode(inserted)).to.be.true;
+            expect(detachedEvent.meta.move).to.equal(true, 'move flag set to true for nodeDetachedEvent');
+            expect(addedEvent.type).to.equal('nodeAdded');
+            expect(addedEvent.meta.node.sameNode(inserted)).to.be.true;
+            expect(addedEvent.meta.move).to.equal(true, 'move flag set to true for nodeAddedEvent');
         });
 
         it('emits nodeDetached and nodeAdded when replacing root node with another', function() {

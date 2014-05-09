@@ -140,12 +140,9 @@ $.extend(DocumentNode.prototype, {
         var node = (metaData && metaData.node) ? metaData.node : this,
             event = new events.ChangeEvent(type, $.extend({node: node}, metaData || {}));
         if(type === 'nodeDetached' || this.document.containsNode(event.meta.node)) {
-            if(type === 'nodeMoved') {
-                event.meta.parent = origParent;
-            }
             this.document.trigger('change', event);
         }
-        if((type === 'nodeAdded' || type === 'nodeMoved') && !this.document.containsNode(this) && nodeWasContained) {
+        if(type === 'nodeAdded' && !this.document.containsNode(this) && nodeWasContained) {
              event = new events.ChangeEvent('nodeDetached', {node: node, parent: origParent});
              this.document.trigger('change', event);
         }

@@ -24,7 +24,10 @@ var INSERTION = function(implementation) {
         }
         returned = implementation.call(this, insertion.ofNode);
         if(!options.silent && returned.sameNode(insertion.ofNode)) {
-            this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode}, nodeParent, nodeWasContained);
+            if(!insertion.insertsNew) {
+                this.triggerChangeEvent('nodeDetached', {node: insertion.ofNode, parent: nodeParent, move: true});
+            }
+            this.triggerChangeEvent('nodeAdded', {node: insertion.ofNode, move: !insertion.insertsNew}, nodeParent, nodeWasContained);
         }
         return returned;
     };
