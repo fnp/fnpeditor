@@ -208,16 +208,24 @@ describe('Default document changes handling', function() {
     });
 
     it('handles moved node', function() {
-        var doc = getDocumentFromXML('<section><a></a><b></b></section>'),
-            a = doc.root.contents()[0],
-            b = doc.root.contents()[1],
-            c = canvas.fromXMLDocument(doc);
+        var doc = getDocumentFromXML('<section><c></c><a></a><b></b></section>'),
+            c = doc.root.contents()[0],
+            a = doc.root.contents()[1],
+            b = doc.root.contents()[2],
+            cv = canvas.fromXMLDocument(doc);
 
-        a.before(b);
-        var sectionChildren = c.doc().children();
-        expect(sectionChildren.length).to.equal(2);
+        a.document.transaction(function() {
+            a.before(b); // => cab
+            b.after(c); // => bca
+        }, {
+            error: function(e) {throw e;}
+        });
+
+        var sectionChildren = cv.doc().children();
+        expect(sectionChildren.length).to.equal(3);
         expect(sectionChildren[0].wlxmlNode.getTagName()).to.equal('b');
-        expect(sectionChildren[1].wlxmlNode.getTagName()).to.equal('a');
+        expect(sectionChildren[1].wlxmlNode.getTagName()).to.equal('c');
+        expect(sectionChildren[2].wlxmlNode.getTagName()).to.equal('a');
     });
 
     it('handles moving text node to another parent', function() {

@@ -112,7 +112,6 @@ $.extend(DocumentNodeElement.prototype, {
     detach: function() {
         var parents = this.parents();
         this.dom.detach();
-        this.canvas = null;
         if(parents[0]) {
             parents[0].refreshPath();
         }
@@ -188,7 +187,6 @@ $.extend(DocumentTextElement.prototype, {
     },
     detach: function() {
         this.dom.detach();
-        this.canvas = null;
         return this;
     },
     setText: function(text) {
