@@ -102,7 +102,7 @@ $.extend(DocumentNodeElement.prototype, {
             contentContainer = $('<div>')
                 .attr('document-element-content', '');
         
-        wrapper.append(widgetsContainer, contentContainer);
+        wrapper.append(contentContainer, widgetsContainer);
         widgetsContainer.find('*').add(widgetsContainer).attr('tabindex', -1);
         return wrapper;
     },
