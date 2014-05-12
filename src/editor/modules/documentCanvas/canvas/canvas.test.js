@@ -243,6 +243,19 @@ describe('Default document changes handling', function() {
         c.wlxmlDocument.root.contents()[0].setText('cat');
         expect(c.doc().children()[0].getText()).to.equal('cat');
     });
+
+    describe('Regression tests', function() {
+        it('handles moving node after its next neighbour correctly', function() {
+            var c = getCanvasFromXML('<section><a></a><b></b></section>'),
+                doc = c.wlxmlDocument,
+                a = doc.root.contents()[0],
+                b = doc.root.contents()[1];
+            b.after(a);
+            var sectionChildren = c.doc().children();
+            expect(sectionChildren[0].wlxmlNode.getTagName()).to.equal('b');
+            expect(sectionChildren[1].wlxmlNode.getTagName()).to.equal('a');
+        });
+    });
 });
     
 describe('Custom elements based on wlxml class attribute', function() {

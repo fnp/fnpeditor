@@ -105,6 +105,9 @@ $.extend(generic, {
       
         if(event.type === 'nodeMoved') {
             actionArg = utils.getElementForNode(event.meta.node, event.meta.parent);
+            if(actionArg.sameNode(referenceElement)) {
+                referenceElement = this.children()[nodeIndex];
+            }
         } else {
             actionArg = event.meta.node;
         }
