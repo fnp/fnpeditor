@@ -44,7 +44,11 @@ _.extend(linkElement, {
             executeButtonText: gettext('Apply'),
             cancelButtonText: gettext('Cancel'),
             fields: [
-                {label: gettext('Link'), name: 'href', type: 'input', initialValue: el.wlxmlNode.getAttr('href')}
+                {label: gettext('Link'), name: 'href', type: 'input', initialValue: el.wlxmlNode.getAttr('href'),
+                prePasteHandler: function(text) {
+                                    return this.wlxmlNode.document.getLinkForUrl(text);
+                                }.bind(this)
+            }
             ]
         });
         e.preventDefault();

@@ -45,6 +45,14 @@ _.extend(Document.prototype, {
             link = cfg.documentAttachmentUrl(link.substr(7));
         }
         return link;
+    },
+    getLinkForUrl: function(url) {
+        /* globals window */
+        var baseUrl = function(url) {return url.split('/').slice(0,-1).join('/');};
+        if(baseUrl(url) === baseUrl(window.location.origin + this.getUrlForLink('file://test'))) {
+            return 'file://' + _.last(url.split('/'));
+        }
+        return url;
     }
 });
 

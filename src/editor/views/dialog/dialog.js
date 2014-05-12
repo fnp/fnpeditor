@@ -2,7 +2,8 @@ define(function(require) {
 
     'use strict';
 
-    var _ = require('libs/underscore'),
+    var $ = require('libs/jquery'),
+        _ = require('libs/underscore'),
         Backbone = require('libs/backbone'),
         dialogTemplate = require('libs/text!./dialog.html'),
         fieldTemplates = {};
@@ -36,9 +37,21 @@ define(function(require) {
                 if(!template) {
                     throw new Error('Field type {type} not recognized.'.replace('{type}', field.type));
                 }
-                body.append(
-                    _.template(template)(_.extend({description: '', initialValue: ''}, field))
-                );
+                var widget = $(_.template(template)(_.extend({description: '', initialValue: ''}, field)));
+
+                body.append(widget);
+
+                if(_.isFunction(field.prePasteHandler) && field.type === 'input') { // TODO: extract this out to widget specific impl.
+                    widget.find('input').on('paste', function(e) {
+                        var clipboardData = e.originalEvent.clipboardData;
+                        if(!clipboardData || !clipboardData.getData) {
+                            return;
+                        }
+                        e.preventDefault();
+                        var text = clipboardData.getData('text/plain').replace(/\r?\n|\r/g, ' ');
+                        $(e.target).val(field.prePasteHandler(text));
+                    });
+                }
             });
 
             if(this.options.text) {

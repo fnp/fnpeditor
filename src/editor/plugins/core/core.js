@@ -266,7 +266,11 @@ var createLinkFromSelection = function(callback, params) {
             executeButtonText: gettext('Apply'),
             cancelButtonText: gettext('Cancel'),
             fields: [
-                {label: gettext('Link'), name: 'href', type: 'input'}
+                {label: gettext('Link'), name: 'href', type: 'input',
+                prePasteHandler: function(text) {
+                                    return params.fragment.document.getLinkForUrl(text);
+                                }.bind(this)
+                }
             ]
         }),
         action = this;
