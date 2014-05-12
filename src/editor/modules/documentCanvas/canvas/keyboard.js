@@ -51,7 +51,7 @@ handlers.push({key: KEYS.ENTER,
             if(currentElement) {
                 canvas.wlxmlDocument.transaction(function() {
                     var added = currentElement.wlxmlNode.after({
-                        tagName: currentElement.getWlxmlTag() || 'div',
+                        tagName: currentElement.wlxmlNode.getTagName() || 'div',
                         attrs: {'class': currentElement.getWlxmlClass() || 'p'}
                     });
                     added.append({text:''});
@@ -77,7 +77,7 @@ handlers.push({key: KEYS.ENTER,
 
                 canvas.wlxmlDocument.transaction(function() {
                     var added = element.wlxmlNode.after(
-                        {tagName: element.getWlxmlTag() || 'div', attrs: {'class': element.getWlxmlClass() || 'p'}}
+                        {tagName: element.wlxmlNode.getTagName() || 'div', attrs: {'class': element.getWlxmlClass() || 'p'}}
                     );
                     added.append({text: ''});
                     return added;
