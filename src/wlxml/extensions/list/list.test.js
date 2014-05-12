@@ -405,7 +405,7 @@ describe('Lists extension', function() {
 
             var test = doc.extractItems({item1: nestedListItem, item2: nestedListItem, merge: false});
 
-            expect(test).to.equal(true, 'extraction status ok');
+            expect(test.sameNode(nestedListItem)).to.equal(true, 'first item returned');
 
             var sectionContents = section.contents(),
                 extractedItem = sectionContents[1];

@@ -36,7 +36,7 @@ extension.wlxmlClass.list.transformations = {
             last;
         if(contents.length) {
             last = contents[contents.length-1];
-            this.document.extractItems({
+            return this.document.extractItems({
                 item1: first,
                 item2: last
             });
@@ -169,7 +169,7 @@ extension.document.transformations.extractItems = {
         if(!params.merge && listIsNested) {
             return this.extractItems({item1: extractedItems[0], item2: extractedItems[extractedItems.length-1]});
         }
-        return true;
+        return extractedItems[0];
     },
     isAllowed: function() {
         var parent = this.args[0].nodel1.parent();
