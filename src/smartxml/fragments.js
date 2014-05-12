@@ -19,11 +19,15 @@ $.extend(Fragment.prototype, {
 var NodeFragment = function(document, params) {
     Fragment.call(this, document);
     this.node = params.node;
+    this.nodePath = params.node.getPath();
 };
 NodeFragment.prototype = Object.create(Fragment.prototype);
 $.extend(NodeFragment.prototype, {
     isValid: function() {
         return this.document.containsNode(this.node);
+    },
+    restoreFromPaths: function() {
+        this.node = this.document.getNodeByPath(this.nodePath);
     }
 });
 
@@ -58,11 +62,17 @@ var RangeFragment = function(document, params) {
             this[prefix + 'Node'] = params['node'+(idx+1)];
         }.bind(this));
     }
+    this.startNodePath = this.startNode.getPath();
+    this.endNodePath = this.endNode.getPath();
 };
 RangeFragment.prototype = Object.create(Fragment.prototype);
 $.extend(RangeFragment.prototype, {
     isValid: function() {
         return this.document.containsNode(this.startNode) && this.document.containsNode(this.endNode);
+    },
+    restoreFromPaths: function() {
+        this.startNode = this.document.getNodeByPath(this.startNodePath);
+        this.endNode = this.document.getNodeByPath(this.endNodePath);
     },
     hasSiblingBoundries: function() {
         return this.isValid() && this.startNode.isSiblingOf(this.endNode);
