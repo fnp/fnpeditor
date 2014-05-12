@@ -82,12 +82,18 @@ return function(sandbox) {
             canvas.setCurrentElement(node);
         },
         onAfterActionExecuted: function(action, ret) {
-            if(ret && ret.isValid() && ret instanceof canvas.wlxmlDocument.NodeFragment) {
+            if(ret && ret.isValid()) {
                 logger.debug('The action returned a valid fragment');
-                var params = {
-                    caretTo: ret instanceof canvas.wlxmlDocument.CaretFragment ? ret.offset : 'start'
-                };
-                canvas.setCurrentElement(ret.node, params);
+                if(ret instanceof canvas.wlxmlDocument.RangeFragment) {
+                    canvas.setCurrentElement(ret.endNode, {caretTo: ret.endOffset});
+                } else if(ret instanceof canvas.wlxmlDocument.NodeFragment) {
+                    var params = {
+                        caretTo: ret instanceof canvas.wlxmlDocument.CaretFragment ? ret.offset : 'start'
+                    };
+                    canvas.setCurrentElement(ret.node, params);
+                } else {
+                    logger.debug('Fragment not supported');
+                }
                 return;
             }
             logger.debug('No valid fragment returned from the action');
