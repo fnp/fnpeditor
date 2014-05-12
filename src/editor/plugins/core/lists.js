@@ -67,7 +67,14 @@ var toggleListAction = function(type) {
             toSearch.some(function(node) {
                 if(node.is('list')) {
                     node.document.transaction(function() {
-                        node.object.extractListItems();
+                        var firstItem = node.object.extractListItems(),
+                            toret;
+                        if(params.fragment.isValid()) {
+                            toret = params.fragment;
+                        } else {
+                            toret = node.document.createFragment(node.document.NodeFragment, {node: firstItem});
+                        }
+                        return toret;
                     }, {
                         metadata: {
                             description: action.getState().description
@@ -83,7 +90,13 @@ var toggleListAction = function(type) {
             var node = params.fragment.node,
                 action = this;
             node.document.transaction(function() {
-                node.getParent('list').setClass(type === 'Bullet' ? 'list' : 'list.enum');
+                var list = node.getParent('list');
+                list.setClass(type === 'Bullet' ? 'list' : 'list.enum');
+                if(params.fragment.isValid()) {
+                    return params.fragment;
+                } else {
+                    return node.document.createFragment(node.document.NodeFragment, {node: list.contents()[0]});
+                }
             }, {
                 metadata: {
                     description: action.getState().description
