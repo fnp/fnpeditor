@@ -63,7 +63,7 @@ _.extend(linkElement, {
             }, {
                 metadata: {
                     description: gettext('Edit link'),
-                    fragment: doc.createFragment(doc.CaretFragment, {node: el.wlxmlNode.contents()[0], offset:0})
+                    fragment: doc.createFragment(doc.CaretFragment, {node: el.wlxmlNode.contents()[0], offset:offset})
                 },
                 success: function() {
                     el.canvas.select(doc.createFragment(doc.CaretFragment, {node: el.wlxmlNode.contents()[0], offset:offset}));
