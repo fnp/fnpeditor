@@ -79,7 +79,17 @@ var undoRedoAction = function(dir) {
             icon: 'share-alt',
             iconStyle: dir === 'undo' ? '-webkit-transform: scale(-1,1); transform: scale(-1, 1)' : '',
             execute: function(callback, params) {
+                var metadata = _.last(params.document[dir+'Stack']).metadata,
+                    fragment = metadata && metadata.fragment;
                 params.document[dir]();
+                if(fragment) {
+                    if(!fragment.isValid()) {
+                        fragment.restoreFromPaths();
+                    }
+                    if(fragment.isValid()) {
+                        callback(fragment);
+                    }
+                }
                 callback();
             },
         },
