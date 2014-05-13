@@ -40,6 +40,7 @@ _.extend(linkElement, {
     changeLink: function(e) {
         var el = this,
             doc = this.wlxmlNode.document,
+            offset = el.canvas.getSelection().toDocumentFragment().offset,
             dialog = Dialog.create({
             title: gettext('Edit link'),
             executeButtonText: gettext('Apply'),
@@ -63,6 +64,9 @@ _.extend(linkElement, {
                 metadata: {
                     description: gettext('Edit link'),
                     fragment: doc.createFragment(doc.CaretFragment, {node: el.wlxmlNode.contents()[0], offset:0})
+                },
+                success: function() {
+                    el.canvas.select(doc.createFragment(doc.CaretFragment, {node: el.wlxmlNode.contents()[0], offset:offset}));
                 }
             });
         });
@@ -74,11 +78,23 @@ _.extend(linkElement, {
             doc = this.wlxmlNode.document;
 
         el.wlxmlNode.document.transaction(function() {
-            el.wlxmlNode.unwrapContent();
+            var f = el.canvas.getSelection().toDocumentFragment(),
+                prefLen = 0,
+                ret;
+
+            if(el.wlxmlNode.isPrecededByTextNode()) {
+                prefLen = el.wlxmlNode.prev().getText().length;
+            }
+
+            ret = el.wlxmlNode.unwrapContent();
+            return doc.createFragment(doc.CaretFragment, {node: ret.element1, offset: prefLen + f.offset});
         }, {
             metadata: {
                 description: gettext('Remove link'),
                 fragment: doc.createFragment(doc.CaretFragment, {node: el.wlxmlNode.contents()[0], offset:0})
+            },
+            success: function(ret) {
+                el.canvas.select(ret);
             }
         });
     },
