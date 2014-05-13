@@ -49,7 +49,8 @@ var toggleListAction = function(type) {
                    return doc.createFragment(doc.CaretFragment, {node: text, offset:0});
                 }, {
                     metadata: {
-                        description: action.getState().description
+                        description: action.getState().description,
+                        fragment: params.fragment
                     },
                     success: callback
                 });
@@ -77,7 +78,8 @@ var toggleListAction = function(type) {
                         return toret;
                     }, {
                         metadata: {
-                            description: action.getState().description
+                            description: action.getState().description,
+                            fragment: params.fragment
                         },
                         success: callback
                     });
@@ -99,7 +101,8 @@ var toggleListAction = function(type) {
                 }
             }, {
                 metadata: {
-                    description: action.getState().description
+                    description: action.getState().description,
+                    fragment: params.fragment
                 },
                 success: callback
             });

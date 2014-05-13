@@ -220,7 +220,8 @@ var createWrapTextAction = function(createParams) {
                             return newFragment;
                         }, {
                             metadata: {
-                                description: createParams.unwrapDescription
+                                description: createParams.unwrapDescription,
+                                fragment: params.fragment
                             },
                             success: callback
                         });
@@ -256,7 +257,8 @@ var createWrapTextAction = function(createParams) {
                             }
                         }, {
                             metadata: {
-                                description: createParams.wrapDescription
+                                description: createParams.wrapDescription,
+                                fragment: params.fragment
                             },
                             success: callback
                         });
@@ -298,7 +300,8 @@ var createLinkFromSelection = function(callback, params) {
             return doc.createFragment(doc.CaretFragment, {node: span.contents()[0], offset:0});
         }, {
             metadata: {
-                description: action.getState().description
+                description: action.getState().description,
+                fragment: params.fragment
             },
             success: callback
         });
@@ -326,7 +329,8 @@ var editLink = function(callback, params) {
             return params.fragment;
         }, {
             metadata: {
-                description: action.getState().description
+                description: action.getState().description,
+                fragment: params.fragment
             },
             success: callback
         });

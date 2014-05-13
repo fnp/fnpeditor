@@ -55,7 +55,8 @@ var createSwitchAction = function(createParams) {
                         return f.document.createFragment(f.CaretFragment, {node: f.document.getNodeByPath(textNodePath), offset: f.offset});
                     }, {
                         metadata: {
-                            description: description
+                            description: description,
+                            fragment: params.fragment
                         },
                         success: callback
                     });

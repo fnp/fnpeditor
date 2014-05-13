@@ -309,6 +309,19 @@ $.extend(Canvas.prototype, Backbone.Events, {
         return new Selection(this);
     },
 
+    select: function(fragment) {
+        if(fragment instanceof this.wlxmlDocument.RangeFragment) {
+            this.setCurrentElement(fragment.endNode, {caretTo: fragment.endOffset});
+        } else if(fragment instanceof this.wlxmlDocument.NodeFragment) {
+            var params = {
+                caretTo: fragment instanceof this.wlxmlDocument.CaretFragment ? fragment.offset : 'start'
+            };
+            this.setCurrentElement(fragment.node, params);
+        } else {
+            logger.debug('Fragment not supported');
+        }
+    },
+
     setCurrentElement: function(element, params) {
         if(!element) {
             logger.debug('Invalid element passed to setCurrentElement: ' + element);

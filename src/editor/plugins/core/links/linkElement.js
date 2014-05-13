@@ -39,6 +39,7 @@ _.extend(linkElement, {
 
     changeLink: function(e) {
         var el = this,
+            doc = this.wlxmlNode.document,
             dialog = Dialog.create({
             title: gettext('Edit link'),
             executeButtonText: gettext('Apply'),
@@ -60,7 +61,8 @@ _.extend(linkElement, {
                 event.success();
             }, {
                 metadata: {
-                    description: gettext('Edit link')
+                    description: gettext('Edit link'),
+                    fragment: doc.createFragment(doc.CaretFragment, {node: el.wlxmlNode.contents()[0], offset:0})
                 }
             });
         });
@@ -68,12 +70,15 @@ _.extend(linkElement, {
     },
 
     deleteLink: function() {
-        var el = this;
+        var el = this,
+            doc = this.wlxmlNode.document;
+
         el.wlxmlNode.document.transaction(function() {
             el.wlxmlNode.unwrapContent();
         }, {
             metadata: {
-                description: gettext('Remove link')
+                description: gettext('Remove link'),
+                fragment: doc.createFragment(doc.CaretFragment, {node: el.wlxmlNode.contents()[0], offset:0})
             }
         });
     },
