@@ -187,14 +187,20 @@ var elementNodeTransformations = {
             return;
         }
 
+        this.contents()
+            .filter(function(child) {
+                return child.getProperty('describesParent');
+            }.bind(this))
+            .forEach(function(child) {
+                child.detach();
+            });
+
         var myContents = this.contents(),
             myIdx = parent.indexOf(this);
-
 
         if(myContents.length === 0) {
             return this.detach();
         }
-
 
         var childrenLength = this.contents().length,
             first = true,
@@ -381,7 +387,9 @@ var documentTransformations = {
         }
 
         for(var i = idx1; i <= idx2; i++) {
-            wrapper.append(parentContents[i].detach());
+            if(!parentContents[i].getProperty('describesParent')) {
+                wrapper.append(parentContents[i].detach());
+            }
         }
 
         insertingTarget[insertingMethod](wrapper);
@@ -426,7 +434,9 @@ var documentTransformations = {
                 wrapperElement.append({text: prefixInside});
             }
             for(var i = idx1 + 1; i < idx2; i++) {
-                wrapperElement.append(contentsInside[i]);
+                if(!contentsInside[i].getProperty('describesParent')) {
+                    wrapperElement.append(contentsInside[i]);
+                }
             }
             if(suffixInside.length > 0) {
                 wrapperElement.append({text: suffixInside});

@@ -578,6 +578,24 @@ describe('smartxml', function() {
             expect(node.contents()[2].getText()).to.equal(' a cat!');
         });
 
+        it('removes parent-describing sibling nodes of unwrapped node', function() {
+            var doc = getDocumentFromXML('<root><div><a></a><x></x><a></a></div></root>'),
+                div = doc.root.contents()[0],
+                x = div.contents()[1];
+
+            doc.registerExtension({documentNode: {methods: {
+                object: {
+                    describesParent: function() {
+                        return this.getTagName() === 'x';
+                    }
+                }
+            }}});
+
+            div.unwrapContent();
+            expect(doc.root.contents().length).to.equal(2);
+            expect(x.isInDocument()).to.be.false;
+        });
+
         it('unwrap single element node from its parent', function() {
             var doc = getDocumentFromXML('<div><a><b></b></a></div>'),
                 div = doc.root,
@@ -630,6 +648,28 @@ describe('smartxml', function() {
                 expect(wrapperContents[1].contents().length).to.equal(1);
                 expect(wrapperContents[1].contents()[0].getText()).to.equal('small');
             });
+
+            it('keeps parent-describing nodes in place', function() {
+                var doc = getDocumentFromXML('<root>Alice<x></x> has a cat</root>'),
+                    root = doc.root,
+                    x = root.contents()[1];
+
+                doc.registerExtension({documentNode: {methods: {
+                    object: {
+                        describesParent: function() {
+                            return this.getTagName() === 'x';
+                        }
+                    }
+                }}});
+
+                root.wrapText({
+                    _with: {tagName: 'span', attrs: {'attr1': 'value1'}},
+                    offsetStart: 1,
+                    offsetEnd: 4,
+                    textNodeIdx: [0,2]
+                });
+                expect(x.parent().sameNode(root)).to.be.true;
+            });
         });
 
         describe('Wrapping Nodes', function() {
@@ -677,6 +717,29 @@ describe('smartxml', function() {
                 expect(headerChildren).to.have.length(2);
                 expect(headerChildren[0].sameNode(div2)).to.equal(true, 'first node wrapped');
                 expect(headerChildren[1].sameNode(div3)).to.equal(true, 'second node wrapped');
+            });
+
+            it('keeps parent-describing nodes in place', function() {
+                var section = elementNodeFromXML('<section>Alice<x></x><div>a cat</div></section>'),
+                    aliceText = section.contents()[0],
+                    x = section.contents()[1],
+                    lastDiv = section.contents()[2];
+
+                section.document.registerExtension({documentNode: {methods: {
+                    object: {
+                        describesParent: function() {
+                            return this.getTagName() === 'x';
+                        }
+                    }
+                }}});
+
+                section.document.wrapNodes({
+                        node1: aliceText,
+                        node2: lastDiv,
+                        _with: {tagName: 'header'}
+                    });
+
+                expect(x.parent().sameNode(section)).to.be.true;
             });
         });
 
