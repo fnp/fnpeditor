@@ -17,11 +17,20 @@ var DocumentNode = function(nativeNode, document) {
         throw new Error('undefined document for a node');
     }
     this.document = document;
+    this.object = {};
     this._setNativeNode(nativeNode);
 
 };
 
 $.extend(DocumentNode.prototype, {
+
+    getProperty: function(propName) {
+        var toret = this.object[propName];
+        if(toret && _.isFunction(toret)) {
+            toret = toret.call(this);
+        }
+        return toret;
+    },
 
     transform: function(Transformation, args) {
         var transformation = new Transformation(this.document, this, args);
