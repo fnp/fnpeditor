@@ -58,7 +58,9 @@ var installObject = function(instance, klass) {
     });
     instance.object = Object.create(_.extend({}, methods, transformations));
     _.keys(methods).concat(_.keys(transformations)).forEach(function(key) {
-        instance.object[key] = _.bind(instance.object[key], instance);
+        if(_.isFunction(instance.object[key])) {
+            instance.object[key] = _.bind(instance.object[key], instance);
+        }
     });
 };
 
