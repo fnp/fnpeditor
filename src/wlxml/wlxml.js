@@ -3,8 +3,9 @@ define([
     'libs/underscore',
     'smartxml/smartxml',
     'smartxml/transformations',
-    'wlxml/extensions/metadata/metadata'
-], function($, _, smartxml, transformations, metadataExtension) {
+    'wlxml/extensions/metadata/metadata',
+    'wlxml/extensions/comments/comments'
+], function($, _, smartxml, transformations, metadataExtension, commentExtension) {
     
 'use strict';
 
@@ -213,7 +214,7 @@ $.extend(WLXMLTextNode.prototype, WLXMLDocumentNodeMethods);
 var WLXMLDocument = function(xml, options) {
     this.classMethods = {};
     this.classTransformations = {};
-    smartxml.Document.call(this, xml, [metadataExtension]);
+    smartxml.Document.call(this, xml, [metadataExtension, commentExtension]);
     this.options = options;
 };
 
