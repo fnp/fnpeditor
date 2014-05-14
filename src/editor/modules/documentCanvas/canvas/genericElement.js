@@ -31,6 +31,14 @@ $.extend(generic, {
                 this._container().append(el.dom);
             }
         }.bind(this));
+
+        this.commentTip = $('<div class="comment-tip"><i class="icon-comment"></i></div>');
+        this.addWidget(this.commentTip);
+
+        if(!this.wlxmlNode.hasChild({klass: 'comment'})) {
+            this.commentTip.hide();
+        }
+
         this.refresh();
     },
     
@@ -119,8 +127,13 @@ $.extend(generic, {
         }
 
         referenceElement[referenceAction](actionArg);
+
+        if(event.meta.node.is('comment')) {
+            this.commentTip.show();
+        }
     },
     onNodeDetached: function(event) {
+        var isComment = event.meta.node.is('comment');
         if(event.meta.node.sameNode(this)) {
             this.detach();
         } else {
@@ -130,6 +143,9 @@ $.extend(generic, {
                     return true;
                 }
             });
+            if(isComment && !this.wlxmlNode.hasChild({klass: 'comment'})) {
+                this.commentTip.hide();
+            }
         }
     },
     onNodeTextChange: function(event) {
