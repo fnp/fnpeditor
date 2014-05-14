@@ -91,6 +91,11 @@ $.extend(WLXMLElementNode.prototype, WLXMLDocumentNodeMethods, smartxml.ElementN
         return (_.isUndefined(query.klass) || this.getClass().substr(0, query.klass.length) === query.klass) &&
                (_.isUndefined(query.tagName) || this.getTagName() === query.tagName);
     },
+    hasChild: function(query) {
+        return this.contents().some(function(child) {
+            return child.is(query);
+        }.bind(this));
+    },
     getMetaAttributes: function() {
         var toret = new AttributesList(),
             classParts = [''].concat(this.getClass().split('.')),
@@ -209,7 +214,9 @@ var WLXMLTextNode = function() {
     smartxml.TextNode.apply(this, arguments);
 };
 WLXMLTextNode.prototype = Object.create(smartxml.TextNode.prototype);
-$.extend(WLXMLTextNode.prototype, WLXMLDocumentNodeMethods);
+$.extend(WLXMLTextNode.prototype, WLXMLDocumentNodeMethods, {
+    is: function() { return false; }
+});
 
 var WLXMLDocument = function(xml, options) {
     this.classMethods = {};
