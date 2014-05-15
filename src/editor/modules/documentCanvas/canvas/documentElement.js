@@ -90,8 +90,10 @@ var manipulate = function(e, params, action) {
     } else {
         element = e.canvas.createElement(params);
     }
-    e.dom[action](element.dom);
-    e.refreshPath();
+    if(element.dom) {
+        e.dom[action](element.dom);
+        e.refreshPath();
+    }
     return element;
 };
 
@@ -225,10 +227,12 @@ $.extend(DocumentTextElement.prototype, {
         } else {
             element = this.canvas.createElement(params);
         }
-        this.dom.wrap('<div>');
-        this.dom.parent().after(element.dom);
-        this.dom.unwrap();
-        this.refreshPath();
+        if(element.dom) {
+            this.dom.wrap('<div>');
+            this.dom.parent().after(element.dom);
+            this.dom.unwrap();
+            this.refreshPath();
+        }
         return element;
     },
     before: function(params) {
@@ -241,10 +245,12 @@ $.extend(DocumentTextElement.prototype, {
         } else {
             element = this.canvas.createElement(params);
         }
-        this.dom.wrap('<div>');
-        this.dom.parent().before(element.dom);
-        this.dom.unwrap();
-        this.refreshPath();
+        if(element.dom) {
+            this.dom.wrap('<div>');
+            this.dom.parent().before(element.dom);
+            this.dom.unwrap();
+            this.refreshPath();
+        }
         return element;
     },
 

@@ -9,7 +9,8 @@ define([
 'modules/documentCanvas/canvas/wlxmlListener',
 'modules/documentCanvas/canvas/elementsRegister',
 'modules/documentCanvas/canvas/genericElement',
-], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener, ElementsRegister, genericElement) {
+'modules/documentCanvas/canvas/nullElement',
+], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener, ElementsRegister, genericElement, nullElement) {
     
 'use strict';
 /* global document:false, window:false, Node:false, gettext */
@@ -58,7 +59,7 @@ $.extend(TextHandler.prototype, {
 
 
 var Canvas = function(wlxmlDocument, elements) {
-    this.elementsRegister = new ElementsRegister(documentElement.DocumentNodeElement);
+    this.elementsRegister = new ElementsRegister(documentElement.DocumentNodeElement, nullElement);
 
     elements = [
         {tag: 'section', klass: null, prototype: genericElement},
@@ -278,7 +279,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
     },
 
     contains: function(element) {
-        return element.dom.parents().index(this.wrapper) !== -1;
+        return element && element.dom && element.dom.parents().index(this.wrapper) !== -1;
     },
 
     triggerSelectionChanged: function() {

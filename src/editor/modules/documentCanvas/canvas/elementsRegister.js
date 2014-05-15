@@ -5,9 +5,10 @@ var _ = require('libs/underscore'),
     wlxml = require('wlxml/wlxml');
 
 
-var ElementsRegister = function(BaseType) {
+var ElementsRegister = function(BaseType, NullType) {
     this._register = {};
     this.BaseType = BaseType;
+    this.NullType = NullType;
 };
 
 _.extend(ElementsRegister.prototype, {
@@ -21,7 +22,7 @@ _.extend(ElementsRegister.prototype, {
     },
     register: function(params) {
         params.klass = params.klass || '';
-        params.prototype = params.prototype || Object.create({});
+        params.prototype = params.prototype || this.NullType;
 
         this._register[params.tag] = this._register[params.tag] || {};
         this._register[params.tag][params.klass] = this.createCanvasElementType(params.prototype);

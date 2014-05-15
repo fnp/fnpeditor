@@ -26,7 +26,10 @@ $.extend(generic, {
             .attr('wlxml-tag', this.wlxmlNode.getTagName());
         this.setWlxmlClass(this.wlxmlNode.getClass());
         this.wlxmlNode.contents().forEach(function(node) {
-            this._container().append(this.canvas.createElement(node).dom);
+            var el = this.canvas.createElement(node);
+            if(el.dom) {
+                this._container().append(el.dom);
+            }
         }.bind(this));
         this.refresh();
     },
@@ -93,23 +96,23 @@ $.extend(generic, {
             return;
         }
 
-        var nodeIndex = event.meta.node.getIndex(),
+        var ptr = event.meta.node.prev(),
             referenceElement, referenceAction, actionArg;
+            
+        while(ptr && !(referenceElement = utils.getElementForElementRootNode(ptr))) {
+            ptr = ptr.prev();
+        }
 
-        if(nodeIndex === 0) {
+        if(referenceElement) {
+            referenceAction = 'after';
+        } else {
             referenceElement = this;
             referenceAction = 'prepend';
-        } else {
-            referenceElement = this.children()[nodeIndex-1];
-            referenceAction = 'after';
         }
       
         if(event.meta.move) {
             /* Let's check if this node had its own canvas element and it's accessible. */
             actionArg = utils.getElementForElementRootNode(event.meta.node);
-            if(actionArg && actionArg.sameNode(referenceElement)) {
-                referenceElement = this.children()[nodeIndex];
-            }
         }
         if(!actionArg) {
             actionArg = event.meta.node;
@@ -180,8 +183,10 @@ $.extend(generic, {
         } else {
             element = this.canvas.createElement(param);
         }
-        this._container().prepend(element.dom);
-        this.refreshPath();
+        if(element.dom) {
+            this._container().prepend(element.dom);
+            this.refreshPath();
+        }
         return element;
     },
 
