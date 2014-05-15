@@ -13,7 +13,7 @@ var INSERTION = function(implementation) {
             nodeParent,
             returned;
         options = options || {};
-        if(!(this.document.containsNode(this)) || !insertion.isNew) {
+        if(!(this.document.containsNode(this)) || !insertion.insertsNew) {
             nodeParent = insertion.ofNode.parent();
         }
         if(!insertion.insertsNew && insertion.ofNode.isSurroundedByTextNodes()) {
