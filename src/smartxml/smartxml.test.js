@@ -422,6 +422,18 @@ describe('smartxml', function() {
             expect(rootContents[0].getText()).to.equal('Alice a cat');
         });
 
+        it('merges adjacent text nodes resulting from moving an element node in between', function() {
+            var doc = getDocumentFromXML('<div><a></a>Alice <span>has</span>a cat</div>'),
+                span = doc.root.contents()[2],
+                a = doc.root.contents()[0];
+
+            a.append(span);
+
+            var rootContents = doc.root.contents();
+            expect(rootContents).to.have.length(2, 'one child left');
+            expect(rootContents[1].getText()).to.equal('Alice a cat');
+        });
+
         it('inserts node at index', function() {
             var doc = getDocumentFromXML('<div><a></a><b></b><c></c></div>'),
                 b = doc.root.contents()[1];

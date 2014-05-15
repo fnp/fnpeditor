@@ -16,6 +16,12 @@ var INSERTION = function(implementation) {
         if(!(this.document.containsNode(this)) || !insertion.isNew) {
             nodeParent = insertion.ofNode.parent();
         }
+        if(!insertion.insertsNew && insertion.ofNode.isSurroundedByTextNodes()) {
+            var prev = insertion.ofNode.prev(),
+                next = insertion.ofNode.next();
+            prev.setText(prev.getText()+next.getText());
+            next.detach();
+        }
         returned = implementation.call(this, insertion.ofNode);
         if(!options.silent && returned.sameNode(insertion.ofNode)) {
             this.triggerChangeEvent(insertion.insertsNew ? 'nodeAdded' : 'nodeMoved', {node: insertion.ofNode}, nodeParent, nodeWasContained);
@@ -310,12 +316,12 @@ var textNodeTransformations = {
         var newElement = this.document.createDocumentNode({tagName: parentElement.getTagName(), attrs: attrs});
         parentElement.after(newElement);
 
-        if(suffix.length > 0) {
-            newElement.append({text: suffix});
-        }
-        succeedingChildren.forEach(function(child) {
-            newElement.append(child);
+        succeedingChildren.reverse().forEach(function(child) {
+            newElement.prepend(child);
         });
+        if(suffix.length > 0) {
+            newElement.prepend({text: suffix});
+        }
 
         return {first: parentElement, second: newElement};
     },
