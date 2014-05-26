@@ -154,9 +154,12 @@ $.extend(generic, {
         }
     },
     onNodeTextChange: function(event) {
-        var toSet = event.meta.node.getText();
-        this.children().some(function(child) {
-            if(child.wlxmlNode.sameNode(event.meta.node)) {
+        var node = event.meta.node,
+            toSet = node.getText(),
+            handled;
+        
+        handled = this.children().some(function(child) {
+            if(child.wlxmlNode.sameNode(node)) {
                 if(toSet === '') {
                     toSet = utils.unicode.ZWS;
                 }
@@ -166,6 +169,10 @@ $.extend(generic, {
                 return true;
             }
         });
+
+        if(!handled && node.parent() && node.parent().is('comment') && this.wlxmlNode.sameNode(node.parent().parent())) {
+            this.commentsView.render();
+        }
     },
 
     onStateChange: function(changes) {

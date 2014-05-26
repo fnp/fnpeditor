@@ -98,41 +98,8 @@ _.extend(View.prototype, {
 
             })
             .forEach(function(commentNode) {
-                var metaData = commentNode.getMetadata(),
-                    author, date, content;
-
-                metaData.some(function(row) {
-                    author = row.getValue();
-                    if(author) {
-                        author = author.split(' ')[0];
-                    }
-                    return true;
-                }, 'creator');
-                
-                metaData.some(function(row) {
-                    date = row.getValue();
-                    return true;
-                }, 'date');
-
-                content = commentNode.object.getText();
-
-                var commentView = $(_.template(commentTemplate)({
-                    author: author ||'?',
-                    date: date || '?',
-                    content: content || '?'
-                }));
-
-                commentView.find('.remove-btn').on('click', function() {
-                    commentNode.document.transaction(function() {
-                        commentNode.detach();
-                    }, {
-                        metadata: {
-                            description: gettext('Remove comment')
-                        }
-                    });
-                });
-
-                this.list.append(commentView);
+                var commentView = new CommentView(commentNode);
+                this.list.append(commentView.dom);
                 this.textarea.attr('placeholder', gettext('Respond') + '...');
             }.bind(this));
         
@@ -156,6 +123,96 @@ _.extend(View.prototype, {
         return this.dom.outerHeight();
     }
 
+});
+
+
+var CommentView = function(commentNode) {
+    this.node = commentNode;
+
+    var metaData = this.node.getMetadata(),
+        author, date;
+
+    metaData.some(function(row) {
+        author = row.getValue();
+        if(author) {
+            author = author.split(' ')[0];
+        }
+        return true;
+    }, 'creator');
+    
+    metaData.some(function(row) {
+        date = row.getValue();
+        return true;
+    }, 'date');
+
+    this.dom = $(_.template(commentTemplate)({
+        author: author ||'?',
+        date: date || '?',
+        content: this.node.object.getText() || '?'
+    }));
+
+    this.contentElement = this.dom.find('.content');
+    this.editElement = this.dom.find('.edit');
+
+    this.dom.find('.remove-btn').on('click', function() {
+        this.node.document.transaction(function() {
+            this.node.detach();
+        }.bind(this), {
+            metadata: {
+                description: gettext('Remove comment')
+            }
+        });
+    }.bind(this));
+
+    this.dom.find('.edit-start-btn').on('click', function() {
+        this.startEditing();
+    }.bind(this));
+
+    this.dom.find('.edit-save-btn').on('click', function() {
+        this.saveEditing();
+    }.bind(this));
+
+    this.dom.find('.edit-cancel-btn').on('click', function() {
+        this.cancelEditing();
+    }.bind(this));
+
+    this.textarea = this.editElement.find('textarea');
+    this.textarea.on('input', function() {
+        this.dom.find('.edit-save-btn').attr('disabled', this.textarea.val() === '');
+
+        if (this.textarea.prop('scrollHeight') > this.textarea.prop('clientHeight')) {
+            this.textarea.height(this.textarea.prop('scrollHeight'));
+        }
+
+
+    }.bind(this));
+};
+
+$.extend(CommentView.prototype, {
+    startEditing: function() {
+        this.contentElement.hide();
+        this.editElement.show();
+        this.textarea.val(this.node.object.getText());
+        if(this.textarea.prop('scrollHeight') > this.textarea.prop('clientHeight')) {
+            this.textarea.height(this.textarea.prop('scrollHeight'));
+        }
+        this.textarea.focus();
+    },
+    saveEditing: function() {
+        var newContent = this.editElement.find('textarea').val();
+        this.node.document.transaction(function() {
+            this.node.object.setText(newContent);
+        }.bind(this), {
+            metadata: {
+                description: gettext('Edit comment')
+            }
+        });
+    },
+    cancelEditing: function() {
+        this.contentElement.show();
+        this.editElement.find('textarea').val('');
+        this.editElement.hide();
+    },
 });
 
 
