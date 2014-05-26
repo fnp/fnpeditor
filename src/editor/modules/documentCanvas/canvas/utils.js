@@ -58,7 +58,7 @@ var _getElementForTextNode = function(textNode, withParent) {
             return true;
         }
     });
-    return toret;
+    return toret || parentElement;
 };
 
 var getElementForDetachedNode = function(node, originalParent) {

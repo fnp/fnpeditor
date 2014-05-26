@@ -226,6 +226,9 @@ $.extend(DocumentTextElement.prototype, {
             this.dom.contents()[0].data = text;
         }
     },
+    handle: function(event) {
+        this.setText(event.meta.node.getText());
+    },
     getText: function(options) {
         options = _.extend({raw: false}, options || {});
         var toret = this.dom.text();
