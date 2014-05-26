@@ -70,7 +70,7 @@ return function(sandbox) {
         },
         setDocument: function(wlxmlDocument) {
             canvas.loadWlxmlDocument(wlxmlDocument);
-            canvasWrapper.find('#rng-module-documentCanvas-content').empty().append(canvas.view());
+            canvasWrapper.find('#rng-module-documentCanvas-contentWrapper').empty().append(canvas.view());
         },
         highlightElement: function(node) {
             canvas.toggleElementHighlight(node, true);
