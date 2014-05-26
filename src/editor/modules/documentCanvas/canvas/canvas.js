@@ -11,7 +11,8 @@ define([
 'modules/documentCanvas/canvas/genericElement',
 'modules/documentCanvas/canvas/nullElement',
 'modules/documentCanvas/canvas/gutter',
-], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener, ElementsRegister, genericElement, nullElement, gutter) {
+'libs/text!./canvas.html'
+], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener, ElementsRegister, genericElement, nullElement, gutter, canvasTemplate) {
     
 'use strict';
 /* global document:false, window:false, Node:false, gettext */
@@ -75,13 +76,13 @@ var Canvas = function(wlxmlDocument, elements) {
     }.bind(this));
     this.eventBus = _.extend({}, Backbone.Events);
     
-    this.wrapper = $('<div style="display: table; width: 96%"><div style="display: table-row" class="crow"></div></div>');
+    this.dom = $(canvasTemplate);
+    this.rootWrapper = this.dom.find('.root-wrapper');
     
 
     this.gutter = gutter.create();
     this.gutterView = new gutter.GutterView(this.gutter);
-    this.rootWrapper = $('<div>').addClass('canvas-wrapper').attr('contenteditable', true);
-    this.wrapper.find('.crow').append(this.rootWrapper, this.gutterView.dom);
+    this.dom.find('.view-row').append(this.gutterView.dom);
     
     this.wlxmlListener = wlxmlListener.create(this);
     this.loadWlxmlDocument(wlxmlDocument);
@@ -92,7 +93,7 @@ var Canvas = function(wlxmlDocument, elements) {
 $.extend(Canvas.prototype, Backbone.Events, {
 
     getElementOffset: function(element) {
-        return element.dom.offset().top - this.wrapper.offset().top;
+        return element.dom.offset().top - this.dom.offset().top;
     },
 
     loadWlxmlDocument: function(wlxmlDocument) {
@@ -205,7 +206,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
                         mutation.target.data = mutation.target.data.replace(utils.unicode.ZWS, '');
                         canvas._moveCaretToTextElement(canvas.getDocumentElement(mutation.target), 'end');
                     }
-                    observer.observe(canvas.wrapper[0], config);
+                    observer.observe(canvas.dom[0], config);
 
                     var textElement = canvas.getDocumentElement(mutation.target),
                         toSet = mutation.target.data !== utils.unicode.ZWS ? mutation.target.data : '';
@@ -249,7 +250,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
     },
 
     view: function() {
-        return this.wrapper;
+        return this.dom;
     },
 
     doc: function() {
