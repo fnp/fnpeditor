@@ -14,6 +14,7 @@ var logger = logging.getLogger('document');
 
 var Document = function() {
     wlxml.WLXMLDocument.apply(this, Array.prototype.slice.call(arguments, 0));
+    this.properties = {};
 };
 Document.prototype = Object.create(wlxml.WLXMLDocument.prototype);
 
@@ -53,6 +54,12 @@ _.extend(Document.prototype, {
             return 'file://' + _.last(url.split('/'));
         }
         return url;
+    },
+    setProperty: function(propName, propValue) {
+        if(this.properties[propName] !== propValue) {
+            this.properties[propName] = propValue;
+            this.trigger('propertyChanged', propName, propValue);
+        }
     }
 });
 

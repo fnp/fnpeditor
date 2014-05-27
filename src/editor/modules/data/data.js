@@ -22,15 +22,9 @@ return function(sandbox) {
     var documentDirty = false;
     var draftDirty = false;
 
-    var documentProperties = {};
     var data = sandbox.getBootstrappedData();
-    Object.keys(data)
-        .filter(function(key) {
-            return key !== 'history' && key !== 'document';
-        })
-        .forEach(function(key) {
-            documentProperties[key] = data[key];
-        });
+    var document_version = data.version;
+
 
     var wlxmlDocument, text;
 
@@ -43,6 +37,14 @@ return function(sandbox) {
             alert(gettext('This document contains errors and can\'t be loaded. :(')); // TODO
             wlxmlDocument = wlxml.WLXMLDocumentFromXML(stubDocument, {}, Document);
         }
+
+        Object.keys(data)
+            .filter(function(key) {
+                return key !== 'history' && key !== 'document';
+            })
+            .forEach(function(key) {
+                wlxmlDocument.setProperty(key, data[key]);
+            });
 
         wlxmlDocument.registerExtension(listExtension);
         sandbox.getPlugins().forEach(function(plugin) {
@@ -116,8 +118,8 @@ return function(sandbox) {
         });
     };
 
-    var getLocalStorageKey = function() {
-        var base = 'draft-id:' + document_id + '-ver:' + documentProperties.version;
+    var getLocalStorageKey = function(forVersion) {
+        var base = 'draft-id:' + document_id + '-ver:' + (forVersion || wlxmlDocument.properties.version);
         return {
             content: base,
             contentTimestamp: base + '-content-timestamp'
@@ -128,9 +130,9 @@ return function(sandbox) {
     return {
         start: function() {
             if(window.localStorage) {
-                text = window.localStorage.getItem(getLocalStorageKey().content);
+                text = window.localStorage.getItem(getLocalStorageKey(document_version).content);
 
-                var timestamp = window.localStorage.getItem(getLocalStorageKey().contentTimestamp),
+                var timestamp = window.localStorage.getItem(getLocalStorageKey(document_version).contentTimestamp),
                     usingDraft;
                 if(text) {
                     logger.debug('Local draft exists');
@@ -185,7 +187,7 @@ return function(sandbox) {
 
                 var formData = event.formData;
                 formData[documentSaveForm.content_field_name] = wlxmlDocument.toXML();
-                formData[documentSaveForm.version_field_name] = documentProperties.version;
+                formData[documentSaveForm.version_field_name] = wlxmlDocument.properties.version;
                 if(sandbox.getConfig().jsonifySentData) {
                     formData = JSON.stringify(formData);
                 }
@@ -204,7 +206,7 @@ return function(sandbox) {
                                 return key !== 'text';
                             })
                             .forEach(function(key) {
-                                documentProperties[key] = data[key];
+                                wlxmlDocument.setProperty(key, data[key]);
                             });
 
                         reloadHistory();
@@ -263,7 +265,7 @@ return function(sandbox) {
                                 return key !== 'document';
                             })
                             .forEach(function(key) {
-                                documentProperties[key] = data[key];
+                                wlxmlDocument.setProperty(key, data[key]);
                             });
                         reloadHistory();
                         wlxmlDocument.loadXML(data.document);
@@ -284,9 +286,6 @@ return function(sandbox) {
         },
         getDocumentId: function() {
             return document_id;
-        },
-        getDocumentProperties: function() {
-            return documentProperties;
         }
     };
 };

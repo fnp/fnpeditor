@@ -9,15 +9,18 @@ var $ = require('libs/jquery'),
 
 var view = {
     dom: $('<div class="documentSummary"></div>'),
-    init: function(config) {
+    init: function(config, doc) {
         this.config = config;
+        this.doc = doc;
         this.template = _.template(template);
+
+        this.doc.on('propertyChanged', this.render, this);
     },
-    render: function(properties) {
+    render: function() {
         this.dom.html(this.template({
             title: this.config.title,
             properties: this.config.properties,
-            propertyValues: properties
+            propertyValues: this.doc.properties
         }));
     },
     setDraftField: function(value) {

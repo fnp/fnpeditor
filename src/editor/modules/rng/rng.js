@@ -97,10 +97,12 @@ return function(sandbox) {
     
     eventHandlers.data = {
         ready: function(usingDraft, draftTimestamp) {
+            wlxmlDocument = sandbox.getModule('data').getDocument();
+
             views.mainLayout.setView('mainView', views.mainTabs.getAsView());
             
-            documentSummary.init(sandbox.getConfig().documentSummaryView);
-            documentSummary.render(sandbox.getModule('data').getDocumentProperties());
+            documentSummary.init(sandbox.getConfig().documentSummaryView, wlxmlDocument);
+            documentSummary.render();
             documentSummary.setDraftField(usingDraft ? (draftTimestamp || '???') : '-');
             views.currentNodePaneLayout.appendView(documentSummary.dom);
 
@@ -111,7 +113,6 @@ return function(sandbox) {
                 sandbox.getModule(moduleName).start();
             });
             
-            wlxmlDocument = sandbox.getModule('data').getDocument();
             documentIsDirty = false;
             wlxmlDocument.on('change', function() {
                 documentIsDirty = true;
@@ -145,7 +146,6 @@ return function(sandbox) {
             sandbox.getModule('indicator').clearMessage({message: msg[what]});
             if(status === 'success' && what === 'remote') {
                 sandbox.getModule('mainBar').setVersion(data.version);
-                documentSummary.render(data);
                 documentSummary.setDraftField('-');
                 sandbox.getModule('mainBar').setCommandEnabled('drop-draft', false);
                 sandbox.getModule('mainBar').setCommandEnabled('save', false);
@@ -175,7 +175,7 @@ return function(sandbox) {
     
     eventHandlers.mainBar = {
         ready: function() {
-            sandbox.getModule('mainBar').setVersion(sandbox.getModule('data').getDocumentProperties().version);
+            sandbox.getModule('mainBar').setVersion(sandbox.getModule('data').getDocument().properties.version);
             views.mainLayout.setView('topPanel', sandbox.getModule('mainBar').getView());
         },
         'cmd.save': function() {
