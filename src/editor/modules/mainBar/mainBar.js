@@ -40,6 +40,9 @@ return function(sandbox) {
                 trigger.data('originalContent', trigger.html());
                 trigger.text(disabledText);
             }
+        },
+        setSummaryView: function(summaryView) {
+            view.find('.bottom').prepend(summaryView);
         }
     };
 

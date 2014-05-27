@@ -84,7 +84,7 @@ return function(sandbox) {
             documentSummary.init(sandbox.getConfig().documentSummaryView, wlxmlDocument);
             documentSummary.render();
             documentSummary.setDraftField(usingDraft ? (draftTimestamp || '???') : '-');
-            views.currentNodePaneLayout.appendView(documentSummary.dom);
+            sandbox.getModule('mainBar').setSummaryView(documentSummary.dom);
 
             sandbox.getModule('mainBar').setCommandEnabled('drop-draft', usingDraft);
             sandbox.getModule('mainBar').setCommandEnabled('save', usingDraft);

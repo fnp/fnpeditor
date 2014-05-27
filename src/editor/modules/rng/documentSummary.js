@@ -8,7 +8,7 @@ var $ = require('libs/jquery'),
 
 
 var view = {
-    dom: $('<div class="documentSummary"></div>'),
+    dom: $('<ul></ul>'),
     init: function(config, doc) {
         this.config = config;
         this.doc = doc;
