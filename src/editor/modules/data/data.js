@@ -263,7 +263,7 @@ return function(sandbox) {
                                 return key !== 'document';
                             })
                             .forEach(function(key) {
-                                documentProperties = data[key];
+                                documentProperties[key] = data[key];
                             });
                         reloadHistory();
                         wlxmlDocument.loadXML(data.document);
