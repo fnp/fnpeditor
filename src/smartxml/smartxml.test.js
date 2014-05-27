@@ -163,6 +163,12 @@ describe('smartxml', function() {
                 node.setData({key1: 'value1', key2: 'value2'});
                 expect(node.getData()).to.eql({key1: 'value1', key2: 'value2'});
             });
+
+            it('can remove specific data', function() {
+                node.setData('key', 'value');
+                node.setData('key', undefined);
+                expect(node.getData('key')).to.be.undefined;
+            });
         });
 
         describe('Changing node tag', function() {

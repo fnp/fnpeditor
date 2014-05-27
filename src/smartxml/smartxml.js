@@ -177,8 +177,12 @@ $.extend(ElementNode.prototype, {
     nodeType: Node.ELEMENT_NODE,
 
     setData: function(key, value) {
-        if(value !== undefined) {
-            this._$.data(key, value);
+        if(arguments.length === 2) {
+            if(_.isUndefined(value)) {
+                this._$.removeData(key);
+            } else {
+                this._$.data(key, value);
+            }
         } else {
             this._$.removeData(_.keys(this._$.data()));
             this._$.data(key);
