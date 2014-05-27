@@ -142,6 +142,11 @@ var CommentView = function(commentNode) {
     
     metaData.some(function(row) {
         date = row.getValue();
+        if(/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]$/g.test(date)) {
+            date = date.split(':');
+            date.pop();
+            date = date.join(':');
+        }
         return true;
     }, 'date');
 

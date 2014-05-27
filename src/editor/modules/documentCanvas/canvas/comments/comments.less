@@ -1,5 +1,5 @@
 .comments {
-    @borderColor: darken(#FFFCB7, 15%);
+    @borderColor: darken(#FFFCB7, 45%);
 
     font-size: 12px;
 
@@ -7,11 +7,15 @@
         
         border-color: @borderColor;
         border-style: solid;
-        border-width: 1px;
-        margin-top: 10px;
+        border-width: 1px 0;
+        margin-top: -1px;
+        padding-bottom: 10px;
+
+        &:first-child {
+            margin-top:0;
+        }
 
         .header {
-            border-bottom: 1px solid @borderColor;
             padding: 0 3px;
             font-size: 10px;
             
@@ -35,18 +39,19 @@
     .newComment {
         margin-top: 10px;
 
-        textarea {
-            display: block;
-            width: 95%;
-            padding: 2px 2px;
-            margin: 0 0 10px 0;
-            font-size: 12px;
-            resize: vertical;
-            outline: none !important;
-            box-shadow: none;
 
-        }
     }
 
+    textarea {
+        display: block;
+        width: calc(~'100% - 4px');
+        padding: 2px 2px;
+        margin: 0 0 10px 0;
+        font-size: 12px;
+        resize: vertical;
+        outline: none !important;
+        box-shadow: none;
+
+    }
 
 }
