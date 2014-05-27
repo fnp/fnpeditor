@@ -20,7 +20,9 @@ return function(sandbox) {
         canvasElements = canvasElements.concat(plugin.canvasElements || []);
     });
 
-    var canvas = canvas3.fromXMLDocument(null, canvasElements);
+    var canvas = canvas3.fromXMLDocument(null, canvasElements, {
+        user: sandbox.getConfig().user
+    });
     var canvasWrapper = $(template);
     var shownAlready = false;
     var scrollbarPosition = 0,

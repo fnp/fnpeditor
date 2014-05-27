@@ -60,7 +60,8 @@ $.extend(TextHandler.prototype, {
 });
 
 
-var Canvas = function(wlxmlDocument, elements) {
+var Canvas = function(wlxmlDocument, elements, metadata) {
+    this.metadata = metadata || {};
     this.elementsRegister = new ElementsRegister(documentElement.DocumentNodeElement, nullElement);
 
     elements = [
@@ -614,8 +615,8 @@ $.extend(Cursor.prototype, {
 });
 
 return {
-    fromXMLDocument: function(wlxmlDocument, elements) {
-        return new Canvas(wlxmlDocument, elements);
+    fromXMLDocument: function(wlxmlDocument, elements, metadata) {
+        return new Canvas(wlxmlDocument, elements, metadata);
     }
 };
 

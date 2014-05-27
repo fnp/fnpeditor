@@ -33,7 +33,7 @@ $.extend(generic, {
             }
         }.bind(this));
 
-        this.commentsView = new CommentsView(this.wlxmlNode, {});
+        this.commentsView = new CommentsView(this.wlxmlNode, this.canvas.metadata.user);
         this.addToGutter(this.commentsView);
         this.commentTip = $('<div class="comment-tip"><i class="icon-comment"></i></div>');
         this.addWidget(this.commentTip);
