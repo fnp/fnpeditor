@@ -176,16 +176,16 @@ ElementNode.prototype = Object.create(DocumentNode.prototype);
 $.extend(ElementNode.prototype, {
     nodeType: Node.ELEMENT_NODE,
 
-    setData: function(key, value) {
+    setData: function(arg1, arg2) {
         if(arguments.length === 2) {
-            if(_.isUndefined(value)) {
-                this._$.removeData(key);
+            if(_.isUndefined(arg2)) {
+                this._$.removeData(arg1);
             } else {
-                this._$.data(key, value);
+                this._$.data(arg1, arg2);
             }
         } else {
             this._$.removeData(_.keys(this._$.data()));
-            this._$.data(key);
+            this._$.data(arg1);
         }
     },
 
