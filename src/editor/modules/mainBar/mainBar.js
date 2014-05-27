@@ -40,9 +40,6 @@ return function(sandbox) {
                 trigger.data('originalContent', trigger.html());
                 trigger.text(disabledText);
             }
-        },
-        setVersion: function(version) {
-            view.find('.version').text(version);
         }
     };
 

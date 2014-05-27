@@ -145,7 +145,6 @@ return function(sandbox) {
             
             sandbox.getModule('indicator').clearMessage({message: msg[what]});
             if(status === 'success' && what === 'remote') {
-                sandbox.getModule('mainBar').setVersion(data.version);
                 documentSummary.setDraftField('-');
                 sandbox.getModule('mainBar').setCommandEnabled('drop-draft', false);
                 sandbox.getModule('mainBar').setCommandEnabled('save', false);
@@ -169,13 +168,11 @@ return function(sandbox) {
         documentReverted: function(version) {
             documentIsDirty = false;
             sandbox.getModule('indicator').clearMessage({message:'Wersja ' + version + ' przywrócona'});
-            sandbox.getModule('mainBar').setVersion(version);
         }
     };
     
     eventHandlers.mainBar = {
         ready: function() {
-            sandbox.getModule('mainBar').setVersion(sandbox.getModule('data').getDocument().properties.version);
             views.mainLayout.setView('topPanel', sandbox.getModule('mainBar').getView());
         },
         'cmd.save': function() {
