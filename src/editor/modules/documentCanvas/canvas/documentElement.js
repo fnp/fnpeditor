@@ -151,13 +151,23 @@ $.extend(DocumentNodeElement.prototype, {
     _container: function() {
         return this.dom.children('[document-element-content]');
     },
-    detach: function() {
-        var parents = this.parents();
-        this.dom.detach();
-        if(parents[0]) {
-            parents[0].refreshPath();
+    detach: function(isChild) {
+        var parents;
+
+        if(_.isFunction(this.children)) {
+            this.children().forEach(function(child) {
+                child.detach(true);
+            });
         }
-         return this;
+
+        if(!isChild) {
+            parents = this.parents();
+            this.dom.detach();
+            if(parents[0]) {
+                parents[0].refreshPath();
+            }
+        }
+        return this;
     },
     before: function(params) {
         return manipulate(this, params, 'before');
@@ -214,8 +224,10 @@ $.extend(DocumentTextElement.prototype, {
             .text(this.wlxmlNode.getText() || utils.unicode.ZWS);
         return dom;
     },
-    detach: function() {
-        this.dom.detach();
+    detach: function(isChild) {
+        if(!isChild) {
+            this.dom.detach();
+        }
         return this;
     },
     setText: function(text) {

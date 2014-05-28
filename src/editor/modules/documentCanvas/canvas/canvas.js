@@ -138,8 +138,10 @@ $.extend(Canvas.prototype, Backbone.Events, {
     },
 
     reloadRoot: function() {
+        if(this.rootElement) {
+            this.rootElement.detach();
+        }
         this.rootElement = this.createElement(this.wlxmlDocument.root);
-        this.rootWrapper.empty();
         this.rootWrapper.append(this.rootElement.dom);
     },
 
