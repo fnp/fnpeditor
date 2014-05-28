@@ -158,8 +158,13 @@ var CommentView = function(commentNode) {
 
     this.contentElement = this.dom.find('.content');
     this.editElement = this.dom.find('.edit');
+    this.deleteDialogElement = this.dom.find('.deleteDialog');
 
     this.dom.find('.remove-btn').on('click', function() {
+        this.deleteDialogElement.show();
+    }.bind(this));
+
+    this.dom.find('.deleteDialog-confirm').on('click', function() {
         this.node.document.transaction(function() {
             this.node.detach();
         }.bind(this), {
@@ -167,6 +172,10 @@ var CommentView = function(commentNode) {
                 description: gettext('Remove comment')
             }
         });
+    }.bind(this));
+
+    this.dom.find('.deleteDialog-cancel').on('click', function() {
+        this.deleteDialogElement.hide();
     }.bind(this));
 
     this.dom.find('.edit-start-btn').on('click', function() {
