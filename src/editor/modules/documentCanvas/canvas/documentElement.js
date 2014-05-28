@@ -154,6 +154,9 @@ $.extend(DocumentNodeElement.prototype, {
     detach: function(isChild) {
         var parents;
 
+        if(this.gutterGroup) {
+            this.gutterGroup.remove();
+        }
         if(_.isFunction(this.children)) {
             this.children().forEach(function(child) {
                 child.detach(true);

@@ -42,11 +42,13 @@ var GutterGroupView = function(gutterView, group) {
     
     this.group.on('viewAdded', this.onViewAdded, this);
     this.group.on('focusToggled', this.onFocusToggled, this);
+    this.group.on('removed', this.remove, this);
 };
 $.extend(GutterGroupView.prototype, {
     remove: function() {
         this.group.off('viewAdded', this.onViewAdded);
         this.group.off('focusToggled', this.onFocusToggled);
+        this.group.off('removed', this.removed);
         this.dom.detach();
     },
     onViewAdded: function(view) {
@@ -84,6 +86,9 @@ $.extend(ViewGroup.prototype, Backbone.Events, {
     },
     show: function() {
         this.gutter.show(this);
+    },
+    remove: function() {
+        this.trigger('removed');
     }
 });
 
