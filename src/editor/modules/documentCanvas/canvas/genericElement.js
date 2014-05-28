@@ -6,7 +6,8 @@ var $ = require('libs/jquery'),
     _ = require('libs/underscore'),
     documentElement = require('./documentElement'),
     utils = require('./utils'),
-    wlxmlUtils = require('utils/wlxml');
+    wlxmlUtils = require('utils/wlxml'),
+    CommentsView = require('./comments/comments');
 
 var labelWidget = function(tag, klass) {
     return $('<span>')
@@ -32,6 +33,8 @@ $.extend(generic, {
             }
         }.bind(this));
 
+        this.commentsView = new CommentsView(this.wlxmlNode, {});
+        this.addToGutter(this.commentsView);
         this.commentTip = $('<div class="comment-tip"><i class="icon-comment"></i></div>');
         this.addWidget(this.commentTip);
 
@@ -130,6 +133,7 @@ $.extend(generic, {
 
         if(event.meta.node.is('comment')) {
             this.commentTip.show();
+            this.commentsView.render();
         }
     },
     onNodeDetached: function(event) {
@@ -146,6 +150,7 @@ $.extend(generic, {
             if(isComment && !this.wlxmlNode.hasChild({klass: 'comment'})) {
                 this.commentTip.hide();
             }
+            this.commentsView.render();
         }
     },
     onNodeTextChange: function(event) {
