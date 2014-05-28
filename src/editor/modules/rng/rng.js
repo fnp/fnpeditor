@@ -23,22 +23,6 @@ return function(sandbox) {
     }
      
     var commands = {
-        highlightDocumentElement: function(element, origin) {
-            ///'nodeBreadCrumbs', 'nodeFamilyTree'
-            ['documentCanvas', 'nodeFamilyTree'].forEach(function(moduleName) {
-                if(!origin || moduleName !== origin) {
-                    sandbox.getModule(moduleName).highlightElement(element);
-                }
-            });
-        },
-        dimDocumentElement: function(element, origin) {
-            //'nodeBreadCrumbs', 'nodeFamilyTree'
-            ['documentCanvas', 'nodeFamilyTree'].forEach(function(moduleName) {
-                if(!origin || moduleName !== origin) {
-                    sandbox.getModule(moduleName).dimElement(element);
-                }
-            });
-        },
         jumpToDocumentElement: function(element) {
             sandbox.getModule('documentCanvas').jumpToElement(element);
         },
@@ -50,13 +34,9 @@ return function(sandbox) {
             
             if(fragment && fragment.node) {
                 elementParent = fragment.node.getNearestElementNode();
-                sandbox.getModule('nodePane').setNodeElement(elementParent);
-                sandbox.getModule('nodeFamilyTree').setElement(fragment.node);
                 sandbox.getModule('nodeBreadCrumbs').setNodeElement(elementParent);
                 sandbox.getModule('metadataEditor').setNodeElement(elementParent);
             } else {
-                sandbox.getModule('nodePane').setNodeElement(null);
-                sandbox.getModule('nodeFamilyTree').setElement(null);
                 sandbox.getModule('nodeBreadCrumbs').setNodeElement(null);
                 sandbox.getModule('metadataEditor').setNodeElement(null);
             }
@@ -214,32 +194,11 @@ return function(sandbox) {
             commands.refreshCanvasSelection(selection);
         }
     };
-
-    eventHandlers.nodePane = {
-        ready: function() {
-            views.currentNodePaneLayout.appendView(sandbox.getModule('nodePane').getView());
-        }
-    };
     
     eventHandlers.metadataEditor = {
         ready: function() {
             sandbox.getModule('metadataEditor').setDocument(sandbox.getModule('data').getDocument());
             views.visualEditingSidebar.addTab({icon: 'info-sign'}, 'metadataEditor', sandbox.getModule('metadataEditor').getView());
-        }
-    };
-    
-    eventHandlers.nodeFamilyTree = {
-        ready: function() {
-            views.currentNodePaneLayout.appendView(sandbox.getModule('nodeFamilyTree').getView());
-        },
-        nodeEntered: function(node) {
-            commands.highlightDocumentElement(node, 'nodeFamilyTree');
-        },
-        nodeLeft: function(node) {
-            commands.dimDocumentElement(node, 'nodeFamilyTree');
-        },
-        nodeClicked: function(node) {
-            commands.jumpToDocumentElement(node);
         }
     };
     
@@ -256,12 +215,6 @@ return function(sandbox) {
     eventHandlers.nodeBreadCrumbs = {
         ready: function() {
             views.visualEditing.setView('statusBar', sandbox.getModule('nodeBreadCrumbs').getView());
-        },
-        elementEntered: function(element) {
-            commands.highlightDocumentElement(element, 'nodeBreadCrumbs');
-        },
-        elementLeft: function(element) {
-            commands.dimDocumentElement(element, 'nodeBreadCrumbs');
         },
         elementClicked: function(element) {
             commands.jumpToDocumentElement(element);

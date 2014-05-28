@@ -14,14 +14,6 @@ return function(sandbox) {
     var view = {
         dom: $('<div>' + template({node:null, parents: null}) + '</div>'),
         setup: function() {
-            this.dom.on('mouseenter', 'a', function(e) {
-                var target = $(e.target);
-                sandbox.publish('elementEntered', target.data('element'));
-            });
-            this.dom.on('mouseleave', 'a', function(e) {
-                var target = $(e.target);
-                sandbox.publish('elementLeft', target.data('element'));
-            });
             this.dom.on('click', 'a', function(e) {
                 e.preventDefault();
                 var target = $(e.target);

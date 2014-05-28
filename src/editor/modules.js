@@ -17,9 +17,7 @@ define(function(require) {
         
         documentCanvas: require('modules/documentCanvas/documentCanvas'),
         documentToolbar: require('modules/documentToolbar/documentToolbar'),
-        nodePane: require('modules/nodePane/nodePane'),
         metadataEditor: require('modules/metadataEditor/metadataEditor'),
-        nodeFamilyTree: require('modules/nodeFamilyTree/nodeFamilyTree'),
         nodeBreadCrumbs: require('modules/nodeBreadCrumbs/nodeBreadCrumbs'),
         
         documentHistory: require('modules/documentHistory/documentHistory'),
