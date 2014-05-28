@@ -46,7 +46,6 @@ var GutterGroupView = function(gutterView, group) {
 $.extend(GutterGroupView.prototype, {
     remove: function() {
         this.group.off('viewAdded', this.onViewAdded);
-        this.group.off('offsetChange', this.onOffsetChange);
         this.group.off('focusToggled', this.onFocusToggled);
         this.dom.detach();
     },
@@ -78,10 +77,6 @@ var ViewGroup = function(params, gutter, meta) {
 $.extend(ViewGroup.prototype, Backbone.Events, {
     getOffsetHint: function() {
         return _.isFunction(this.params.offsetHint) ? this.params.offsetHint() : this.params.offsetHint;
-    },
-    setOffset: function(offset) {
-        this.trigger('offsetChange', offset);
-        this._offset = offset;
     },
     addView: function(view) {
         this.views.push(view);

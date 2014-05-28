@@ -1,7 +1,7 @@
 define(function(require) {
     
 'use strict';
-/* globals Node, gettext */
+/* globals gettext */
 
 
 var $ = require('libs/jquery'),
@@ -11,7 +11,20 @@ var $ = require('libs/jquery'),
     commentTemplate = require('libs/text!./comment.html');
 
 
-var View = function(node, user) {
+var makeAutoResizable = function(textarea) {
+    textarea.on('input', function() {
+        resize(textarea);
+    });
+};
+
+var resize = function(textarea) {
+    if(textarea.prop('scrollHeight') > textarea.prop('clientHeight')) {
+        textarea.height(textarea.prop('scrollHeight'));
+    }
+};
+
+
+var CommentsView = function(node, user) {
     this.node = node;
     this.user = user;
     this.dom = $(_.template(commentsTemplate)());
@@ -22,13 +35,9 @@ var View = function(node, user) {
 
     this.textarea.on('input', function() {
         this.addButton.attr('disabled', this.textarea.val() === '');
-
-        if (this.textarea.prop('scrollHeight') > this.textarea.prop('clientHeight')) {
-            this.textarea.height(this.textarea.prop('scrollHeight'));
-        }
-
-
     }.bind(this));
+    makeAutoResizable(this.textarea);
+
     this.addButton.hide();
     this.cancelButton.hide();
     this.textarea.on('focus', function() {
@@ -82,47 +91,29 @@ var View = function(node, user) {
 
 };
 
-_.extend(View.prototype, {
+_.extend(CommentsView.prototype, {
     render: function() {
         this.list.empty();
-
-        // while(this.node.getTagName() === 'span' && this.node.parent()) {
-        //     this.node = this.node.parent();
-        // }
         this.textarea.attr('placeholder', gettext('Comment'));
 
         this.node.contents()
             .filter(function(child) {
-                return child.nodeType === Node.ELEMENT_NODE && child.getTagName() === 'aside' && child.getClass() === 'comment';
-                //return child.is({tag: 'aside', klass: 'comment'});
-
+                return child.is({tag: 'aside', klass: 'comment'});
             })
             .forEach(function(commentNode) {
                 var commentView = new CommentView(commentNode);
                 this.list.append(commentView.dom);
                 this.textarea.attr('placeholder', gettext('Respond') + '...');
             }.bind(this));
-        
     },
     onActivated: function() {
-        //if(this.list.find('.comment').length === 0) {
             this.dom.find('.newComment').toggle(true);
-        //}
-       //this.dom.show();
-
     },
     onDeactivated: function() {
       this.dom.find('.newComment').toggle(false);
       this.addButton.hide();
       this.cancelButton.hide();
-      //this.dom.hide();
-
     },
-
-    getHeight: function() {
-        return this.dom.outerHeight();
-    }
-
 });
 
 
@@ -193,13 +184,8 @@ var CommentView = function(commentNode) {
     this.textarea = this.editElement.find('textarea');
     this.textarea.on('input', function() {
         this.dom.find('.edit-save-btn').attr('disabled', this.textarea.val() === '');
-
-        if (this.textarea.prop('scrollHeight') > this.textarea.prop('clientHeight')) {
-            this.textarea.height(this.textarea.prop('scrollHeight'));
-        }
-
-
     }.bind(this));
+    makeAutoResizable(this.textarea);
 };
 
 $.extend(CommentView.prototype, {
@@ -207,9 +193,7 @@ $.extend(CommentView.prototype, {
         this.contentElement.hide();
         this.editElement.show();
         this.textarea.val(this.node.object.getText());
-        if(this.textarea.prop('scrollHeight') > this.textarea.prop('clientHeight')) {
-            this.textarea.height(this.textarea.prop('scrollHeight'));
-        }
+        resize(this.textarea);
         this.textarea.focus();
     },
     saveEditing: function() {
@@ -230,6 +214,6 @@ $.extend(CommentView.prototype, {
 });
 
 
-return View;
+return CommentsView;
 
 });
