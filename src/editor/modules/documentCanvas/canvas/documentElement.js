@@ -43,6 +43,17 @@ $.extend(DocumentElement.prototype, {
             }.bind(this));
         if(_.isFunction(this.onStateChange)) {
             this.onStateChange(changes);
+            if(_.isBoolean(changes.active)) {
+                if(changes.active) {
+                    var ptr = this;
+                    while(ptr && ptr.wlxmlNode.getTagName() === 'span') {
+                        ptr = ptr.parent();
+                    }
+                    if(ptr && ptr.gutterGroup) {
+                        ptr.gutterGroup.show();
+                    }
+                }
+            }
         }
     },
     parent: function() {
@@ -108,6 +119,16 @@ $.extend(DocumentNodeElement.prototype, {
     },
     clearWidgets: function() {
         this.dom.children('.canvas-widgets').empty();
+    },
+    addToGutter: function(view) {
+        if(!this.gutterGroup) {
+            this.gutterGroup = this.canvas.gutter.createViewGroup({
+                offsetHint: function() {
+                    return this.canvas.getElementOffset(this);
+                }.bind(this)
+            }, this);
+        }
+        this.gutterGroup.addView(view);
     },
     handle: function(event) {
         var method = 'on' + event.type[0].toUpperCase() + event.type.substr(1);

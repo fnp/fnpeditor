@@ -1,6 +1,7 @@
 @import 'nodes.less';
 @import 'canvas/documentElement.less';
 @import 'canvas/genericElement.less';
+@import 'canvas/gutter.less';
 
 #rng-module-documentCanvas {
    height: 100%;
@@ -35,6 +36,9 @@
     }
     
     .canvas-wrapper {
+        display: table-cell;
+        vertical-align: top;
+        width:800px;
         outline: 0px solid transparent;
     }
 

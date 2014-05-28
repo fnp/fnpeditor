@@ -10,7 +10,8 @@ define([
 'modules/documentCanvas/canvas/elementsRegister',
 'modules/documentCanvas/canvas/genericElement',
 'modules/documentCanvas/canvas/nullElement',
-], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener, ElementsRegister, genericElement, nullElement) {
+'modules/documentCanvas/canvas/gutter',
+], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener, ElementsRegister, genericElement, nullElement, gutter) {
     
 'use strict';
 /* global document:false, window:false, Node:false, gettext */
@@ -73,7 +74,15 @@ var Canvas = function(wlxmlDocument, elements) {
         this.elementsRegister.register(elementDesc);
     }.bind(this));
     this.eventBus = _.extend({}, Backbone.Events);
-    this.wrapper = $('<div>').addClass('canvas-wrapper').attr('contenteditable', true);
+    
+    this.wrapper = $('<div style="display: table; width: 96%"><div style="display: table-row" class="crow"></div></div>');
+    
+
+    this.gutter = gutter.create();
+    this.gutterView = new gutter.GutterView(this.gutter);
+    this.rootWrapper = $('<div>').addClass('canvas-wrapper').attr('contenteditable', true);
+    this.wrapper.find('.crow').append(this.rootWrapper, this.gutterView.dom);
+    
     this.wlxmlListener = wlxmlListener.create(this);
     this.loadWlxmlDocument(wlxmlDocument);
     this.setupEventHandling();
@@ -81,6 +90,10 @@ var Canvas = function(wlxmlDocument, elements) {
 };
 
 $.extend(Canvas.prototype, Backbone.Events, {
+
+    getElementOffset: function(element) {
+        return element.dom.offset().top - this.wrapper.offset().top;
+    },
 
     loadWlxmlDocument: function(wlxmlDocument) {
         if(!wlxmlDocument) {
@@ -124,27 +137,27 @@ $.extend(Canvas.prototype, Backbone.Events, {
 
     reloadRoot: function() {
         this.rootElement = this.createElement(this.wlxmlDocument.root);
-        this.wrapper.empty();
-        this.wrapper.append(this.rootElement.dom);
+        this.rootWrapper.empty();
+        this.rootWrapper.append(this.rootElement.dom);
     },
 
     setupEventHandling: function() {
         var canvas = this;
 
-        this.wrapper.on('keyup keydown keypress', function(e) {
+        this.rootWrapper.on('keyup keydown keypress', function(e) {
             keyboard.handleKey(e, canvas);
         });
 
-        this.wrapper.on('mouseup', function() {
+        this.rootWrapper.on('mouseup', function() {
             canvas.triggerSelectionChanged();
         });
 
         var mouseDown;
-        this.wrapper.on('mousedown', '[document-node-element], [document-text-element]', function(e) {
+        this.rootWrapper.on('mousedown', '[document-node-element], [document-text-element]', function(e) {
             mouseDown = e.target;
         });
 
-        this.wrapper.on('click', '[document-node-element], [document-text-element]', function(e) {
+        this.rootWrapper.on('click', '[document-node-element], [document-text-element]', function(e) {
             e.stopPropagation();
             if(e.originalEvent.detail === 3) {
                 e.preventDefault();
@@ -156,7 +169,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
             }
         });
 
-        this.wrapper.on('paste', function(e) {
+        this.rootWrapper.on('paste', function(e) {
             e.preventDefault();
 
             var clipboardData = e.originalEvent.clipboardData;
@@ -206,7 +219,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
             });
         });
         var config = { attributes: false, childList: false, characterData: true, subtree: true, characterDataOldValue: true};
-        observer.observe(this.wrapper[0], config);
+        observer.observe(this.rootWrapper[0], config);
 
 
         var hoverHandler = function(e) {
@@ -225,8 +238,8 @@ $.extend(Canvas.prototype, Backbone.Events, {
             el.updateState({exposed:expose[e.type]});
         };
 
-        this.wrapper.on('mouseover', '[document-node-element], [document-text-element]', hoverHandler);
-        this.wrapper.on('mouseout', '[document-node-element], [document-text-element]', hoverHandler);
+        this.rootWrapper.on('mouseover', '[document-node-element], [document-text-element]', hoverHandler);
+        this.rootWrapper.on('mouseout', '[document-node-element], [document-text-element]', hoverHandler);
 
         this.eventBus.on('elementToggled', function(toggle, element) {
             if(!toggle) {
@@ -258,7 +271,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
     },
 
     getCurrentTextElement: function() {
-        var htmlElement = this.wrapper.find('.current-text-element')[0];
+        var htmlElement = this.rootWrapper.find('.current-text-element')[0];
         if(htmlElement) {
             return this.getDocumentElement(htmlElement);
         }
@@ -279,7 +292,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
     },
 
     contains: function(element) {
-        return element && element.dom && element.dom.parents().index(this.wrapper) !== -1;
+        return element && element.dom && element.dom.parents().index(this.rootWrapper) !== -1;
     },
 
     triggerSelectionChanged: function() {
@@ -336,7 +349,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
         }.bind(this);
         var _markAsCurrent = function(element) {
             if(element instanceof documentElement.DocumentTextElement) {
-                this.wrapper.find('.current-text-element').removeClass('current-text-element');
+                this.rootWrapper.find('.current-text-element').removeClass('current-text-element');
                 element.dom.addClass('current-text-element');
             } else {
                 if(this.currentNodeElement) {
@@ -355,7 +368,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
             currentNodeElement = this.getCurrentNodeElement();
 
         if(currentTextElement && !(currentTextElement.sameNode(textElementToLand))) {
-            this.wrapper.find('.current-text-element').removeClass('current-text-element');
+            this.rootWrapper.find('.current-text-element').removeClass('current-text-element');
         }
 
         if(textElementToLand) {
@@ -394,7 +407,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
 
         selection.removeAllRanges();
         selection.addRange(range);
-        this.wrapper.focus(); // FF requires this for caret to be put where range colllapses, Chrome doesn't.
+        this.rootWrapper.focus(); // FF requires this for caret to be put where range colllapses, Chrome doesn't.
     },
 
     setCursorPosition: function(position) {
@@ -404,11 +417,11 @@ $.extend(Canvas.prototype, Backbone.Events, {
     },
 
     toggleGrid: function() {
-        this.wrapper.toggleClass('grid-on');
+        this.rootWrapper.toggleClass('grid-on');
         this.trigger('changed');
     },
     isGridToggled: function() {
-        return this.wrapper.hasClass('grid-on');
+        return this.rootWrapper.hasClass('grid-on');
     }
 });
 
