@@ -26,6 +26,14 @@ plugin.documentExtension.textNode.transformations = {
                     return true; // break
                 }
             });
+            newNodes.second.contents()
+                .filter(function(child) {
+                    return child.object.describesParent;
+                })
+                .forEach(function(child) {
+                    //child.detach();
+                    newNodes.first.append(child);
+                });
             return _.extend(newNodes, {emptyText: emptyText});
         },
         getChangeRoot: function() {

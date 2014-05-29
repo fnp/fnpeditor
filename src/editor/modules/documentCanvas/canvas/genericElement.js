@@ -3,9 +3,11 @@ define(function(require) {
 'use strict';
 
 var $ = require('libs/jquery'),
+    _ = require('libs/underscore'),
     documentElement = require('./documentElement'),
     utils = require('./utils'),
-    wlxmlUtils = require('utils/wlxml');
+    wlxmlUtils = require('utils/wlxml'),
+    CommentsView = require('./comments/comments');
 
 var labelWidget = function(tag, klass) {
     return $('<span>')
@@ -25,8 +27,21 @@ $.extend(generic, {
             .attr('wlxml-tag', this.wlxmlNode.getTagName());
         this.setWlxmlClass(this.wlxmlNode.getClass());
         this.wlxmlNode.contents().forEach(function(node) {
-            this._container().append(this.canvas.createElement(node).dom);
+            var el = this.canvas.createElement(node);
+            if(el.dom) {
+                this._container().append(el.dom);
+            }
         }.bind(this));
+
+        this.commentsView = new CommentsView(this.wlxmlNode, this.canvas.metadata.user);
+        this.addToGutter(this.commentsView);
+        this.commentTip = $('<div class="comment-tip"><i class="icon-comment"></i></div>');
+        this.addWidget(this.commentTip);
+
+        if(!this.wlxmlNode.hasChild({klass: 'comment'})) {
+            this.commentTip.hide();
+        }
+
         this.refresh();
     },
     
@@ -92,31 +107,37 @@ $.extend(generic, {
             return;
         }
 
-        var nodeIndex = event.meta.node.getIndex(),
+        var ptr = event.meta.node.prev(),
             referenceElement, referenceAction, actionArg;
+            
+        while(ptr && !(referenceElement = utils.getElementForElementRootNode(ptr))) {
+            ptr = ptr.prev();
+        }
 
-        if(nodeIndex === 0) {
+        if(referenceElement) {
+            referenceAction = 'after';
+        } else {
             referenceElement = this;
             referenceAction = 'prepend';
-        } else {
-            referenceElement = this.children()[nodeIndex-1];
-            referenceAction = 'after';
         }
       
         if(event.meta.move) {
             /* Let's check if this node had its own canvas element and it's accessible. */
             actionArg = utils.getElementForElementRootNode(event.meta.node);
-            if(actionArg && actionArg.sameNode(referenceElement)) {
-                referenceElement = this.children()[nodeIndex];
-            }
         }
         if(!actionArg) {
             actionArg = event.meta.node;
         }
 
         referenceElement[referenceAction](actionArg);
+
+        if(event.meta.node.is('comment')) {
+            this.commentTip.show();
+            this.commentsView.render();
+        }
     },
     onNodeDetached: function(event) {
+        var isComment = event.meta.node.is('comment');
         if(event.meta.node.sameNode(this)) {
             this.detach();
         } else {
@@ -126,12 +147,19 @@ $.extend(generic, {
                     return true;
                 }
             });
+            if(isComment && !this.wlxmlNode.hasChild({klass: 'comment'})) {
+                this.commentTip.hide();
+            }
+            this.commentsView.render();
         }
     },
     onNodeTextChange: function(event) {
-        var toSet = event.meta.node.getText();
-        this.children().some(function(child) {
-            if(child.wlxmlNode.sameNode(event.meta.node)) {
+        var node = event.meta.node,
+            toSet = node.getText(),
+            handled;
+        
+        handled = this.children().some(function(child) {
+            if(child.wlxmlNode.sameNode(node)) {
                 if(toSet === '') {
                     toSet = utils.unicode.ZWS;
                 }
@@ -141,10 +169,26 @@ $.extend(generic, {
                 return true;
             }
         });
+
+        if(!handled && node.parent() && node.parent().is('comment') && this.wlxmlNode.sameNode(node.parent().parent())) {
+            this.commentsView.render();
+        }
     },
 
+    onStateChange: function(changes) {
+        if(_.isBoolean(changes.exposed) && !this.isSpan()) {
+            this._container().toggleClass('highlighted-element', changes.exposed);
+        }
+        if(_.isBoolean(changes.active) && !this.isSpan()) {
+            this._container().toggleClass('current-node-element', changes.active);
+        }
+    },
 
     ///
+
+    isSpan: function() {
+        return this.wlxmlNode.getTagName() === 'span';
+    },
     
     containsBlock: function() {
         return this.children()
@@ -167,8 +211,10 @@ $.extend(generic, {
         } else {
             element = this.canvas.createElement(param);
         }
-        this._container().prepend(element.dom);
-        this.refreshPath();
+        if(element.dom) {
+            this._container().prepend(element.dom);
+            this.refreshPath();
+        }
         return element;
     },
 

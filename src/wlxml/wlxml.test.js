@@ -286,6 +286,15 @@ describe('WLXMLDocument', function() {
             expect(testClassNode.object.testMethod().sameNode(testClassNode)).to.equal(true, '1');
         });
 
+        it('allows adding non-function properties to an ElementNode of specific class', function() {
+            extension = {wlxmlClass: {test_class: {methods: {
+                testProp: 123
+            }}}};
+            doc.registerExtension(extension);
+            testClassNode = doc.root.contents()[1];
+            expect(testClassNode.object.testProp).to.equal(123);
+        });
+
         it('allows adding transformation to an ElementNode of specific class', function() {
             extension = {wlxmlClass: {test_class: {transformations: {
                 testTransformation: function() { return this; },

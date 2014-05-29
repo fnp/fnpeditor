@@ -9,7 +9,10 @@ define([
 'modules/documentCanvas/canvas/wlxmlListener',
 'modules/documentCanvas/canvas/elementsRegister',
 'modules/documentCanvas/canvas/genericElement',
-], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener, ElementsRegister, genericElement) {
+'modules/documentCanvas/canvas/nullElement',
+'modules/documentCanvas/canvas/gutter',
+'libs/text!./canvas.html'
+], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener, ElementsRegister, genericElement, nullElement, gutter, canvasTemplate) {
     
 'use strict';
 /* global document:false, window:false, Node:false, gettext */
@@ -57,8 +60,9 @@ $.extend(TextHandler.prototype, {
 });
 
 
-var Canvas = function(wlxmlDocument, elements) {
-    this.elementsRegister = new ElementsRegister(documentElement.DocumentNodeElement);
+var Canvas = function(wlxmlDocument, elements, metadata) {
+    this.metadata = metadata || {};
+    this.elementsRegister = new ElementsRegister(documentElement.DocumentNodeElement, nullElement);
 
     elements = [
         {tag: 'section', klass: null, prototype: genericElement},
@@ -72,7 +76,15 @@ var Canvas = function(wlxmlDocument, elements) {
         this.elementsRegister.register(elementDesc);
     }.bind(this));
     this.eventBus = _.extend({}, Backbone.Events);
-    this.wrapper = $('<div>').addClass('canvas-wrapper').attr('contenteditable', true);
+    
+    this.dom = $(canvasTemplate);
+    this.rootWrapper = this.dom.find('.root-wrapper');
+    
+
+    this.gutter = gutter.create();
+    this.gutterView = new gutter.GutterView(this.gutter);
+    this.dom.find('.view-row').append(this.gutterView.dom);
+    
     this.wlxmlListener = wlxmlListener.create(this);
     this.loadWlxmlDocument(wlxmlDocument);
     this.setupEventHandling();
@@ -80,6 +92,10 @@ var Canvas = function(wlxmlDocument, elements) {
 };
 
 $.extend(Canvas.prototype, Backbone.Events, {
+
+    getElementOffset: function(element) {
+        return element.dom.offset().top - this.dom.offset().top;
+    },
 
     loadWlxmlDocument: function(wlxmlDocument) {
         if(!wlxmlDocument) {
@@ -122,28 +138,30 @@ $.extend(Canvas.prototype, Backbone.Events, {
     },
 
     reloadRoot: function() {
+        if(this.rootElement) {
+            this.rootElement.detach();
+        }
         this.rootElement = this.createElement(this.wlxmlDocument.root);
-        this.wrapper.empty();
-        this.wrapper.append(this.rootElement.dom);
+        this.rootWrapper.append(this.rootElement.dom);
     },
 
     setupEventHandling: function() {
         var canvas = this;
 
-        this.wrapper.on('keyup keydown keypress', function(e) {
+        this.rootWrapper.on('keyup keydown keypress', function(e) {
             keyboard.handleKey(e, canvas);
         });
 
-        this.wrapper.on('mouseup', function() {
+        this.rootWrapper.on('mouseup', function() {
             canvas.triggerSelectionChanged();
         });
 
         var mouseDown;
-        this.wrapper.on('mousedown', '[document-node-element], [document-text-element]', function(e) {
+        this.rootWrapper.on('mousedown', '[document-node-element], [document-text-element]', function(e) {
             mouseDown = e.target;
         });
 
-        this.wrapper.on('click', '[document-node-element], [document-text-element]', function(e) {
+        this.rootWrapper.on('click', '[document-node-element], [document-text-element]', function(e) {
             e.stopPropagation();
             if(e.originalEvent.detail === 3) {
                 e.preventDefault();
@@ -155,7 +173,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
             }
         });
 
-        this.wrapper.on('paste', function(e) {
+        this.rootWrapper.on('paste', function(e) {
             e.preventDefault();
 
             var clipboardData = e.originalEvent.clipboardData;
@@ -191,7 +209,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
                         mutation.target.data = mutation.target.data.replace(utils.unicode.ZWS, '');
                         canvas._moveCaretToTextElement(canvas.getDocumentElement(mutation.target), 'end');
                     }
-                    observer.observe(canvas.wrapper[0], config);
+                    observer.observe(canvas.dom[0], config);
 
                     var textElement = canvas.getDocumentElement(mutation.target),
                         toSet = mutation.target.data !== utils.unicode.ZWS ? mutation.target.data : '';
@@ -205,11 +223,15 @@ $.extend(Canvas.prototype, Backbone.Events, {
             });
         });
         var config = { attributes: false, childList: false, characterData: true, subtree: true, characterDataOldValue: true};
-        observer.observe(this.wrapper[0], config);
+        observer.observe(this.rootWrapper[0], config);
 
 
-        this.wrapper.on('mouseover', '[document-node-element], [document-text-element]', function(e) {
-            var el = canvas.getDocumentElement(e.currentTarget);
+        var hoverHandler = function(e) {
+            var el = canvas.getDocumentElement(e.currentTarget),
+                expose = {
+                    mouseover: true,
+                    mouseout: false
+                };
             if(!el) {
                 return;
             }
@@ -217,19 +239,11 @@ $.extend(Canvas.prototype, Backbone.Events, {
             if(el instanceof documentElement.DocumentTextElement) {
                 el = el.parent();
             }
-            el.toggleLabel(true);
-        });
-        this.wrapper.on('mouseout', '[document-node-element], [document-text-element]', function(e) {
-            var el = canvas.getDocumentElement(e.currentTarget);
-            if(!el) {
-                return;
-            }
-            e.stopPropagation();
-            if(el instanceof documentElement.DocumentTextElement) {
-                el = el.parent();
-            }
-            el.toggleLabel(false);
-        });
+            el.updateState({exposed:expose[e.type]});
+        };
+
+        this.rootWrapper.on('mouseover', '[document-node-element], [document-text-element]', hoverHandler);
+        this.rootWrapper.on('mouseout', '[document-node-element], [document-text-element]', hoverHandler);
 
         this.eventBus.on('elementToggled', function(toggle, element) {
             if(!toggle) {
@@ -239,7 +253,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
     },
 
     view: function() {
-        return this.wrapper;
+        return this.dom;
     },
 
     doc: function() {
@@ -248,7 +262,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
 
     toggleElementHighlight: function(node, toggle) {
         var element = utils.getElementForNode(node);
-        element.toggleHighlight(toggle);
+        element.updateState({exposed: toggle});
     },
 
     getCursor: function() {
@@ -257,14 +271,11 @@ $.extend(Canvas.prototype, Backbone.Events, {
 
     
     getCurrentNodeElement: function() {
-        var htmlElement = this.wrapper.find('.current-node-element').parent()[0];
-        if(htmlElement) {
-            return this.getDocumentElement(htmlElement);
-        }
+        return this.currentNodeElement;
     },
 
     getCurrentTextElement: function() {
-        var htmlElement = this.wrapper.find('.current-text-element')[0];
+        var htmlElement = this.rootWrapper.find('.current-text-element')[0];
         if(htmlElement) {
             return this.getDocumentElement(htmlElement);
         }
@@ -285,7 +296,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
     },
 
     contains: function(element) {
-        return element.dom.parents().index(this.wrapper) !== -1;
+        return element && element.dom && element.dom.parents().index(this.rootWrapper) !== -1;
     },
 
     triggerSelectionChanged: function() {
@@ -293,15 +304,10 @@ $.extend(Canvas.prototype, Backbone.Events, {
         var s = this.getSelection(),
             f = s.toDocumentFragment();
         if(f && f instanceof f.RangeFragment) {
-                var $current = this.wrapper.find('.current-node-element');
-                var current = $current && this.getDocumentElement($current.parent()[0]);
-                
-                if($current) {
-                    $current.removeClass('current-node-element');
-                }
-                if(current) {
-                    current.markAsCurrent(false);
-                }
+            if(this.currentNodeElement) {
+                this.currentNodeElement.updateState({active: false});
+                this.currentNodeElement = null;
+            }
         }
     },
 
@@ -347,18 +353,14 @@ $.extend(Canvas.prototype, Backbone.Events, {
         }.bind(this);
         var _markAsCurrent = function(element) {
             if(element instanceof documentElement.DocumentTextElement) {
-                this.wrapper.find('.current-text-element').removeClass('current-text-element');
+                this.rootWrapper.find('.current-text-element').removeClass('current-text-element');
                 element.dom.addClass('current-text-element');
             } else {
-                var $current = this.wrapper.find('.current-node-element');
-                var current = this.getDocumentElement($current.parent()[0]);
-                $current.removeClass('current-node-element');
-
-                if(current) {
-                    current.markAsCurrent(false);
+                if(this.currentNodeElement) {
+                    this.currentNodeElement.updateState({active: false});
                 }
-                element._container().addClass('current-node-element');
-                element.markAsCurrent(true);
+                element.updateState({active: true});
+                this.currentNodeElement = element;
             }
         }.bind(this);
 
@@ -370,7 +372,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
             currentNodeElement = this.getCurrentNodeElement();
 
         if(currentTextElement && !(currentTextElement.sameNode(textElementToLand))) {
-            this.wrapper.find('.current-text-element').removeClass('current-text-element');
+            this.rootWrapper.find('.current-text-element').removeClass('current-text-element');
         }
 
         if(textElementToLand) {
@@ -409,7 +411,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
 
         selection.removeAllRanges();
         selection.addRange(range);
-        this.wrapper.focus(); // FF requires this for caret to be put where range colllapses, Chrome doesn't.
+        this.rootWrapper.focus(); // FF requires this for caret to be put where range colllapses, Chrome doesn't.
     },
 
     setCursorPosition: function(position) {
@@ -419,11 +421,11 @@ $.extend(Canvas.prototype, Backbone.Events, {
     },
 
     toggleGrid: function() {
-        this.wrapper.toggleClass('grid-on');
+        this.rootWrapper.toggleClass('grid-on');
         this.trigger('changed');
     },
     isGridToggled: function() {
-        return this.wrapper.hasClass('grid-on');
+        return this.rootWrapper.hasClass('grid-on');
     }
 });
 
@@ -615,8 +617,8 @@ $.extend(Cursor.prototype, {
 });
 
 return {
-    fromXMLDocument: function(wlxmlDocument, elements) {
-        return new Canvas(wlxmlDocument, elements);
+    fromXMLDocument: function(wlxmlDocument, elements, metadata) {
+        return new Canvas(wlxmlDocument, elements, metadata);
     }
 };
 

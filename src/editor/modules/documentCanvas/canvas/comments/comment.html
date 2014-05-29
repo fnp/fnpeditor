@@ -1,0 +1,29 @@
+<div class="comment">
+    <div class="header">
+        <span class="author"><%= author %></span>
+        <span class="date"><%= date %></span>
+    </div>
+    <div style="clear: both"></div>
+    <div class="content">
+        <%= content %>
+    </div>
+    <div class="edit">
+        <textarea rows="1"></textarea>
+        <div>
+            <button class="btn btn-info btn-mini edit-save-btn" disabled><%= gettext('Save') %></button>
+            <button class="btn btn-mini edit-cancel-btn"><%= gettext('Cancel') %></button>
+            <div style="clear:both;"></div>
+        </div>
+    </div>
+    <div class="toolbox">
+        <a href="#" class="edit-start-btn"><%= gettext('edit') %></a> -
+        <a href="#" class="remove-btn"><%= gettext('remove') %></a>
+    </div>
+    <div class="deleteDialog">
+        <div><%= gettext('Delete this comment?') %></div>
+        <div>
+            <button class="btn btn-mini deleteDialog-confirm"><%= gettext('Delete') %></button>
+            <button class="btn btn-mini deleteDialog-cancel"><%= gettext('Cancel') %></button>
+        </div>
+    </div>
+</div>

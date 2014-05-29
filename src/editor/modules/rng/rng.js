@@ -2,13 +2,12 @@ define([
 './documentSummary',
 'libs/underscore',
 'fnpjs/layout',
-'fnpjs/vbox',
 'fnpjs/logging/logging',
 'views/tabs/tabs',
 'libs/text!./mainLayout.html',
 'libs/text!./editingLayout.html',
 'libs/text!./diffLayout.html',
-], function(documentSummary, _, layout, vbox, logging, tabs, mainLayoutTemplate, visualEditingLayoutTemplate, diffLayoutTemplate) {
+], function(documentSummary, _, layout, logging, tabs, mainLayoutTemplate, visualEditingLayoutTemplate, diffLayoutTemplate) {
 
 'use strict';
 
@@ -35,10 +34,8 @@ return function(sandbox) {
             if(fragment && fragment.node) {
                 elementParent = fragment.node.getNearestElementNode();
                 sandbox.getModule('nodeBreadCrumbs').setNodeElement(elementParent);
-                sandbox.getModule('metadataEditor').setNodeElement(elementParent);
             } else {
                 sandbox.getModule('nodeBreadCrumbs').setNodeElement(null);
-                sandbox.getModule('metadataEditor').setNodeElement(null);
             }
         },
     };
@@ -48,20 +45,15 @@ return function(sandbox) {
         mainLayout: new layout.Layout(mainLayoutTemplate),
         mainTabs: (new tabs.View()).render(),
         visualEditing: new layout.Layout(visualEditingLayoutTemplate),
-        visualEditingSidebar: (new tabs.View({stacked: true})).render(),
-        currentNodePaneLayout: new vbox.VBox(),
         diffLayout: new layout.Layout(diffLayoutTemplate)
     };
     
-    views.visualEditing.setView('rightColumn', views.visualEditingSidebar.getAsView());
     addMainTab(gettext('Editor'), 'editor', views.visualEditing.getAsView());
     addMainTab(gettext('Source'), 'sourceEditor',  '');
     addMainTab(gettext('History'), 'history', views.diffLayout.getAsView());
     
     sandbox.getDOM().append(views.mainLayout.getAsView());
     
-    views.visualEditingSidebar.addTab({icon: 'pencil'}, 'edit', views.currentNodePaneLayout.getAsView());
-
     var wlxmlDocument, documentIsDirty;
     
     /* Events handling */
@@ -84,12 +76,12 @@ return function(sandbox) {
             documentSummary.init(sandbox.getConfig().documentSummaryView, wlxmlDocument);
             documentSummary.render();
             documentSummary.setDraftField(usingDraft ? (draftTimestamp || '???') : '-');
-            views.currentNodePaneLayout.appendView(documentSummary.dom);
+            sandbox.getModule('mainBar').setSummaryView(documentSummary.dom);
 
             sandbox.getModule('mainBar').setCommandEnabled('drop-draft', usingDraft);
             sandbox.getModule('mainBar').setCommandEnabled('save', usingDraft);
 
-            _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'metadataEditor', 'nodeBreadCrumbs', 'mainBar', 'indicator', 'documentHistory', 'diffViewer', 'statusBar'], function(moduleName) {
+            _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'mainBar', 'indicator', 'documentHistory', 'diffViewer', 'statusBar'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
             
@@ -192,13 +184,6 @@ return function(sandbox) {
 
         selectionChanged: function(selection) {
             commands.refreshCanvasSelection(selection);
-        }
-    };
-    
-    eventHandlers.metadataEditor = {
-        ready: function() {
-            sandbox.getModule('metadataEditor').setDocument(sandbox.getModule('data').getDocument());
-            views.visualEditingSidebar.addTab({icon: 'info-sign'}, 'metadataEditor', sandbox.getModule('metadataEditor').getView());
         }
     };
     

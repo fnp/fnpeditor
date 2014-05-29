@@ -293,7 +293,11 @@ describe('Custom elements based on wlxml class attribute', function() {
                 onNodeAdded: function(event) {
                     void(event);
                     this.refresh2();
-                }
+                },
+                onNodeTextChange: function(event) {
+                    this.header.text(event.meta.node.getText());
+                },
+                children: function() { return []; }
         });
 
         var c = getCanvasFromXML('<section><div class="testClass"><a></a></div></section>', [
@@ -309,6 +313,14 @@ describe('Custom elements based on wlxml class attribute', function() {
         node.append({tagName: 'div'});
 
         expect(header.text()).to.equal('2', 'added div');
+
+        var textNode = node.append({text: 'test'});
+
+        expect(header.text()).to.equal('3', 'added text node');
+        
+        textNode.setText('test2');
+
+        expect(header.text()).to.equal('test2', 'text node change handled');
     });
 
     describe('Handling unknown class', function() {

@@ -111,7 +111,7 @@ $.extend(footnote, {
 
 
 return [
-    {tag: 'aside', klass: 'comment', prototype: comment},
+    {tag: 'aside', klass: 'comment', prototype: null},
     {tag: 'aside', klass: 'footnote', prototype: footnote},
     {tag: 'span', klass: 'link', prototype: linkElement}
 ];

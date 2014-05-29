@@ -11,6 +11,10 @@ define([
 var DocumentElement = function(wlxmlNode, canvas) {
     this.wlxmlNode = wlxmlNode;
     this.canvas = canvas;
+    this.state = {
+        exposed: false,
+        active: false
+    };
 
     this.dom = this.createDOM();
     this.dom.data('canvas-element', this);
@@ -25,6 +29,32 @@ $.extend(DocumentElement.prototype, {
     },
     refresh: function() {
         // noop
+    },
+    updateState: function(toUpdate) {
+        var changes = {};
+        _.keys(toUpdate)
+            .filter(function(key) {
+                return this.state.hasOwnProperty(key);
+            }.bind(this))
+            .forEach(function(key) {
+                if(this.state !== toUpdate[key]) {
+                    this.state[key] = changes[key] = toUpdate[key];
+                }
+            }.bind(this));
+        if(_.isFunction(this.onStateChange)) {
+            this.onStateChange(changes);
+            if(_.isBoolean(changes.active)) {
+                if(changes.active) {
+                    var ptr = this;
+                    while(ptr && ptr.wlxmlNode.getTagName() === 'span') {
+                        ptr = ptr.parent();
+                    }
+                    if(ptr && ptr.gutterGroup) {
+                        ptr.gutterGroup.show();
+                    }
+                }
+            }
+        }
     },
     parent: function() {
         var parents = this.dom.parents('[document-node-element]');
@@ -71,8 +101,10 @@ var manipulate = function(e, params, action) {
     } else {
         element = e.canvas.createElement(params);
     }
-    e.dom[action](element.dom);
-    e.refreshPath();
+    if(element.dom) {
+        e.dom[action](element.dom);
+        e.refreshPath();
+    }
     return element;
 };
 
@@ -87,6 +119,16 @@ $.extend(DocumentNodeElement.prototype, {
     },
     clearWidgets: function() {
         this.dom.children('.canvas-widgets').empty();
+    },
+    addToGutter: function(view) {
+        if(!this.gutterGroup) {
+            this.gutterGroup = this.canvas.gutter.createViewGroup({
+                offsetHint: function() {
+                    return this.canvas.getElementOffset(this);
+                }.bind(this)
+            }, this);
+        }
+        this.gutterGroup.addView(view);
     },
     handle: function(event) {
         var method = 'on' + event.type[0].toUpperCase() + event.type.substr(1);
@@ -109,13 +151,26 @@ $.extend(DocumentNodeElement.prototype, {
     _container: function() {
         return this.dom.children('[document-element-content]');
     },
-    detach: function() {
-        var parents = this.parents();
-        this.dom.detach();
-        if(parents[0]) {
-            parents[0].refreshPath();
+    detach: function(isChild) {
+        var parents;
+
+        if(this.gutterGroup) {
+            this.gutterGroup.remove();
         }
-         return this;
+        if(_.isFunction(this.children)) {
+            this.children().forEach(function(child) {
+                child.detach(true);
+            });
+        }
+
+        if(!isChild) {
+            parents = this.parents();
+            this.dom.detach();
+            if(parents[0]) {
+                parents[0].refreshPath();
+            }
+        }
+        return this;
     },
     before: function(params) {
         return manipulate(this, params, 'before');
@@ -123,19 +178,6 @@ $.extend(DocumentNodeElement.prototype, {
     },
     after: function(params) {
         return manipulate(this, params, 'after');
-    },
-
-    toggleLabel: function(toggle) {
-        var displayCss = toggle ? 'inline-block' : 'none';
-        var label = this.dom.children('.canvas-widgets').find('.canvas-widget-label');
-        label.css('display', displayCss);
-        this.toggleHighlight(toggle);
-    },
-
-    markAsCurrent: function() {},
-
-    toggleHighlight: function(toggle) {
-        this._container().toggleClass('highlighted-element', toggle);
     },
 
     isBlock: function() {
@@ -185,8 +227,10 @@ $.extend(DocumentTextElement.prototype, {
             .text(this.wlxmlNode.getText() || utils.unicode.ZWS);
         return dom;
     },
-    detach: function() {
-        this.dom.detach();
+    detach: function(isChild) {
+        if(!isChild) {
+            this.dom.detach();
+        }
         return this;
     },
     setText: function(text) {
@@ -196,6 +240,9 @@ $.extend(DocumentTextElement.prototype, {
         if(text !== this.getText()) {
             this.dom.contents()[0].data = text;
         }
+    },
+    handle: function(event) {
+        this.setText(event.meta.node.getText());
     },
     getText: function(options) {
         options = _.extend({raw: false}, options || {});
@@ -219,10 +266,12 @@ $.extend(DocumentTextElement.prototype, {
         } else {
             element = this.canvas.createElement(params);
         }
-        this.dom.wrap('<div>');
-        this.dom.parent().after(element.dom);
-        this.dom.unwrap();
-        this.refreshPath();
+        if(element.dom) {
+            this.dom.wrap('<div>');
+            this.dom.parent().after(element.dom);
+            this.dom.unwrap();
+            this.refreshPath();
+        }
         return element;
     },
     before: function(params) {
@@ -235,16 +284,15 @@ $.extend(DocumentTextElement.prototype, {
         } else {
             element = this.canvas.createElement(params);
         }
-        this.dom.wrap('<div>');
-        this.dom.parent().before(element.dom);
-        this.dom.unwrap();
-        this.refreshPath();
+        if(element.dom) {
+            this.dom.wrap('<div>');
+            this.dom.parent().before(element.dom);
+            this.dom.unwrap();
+            this.refreshPath();
+        }
         return element;
     },
 
-    toggleHighlight: function() {
-        // do nothing for now
-    },
     children: function() {
         return [];
     }
