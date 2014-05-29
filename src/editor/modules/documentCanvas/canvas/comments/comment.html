@@ -1,8 +1,10 @@
 <div class="comment">
-    <div class="header">
-        <span class="author"><%= author %></span>
-        <span class="date"><%= date %></span>
-    </div>
+    <% if(author || date) { %>
+        <div class="header">
+            <span class="author"><%= author %></span>
+            <span class="date"><%= date %></span>
+        </div>
+    <% } %>
     <div style="clear: both"></div>
     <div class="content">
         <%= content %>

@@ -142,8 +142,8 @@ var CommentView = function(commentNode) {
     }, 'date');
 
     this.dom = $(_.template(commentTemplate)({
-        author: author ||'?',
-        date: date || '?',
+        author: author || '',
+        date: date || '',
         content: this.node.object.getText() || '?'
     }));
 
