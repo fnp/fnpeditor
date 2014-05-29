@@ -81,7 +81,7 @@ return function(sandbox) {
             sandbox.getModule('mainBar').setCommandEnabled('drop-draft', usingDraft);
             sandbox.getModule('mainBar').setCommandEnabled('save', usingDraft);
 
-            _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'nodeBreadCrumbs', 'mainBar', 'indicator', 'documentHistory', 'diffViewer', 'statusBar'], function(moduleName) {
+            _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'mainBar', 'indicator', 'documentHistory', 'diffViewer', 'statusBar'], function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
             
