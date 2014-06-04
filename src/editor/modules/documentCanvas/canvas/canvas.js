@@ -349,7 +349,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
             if(byBrowser && byBrowser.parent().sameNode(nodeToLand)) {
                 return byBrowser;
             }
-            return e.getVerticallyFirstTextElement();
+            return e.getVerticallyFirstTextElement({considerChildren: false});
         }.bind(this);
         var _markAsCurrent = function(element) {
             if(element instanceof documentElement.DocumentTextElement) {

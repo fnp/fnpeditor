@@ -80,13 +80,18 @@ $.extend(generic, {
         return toret;
     },
 
-    getVerticallyFirstTextElement: function() {
+    getVerticallyFirstTextElement: function(params) {
         var toret;
+        
+        params = _.extend({
+            considerChildren: true
+        }, params);
+        
         this.children().some(function(child) {
             if(child instanceof documentElement.DocumentTextElement) {
                 toret = child;
                 return true; // break
-            } else {
+            } else if(params.considerChildren) {
                 toret = child.getVerticallyFirstTextElement();
                 if(toret) {
                     return true; // break
