@@ -45,8 +45,9 @@ var toggleListAction = function(type) {
                         item1 = list.object.getItem(0),
                         text = item1 ? item1.contents()[0] : undefined, //
                         doc = boundries.node1.document;
-
-                   return doc.createFragment(doc.CaretFragment, {node: text, offset:0});
+                    if(text) {
+                        return doc.createFragment(doc.CaretFragment, {node: text, offset:0});
+                    }
                 }, {
                     metadata: {
                         description: action.getState().description,
