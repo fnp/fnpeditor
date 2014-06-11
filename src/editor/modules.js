@@ -18,7 +18,6 @@ define(function(require) {
         documentCanvas: require('modules/documentCanvas/documentCanvas'),
         documentToolbar: require('modules/documentToolbar/documentToolbar'),
         metadataEditor: require('modules/metadataEditor/metadataEditor'),
-        nodeBreadCrumbs: require('modules/nodeBreadCrumbs/nodeBreadCrumbs'),
         
         documentHistory: require('modules/documentHistory/documentHistory'),
         diffViewer: require('modules/diffViewer/diffViewer')

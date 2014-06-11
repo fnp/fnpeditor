@@ -26,17 +26,8 @@ return function(sandbox) {
             sandbox.getModule('documentCanvas').jumpToElement(element);
         },
         refreshCanvasSelection: function(selection) {
-            var fragment = selection.toDocumentFragment(),
-                elementParent;
-            
+            var fragment = selection.toDocumentFragment();
             sandbox.getModule('documentToolbar').setDocumentFragment(fragment);
-            
-            if(fragment && fragment.node) {
-                elementParent = fragment.node.getNearestElementNode();
-                sandbox.getModule('nodeBreadCrumbs').setNodeElement(elementParent);
-            } else {
-                sandbox.getModule('nodeBreadCrumbs').setNodeElement(null);
-            }
         },
     };
     
@@ -194,15 +185,6 @@ return function(sandbox) {
         },
         actionExecuted: function(action, ret) {
             sandbox.getModule('documentCanvas').onAfterActionExecuted(action, ret);
-        }
-    };
-    
-    eventHandlers.nodeBreadCrumbs = {
-        ready: function() {
-            views.visualEditing.setView('statusBar', sandbox.getModule('nodeBreadCrumbs').getView());
-        },
-        elementClicked: function(element) {
-            commands.jumpToDocumentElement(element);
         }
     };
     
