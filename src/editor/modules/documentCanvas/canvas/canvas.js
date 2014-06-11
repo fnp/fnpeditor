@@ -418,14 +418,6 @@ $.extend(Canvas.prototype, Backbone.Events, {
         if(position.element) {
             this._moveCaretToTextElement(position.element, position.offset);
         }
-    },
-
-    toggleGrid: function() {
-        this.rootWrapper.toggleClass('grid-on');
-        this.trigger('changed');
-    },
-    isGridToggled: function() {
-        return this.rootWrapper.hasClass('grid-on');
     }
 });
 
