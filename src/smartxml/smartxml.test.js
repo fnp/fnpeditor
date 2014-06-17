@@ -620,9 +620,7 @@ describe('smartxml', function() {
         });
 
         it('removes parent-describing sibling nodes of unwrapped node', function() {
-            var doc = getDocumentFromXML('<root><div><a></a><x></x><a></a></div></root>'),
-                div = doc.root.contents()[0],
-                x = div.contents()[1];
+            var doc = getDocumentFromXML('<root><div><a></a><x></x><a></a></div></root>');
 
             doc.registerExtension({documentNode: {methods: {
                 object: {
@@ -631,6 +629,9 @@ describe('smartxml', function() {
                     }
                 }
             }}});
+
+            var div = doc.root.contents()[0],
+                x = div.contents()[1];
 
             div.unwrapContent();
             expect(doc.root.contents().length).to.equal(2);
@@ -691,10 +692,7 @@ describe('smartxml', function() {
             });
 
             it('keeps parent-describing nodes in place', function() {
-                var doc = getDocumentFromXML('<root>Alice <x></x> probably <y></y> has a cat</root>'),
-                    root = doc.root,
-                    x = root.contents()[1],
-                    y = root.contents()[3];
+                var doc = getDocumentFromXML('<root>Alice <x></x> probably <y></y> has a cat</root>');
 
                 doc.registerExtension({documentNode: {methods: {
                     object: {
@@ -704,6 +702,10 @@ describe('smartxml', function() {
                         }
                     }
                 }}});
+
+                var root = doc.root,
+                    x = root.contents()[1],
+                    y = root.contents()[3];
 
                 root.wrapText({
                     _with: {tagName: 'span', attrs: {'attr1': 'value1'}},
@@ -1348,19 +1350,6 @@ describe('smartxml', function() {
 
         beforeEach(function() {
             doc = getDocumentFromXML('<section>Alice<div class="test_class"></div></section>');
-            elementNode = doc.root;
-            textNode = doc.root.contents()[0];
-            extension = {};
-            
-            expect(elementNode.testTransformation).to.be.undefined;
-            expect(textNode.testTransformation).to.be.undefined;
-            expect(doc.testTransformation).to.be.undefined;
-            
-            expect(doc.testMethod).to.be.undefined;
-            expect(elementNode.testMethod).to.be.undefined;
-            expect(textNode.testMethod).to.be.undefined;
-            expect(elementNode.elementTestMethod).to.be.undefined;
-            expect(textNode.textTestMethod).to.be.undefined;
         });
 
         it('allows adding method to a document', function() {
@@ -1404,7 +1393,6 @@ describe('smartxml', function() {
 
             doc.registerExtension(extension);
 
-            /* refresh */
             elementNode = doc.root;
             textNode = doc.root.contents()[0];
 
@@ -1440,7 +1428,6 @@ describe('smartxml', function() {
             
             doc.registerExtension(extension);
 
-            /* refresh */
             elementNode = doc.root;
             textNode = doc.root.contents()[0];
             

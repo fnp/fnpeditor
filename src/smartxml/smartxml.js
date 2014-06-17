@@ -12,6 +12,8 @@ define([
 /* globals Node */
 
 
+var privateKey = '_smartxml';
+
 var DocumentNode = function(nativeNode, document) {
     if(!document) {
         throw new Error('undefined document for a node');
@@ -48,7 +50,7 @@ $.extend(DocumentNode.prototype, {
         clone.find('*').addBack().each(function() {
             var el = this,
                 clonedData = $(this).data();
-
+            $(el).removeData(privateKey);
             _.pairs(clonedData).forEach(function(pair) {
                 var key = pair[0],
                     value = pair[1];
@@ -180,6 +182,7 @@ $.extend(DocumentNode.prototype, {
 
 var ElementNode = function(nativeNode, document) {
     DocumentNode.call(this, nativeNode, document);
+    $(nativeNode).data(privateKey, {node: this});
 };
 ElementNode.prototype = Object.create(DocumentNode.prototype);
 
@@ -203,7 +206,9 @@ $.extend(ElementNode.prototype, {
         if(key) {
             return this._$.data(key);
         }
-        return this._$.data();
+        var toret = _.clone(this._$.data());
+        delete toret[privateKey];
+        return toret;
     },
 
     getTagName: function() {
@@ -352,7 +357,14 @@ $.extend(Document.prototype, Backbone.Events, fragments, {
     TextNodeFactory: TextNode,
 
     createDocumentNode: function(from) {
-        if(!(from instanceof Node)) {
+        var cached;
+
+        if(from instanceof Node) {
+            cached = ($(from).data(privateKey) || {}).node;
+            if(cached instanceof DocumentNode) {
+                return cached;
+            }
+        } else {
             if(typeof from === 'string') {
                 from = parseXML(from);
                 this.normalizeXML(from);
