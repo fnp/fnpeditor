@@ -240,22 +240,33 @@ describe('WLXMLDocument', function() {
         });
     });
 
-    describe('Declaring context roots', function() {
+    describe('Context roots', function() {
+        var doc = getDocumentFromXML('<section><div class="a"><div class="b"><div class="c"></div></div></div></section>');
+        doc.registerExtension({wlxmlClass: {a: {methods: {
+            isContextRoot: function(node) {
+                return node.getClass() === 'b';
+            }
+        }}}});
+
+        var divA = doc.root.contents()[0],
+            divB = divA.contents()[0],
+            divC = divB.contents()[0];
+
         it('allows extensions declaring a node as a context root', function() {
-            var doc = getDocumentFromXML('<section><div class="a"><div class="b"><div class="c"></div></div></div></section>');
-            doc.registerExtension({wlxmlClass: {a: {methods: {
-                isContextRoot: function(node) {
-                    return node.getClass() === 'b';
-                }
-            }}}});
-
-            var divA = doc.root.contents()[0],
-                divB = divA.contents()[0],
-                divC = divB.contents()[0];
-
             expect(divC.isContextRoot()).to.equal(false, 'c is not a context root');
             expect(divB.isContextRoot()).to.equal(true, 'b is a context root');
             expect(divA.isContextRoot()).to.equal(false, 'a is not a context root');
+        });
+
+        it('closes context for parent context quering methods', function() {
+            expect(divC.isInside('b')).to.equal(true, 'c inside b');
+            expect(divC.isInside('a')).to.equal(false, 'c not inside a');
+            expect(divC.isInside({tagName: 'section'})).to.equal(false, 'c not inside section');
+
+            expect(divB.isInside('a')).to.equal(true, 'b inside a');
+            expect(divB.isInside({tagName: 'section'})).to.equal(true, 'b inside section');
+
+            expect(divA.isInside({tagName: 'section'})).to.equal(true, 'a inside section');
         });
     });
 });

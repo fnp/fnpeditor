@@ -24,9 +24,10 @@ var WLXMLDocumentNodeMethods =  {
         me.concat(this.parents()).some(function(node) {
             if(node.is(query)) {
                 toret = node;
-                return true;
             }
-        });
+            return !!toret || (!node.sameNode(this) && node.isContextRoot());
+        }.bind(this));
+
         return toret;
     },
     isContextRoot: function() {
