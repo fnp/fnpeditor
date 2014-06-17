@@ -239,6 +239,25 @@ describe('WLXMLDocument', function() {
             expect(testClassNode.object.testTransformation2().sameNode(testClassNode)).to.equal(true, '2');
         });
     });
+
+    describe('Declaring context roots', function() {
+        it('allows extensions declaring a node as a context root', function() {
+            var doc = getDocumentFromXML('<section><div class="a"><div class="b"><div class="c"></div></div></div></section>');
+            doc.registerExtension({wlxmlClass: {a: {methods: {
+                isContextRoot: function(node) {
+                    return node.getClass() === 'b';
+                }
+            }}}});
+
+            var divA = doc.root.contents()[0],
+                divB = divA.contents()[0],
+                divC = divB.contents()[0];
+
+            expect(divC.isContextRoot()).to.equal(false, 'c is not a context root');
+            expect(divB.isContextRoot()).to.equal(true, 'b is a context root');
+            expect(divA.isContextRoot()).to.equal(false, 'a is not a context root');
+        });
+    });
 });
 
 });
