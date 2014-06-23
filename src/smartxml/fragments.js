@@ -19,7 +19,7 @@ $.extend(Fragment.prototype, {
 var NodeFragment = function(document, params) {
     Fragment.call(this, document);
     this.node = params.node;
-    this.nodePath = params.node.getPath();
+    this.nodePath = this.isValid() ? params.node.getPath() : null;
 };
 NodeFragment.prototype = Object.create(Fragment.prototype);
 $.extend(NodeFragment.prototype, {
@@ -27,14 +27,16 @@ $.extend(NodeFragment.prototype, {
         return this.document.containsNode(this.node);
     },
     restoreFromPaths: function() {
-        this.node = this.document.getNodeByPath(this.nodePath);
+        if(this.nodePath) {
+            this.node = this.document.getNodeByPath(this.nodePath);
+        }
     }
 });
 
 
 var CaretFragment = function(document, params) {
-    NodeFragment.call(this, document, params);
     this.offset = params.offset;
+    NodeFragment.call(this, document, params);
 
 };
 CaretFragment.prototype = Object.create(NodeFragment.prototype);
