@@ -280,6 +280,7 @@ $.extend(ElementNode.prototype, {
 
 var TextNode = function(nativeNode, document) {
     DocumentNode.call(this, nativeNode, document);
+    nativeNode.__smartxmlTextNodeInstance = this;
 };
 TextNode.prototype = Object.create(DocumentNode.prototype);
 
@@ -360,7 +361,8 @@ $.extend(Document.prototype, Backbone.Events, fragments, {
         var cached;
 
         if(from instanceof Node) {
-            cached = ($(from).data(privateKey) || {}).node;
+            /* globals Text */
+            cached = from instanceof Text ? from.__smartxmlTextNodeInstance : ($(from).data(privateKey) || {}).node;
             if(cached instanceof DocumentNode) {
                 return cached;
             }
