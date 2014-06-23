@@ -767,10 +767,7 @@ describe('smartxml', function() {
             });
 
             it('keeps parent-describing nodes in place', function() {
-                var section = elementNodeFromXML('<section>Alice<x></x><div>a cat</div></section>'),
-                    aliceText = section.contents()[0],
-                    x = section.contents()[1],
-                    lastDiv = section.contents()[2];
+                var section = elementNodeFromXML('<section>Alice<x></x><div>a cat</div></section>');
 
                 section.document.registerExtension({documentNode: {methods: {
                     object: {
@@ -779,6 +776,10 @@ describe('smartxml', function() {
                         }
                     }
                 }}});
+
+                var aliceText = section.contents()[0],
+                    x = section.contents()[1],
+                    lastDiv = section.contents()[2];
 
                 section.document.wrapNodes({
                         node1: aliceText,
