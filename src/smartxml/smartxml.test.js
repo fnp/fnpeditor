@@ -650,14 +650,16 @@ describe('smartxml', function() {
             });
 
             it('keeps parent-describing nodes in place', function() {
-                var doc = getDocumentFromXML('<root>Alice<x></x> has a cat</root>'),
+                var doc = getDocumentFromXML('<root>Alice <x></x> probably <y></y> has a cat</root>'),
                     root = doc.root,
-                    x = root.contents()[1];
+                    x = root.contents()[1],
+                    y = root.contents()[3];
 
                 doc.registerExtension({documentNode: {methods: {
                     object: {
                         describesParent: function() {
-                            return this.getTagName() === 'x';
+                            /* globals Node */
+                            return this.nodeType === Node.ELEMENT_NODE && this.getTagName() === 'x';
                         }
                     }
                 }}});
@@ -666,9 +668,11 @@ describe('smartxml', function() {
                     _with: {tagName: 'span', attrs: {'attr1': 'value1'}},
                     offsetStart: 1,
                     offsetEnd: 4,
-                    textNodeIdx: [0,2]
+                    textNodeIdx: [0,4]
                 });
+
                 expect(x.parent().sameNode(root)).to.be.true;
+                expect(y.parent().getTagName()).to.equal('span');
             });
         });
 
@@ -728,7 +732,7 @@ describe('smartxml', function() {
                 section.document.registerExtension({documentNode: {methods: {
                     object: {
                         describesParent: function() {
-                            return this.getTagName() === 'x';
+                            return this.nodeType === Node.ELEMENT_NODE && this.getTagName() === 'x';
                         }
                     }
                 }}});
@@ -740,6 +744,8 @@ describe('smartxml', function() {
                     });
 
                 expect(x.parent().sameNode(section)).to.be.true;
+                expect(aliceText.parent().getTagName()).to.equal('header');
+                expect(lastDiv.parent().getTagName()).to.equal('header');
             });
         });
 
