@@ -105,9 +105,10 @@ describe('smartxml', function() {
         });
 
         it('can be cloned with its contents and its contents data', function() {
-            var doc = getDocumentFromXML('<root><div></div></root>'),
+            var doc = getDocumentFromXML('<root><div>text</div></root>'),
                 root = doc.root,
-                div = root.contents()[0];
+                div = root.contents()[0],
+                text = div.contents()[0];
 
             var ClonableObject = function(arg) {
                 this.arg = arg;
@@ -118,15 +119,19 @@ describe('smartxml', function() {
 
             div.setData('key', 'value');
             div.setData('clonableObject', new ClonableObject('test'));
+            text.setData('key', 'value');
 
             var rootClone = root.clone(),
                 divClone = rootClone.contents()[0],
+                textClone = divClone.contents()[0],
                 stringClone = divClone.getData('key'),
                 objClone = divClone.getData('clonableObject');
 
             expect(stringClone).to.equal('value');
             expect(objClone.arg).to.equal('test', 'clonable object got copied');
             expect(objClone !== div.getData('clonableObject')).to.be.equal(true, 'copy of the clonable object is a new object');
+
+            expect(textClone.getData('key')).to.be.equal(undefined, 'cloning text node data is not supported yet');
         });
 
         it('knows its path in the document tree', function() {

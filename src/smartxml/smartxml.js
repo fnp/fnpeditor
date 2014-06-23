@@ -280,12 +280,32 @@ $.extend(ElementNode.prototype, {
 
 var TextNode = function(nativeNode, document) {
     DocumentNode.call(this, nativeNode, document);
+    this._data = Object.create({});
     nativeNode.__smartxmlTextNodeInstance = this;
 };
 TextNode.prototype = Object.create(DocumentNode.prototype);
 
 $.extend(TextNode.prototype, {
     nodeType: Node.TEXT_NODE,
+
+    setData: function(arg1, arg2) {
+        if(arguments.length === 2) {
+            if(_.isUndefined(arg2)) {
+                delete this._data[arg1];
+            } else {
+                this._data[arg1] = arg2;
+            }
+        } else {
+            this._data = _.extend({}, arg1);
+        }
+    },
+
+    getData: function(key) {
+        if(key) {
+            return this._data[key];
+        }
+        return this._data;
+    },
 
     getText: function() {
         return this.nativeNode.data;
