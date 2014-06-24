@@ -148,23 +148,11 @@ $.extend(generic, {
         }
     },
     onNodeTextChange: function(event) {
-        var node = event.meta.node,
-            toSet = node.getText(),
-            handled;
-        
-        handled = this.children().some(function(child) {
-            if(child.wlxmlNode.sameNode(node)) {
-                if(toSet === '') {
-                    toSet = utils.unicode.ZWS;
-                }
-                if(toSet !== child.getText()) {
-                    child.setText(toSet);
-                }
-                return true;
-            }
-        });
+        var node = event.meta.node;
 
-        if(!handled && node.parent() && node.parent().is('comment') && this.wlxmlNode.sameNode(node.parent().parent())) {
+        /* TODO: This handling of changes to the comments should probably be implemented via separate,
+        non-rendering comments element */
+        if(node.parent() && node.parent().is('comment') && this.wlxmlNode.sameNode(node.parent().parent())) {
             this.commentsView.render();
         }
     },

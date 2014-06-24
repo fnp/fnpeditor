@@ -20,45 +20,15 @@ var nearestInDocumentOrder = function(selector, direction, element) {
     return null;
 };
 
-var getElementForElementRootNode = function(node, withParent) {
-    if(node.nodeType === Node.TEXT_NODE) {
-        return _getElementForRootTextNode(node, withParent);
-    }
+var getElementForElementRootNode = function(node) {
     return node.getData('canvasElement');
 };
 
-var _getElementForRootTextNode = function(textNode, withParent) {
-    var parentElement = getElementForNode(withParent || textNode.parent()),
-        toret;
-    parentElement.children().some(function(child) {
-        if(child.wlxmlNode.sameNode(textNode)) {
-            toret = child;
-            return true;
-        }
-    });
-    return toret;
-};
-
-var getElementForNode = function(node, withParent) {
-    if(node.nodeType === Node.TEXT_NODE) {
-        return _getElementForTextNode(node, withParent);
-    }
+var getElementForNode = function(node) {
     while(!node.getData('canvasElement')) {
         node = node.parent();
     }
     return node.getData('canvasElement');
-};
-
-var _getElementForTextNode = function(textNode, withParent) {
-    var parentElement = getElementForNode(withParent || textNode.parent()),
-        toret;
-    parentElement.children().some(function(child) {
-        if(child.wlxmlNode.sameNode(textNode)) {
-            toret = child;
-            return true;
-        }
-    });
-    return toret || parentElement;
 };
 
 var getElementForDetachedNode = function(node, originalParent) {

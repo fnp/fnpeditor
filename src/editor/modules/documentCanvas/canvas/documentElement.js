@@ -18,6 +18,7 @@ var DocumentElement = function(wlxmlNode, canvas) {
 
     this.dom = this.createDOM();
     this.dom.data('canvas-element', this);
+    this.wlxmlNode.setData('canvasElement', this);
 };
 
 $.extend(DocumentElement.prototype, {
@@ -89,7 +90,6 @@ $.extend(DocumentElement.prototype, {
 // DocumentNodeElement represents an element node from WLXML document rendered inside Canvas
 var DocumentNodeElement = function(wlxmlNode, canvas) {
     DocumentElement.call(this, wlxmlNode, canvas);
-    wlxmlNode.setData('canvasElement', this);
     this.init(this.dom);
 };
 
