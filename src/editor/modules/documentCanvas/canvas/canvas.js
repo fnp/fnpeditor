@@ -457,6 +457,9 @@ $.extend(Selection.prototype, {
             return doc.createFragment(doc.CaretFragment, {node: anchorNode, offset: this.nativeSelection.anchorOffset});
         }
         if(this.type === 'textSelection') {
+            if(!anchorNode || !focusNode) {
+                return;
+            }
             if(anchorNode.isSiblingOf(focusNode)) {
                 return doc.createFragment(doc.TextRangeFragment, {
                     node1: anchorNode,
