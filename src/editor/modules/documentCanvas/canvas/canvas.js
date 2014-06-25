@@ -200,7 +200,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
         /* globals MutationObserver */
         var observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
-                if(documentElement.DocumentTextElement.isContentContainer(mutation.target)) {
+                if(canvas.dom[0].contains(mutation.target) && documentElement.DocumentTextElement.isContentContainer(mutation.target)) {
                     observer.disconnect();
                     if(mutation.target.data === '') {
                         mutation.target.data = utils.unicode.ZWS;
