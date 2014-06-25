@@ -96,24 +96,6 @@ handlers.push({key: KEYS.ENTER,
                     return false; // top level element is unsplittable
                 }
 
-                //var nodes = position.element.data('wlxmlNode').split({offset: position.offset}),
-                // var nodes = position.element.data('wlxmlNode').transform('split', {offset: position.offset}),
-                //     newEmpty,
-                //     goto,
-                //     gotoOptions;
-
-                // if(position.offsetAtBeginning)
-                //     newEmpty = nodes.first;
-                // else if(position.offsetAtEnd)
-                //     newEmpty = nodes.second;
-                
-                // if(newEmpty) {
-                //     //goto = newEmpty.append({text: ''});
-                //     gotoOptions = {};
-                // } else {
-                //     goto = nodes.second;
-                //     gotoOptions = {caretTo: 'start'};
-                // }
                 var node = position.element.wlxmlNode,
                     result, goto, gotoOptions;
 
