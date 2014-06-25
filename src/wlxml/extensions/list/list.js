@@ -111,7 +111,7 @@ extension.document.transformations.extractItems = {
             extractedItems = [],
             succeedingItems = [],
             items = list.contents(),
-            listIsNested = list.parent().is('item');
+            listIsNested = list.parent().is('item') && !list.parent().isContextRoot();
 
         
         items.forEach(function(item, idx) {
