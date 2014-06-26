@@ -23,7 +23,7 @@ var INSERTION = function(implementation) {
             next.detach();
         }
         returned = implementation.call(this, insertion.ofNode);
-        if(!options.silent && returned.sameNode(insertion.ofNode)) {
+        if(!options.silent && returned && returned.sameNode(insertion.ofNode)) {
             if(!insertion.insertsNew) {
                 this.triggerChangeEvent('nodeDetached', {node: insertion.ofNode, parent: nodeParent, move: true});
             }
@@ -63,7 +63,11 @@ var documentNodeTransformations = {
     },
 
     after: INSERTION(function(node) {
+        if(this.isRoot()) {
+            return;
+        }
         var next = this.next();
+
         if(next && next.nodeType === Node.TEXT_NODE && node.nodeType === Node.TEXT_NODE) {
             next.setText(node.getText() + next.getText());
             node.detach();
@@ -74,6 +78,9 @@ var documentNodeTransformations = {
     }),
 
     before: INSERTION(function(node) {
+        if(this.isRoot()) {
+            return;
+        }
         var prev = this.prev();
         if(prev && prev.nodeType === Node.TEXT_NODE && node.nodeType === Node.TEXT_NODE) {
             prev.setText(prev.getText() + node.getText());

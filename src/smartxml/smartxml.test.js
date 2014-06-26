@@ -240,6 +240,29 @@ describe('smartxml', function() {
                 });
             });
         });
+
+        describe('Putting nodes around', function() {
+            it('will not allow to put node before or after root node', function() {
+                var doc = getDocumentFromXML('<root></root>'),
+                    spy = sinon.spy(),
+                    root = doc.root,
+                    result;
+
+                doc.on('change', spy);
+
+                result = doc.root.before({tagName: 'test'});
+
+                expect(spy.callCount).to.equal(0);
+                expect(result).to.undefined;
+
+                result = doc.root.after({tagName: 'test'});
+                
+                expect(spy.callCount).to.equal(0);
+                expect(result).to.undefined;
+
+                expect(doc.root.sameNode(root));
+            });
+        });
     });
 
     describe('Basic TextNode properties', function() {
