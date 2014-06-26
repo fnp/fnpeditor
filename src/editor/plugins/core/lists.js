@@ -12,6 +12,10 @@ var getBoundriesForAList = function(fragment) {
     }
     if(fragment instanceof fragment.NodeFragment) {
         node = fragment.node.getNearestElementNode();
+        if(node.isContextRoot()) {
+            node = fragment.node;
+        }
+
         return {
             node1: node,
             node2: node
