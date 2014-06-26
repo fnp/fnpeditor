@@ -48,7 +48,7 @@ handlers.push({key: KEYS.ENTER,
 
         if(Object.keys(cursor.getPosition()).length === 0) {
             var currentElement = canvas.getCurrentNodeElement();
-            if(currentElement) {
+            if(currentElement && !currentElement.wlxmlNode.isRoot()) {
                 canvas.wlxmlDocument.transaction(function() {
                     var added = currentElement.wlxmlNode.after({
                         tagName: currentElement.wlxmlNode.getTagName() || 'div',
