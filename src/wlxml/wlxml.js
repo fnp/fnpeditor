@@ -33,6 +33,9 @@ var WLXMLDocumentNodeMethods =  {
     isContextRoot: function() {
         var me = this.nodeType === Node.ELEMENT_NODE ? [this] : [],
             toret = false;
+        if(!this.parent()) {
+            return true;
+        }
         me.concat(this.parents()).some(function(node) {
             if(_.isFunction(node.object.isContextRoot) && node.object.isContextRoot(this)) {
                 toret = true;
