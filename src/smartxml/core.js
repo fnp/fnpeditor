@@ -120,12 +120,24 @@ var documentNodeTransformations = {
 
 var elementNodeTransformations = {
 
-    detach: function() {
+    detach: function(params) {
         var next;
+        params = _.extend({
+            normalizeStrategy: 'merge'
+        }, params);
+
         if(this.parent() && this.isSurroundedByTextNodes()) {
-            next = this.next();
-            this.prev().appendText(next.getText());
-            next.detach();
+            if(params.normalizeStrategy === 'detach-left') {
+                this.prev().detach();
+            } else if(params.normalizeStrategy === 'detach-right') {
+                this.next().detach();
+            } else if(params.normalizeStrategy === 'merge') {
+                next = this.next();
+                this.prev().appendText(next.getText());
+                next.detach();
+            } else {
+                throw new Error('unknown normalize strategy for detach');
+            }
         }
         return this.__super__.detach();
     },
