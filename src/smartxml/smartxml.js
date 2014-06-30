@@ -162,10 +162,14 @@ $.extend(DocumentNode.prototype, {
     },
 
     getIndex: function() {
+        var parent;
+
         if(this.isRoot()) {
             return 0;
         }
-        return this.parent().indexOf(this);
+
+        parent = this.parent();
+        return parent ? parent.indexOf(this) : undefined;
     },
 
     getNearestElementNode: function() {
