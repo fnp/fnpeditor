@@ -942,6 +942,28 @@ describe('smartxml', function() {
             expect(contents[1].contents().length).to.equal(1);
             expect(contents[1].contents()[0].getText()).to.equal('b');
         });
+        it('removes across elements - 6', function() {
+            var doc = getDocumentFromXML('<root><div>aaa<span>bbb</span>ccc</div><div>ddd</div></root>');
+            doc.deleteText({
+                from: {
+                    node: getTextNode('aaa', doc),
+                    offset: 1
+                },
+                to: {
+                    node: getTextNode('ddd', doc),
+                    offset: 1
+                }
+            }, {
+                error: function(e) {throw e;}
+            });
+
+            var contents = doc.root.contents();
+            expect(contents.length).to.equal(2);
+            expect(contents[0].contents().length).to.equal(1);
+            expect(contents[0].contents()[0].getText()).to.equal('a');
+            expect(contents[1].contents().length).to.equal(1);
+            expect(contents[1].contents()[0].getText()).to.equal('dd');
+        });
     });
 
     describe('Splitting text', function() {

@@ -474,7 +474,7 @@ var documentTransformations = {
         return insertion.ofNode;
     },
     deleteText: function(params) {
-        var ptr, next, toDetach, middle, text;
+        var ptr, next, nextNext, toDetach, middle, text;
 
         if(params.from.node.sameNode(params.to.node)) {
             ptr = params.from.node;
@@ -502,7 +502,11 @@ var documentTransformations = {
                 } else {
                     toDetach = next;
                     next = next.next();
-                    toDetach.detach();
+                    nextNext = next ? next.next() : null;
+                    toDetach.detach({normalizeStrategy: (next && next.sameNode(params.to.node)) ? 'merge' : 'detach-right'});
+                    if(next && !next.isInDocument()) {
+                        next = nextNext;
+                    }
                 }
             } else {
                 ptr = ptr.parent();
