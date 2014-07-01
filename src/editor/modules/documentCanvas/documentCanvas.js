@@ -22,7 +22,7 @@ return function(sandbox) {
 
     var canvas = canvas3.fromXMLDocument(null, canvasElements, {
         user: sandbox.getConfig().user
-    });
+    }, sandbox);
     var canvasWrapper = $(template);
     var shownAlready = false;
     var scrollbarPosition = 0,

@@ -95,6 +95,7 @@ $.extend(DocumentElement.prototype, {
 var DocumentNodeElement = function(wlxmlNode, canvas) {
     DocumentElement.call(this, wlxmlNode, canvas);
     this.containers = [];
+    this.contextMenuActions = [];
     this.init(this.dom);
 };
 
@@ -145,6 +146,9 @@ $.extend(DocumentNodeElement.prototype, {
         if((idx = this.containers.indexOf(container)) !== -1) {
             this.containers.splice(idx, 1);
         }
+    },
+    addToContextMenu: function(actionFqName) {
+        this.contextMenuActions.push(this.canvas.createAction(actionFqName));
     },
     handle: function(event) {
         var method = 'on' + event.type[0].toUpperCase() + event.type.substr(1),
