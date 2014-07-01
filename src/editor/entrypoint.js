@@ -19,7 +19,7 @@
                     'libs/underscore': '../../libs/underscore-min',
                     'libs/bootstrap': '../../libs/bootstrap/js/bootstrap.min',
                     'libs/backbone': '../../libs/backbone-min',
-
+                    'libs/ace/ace': '../../libs/ace/ace'
                 }
         },
 
@@ -36,7 +36,10 @@
             '../../libs/backbone-min': {
                 exports: 'Backbone',
                 deps: ['libs/jquery', 'libs/underscore']
-            }
+            },
+            '../../libs/ace/ace': {
+                exports: 'ace'
+            },
         }
 
     });

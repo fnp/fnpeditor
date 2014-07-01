@@ -1,4 +1,4 @@
-define(['libs/jquery', 'libs/text!./template.html'], function($, template) {
+define(['libs/jquery', 'libs/ace/ace', 'libs/text!./template.html'], function($, ace, template) {
 
 'use strict';
 
@@ -29,11 +29,9 @@ return function(sandbox) {
         documentEditedHere = false;
         wlxmlDocument.loadXML(editor.getValue());
     };
-    
-    /* globals ace */
+
     var editor = ace.edit(view.find('#rng-sourceEditor-editor')[0]),
         session = editor.getSession();
-    editor.setTheme('ace/theme/chrome');
     session.setMode('ace/mode/xml');
     session.setUseWrapMode(true);
     
