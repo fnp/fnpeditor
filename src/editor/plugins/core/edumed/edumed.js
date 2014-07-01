@@ -3,11 +3,13 @@ define(function(require) {
 'use strict';
 
 var actions = require('./actions'),
-    orderExerciseElement = require('./order/element');
+    gapsActions = require('./gaps/actions'),
+    orderExerciseElement = require('./order/element'),
+    gapsExerciseElement = require('./gaps/element');
 
 return {
-    actions: actions,
-    canvasElements: [orderExerciseElement]
+    actions: actions.concat(gapsActions),
+    canvasElements: [orderExerciseElement, gapsExerciseElement]
 };
 
 });
