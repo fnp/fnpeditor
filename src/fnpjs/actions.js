@@ -72,9 +72,13 @@ _.extend(Action.prototype, Backbone.Events, {
         }
         return this._cache;
     },
-    execute: function(callback) {
+    execute: function() {
         var state = this.getState();
-        callback = callback || function() {};
+        
+        var callback = function(ret) {
+            this.trigger('actionExecuted', ret);
+        }.bind(this);
+
         if(state.allowed) {
             return state.execute.call(this, callback, this.params, this.appObject);
         }
