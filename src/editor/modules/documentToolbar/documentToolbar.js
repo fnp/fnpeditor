@@ -27,7 +27,7 @@ return function(sandbox) {
             });
 
             group.append(view.dom);
-            view.on('actionExecuted', function(action, ret) {
+            action.on('actionExecuted', function(ret) {
                 sandbox.publish('actionExecuted', action, ret);
             });
 
