@@ -52,7 +52,7 @@ handlers.push({key: KEYS.ENTER,
                 canvas.wlxmlDocument.transaction(function() {
                     var added = currentElement.wlxmlNode.after({
                         tagName: currentElement.wlxmlNode.getTagName() || 'div',
-                        attrs: {'class': currentElement.getWlxmlClass() || 'p'}
+                        attrs: {'class': currentElement.wlxmlNode.getClass() || 'p'}
                     });
                     added.append({text:''});
                     return added;
@@ -77,7 +77,7 @@ handlers.push({key: KEYS.ENTER,
 
                 canvas.wlxmlDocument.transaction(function() {
                     var added = element.wlxmlNode.after(
-                        {tagName: element.wlxmlNode.getTagName() || 'div', attrs: {'class': element.getWlxmlClass() || 'p'}}
+                        {tagName: element.wlxmlNode.getTagName() || 'div', attrs: {'class': element.wlxmlNode.getClass() || 'p'}}
                     );
                     added.append({text: ''});
                     return added;

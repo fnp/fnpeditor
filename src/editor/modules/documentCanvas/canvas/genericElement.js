@@ -24,8 +24,9 @@ $.extend(generic, {
     init: function() {
         DocumentNodeElement.prototype.init.call(this);
         this._container()
-            .attr('wlxml-tag', this.wlxmlNode.getTagName());
-        this.setWlxmlClass(this.wlxmlNode.getClass());
+            .attr('wlxml-tag', this.wlxmlNode.getTagName())
+            .attr('wlxml-class', this.wlxmlNode.getClass().replace(/\./g, '-'));
+
         this.wlxmlNode.contents().forEach(function(node) {
             var el = this.canvas.createElement(node);
             if(el.dom) {
@@ -101,11 +102,6 @@ $.extend(generic, {
         return toret;
     },
 
-    onNodeAttrChange: function(event) {
-        if(event.meta.attr === 'class') {
-            this.setWlxmlClass(event.meta.newVal); //
-        }
-    },
     onNodeAdded: function(event) {
         if(event.meta.node.isRoot()) {
             this.canvas.reloadRoot();
@@ -233,26 +229,6 @@ $.extend(generic, {
             }
         });
         return toret;
-    },
-
-    getWlxmlClass: function() {
-        var klass = this._container().attr('wlxml-class');
-        if(klass) {
-            return klass.replace(/-/g, '.');
-        }
-        return undefined;
-    },
-    setWlxmlClass: function(klass) {
-        if(klass === this.getWlxmlClass()) {
-            return;
-        }
-        if(klass) {
-            this._container().attr('wlxml-class', klass.replace(/\./g, '-'));
-        }
-        else {
-            this._container().removeAttr('wlxml-class');
-        }
-        this.refreshPath();
     }
 });
 
