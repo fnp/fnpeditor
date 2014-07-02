@@ -6,15 +6,8 @@ var $ = require('libs/jquery'),
     _ = require('libs/underscore'),
     documentElement = require('./documentElement'),
     utils = require('./utils'),
-    wlxmlUtils = require('utils/wlxml'),
     CommentsView = require('./comments/comments');
 
-var labelWidget = function(tag, klass) {
-    return $('<span>')
-        .addClass('canvas-widget canvas-widget-label')
-        .text(wlxmlUtils.getTagLabel(tag) + (klass ? ' / ' + wlxmlUtils.getClassLabel(klass) : ''));
-};
-void(labelWidget); // for linters; labelWidget is unused on purpose for now
 
 var DocumentNodeElement = documentElement.DocumentNodeElement;
 
