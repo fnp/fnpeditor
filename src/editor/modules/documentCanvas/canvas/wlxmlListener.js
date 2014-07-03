@@ -49,7 +49,7 @@ var handlers = {
                 if(event.meta.node.isRoot()) {
                     this.canvas.reloadRoot();
                 } else {
-                    newElement = this.canvas.createElement(event.meta.node);
+                    newElement = element.parent().createElement(event.meta.node);
                     element.dom.replaceWith(newElement.dom);
                 }
             }

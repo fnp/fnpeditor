@@ -66,7 +66,7 @@ $.extend(TextHandler.prototype, {
 var Canvas = function(wlxmlDocument, elements, metadata, sandbox) {
     this.metadata = metadata || {};
     this.sandbox = sandbox;
-    this.elementsRegister = new ElementsRegister(documentElement.DocumentNodeElement, nullElement);
+    this.elementsRegister = this.createElementsRegister();
 
     elements = [
         {tag: 'section', klass: null, prototype: genericElement},
@@ -111,14 +111,28 @@ $.extend(Canvas.prototype, Backbone.Events, {
         this.reloadRoot();
     },
 
-    createElement: function(wlxmlNode) {
+    createElement: function(wlxmlNode, register, useRoot) {
         var Factory;
+        register = register || this.elementsRegister;
         if(wlxmlNode.nodeType === Node.TEXT_NODE) {
             Factory = documentElement.DocumentTextElement;
         } else {
-            Factory = this.elementsRegister.getElement({tag: wlxmlNode.getTagName(), klass: wlxmlNode.getClass()});
+            Factory = register.getElement({tag: wlxmlNode.getTagName(), klass: wlxmlNode.getClass()});
         }
-        return new Factory(wlxmlNode, this);
+        if(!Factory && useRoot) {
+            Factory = this.elementsRegister.getElement({tag: wlxmlNode.getTagName(), klass: wlxmlNode.getClass()});
+            if(!Factory) {
+                Factory = documentElement.DocumentNodeElement;
+            }
+        }
+
+        if(Factory) {
+            return new Factory(wlxmlNode, this);
+        }
+    },
+
+    createElementsRegister: function() {
+        return new ElementsRegister(documentElement.DocumentNodeElement, nullElement);
     },
 
     getDocumentElement: function(htmlElement) {

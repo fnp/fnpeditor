@@ -38,9 +38,6 @@ _.extend(ElementsRegister.prototype, {
                 }
             }.bind(this));
         }
-        if(!Factory) {
-            Factory = this.BaseType;
-        }
         return Factory;
     }
 });
