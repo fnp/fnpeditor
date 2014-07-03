@@ -79,6 +79,9 @@ $.extend(RangeFragment.prototype, {
     hasSiblingBoundries: function() {
         return this.isValid() && this.startNode.isSiblingOf(this.endNode);
     },
+    hasSameBoundries: function() {
+        return this.isValid() && this.startNode.sameNode(this.endNode);
+    },
     boundriesSiblingParents: function() {
         return this.startNode.document.getSiblingParents({
             node1: this.startNode,
