@@ -97,6 +97,15 @@ var Canvas = function(wlxmlDocument, elements, metadata, sandbox) {
 
 $.extend(Canvas.prototype, Backbone.Events, {
 
+    createElementType: function(elementPrototype) {
+        /* TODO: reconcile this with ElementsRegister behavior */
+        var Constructor = function() {
+            documentElement.DocumentNodeElement.apply(this, Array.prototype.slice.call(arguments, 0));
+        };
+        Constructor.prototype = elementPrototype;
+        return Constructor;
+    },
+
     getElementOffset: function(element) {
         return element.dom.offset().top - this.dom.offset().top;
     },

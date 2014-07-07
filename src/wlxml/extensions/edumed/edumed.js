@@ -149,6 +149,59 @@ var extension = {wlxmlClass: {'exercise.order': {
     }
 }}};
 
+var choiceMethods = {
+    getChoiceList: function() {
+        return this.contents()
+            .filter(function(n) { return this.object.isChoiceList(n); }.bind(this))[0];
+    },
+    isChoiceList: function(node) {
+        return node.is('list') && this.sameNode(node.parent());
+    },
+    isChoiceListItem: function(node) {
+        return this.object.isChoiceList(node.parent()) && node.is('item.answer');
+    }
+};
+
+extension.wlxmlClass['exercise.choice'] = {
+    transformations: {
+        setAnswer: function(itemNode, answer) {
+            if(!this.object.isChoiceListItem(itemNode)) {
+                return;
+            }
+            itemNode.setAttr('answer', answer ? 'true' : 'false');
+        }
+    },
+    methods: choiceMethods
+};
+
+extension.wlxmlClass['exercise.choice.single'] = {
+    transformations: {
+        markAsAnswer: function(itemNode) {
+            if(!this.object.isChoiceListItem(itemNode)) {
+                return;
+            }
+            this.object.getChoiceList().contents()
+                .filter(function(node) { return node.is('item.answer'); })
+                .forEach(function(node) {
+                    node.setAttr('answer', node.sameNode(itemNode) ? 'true' : 'false');
+                });
+        }
+    },
+    methods: choiceMethods
+};
+
+extension.wlxmlClass['exercise.choice.true-or-false'] = {
+    transformations: {
+        setAnswer: function(itemNode, answer) {
+            if(!this.object.isChoiceListItem(itemNode)) {
+                return;
+            }
+            itemNode.setAttr('answer', answer ? 'true' : 'false');
+        }
+    },
+    methods: choiceMethods
+};
+
 extension.document = {
     methods: {
          edumedCreateExerciseNode: function(klass) {
