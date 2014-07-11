@@ -89,6 +89,7 @@ return function(sandbox) {
                 document.on('operationEnd', function() {
                     setContextParam('document', document);
                 });
+                setContextParam('document', document);
             }
             setContextParam('fragment', fragment);
 
