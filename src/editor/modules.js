@@ -17,7 +17,6 @@ define(function(require) {
         
         documentCanvas: require('modules/documentCanvas/documentCanvas'),
         documentToolbar: require('modules/documentToolbar/documentToolbar'),
-        metadataEditor: require('modules/metadataEditor/metadataEditor'),
         
         documentHistory: require('modules/documentHistory/documentHistory'),
         diffViewer: require('modules/diffViewer/diffViewer')
