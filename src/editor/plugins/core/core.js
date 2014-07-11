@@ -10,7 +10,8 @@ var _ = require('libs/underscore'),
     lists = require('plugins/core/lists'),
     plugin = {name: 'core', actions: [], canvas: {}, documentExtension: {textNode: {}}},
     Dialog = require('views/dialog/dialog'),
-    canvasElements = require('plugins/core/canvasElements');
+    canvasElements = require('plugins/core/canvasElements'),
+    metadataEditor = require('./metadataEditor/metadataEditor');
 
 
 
@@ -389,6 +390,7 @@ var linkAction = {
     }
 };
 
+var metadataParams = {};
 
 plugin.actions = [
     undoRedoAction('undo'),
@@ -396,7 +398,8 @@ plugin.actions = [
     commentAction,
     createWrapTextAction({name: 'emphasis', klass: 'emp', wrapDescription: gettext('Mark as emphasized'), unwrapDescription: gettext('Remove emphasis')}),
     createWrapTextAction({name: 'cite', klass: 'cite', wrapDescription: gettext('Mark as citation'), unwrapDescription: gettext('Remove citation')}),
-    linkAction
+    linkAction,
+    metadataEditor.action(metadataParams)
 ].concat(plugin.actions, templates.actions, footnote.actions, switchTo.actions, lists.actions);
 
 
@@ -404,6 +407,15 @@ plugin.actions = [
 plugin.config = function(config) {
     // templates.actions[0].config(config.templates);
     templates.actions[0].params.template.options = config.templates;
+    metadataParams.config = (config.metadata || []).sort(function(configRow1, configRow2) {
+        if(configRow1.key < configRow2.key) {
+            return -1;
+        }
+        if(configRow1.key > configRow2.key) {
+            return 1;
+        }
+        return 0;
+    });
 };
 
 plugin.canvasElements = canvasElements;

@@ -1,0 +1,55 @@
+.metadataEditor .modal-body {
+    overflow: visible;
+}
+
+.rng-module-metadataEditor {
+
+    table {
+        table-layout:fixed;
+        margin-bottom:10px;
+
+        [contenteditable] {
+            cursor: text;
+            word-wrap: break-word;
+            min-height: 13px;
+        }
+
+        li:last-child {
+            border-bottom: none !important;
+        }
+
+        tr td {
+            vertical-align: middle;
+        }
+
+        tr td:nth-child(1){
+            width: 30%;
+        }
+
+        tr td:nth-child(2)  {
+            width:70%;
+        }
+
+        tr td:nth-child(3) {
+            width: 14px;
+        }
+    }
+
+    .rng-module-metadataEditor-addBtn {
+        float:right;
+        margin-right:6px;
+    }
+
+    .rng-visualEditor-metaRemoveBtn {
+        color: @red;
+    }
+
+    .btn {
+        padding:3px;
+        line-height:10px;
+    }
+
+    .drop-menu {
+        overflow: auto;
+    }
+}

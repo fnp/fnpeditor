@@ -28,7 +28,8 @@ define(function(require) {
         show: function() {
             this.setElement(this.template(_.extend({
                 executeButtonText: null,
-                cancelButtonText: null
+                cancelButtonText: null,
+                cssClass: ''
             }, this.options)));
 
             var body = this.$('.modal-body');
@@ -96,6 +97,10 @@ define(function(require) {
             this.$('.btn, button').toggleClass('disabled', !toggle);
             this.$('textarea').attr('disabled', !toggle);
             this.actionsDisabled = !toggle;
+        },
+        setContentView: function(view) {
+            var body = this.$('.modal-body');
+            body.append(view);
         }
     });
 
