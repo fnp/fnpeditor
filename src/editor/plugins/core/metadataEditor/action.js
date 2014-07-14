@@ -4,7 +4,7 @@ define(function(require) {
 /* globals gettext */
 
 var Dialog = require('views/dialog/dialog'),
-    View = require('./view');
+    View = require('plugins/core/metadataEditor/view');
 
 
 return function(ctx) {

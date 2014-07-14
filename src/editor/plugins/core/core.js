@@ -11,7 +11,7 @@ var _ = require('libs/underscore'),
     plugin = {name: 'core', actions: [], canvas: {}, documentExtension: {textNode: {}}},
     Dialog = require('views/dialog/dialog'),
     canvasElements = require('plugins/core/canvasElements'),
-    metadataEditor = require('./metadataEditor/metadataEditor');
+    metadataEditor = require('plugins/core/metadataEditor/metadataEditor');
 
 
 
