@@ -299,7 +299,7 @@ $.extend(TextNode.prototype, {
 
 var parseXML = function(xml) {
     var toret = $($.trim(xml));
-    if(!toret.length) {
+    if(toret.length !== 1) {
         throw new Error('Unable to parse XML: ' + xml);
     }
     return toret[0];
