@@ -59,7 +59,7 @@ return function(sandbox) {
     };
     
     eventHandlers.data = {
-        ready: function(usingDraft, draftTimestamp) {
+        ready: function(usingDraft, draftTimestamp, xmlValid) {
             wlxmlDocument = sandbox.getModule('data').getDocument();
 
             views.mainLayout.setView('mainView', views.mainTabs.getAsView());
@@ -72,7 +72,12 @@ return function(sandbox) {
             sandbox.getModule('mainBar').setCommandEnabled('drop-draft', usingDraft);
             sandbox.getModule('mainBar').setCommandEnabled('save', usingDraft);
 
-            _.each(['sourceEditor', 'documentCanvas', 'documentToolbar', 'mainBar', 'indicator', 'documentHistory', 'diffViewer', 'statusBar'], function(moduleName) {
+            
+            var toStart = ['sourceEditor', 'documentToolbar', 'mainBar', 'indicator', 'documentHistory', 'diffViewer', 'statusBar'];
+            if(xmlValid) {
+                toStart.push('documentCanvas');
+            }
+            _.each(toStart, function(moduleName) {
                 sandbox.getModule(moduleName).start();
             });
             

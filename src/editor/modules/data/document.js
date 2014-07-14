@@ -63,6 +63,20 @@ _.extend(Document.prototype, {
     }
 });
 
-return Document;
+var DumbDocument = function() {
+    Document.apply(this, Array.prototype.slice.call(arguments, 0));
+};
+DumbDocument.prototype = Object.create(Document.prototype);
+_.extend(DumbDocument.prototype, {
+    loadXML: function(xml) {
+        this._xml = xml;
+        this.trigger('contentSet');
+    },
+    toXML: function() {
+        return this._xml;
+    }
+});
+
+return {Document: Document, DumbDocument: DumbDocument};
 
 });

@@ -11,8 +11,7 @@ define([
 'use strict';
 /* global gettext, alert, window */
 
-var logger = logging.getLogger('editor.modules.data'),
-    stubDocument = '<section><div>' + gettext('This is an empty document.') + '</div></section>';
+var logger = logging.getLogger('editor.modules.data');
 
 
 return function(sandbox) {
@@ -30,12 +29,14 @@ return function(sandbox) {
 
     var loadDocument = function(text, isDraft, draftTimestamp) {
         logger.debug('loading document');
+        var xmlValid = true;
         try {
-            wlxmlDocument = wlxml.WLXMLDocumentFromXML(text, {editorConfig: sandbox.getConfig()}, Document);
+            wlxmlDocument = wlxml.WLXMLDocumentFromXML(text, {editorConfig: sandbox.getConfig()}, Document.Document);
         } catch(e) {
             logger.exception(e);
-            alert(gettext('This document contains errors and can\'t be loaded. :(')); // TODO
-            wlxmlDocument = wlxml.WLXMLDocumentFromXML(stubDocument, {}, Document);
+            alert(gettext('The content of this document seems to be invalid - only XML source editing will be possible. :(')); // TODO
+            wlxmlDocument = wlxml.WLXMLDocumentFromXML(text, {}, Document.DumbDocument);
+            xmlValid = false;
         }
 
         Object.keys(data)
@@ -79,7 +80,7 @@ return function(sandbox) {
                 }
             }, sandbox.getConfig().autoSaveInterval || 2500);
         }
-        sandbox.publish('ready', isDraft, draftTimestamp);
+        sandbox.publish('ready', isDraft, draftTimestamp, xmlValid);
     };
     
     function readCookie(name) {
