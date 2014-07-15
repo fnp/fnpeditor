@@ -22,9 +22,6 @@ return function(sandbox) {
     }
      
     var commands = {
-        jumpToDocumentElement: function(element) {
-            sandbox.getModule('documentCanvas').jumpToElement(element);
-        },
         refreshCanvasSelection: function(selection) {
             var fragment = selection.toDocumentFragment();
             sandbox.getModule('documentToolbar').setDocumentFragment(fragment);

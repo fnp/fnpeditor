@@ -74,15 +74,6 @@ return function(sandbox) {
             canvas.loadWlxmlDocument(wlxmlDocument);
             canvasWrapper.find('#rng-module-documentCanvas-contentWrapper').empty().append(canvas.view());
         },
-        highlightElement: function(node) {
-            canvas.toggleElementHighlight(node, true);
-        },
-        dimElement: function(node) {
-            canvas.toggleElementHighlight(node, false);
-        },
-        jumpToElement: function(node) {
-            canvas.setCurrentElement(node);
-        },
         onAfterActionExecuted: function(action, ret) {
             if(ret && ret.isValid()) {
                 logger.debug('The action returned a valid fragment');
