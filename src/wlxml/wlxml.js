@@ -145,25 +145,11 @@ $.extend(WLXMLElementNode.prototype, WLXMLDocumentNodeMethods, smartxml.ElementN
                     $(this).prepend(metaNode);
                 }
             }
-
         });
-
-        
 
         return DOM;
     }
 });
-
-// WLXMLElementNode.prototype.transformations.register(transformations.createContextTransformation({
-//     name: 'wlxml.setMetaAttribute',
-//     impl: function(args) {
-//         this.setMetaAttribute(args.name, args.value);
-//     },
-//     getChangeRoot: function() {
-//         return this.context;
-//     }
-// }));
-
 
 
 var WLXMLDocumentNode = function() {
@@ -316,7 +302,6 @@ $.extend(WLXMLDocument.prototype, {
     },
 
     registerExtension: function(extension) {
-        //debugger;
         smartxml.Document.prototype.registerExtension.call(this, extension);
         var doc = this;
 
