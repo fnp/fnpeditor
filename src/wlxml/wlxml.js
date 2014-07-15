@@ -31,12 +31,6 @@ var WLXMLDocumentNodeMethods =  {
     },
 };
 
-var AttributesList = function() {};
-AttributesList.prototype = Object.create({});
-AttributesList.prototype.keys = function() {
-    return _.keys(this);
-};
-
 var getClassLists = function(klassName) {
     var toret = [],
         classParts = [''].concat(klassName.split('.')),
@@ -95,38 +89,6 @@ $.extend(WLXMLElementNode.prototype, WLXMLDocumentNodeMethods, smartxml.ElementN
         return this.contents().some(function(child) {
             return child.is(query);
         }.bind(this));
-    },
-    getMetaAttributes: function() {
-        var toret = new AttributesList(),
-            classParts = [''].concat(this.getClass().split('.')),
-            classCurrent, classDesc;
-
-        classParts.forEach(function(part) {
-            classCurrent = classCurrent ? classCurrent + '.' + part : part;
-            classDesc = this.document.options.wlxmlClasses[classCurrent];
-            if(classDesc) {
-                _.keys(classDesc.attrs).forEach(function(attrName) {
-                    toret[attrName] = _.extend({value: this.getAttr(attrName)}, classDesc.attrs[attrName]);
-                }.bind(this));
-            }
-        }.bind(this));
-        return toret;
-    },
-    setMetaAttribute: function(key, value) {
-        this.setAttr(key, value);
-    },
-    getOtherAttributes: function() {
-        var toret = {},
-            node = this;
-        this.getAttrs().forEach(function(attr) {
-            if(attr.name !== 'class' && !node.isMetaAttribute(attr.name)) {
-                toret[attr.name] = {value: attr.value};
-            }
-        });
-        return toret;
-    },
-    isMetaAttribute: function(attrName) {
-        return attrName !== 'class' &&_.contains(_.keys(this.getMetaAttributes()), attrName);
     },
 
     _getXMLDOMToDump: function() {
@@ -379,20 +341,11 @@ $.extend(WLXMLDocument.prototype, {
 
 });
 
-var wlxmlClasses = {
-    'link': {
-        attrs: {href: {type: 'string'}}
-    }
-};
-
-
 return {
     WLXMLDocumentFromXML: function(xml, options, Factory) {
-        options = _.extend({wlxmlClasses: wlxmlClasses}, options);
         Factory = Factory || WLXMLDocument;
         return new Factory(xml, options);
     },
-
     WLXMLElementNodeFromXML: function(xml) {
         return this.WLXMLDocumentFromXML(xml).root;
     },
