@@ -578,7 +578,6 @@ $.extend(Document.prototype, Backbone.Events, fragments, {
 
             if(transformations.length > 1) {
                 // In case of real transactions we don't want to run undo on all of transformations if we don't have to.
-                stopAt = undefined;
                 transformations.some(function(t, idx) {
                     if(!t.undo && t.getChangeRoot().sameNode(doc.root)) {
                         stopAt = idx;
