@@ -665,8 +665,11 @@ $.extend(Document.prototype, Backbone.Events, fragments, {
 
     getNodeByPath: function(path) {
         var toret = this.root;
-        path.forEach(function(idx) {
+        path.some(function(idx) {
             toret = toret.contents()[idx];
+            if(!toret) {
+                return true;
+            }
         });
         return toret;
     },

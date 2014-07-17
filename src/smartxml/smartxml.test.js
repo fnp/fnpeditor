@@ -69,6 +69,24 @@ describe('smartxml', function() {
             expect(node.contents()[0].getText()).to.equal('Alice');
             expect(node.contents()[1].getTagName()).to.equal('b');
         });
+
+        describe('Retrieving node by path', function() {
+            it('passes smoke tests', function() {
+                var doc = getDocumentFromXML('<root><a><b>c</b></a>');
+                expect(doc.getNodeByPath([0]).sameNode(doc.root.contents()[0])).to.be.true;
+                expect(doc.getNodeByPath([0,0]).sameNode(doc.root.contents()[0].contents()[0])).to.be.true;
+            });
+            it('treats empty path as a root path', function() {
+                var doc = getDocumentFromXML('<root></root>');
+                expect(doc.getNodeByPath([]).sameNode(doc.root)).to.be.true;
+            });
+            it('returns undefined for non existing paths', function() {
+                var doc = getDocumentFromXML('<root><a></a></root>');
+                expect(doc.getNodeByPath([1])).to.be.undefined;
+                expect(doc.getNodeByPath([0,1])).to.be.undefined;
+                expect(doc.getNodeByPath([10,1])).to.be.undefined;
+            });
+        });
     });
 
     describe('DocumentNode', function() {
