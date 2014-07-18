@@ -185,17 +185,10 @@ describe('WLXMLDocument', function() {
     });
 
     describe('Extension', function() {
-        var doc, extension, elementNode, textNode, testClassNode;
+        var doc, extension, testClassNode;
 
         beforeEach(function() {
             doc = getDocumentFromXML('<section>Alice<div class="test_class"></div><div class="test_class.a"></div></section>');
-            elementNode = doc.root;
-            textNode = doc.root.contents()[0];
-            testClassNode = doc.root.contents('.test_class');
-            extension = {};
-            
-            expect(testClassNode.object).to.be.undefined;
-
         });
 
         it('allows adding method to an ElementNode of specific class', function() {
