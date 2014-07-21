@@ -377,7 +377,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
 
         if(textElementToLand) {
             _markAsCurrent(textElementToLand);
-            if(params.caretTo || !textElementToLand.sameNode(this.getCursor().getPosition().element)) {
+            if((params.caretTo || params.caretTo === 0) || !textElementToLand.sameNode(this.getCursor().getPosition().element)) {
                 this._moveCaretToTextElement(textElementToLand, params.caretTo); // as method on element?
             }
         } else {
