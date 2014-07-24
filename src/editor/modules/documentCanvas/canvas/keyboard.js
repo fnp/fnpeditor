@@ -1,7 +1,8 @@
 define([
+'libs/jquery',
 'modules/documentCanvas/canvas/documentElement',
 'modules/documentCanvas/canvas/utils'
-], function(documentElement, utils) {
+], function($, documentElement, utils) {
     
 'use strict';
 /* globals gettext */
@@ -34,6 +35,55 @@ var handles = function(handler, event) {
         return true;
     }
     return false;
+};
+
+
+var scroll = function(place, textElement) {
+    var rect = textElement.getBoundingClientRect(),
+        scroll = $('#rng-module-documentCanvas-contentWrapper'),
+        border = rect.bottom - (place === 'top' ? rect.height : 0) - scroll.offset().top + scroll[0].scrollTop,
+        visible = scroll[0].scrollTop + {top: 0, bottom: scroll.height()}[place],
+        padding = 16,
+        toScroll = 0;
+    
+    if(place === 'top' && (border - padding < visible)) {
+        toScroll =  border - visible - padding;
+    } else if(place === 'bottom' && (border + padding > visible))  {
+        toScroll = border - visible + padding;
+    }
+    if(toScroll) {
+        scroll[0].scrollTop = scroll[0].scrollTop + toScroll;
+    }
+    return toScroll;
+};
+
+var getLastRectAbove = function(node, y) {
+    var rects = node.getClientRects(),
+        idx = 0,
+        rect, toret;
+    while((rect = rects[idx])) {
+        if(rect.bottom < y) {
+            toret = rect;
+        } else {
+            break;
+        }
+        idx++;
+    }
+    return toret;
+};
+
+var getFirstRectBelow = function(node, y) {
+    var rects = node.getClientRects(),
+        idx = 0,
+        rect, toret;
+    while((rect = rects[idx])) {
+        if(rect.top > y) {
+            toret = rect;
+            break;
+        }
+        idx++;
+    }
+    return toret;
 };
 
 var handlers = [];
@@ -121,51 +171,106 @@ handlers.push({key: KEYS.ENTER,
     }
 });
 
-handlers.push({keys: [KEYS.ARROW_UP, KEYS.ARROW_DOWN, KEYS.ARROW_LEFT, KEYS.ARROW_RIGHT],
+handlers.push({keys: [KEYS.ARROW_UP],
     keydown: function(event, canvas) {
-        var position = canvas.getCursor().getPosition(),
-            element = position.element;
-        if(element && (element instanceof documentElement.DocumentTextElement) && element.isEmpty()) {
-            var direction, caretTo;
-            if(event.which === KEYS.ARROW_LEFT  || event.which === KEYS.ARROW_UP) {
-                direction = 'above';
-                caretTo = 'end';
-            } else {
-                direction = 'below';
-                caretTo = 'start';
-            }
-            var el = canvas.getDocumentElement(utils.nearestInDocumentOrder('[document-text-element]', direction, element.dom[0]));
-            if(el) {
-                canvas.setCurrentElement(el, {caretTo: caretTo});
-            }
-        }
-    },
-    keyup: function(event, canvas) {
+        /* globals window */
         var element = canvas.getCursor().getPosition().element,
-            caretTo = false;
-        if(!element) {
-            // Chrome hack
+            caretRect = window.getSelection().getRangeAt(0).getClientRects()[0],
+            frameRects = element.dom[0].getClientRects(),
+            caretTop = caretRect.bottom - caretRect.height,
+            position, target,rect, scrolled;
 
-            var moves = [{direction: 'above', caretTo: 'end'}, {direction: 'below', caretTo: 'start'}];
-            if(event.which === KEYS.ARROW_RIGHT  || event.which === KEYS.ARROW_DOWN) {
-                moves.reverse();
-            }
-            moves.some(function(move) {
-                /* globals window */
-                var targetNode = utils.nearestInDocumentOrder('[document-text-element]:visible', move.direction, window.getSelection().focusNode);
-                if(targetNode) {
-                    element = canvas.getDocumentElement(targetNode);
-                    caretTo = move.caretTo;
-                    return true; // break
+        
+        if((frameRects[0].bottom === caretRect.bottom) || (caretRect.left < frameRects[0].left)) {
+            event.preventDefault();
+            canvas.rootWrapper.find('[document-text-element]').each(function() {
+                var test = getLastRectAbove(this, caretTop);
+                if(test) {
+                    target = this;
+                    rect = test;
+                } else {
+                    return false;
                 }
             });
-        }
-        if(element) {
-            canvas.setCurrentElement(element, {caretTo: caretTo});
+            if(target) {
+                scrolled = scroll('top', target);
+                position = utils.caretPositionFromPoint(caretRect.left, rect.bottom - 1 - scrolled);
+                canvas.setCurrentElement(canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
+            }
         }
     }
 });
 
+handlers.push({keys: [KEYS.ARROW_DOWN],
+    keydown: function(event, canvas) {
+        /* globals window */
+        var element = canvas.getCursor().getPosition().element,
+            caretRect = window.getSelection().getRangeAt(0).getClientRects()[0],
+            frameRects = element.dom[0].getClientRects(),
+            lastRect = frameRects[frameRects.length-1],
+            position, target,rect, scrolled;
+
+        if(lastRect.bottom === caretRect.bottom || (caretRect.left > lastRect.left + lastRect.width)) {
+            event.preventDefault();
+            canvas.rootWrapper.find('[document-text-element]').each(function() {
+                var test = getFirstRectBelow(this, caretRect.bottom);
+                if(test) {
+                    target = this;
+                    rect = test;
+                    return false;
+                }
+            });
+            if(target) {
+                scrolled = scroll('bottom', target);
+                position = utils.caretPositionFromPoint(caretRect.left, rect.top +1 - scrolled);
+                canvas.setCurrentElement(canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
+            }
+        }
+    }
+});
+
+handlers.push({keys: [KEYS.ARROW_LEFT],
+    keydown: function(event, canvas) {
+        /* globals window */
+        var position = canvas.getCursor().getPosition(),
+            element = position.element,
+            prev;
+
+        if(position.offset === 0) {
+            event.preventDefault();
+            prev = canvas.getPreviousTextElement(element);
+            if(prev) {
+                scroll('top', prev.dom[0]);
+                canvas.setCurrentElement(canvas.getDocumentElement(prev.dom.contents()[0]), {caretTo: 'end'});
+            }
+        }
+    }
+});
+
+handlers.push({keys: [KEYS.ARROW_RIGHT],
+    keydown: function(event, canvas) {
+        /* globals window */
+        var position = canvas.getCursor().getPosition(),
+            element = position.element,
+            next;
+        if(position.offsetAtEnd) {
+            event.preventDefault();
+            next = canvas.getNextTextElement(element);
+            if(next) {
+                scroll('bottom', next.dom[0]);
+                canvas.setCurrentElement(canvas.getDocumentElement(next.dom.contents()[0]), {caretTo: 0});
+            }
+        } else {
+            var secondToLast = (position.offset === element.wlxmlNode.getText().length -1);
+            if(secondToLast) {
+                // Only Flying Spaghetti Monster knows why this is need for FF (for versions at least 26 to 31)
+                event.preventDefault();
+                canvas.setCurrentElement(element, {caretTo: 'end'});
+            }
+        }
+
+    }
+});
 
 var selectsWholeTextElement = function(cursor) {
     if(cursor.isSelecting() && cursor.getSelectionStart().offsetAtBeginning && cursor.getSelectionEnd().offsetAtEnd) {

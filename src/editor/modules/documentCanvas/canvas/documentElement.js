@@ -139,8 +139,7 @@ $.extend(DocumentNodeElement.prototype, {
     createDOM: function() {
         var wrapper = $('<div>').attr('document-node-element', ''),
             widgetsContainer = $('<div>')
-                .addClass('canvas-widgets')
-                .attr('contenteditable', false),
+                .addClass('canvas-widgets'),
             contentContainer = $('<div>')
                 .attr('document-element-content', '');
         

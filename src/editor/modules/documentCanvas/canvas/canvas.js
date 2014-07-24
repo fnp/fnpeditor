@@ -159,16 +159,21 @@ $.extend(Canvas.prototype, Backbone.Events, {
         var mouseDown;
         this.rootWrapper.on('mousedown', '[document-node-element], [document-text-element]', function(e) {
             mouseDown = e.target;
+            canvas.rootWrapper.find('[contenteditable]').attr('contenteditable', null);
         });
 
         this.rootWrapper.on('click', '[document-node-element], [document-text-element]', function(e) {
+            var position;
             e.stopPropagation();
             if(e.originalEvent.detail === 3) {
                 e.preventDefault();
                 canvas._moveCaretToTextElement(canvas.getDocumentElement(e.currentTarget), 'whole');
             } else {
                 if(mouseDown === e.target) {
-                    canvas.setCurrentElement(canvas.getDocumentElement(e.currentTarget), {caretTo: false});
+                    if(window.getSelection().isCollapsed) {
+                        position = utils.caretPositionFromPoint(e.clientX, e.clientY);
+                        canvas.setCurrentElement(canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
+                    }
                 }
             }
         });
@@ -409,9 +414,10 @@ $.extend(Canvas.prototype, Backbone.Events, {
         }
         var selection = document.getSelection();
 
+        $(node).parent().attr('contenteditable', true);
         selection.removeAllRanges();
         selection.addRange(range);
-        this.rootWrapper.focus(); // FF requires this for caret to be put where range colllapses, Chrome doesn't.
+        $(node).parent().focus(); // FF requires this for caret to be put where range colllapses, Chrome doesn't.
     },
 
     setCursorPosition: function(position) {

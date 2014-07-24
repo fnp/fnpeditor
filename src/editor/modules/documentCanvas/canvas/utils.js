@@ -42,6 +42,23 @@ var getElementForDetachedNode = function(node, originalParent) {
     return ptr.getData('canvasElement');
 };
 
+var caretPositionFromPoint = function(x, y) {
+    /* globals document */
+    var range, textNode, offset;
+    if(document.caretPositionFromPoint) {
+        range = document.caretPositionFromPoint(x, y);
+        textNode = range.offsetNode;
+        offset = range.offset;
+    } else if(document.caretRangeFromPoint) {
+        range = document.caretRangeFromPoint(x, y);
+        textNode = range.startContainer;
+        offset = range.startOffset;
+    }
+    return {
+        textNode: textNode,
+        offset: offset
+    };
+};
 
 
 return {
@@ -51,7 +68,8 @@ return {
     },
     getElementForNode: getElementForNode,
     getElementForDetachedNode: getElementForDetachedNode,
-    getElementForElementRootNode: getElementForElementRootNode
+    getElementForElementRootNode: getElementForElementRootNode,
+    caretPositionFromPoint: caretPositionFromPoint
 };
 
 });
