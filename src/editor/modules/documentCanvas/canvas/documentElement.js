@@ -1,8 +1,9 @@
 define([
 'libs/jquery',
 'libs/underscore',
-'modules/documentCanvas/canvas/utils'
-], function($, _, utils) {
+'modules/documentCanvas/canvas/utils',
+'modules/documentCanvas/canvas/container'
+], function($, _, utils, container) {
     
 'use strict';
 /* global Node:false */
@@ -93,6 +94,7 @@ $.extend(DocumentElement.prototype, {
 // DocumentNodeElement represents an element node from WLXML document rendered inside Canvas
 var DocumentNodeElement = function(wlxmlNode, canvas) {
     DocumentElement.call(this, wlxmlNode, canvas);
+    this.containers = [];
     this.init(this.dom);
 };
 
@@ -133,10 +135,35 @@ $.extend(DocumentNodeElement.prototype, {
         }
         this.gutterGroup.addView(view);
     },
+    createContainer: function(nodes, params) {
+        var toret = container.create(nodes, params, this);
+        this.containers.push(toret);
+        return toret;
+    },
+    removeContainer: function(container) {
+        var idx;
+        if((idx = this.containers.indexOf(container)) !== -1) {
+            this.containers.splice(idx, 1);
+        }
+    },
     handle: function(event) {
-        var method = 'on' + event.type[0].toUpperCase() + event.type.substr(1);
-        if(this[method]) {
-            this[method](event);
+        var method = 'on' + event.type[0].toUpperCase() + event.type.substr(1),
+            target;
+        if(event.type === 'nodeAdded' || event.type === 'nodeDetached') {
+            this.containers.some(function(container) {
+                if(container.manages(event.meta.node, event.meta.parent)) {
+                    target = container;
+                    return true;
+                }
+            });
+        }
+        
+        if(!target && this[method]) {
+            target = this;
+        }
+        
+        if(target) {
+            target[method](event);
         }
     },
     createDOM: function() {
