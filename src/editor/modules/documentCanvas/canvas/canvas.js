@@ -163,13 +163,20 @@ $.extend(Canvas.prototype, Backbone.Events, {
         });
 
         this.rootWrapper.on('click', '[document-node-element], [document-text-element]', function(e) {
-            var position;
+            var position, element;
             e.stopPropagation();
             if(e.originalEvent.detail === 3) {
                 e.preventDefault();
                 canvas._moveCaretToTextElement(canvas.getDocumentElement(e.currentTarget), 'whole');
             } else {
                 if(mouseDown === e.target) {
+                    element = canvas.getDocumentElement(e.target);
+                    if(element && element.wlxmlNode.nodeType === Node.ELEMENT_NODE) {
+                        if(element.getVerticallyFirstTextElement && !element.getVerticallyFirstTextElement({considerChildren: false})) {
+                            canvas.setCurrentElement(element);
+                            return;
+                        }
+                    }
                     if(window.getSelection().isCollapsed) {
                         position = utils.caretPositionFromPoint(e.clientX, e.clientY);
                         canvas.setCurrentElement(canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
