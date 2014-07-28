@@ -306,7 +306,7 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
             caretTo = 'start';
         }
 
-        if(cursor.isSelecting() && !cursor.isSelectingWithinElement()) {
+        if(cursor.isSelecting()) {
             event.preventDefault();
             var start = cursor.getSelectionStart(),
                 end = cursor.getSelectionEnd();

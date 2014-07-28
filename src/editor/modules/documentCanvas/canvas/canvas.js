@@ -148,8 +148,12 @@ $.extend(Canvas.prototype, Backbone.Events, {
     setupEventHandling: function() {
         var canvas = this;
 
-        this.rootWrapper.on('keyup keydown keypress', function(e) {
-            keyboard.handleKey(e, canvas);
+        /* globals document */
+        $(document.body).on('keydown', function(e) {
+            var cursor = canvas.getCursor();
+            if(cursor.isSelecting() || Object.keys(cursor.getPosition()).length) {
+                keyboard.handleKey(e, canvas);
+            }
         });
 
         this.rootWrapper.on('mouseup', function() {
