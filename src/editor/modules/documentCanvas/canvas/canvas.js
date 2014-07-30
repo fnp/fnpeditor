@@ -146,6 +146,14 @@ $.extend(Canvas.prototype, Backbone.Events, {
         this.rootWrapper.append(this.rootElement.dom);
     },
 
+
+    triggerKeyEvent: function(keyEvent, selection) {
+        selection = selection || this.getSelection();
+        if(selection && (selection.type === 'caret' || selection.type === 'textSelection') && selection.toDocumentFragment().isValid()) {
+            keyboard.handleKeyEvent(keyEvent, selection);
+        }
+    },
+
     setupEventHandling: function() {
         var canvas = this;
 
@@ -350,6 +358,13 @@ $.extend(Canvas.prototype, Backbone.Events, {
         }
     },
 
+    setSelection: function(selection) {
+        this.select(this, selection.toDocumentFragment());
+    },
+
+    createSelection: function(params) {
+        return selection.fromParams(this, params);
+    },
     setCurrentElement: function(element, params) {
         if(!element) {
             logger.debug('Invalid element passed to setCurrentElement: ' + element);

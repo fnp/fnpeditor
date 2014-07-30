@@ -8,7 +8,7 @@ var _ = require('libs/underscore'),
     footnote = require('plugins/core/footnote'),
     switchTo = require('plugins/core/switch'),
     lists = require('plugins/core/lists'),
-    plugin = {name: 'core', actions: [], canvas: {}, documentExtension: {textNode: {}}},
+    plugin = {name: 'core', actions: [], canvas: {}, documentExtension: {textNode: {}, elementNode: {}}},
     Dialog = require('views/dialog/dialog'),
     canvasElements = require('plugins/core/canvasElements'),
     metadataEditor = require('plugins/core/metadataEditor/metadataEditor');
@@ -79,6 +79,75 @@ plugin.documentExtension.textNode.transformations = {
             }
             return {node: ret, offset: ret.sameNode(this) ? null : ret.getText().length - this.getText().length};
         }
+    }
+};
+
+plugin.documentExtension.elementNode.transformations = {
+    moveUp: function() {
+        var toMerge = this,
+            prev = toMerge.prev();
+
+        var merge = function(from, to) {
+            from.contents().forEach(function(node) {
+                to.append(node);
+            });
+            from.detach();
+        };
+
+        var strategies = [
+            {
+                applies: function() {
+                    return toMerge.is('p');
+                },
+                run: function() {
+                    if(prev && prev.is('p') || prev.is({tagName: 'header'})) {
+                        merge(toMerge, prev);
+                    }
+                    if(prev && prev.is('list')) {
+                        var items = prev.contents().filter(function(n) { return n.is('item');});
+                        merge(toMerge, items[items.length-1]);
+                        //return {node: toMerge, offset:0};
+                    }
+                }
+            },
+            {
+                applies: function() {
+                    return toMerge.is({tagName: 'header'});
+                },
+                run: function() {
+                    if(prev && prev.is('p') || prev.is({tagName: 'header'})) {
+                        merge(toMerge, prev);
+                    }
+                }
+            },
+            {
+                applies: function() {
+                    return toMerge.is('item');
+                },
+                run: function() {
+                    var list;
+                    if(prev && prev.is('item')) {
+                        merge(toMerge, prev);
+                    } else if(!prev && (list = toMerge.parent()) && list.is('list')) {
+                        list.before(toMerge);
+                        toMerge.setClass('p');
+                        if(!list.contents().length) {
+                            list.detach();
+                        }
+                        return {node: toMerge.contents()[0], offset:0};
+                    }
+                }
+            }
+        ];
+
+        var toret;
+        strategies.some(function(strategy) {
+            if(strategy.applies()) {
+                toret = strategy.run();
+                return true;
+            }
+        });
+        return toret;
     }
 };
 

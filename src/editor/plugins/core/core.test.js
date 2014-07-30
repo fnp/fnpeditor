@@ -3,16 +3,27 @@ define(function(require) {
 'use strict';
 /* globals describe, it */
 
-var chai = require('libs/chai'),
+var _ = require('libs/underscore'),
+    chai = require('libs/chai'),
     sinon = require('libs/sinon'),
     wlxml = require('wlxml/wlxml'),
+    canvas = require('modules/documentCanvas/canvas/canvas'),
+    keyboard = require('modules/documentCanvas/canvas/keyboard'),
+    keyEvent = require('modules/documentCanvas/canvas/keyEvent'),
     corePlugin = require('./core.js'),
     expect = chai.expect;
+
+var K = keyboard.KEYS;
 
 var getDocumentFromXML = function(xml, options) {
     var doc = wlxml.WLXMLDocumentFromXML(xml, options || {});
     doc.registerExtension(corePlugin.documentExtension);
     return doc;
+};
+
+
+var getCanvasFromXML = function(xml, elements) {
+    return canvas.fromXMLDocument(getDocumentFromXML(xml), elements);
 };
 
 var getTextNodes = function(text, doc) {
@@ -47,6 +58,15 @@ var getTextNode = function(text, doc) {
         throw new Error(error);
     }
     return nodes[0];
+};
+
+var getTextElement = function(text, c) {
+    var node = getTextNode(text, c.wlxmlDocument),
+        element =  node && node.getData('canvasElement');
+    if(!(element && element.getText() === text)) {
+        throw new Error();
+    }
+    return element;
 };
 
 
@@ -131,6 +151,212 @@ describe('Document extensions', function() {
             expect(contents[0].contents()[2].getText()).to.equal(' here!');
         });
     });
+});
+
+describe.only('Keyboard interactions', function() {
+
+    var Keyboard = function(canvas) {
+        this.canvas = canvas;
+    };
+
+    _.extend(Keyboard.prototype, {
+        press: function(key) {
+            this.canvas.triggerKeyEvent(keyEvent.fromParams({key:key}), this.selection);
+            this.selection = this.canvas.getSelection();
+            return this;
+        },
+        withCaret: function(where) {
+            var offset = where.indexOf('|'),
+                text = where.split('|').join(''),
+                el = getTextElement(text, this.canvas),
+                selection = this.canvas.createSelection({type: 'caret', element: el, offset: offset});
+            if(offset === -1) {
+                throw new Error('Invalid caret');
+            }
+            this.selection = selection;
+            return this;
+        },
+        withSelection: function(start, end) {
+            var startOffset = start.indexOf('|'),
+                endOffset = end.indexOf('|'),
+                startText= start.split('|').join(''),
+                endText = end.split('|').join(''),
+                startElement = getTextElement(startText, this.canvas),
+                endElement = getTextElement(endText, this.canvas),
+                selection = this.canvas.createSelection({
+                    type: 'textSelection', 
+                    anchorElement: startElement,
+                    anchorOffset: startOffset,
+                    focusElement: endElement,
+                    focusOffset: endOffset
+                });
+            if(startOffset === -1 || endOffset === -1) {
+                throw new Error('Invalid text selection');
+            }
+            this.selection = selection;
+            return this;    
+        }
+    });
+
+    describe('deleting text with selection', function() {
+        [K.BACKSPACE, K.DELETE].forEach(function(key) {
+            it('deletes text withing a single text element ' + key, function() {
+                var c = getCanvasFromXML('<section><div>Alice</div></section>'),
+                    k = new Keyboard(c);
+
+                k.withSelection('A|lice', 'Alic|e').press(key);
+                expect(c.wlxmlDocument.root.contents()[0].contents()[0].getText()).to.equal('Ae');
+            });
+            it('deletes text across two paragraphs ' + key, function() {
+                var c = getCanvasFromXML('<section><div class="p">Alice</div><div class="p">cat</div></section>'),
+                    k = new Keyboard(c);
+
+                k.withSelection('A|lice', 'c|at').press(key);
+                var rootContents = c.wlxmlDocument.root.contents();
+
+                expect(rootContents.length).to.equal(2);
+                expect(rootContents[0].contents()[0].getText()).to.equal('A');
+                expect(rootContents[1].contents()[0].getText()).to.equal('at');
+            });
+
+            it('keeps an empty paragraph after deleting its whole text ' + key, function() {
+                var c = getCanvasFromXML('<section><div class="p">Alice</div></section>'),
+                    k = new Keyboard(c);
+
+                k.withSelection('|Alice', 'Alice|').press(key);
+                var rootContents = c.wlxmlDocument.root.contents();
+
+                expect(rootContents.length).to.equal(1);
+                expect(rootContents[0].contents()[0].getText()).to.equal('');
+            });
+        });
+
+    });
+
+    // describe('deleting with a caret', function() {
+    //     it('keeps an empty paragraph after deleteing last letter with backspace', function() {
+    //         var c = getCanvasFromXML('<section><div class="p">A</div></section>'),
+    //             k = new Keyboard(c);
+
+    //         k.withCaret('A|').press(K.BACKSPACE);
+    //         var rootContents = c.wlxmlDocument.root.contents();
+
+    //         expect(rootContents.length).to.equal(1);
+    //         expect(rootContents[0].contents()[0].getText()).to.equal('');    
+    //     });
+    //     // it('removes a paragraph on yet another delete' + key, function() {
+
+    //     // });
+    // });
+    
+
+            // + empty when bck/ins + l===1
+
+    describe('backspace at the beginning', function() {
+        it('merges two adjacent paragraphs', function() {
+            var c = getCanvasFromXML('<section><div class="p">A</div><div class="p">B</div></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('|B').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(1);
+            expect(rootContents[0].getClass()).to.equal('p');
+            expect(rootContents[0].contents()[0].getText()).to.equal('AB');
+        });
+        it('merges a paragraph with a header', function() {
+            var c = getCanvasFromXML('<section><header>A</header><div class="p">B</div></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('|B').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(1);
+            expect(rootContents[0].getTagName()).to.equal('header');
+            expect(rootContents[0].contents()[0].getText()).to.equal('AB');
+        });
+        it('merges two adjacent headers', function() {
+            var c = getCanvasFromXML('<section><header>A</header><header>B</header></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('|B').press(K.BACKSPACE);
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(1);
+            expect(rootContents[0].getTagName()).to.equal('header');
+            expect(rootContents[0].contents()[0].getText()).to.equal('AB');
+        });
+        it('merges a header with a paragraph', function() {
+            var c = getCanvasFromXML('<section><div class="p">A</div><header>B</header></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('|B').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(1);
+            expect(rootContents[0].is('p')).to.equal(true);
+            expect(rootContents[0].contents()[0].getText()).to.equal('AB');
+        });
+        it('merges a paragraph into a last list item', function() {
+            var c = getCanvasFromXML('<section><div class="list"><div class="item">item</div></div><div class="p">paragraph</div></section>'),
+                list = c.wlxmlDocument.root.contents()[0],
+                k = new Keyboard(c);
+
+            k.withCaret('|paragraph').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(1);
+            expect(rootContents[0].sameNode(list)).to.equal(true);
+
+            var items = list.contents();
+            expect(items.length).to.equal(1);
+            expect(items[0].contents()[0].getText()).to.equal('itemparagraph');
+        });
+        it('merges a list item with a list item', function() {
+            var c = getCanvasFromXML('<section><div class="list"><div class="item">item1</div><div class="item">item2</div></div></section>'),
+                list = c.wlxmlDocument.root.contents()[0],
+                k = new Keyboard(c);
+
+            k.withCaret('|item2').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(1);
+            
+            expect(rootContents[0].sameNode(list)).to.equal(true);
+
+            var items = list.contents();
+
+            expect(items.length).to.equal(1);
+            expect(items[0].contents()[0].getText()).to.equal('item1item2');
+        });
+        it('creates a new paragraph preceding the list from a first list item', function() {
+            var c = getCanvasFromXML('<section><div class="list"><div class="item">item1</div><div class="item">item2</div></div></section>'),
+                list = c.wlxmlDocument.root.contents()[0],
+                k = new Keyboard(c);
+
+            k.withCaret('|item1').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(2);
+            
+            expect(rootContents[0].getClass()).to.equal('p');
+            expect(rootContents[0].contents()[0].getText()).to.equal('item1');
+
+            expect(rootContents[1].sameNode(list)).to.equal(true);
+        });
+        it('removes list after moving up its only item', function() {
+            var c = getCanvasFromXML('<section><div class="list"><div class="item">item</div></div></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('|item').press(K.BACKSPACE);
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(1);
+            
+            expect(rootContents[0].getClass()).to.equal('p');
+            expect(rootContents[0].contents()[0].getText()).to.equal('item');
+        });
+    });
+
+
 });
 
 

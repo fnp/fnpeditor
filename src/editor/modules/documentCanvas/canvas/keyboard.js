@@ -359,32 +359,12 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
                 event.preventDefault();
                 node.setText('');
             }
-            else if(element.isEmpty()) {
-                event.preventDefault();
-                var parent = element.parent(),
-                    grandParent = parent ? parent.parent() : null;
-                if(!grandParent && parent.children().length === 1) {
-                    return;
-                }
-                if(parent.children().length === 1 && parent.children()[0].sameNode(element)) {
-                    if(grandParent && grandParent.children().length === 1) {
-                        goto = grandParent.wlxmlNode.append({text: ''});
-                    } else {
-                        goto = canvas.getNearestTextElement(direction, element);
-                    }
-                    parent.wlxmlNode.detach();
-                } else {
-                    goto = canvas.getNearestTextElement(direction, element);
-                    element.wlxmlNode.detach();
-                }
-                canvas.setCurrentElement(goto, {caretTo: caretTo});
-            }
             else if(cursorAtOperationEdge) {
                 if(direction === 'below') {
                     element = canvas.getNearestTextElement(direction, element);
                 }
-                if(element) {
-                    goto = element.wlxmlNode.mergeContentUp();
+                if(element && element.wlxmlNode.getIndex() === 0) {
+                    goto = element.wlxmlNode.parent().moveUp();
                     if(goto) {
                         canvas.setCurrentElement(goto.node, {caretTo: goto.offset});
                     }
@@ -399,8 +379,117 @@ handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
     }
 });
 
+var handleKeyEvent = function(e, s) {
+    keyEventHandlers.some(function(handler) {
+        if(handler.applies(e, s)) {
+            handler.run(e, s);
+            return true;
+        }
+    });
+};
+// todo: whileRemoveWholetext
+var keyEventHandlers = [
+    {
+        applies: function(e, s) {
+            return s.type === 'caret' && (
+                (s.isAtBeginning() && e.key === KEYS.BACKSPACE) ||
+                (s.isAtEnd() && e.key === KEYS.DELETE)
+            );
+        },
+        run: function(e,s) {
+            var direction, caretTo, cursorAtOperationEdge, goto, element;
+
+            if(e.key === KEYS.BACKSPACE) {
+                direction = 'above';
+                caretTo = 'end';
+                cursorAtOperationEdge = s.isAtBeginning();
+                element = s.element;
+            }
+            else {
+                direction = 'below';
+                caretTo = 'start';
+                cursorAtOperationEdge = s.isAtEnd();
+                if(cursorAtOperationEdge) {
+                    element = cursorAtOperationEdge && s.canvas.getNearestTextElement(direction, s.element);
+                }
+            }
+
+            if(!cursorAtOperationEdge || !element) {
+                return;
+            }
+
+            e.preventDefault();
+
+            s.canvas.wlxmlDocument.transaction(function() {
+                if(element.wlxmlNode.getIndex() === 0) {
+                    goto = element.wlxmlNode.parent().moveUp();
+                    if(goto) {
+                        s.canvas.setCurrentElement(goto.node, {caretTo: goto.offset});
+                    }
+                }
+            }, {
+                metadata: {
+                    description: gettext('Remove text')
+                }
+            });
+        }
+    }, 
+
+    {
+        applies: function(e, s) {
+            return s.type === 'textSelection' && (e.key === KEYS.BACKSPACE || e.key === KEYS.DELETE);
+        },
+        run: function(e, s) {
+            var direction = 'above',
+                caretTo = 'end',
+                goto;
+
+                
+            if(e.key === KEYS.DELETE) {
+                direction = 'below';
+                caretTo = 'start';
+            }
+
+            e.preventDefault();
+            if(direction === 'above') {
+                if(s.startsAtBeginning()) {
+                    goto = s.canvas.getNearestTextElement('above', s.startElement);
+                    caretTo = 'end';
+                } else {
+                    goto = s.startElement;
+                    caretTo = s.startOffset;
+                }
+            } else {
+                if(s.endsAtEnd()) {
+                    goto = s.canvas.getNearestTextElement('below', s.startElement);
+                    caretTo = 'start';
+                } else {
+                    goto = s.endElement;
+                    caretTo = 0;
+                }
+            }
+
+            s.canvas.wlxmlDocument.deleteText({
+                from: {
+                    node: s.startElement.wlxmlNode,
+                    offset: s.startOffset
+                },
+                to: {
+                    node: s.endElement.wlxmlNode,
+                    offset: s.endOffset
+                }
+            });
+            if(goto) {
+                s.canvas.setCurrentElement(goto, {caretTo: caretTo});
+            }
+        }
+    }
+];
+
 return {
-    handleKey: handleKey
+    handleKey: handleKey,
+    handleKeyEvent: handleKeyEvent,
+    KEYS: KEYS
 };
 
 });

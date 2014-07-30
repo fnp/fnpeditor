@@ -17,11 +17,43 @@ $.extend(CaretSelection.prototype, {
     toDocumentFragment: function() {
         var doc = this.canvas.wlxmlDocument;
         return doc.createFragment(doc.CaretFragment, {node: this.element.wlxmlNode, offset: this.offset});
+    },
+    isAtEdge: function() {
+        return this.isAtBeginning() || this.isAtEnd();
+    },
+    isAtBeginning: function() {
+        return this.offset === 0;
+    },
+    isAtEnd: function() {
+        return this.offset === this.element.getText().length;
     }
 });
 
 var TextSelection = function(canvas, params) {
+    var anchorFirst;
+
     Selection.call(this, canvas, params);
+
+    if(this.anchorElement.sameNode(this.focusElement)) {
+        anchorFirst = this.anchorOffset <= this.focusOffset;
+    } else {
+        /*jshint bitwise: false*/
+        /* globals Node */
+        anchorFirst = this.anchorElement.dom[0].compareDocumentPosition(this.focusElement.dom[0]) & Node.DOCUMENT_POSITION_FOLLOWING;
+    }
+
+    if(anchorFirst) {
+        this.startElement = this.anchorElement;
+        this.startOffset = this.anchorOffset;
+        this.endElement = this.focusElement;
+        this.endOffset = this.focusOffset;
+
+    } else {
+        this.startElement = this.focusElement;
+        this.startOffset = this.focusOffset;
+        this.endElement = this.anchorElement;
+        this.endOffset = this.anchorOffset;
+    }
 };
 TextSelection.prototype = Object.create(Selection.prototype);
 $.extend(TextSelection.prototype, {
@@ -49,6 +81,12 @@ $.extend(TextSelection.prototype, {
                 node2: siblingParents.node2
             });
         }
+    },
+    startsAtBeginning: function() {
+        return this.startOffset === 0;
+    },
+    endsAtEnd: function() {
+        return this.endOffset === this.endElement.getText().length;
     }
 });
 
