@@ -11,8 +11,9 @@ define([
 'modules/documentCanvas/canvas/genericElement',
 'modules/documentCanvas/canvas/nullElement',
 'modules/documentCanvas/canvas/gutter',
+'modules/documentCanvas/canvas/selection',
 'libs/text!./canvas.html'
-], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener, ElementsRegister, genericElement, nullElement, gutter, canvasTemplate) {
+], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener, ElementsRegister, genericElement, nullElement, gutter, selection, canvasTemplate) {
     
 'use strict';
 /* global document:false, window:false, Node:false, gettext */
@@ -316,9 +317,14 @@ $.extend(Canvas.prototype, Backbone.Events, {
     },
 
     triggerSelectionChanged: function() {
-        this.trigger('selectionChanged', this.getSelection());
         var s = this.getSelection(),
-            f = s.toDocumentFragment();
+            f;
+        if(!s) {
+            return;
+        }
+        this.trigger('selectionChanged', s);
+        f = s.toDocumentFragment();
+
         if(f && f instanceof f.RangeFragment) {
             if(this.currentNodeElement) {
                 this.currentNodeElement.updateState({active: false});
@@ -328,7 +334,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
     },
 
     getSelection: function() {
-        return new Selection(this);
+        return selection.fromNativeSelection(this);
     },
 
     select: function(fragment) {
@@ -438,69 +444,6 @@ $.extend(Canvas.prototype, Backbone.Events, {
     }
 });
 
-
-var isText = function(node) {
-    return node && node.nodeType === Node.TEXT_NODE && $(node.parentNode).is('[document-text-element]');
-};
-
-var Selection = function(canvas) {
-    this.canvas = canvas;
-    var nativeSelection = this.nativeSelection = window.getSelection();
-    Object.defineProperty(this, 'type', {
-        get: function() {
-            if(nativeSelection.focusNode) {
-                if(nativeSelection.isCollapsed && isText(nativeSelection.focusNode)) {
-                    return 'caret';
-                }
-                if(isText(nativeSelection.focusNode) && isText(nativeSelection.anchorNode)) {
-                    return 'textSelection';
-                }
-            }
-            if(canvas.getCurrentNodeElement()) {
-                return 'node';
-            }
-        }
-    });
-};
-
-$.extend(Selection.prototype, {
-    toDocumentFragment: function() {
-        var doc = this.canvas.wlxmlDocument,
-            anchorElement = this.canvas.getDocumentElement(this.nativeSelection.anchorNode),
-            focusElement = this.canvas.getDocumentElement(this.nativeSelection.focusNode),
-            anchorNode = anchorElement ? anchorElement.wlxmlNode : null,
-            focusNode = focusElement ? focusElement.wlxmlNode : null;
-        if(this.type === 'caret') {
-            return doc.createFragment(doc.CaretFragment, {node: anchorNode, offset: this.nativeSelection.anchorOffset});
-        }
-        if(this.type === 'textSelection') {
-            if(!anchorNode || !focusNode) {
-                return;
-            }
-            if(anchorNode.isSiblingOf(focusNode)) {
-                return doc.createFragment(doc.TextRangeFragment, {
-                    node1: anchorNode,
-                    offset1: this.nativeSelection.anchorOffset,
-                    node2: focusNode,
-                    offset2: this.nativeSelection.focusOffset,
-                });
-            }
-            else {
-                var siblingParents = doc.getSiblingParents({node1: anchorNode, node2: focusNode});
-                return doc.createFragment(doc.RangeFragment, {
-                    node1: siblingParents.node1,
-                    node2: siblingParents.node2
-                });
-            }
-        }
-        if(this.type === 'node') {
-            return doc.createFragment(doc.NodeFragment, {node: this.canvas.getCurrentNodeElement().wlxmlNode});
-        }
-    },
-    sameAs: function(other) {
-        void(other);
-    }
-});
 
 var Cursor = function(canvas) {
     this.canvas = canvas;
