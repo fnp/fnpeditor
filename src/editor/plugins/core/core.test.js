@@ -1,9 +1,11 @@
 define(function(require) {
     
 'use strict';
-/* globals describe, it */
 
-var _ = require('libs/underscore'),
+/* globals describe, it, afterEach */
+
+var $ = require('libs/jquery'),
+    _ = require('libs/underscore'),
     chai = require('libs/chai'),
     sinon = require('libs/sinon'),
     wlxml = require('wlxml/wlxml'),
@@ -23,7 +25,15 @@ var getDocumentFromXML = function(xml, options) {
 
 
 var getCanvasFromXML = function(xml, elements) {
-    return canvas.fromXMLDocument(getDocumentFromXML(xml), elements);
+    var c = canvas.fromXMLDocument(getDocumentFromXML(xml), elements),
+        view = c.view();
+    view.attr('canvas-test', true);
+    /* globals document */
+    $(document.body).append(view);
+    return c;
+};
+var removeCanvas = function() {
+    $('[canvas-test]').remove();
 };
 
 var getTextNodes = function(text, doc) {
@@ -153,7 +163,7 @@ describe('Document extensions', function() {
     });
 });
 
-describe.only('Keyboard interactions', function() {
+describe('Keyboard interactions', function() {
 
     var Keyboard = function(canvas) {
         this.canvas = canvas;
@@ -199,6 +209,8 @@ describe.only('Keyboard interactions', function() {
     });
 
     describe('deleting text with selection', function() {
+        afterEach(removeCanvas);
+
         [K.BACKSPACE, K.DELETE].forEach(function(key) {
             it('deletes text withing a single text element ' + key, function() {
                 var c = getCanvasFromXML('<section><div>Alice</div></section>'),
@@ -206,6 +218,12 @@ describe.only('Keyboard interactions', function() {
 
                 k.withSelection('A|lice', 'Alic|e').press(key);
                 expect(c.wlxmlDocument.root.contents()[0].contents()[0].getText()).to.equal('Ae');
+
+
+                var selection = c.getSelection();
+                expect(selection.type).to.equal('caret');
+                expect(selection.element.getText()).to.equal('Ae');
+                expect(selection.offset).to.equal(1);
             });
             it('deletes text across two paragraphs ' + key, function() {
                 var c = getCanvasFromXML('<section><div class="p">Alice</div><div class="p">cat</div></section>'),
@@ -217,6 +235,10 @@ describe.only('Keyboard interactions', function() {
                 expect(rootContents.length).to.equal(2);
                 expect(rootContents[0].contents()[0].getText()).to.equal('A');
                 expect(rootContents[1].contents()[0].getText()).to.equal('at');
+
+                var selection = c.getSelection();
+                expect(selection.type).to.equal('caret');
+                expect(selection.element.wlxmlNode.getText()).to.equal(key === K.BACKSPACE ? 'A' : 'at');
             });
 
             it('keeps an empty paragraph after deleting its whole text ' + key, function() {
@@ -228,31 +250,19 @@ describe.only('Keyboard interactions', function() {
 
                 expect(rootContents.length).to.equal(1);
                 expect(rootContents[0].contents()[0].getText()).to.equal('');
+                
+                var selection = c.getSelection();
+                expect(selection.type).to.equal('caret');
+                expect(selection.element.wlxmlNode.parent().sameNode(c.wlxmlDocument.root.contents()[0]));
             });
         });
 
     });
 
-    // describe('deleting with a caret', function() {
-    //     it('keeps an empty paragraph after deleteing last letter with backspace', function() {
-    //         var c = getCanvasFromXML('<section><div class="p">A</div></section>'),
-    //             k = new Keyboard(c);
-
-    //         k.withCaret('A|').press(K.BACKSPACE);
-    //         var rootContents = c.wlxmlDocument.root.contents();
-
-    //         expect(rootContents.length).to.equal(1);
-    //         expect(rootContents[0].contents()[0].getText()).to.equal('');    
-    //     });
-    //     // it('removes a paragraph on yet another delete' + key, function() {
-
-    //     // });
-    // });
-    
-
-            // + empty when bck/ins + l===1
 
     describe('backspace at the beginning', function() {
+        afterEach(removeCanvas);
+
         it('merges two adjacent paragraphs', function() {
             var c = getCanvasFromXML('<section><div class="p">A</div><div class="p">B</div></section>'),
                 k = new Keyboard(c);
@@ -263,6 +273,11 @@ describe.only('Keyboard interactions', function() {
             expect(rootContents.length).to.equal(1);
             expect(rootContents[0].getClass()).to.equal('p');
             expect(rootContents[0].contents()[0].getText()).to.equal('AB');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('AB', c))).to.equal(true);
+            expect(selection.offset).to.equal(1);
         });
         it('merges a paragraph with a header', function() {
             var c = getCanvasFromXML('<section><header>A</header><div class="p">B</div></section>'),
@@ -274,6 +289,11 @@ describe.only('Keyboard interactions', function() {
             expect(rootContents.length).to.equal(1);
             expect(rootContents[0].getTagName()).to.equal('header');
             expect(rootContents[0].contents()[0].getText()).to.equal('AB');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('AB', c))).to.equal(true);
+            expect(selection.offset).to.equal(1);
         });
         it('merges two adjacent headers', function() {
             var c = getCanvasFromXML('<section><header>A</header><header>B</header></section>'),
@@ -284,6 +304,11 @@ describe.only('Keyboard interactions', function() {
             expect(rootContents.length).to.equal(1);
             expect(rootContents[0].getTagName()).to.equal('header');
             expect(rootContents[0].contents()[0].getText()).to.equal('AB');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('AB', c))).to.equal(true);
+            expect(selection.offset).to.equal(1);
         });
         it('merges a header with a paragraph', function() {
             var c = getCanvasFromXML('<section><div class="p">A</div><header>B</header></section>'),
@@ -295,6 +320,11 @@ describe.only('Keyboard interactions', function() {
             expect(rootContents.length).to.equal(1);
             expect(rootContents[0].is('p')).to.equal(true);
             expect(rootContents[0].contents()[0].getText()).to.equal('AB');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('AB', c))).to.equal(true);
+            expect(selection.offset).to.equal(1);
         });
         it('merges a paragraph into a last list item', function() {
             var c = getCanvasFromXML('<section><div class="list"><div class="item">item</div></div><div class="p">paragraph</div></section>'),
@@ -310,6 +340,11 @@ describe.only('Keyboard interactions', function() {
             var items = list.contents();
             expect(items.length).to.equal(1);
             expect(items[0].contents()[0].getText()).to.equal('itemparagraph');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('itemparagraph', c))).to.equal(true);
+            expect(selection.offset).to.equal(4);
         });
         it('merges a list item with a list item', function() {
             var c = getCanvasFromXML('<section><div class="list"><div class="item">item1</div><div class="item">item2</div></div></section>'),
@@ -327,6 +362,11 @@ describe.only('Keyboard interactions', function() {
 
             expect(items.length).to.equal(1);
             expect(items[0].contents()[0].getText()).to.equal('item1item2');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('item1item2', c))).to.equal(true);
+            expect(selection.offset).to.equal(5);
         });
         it('creates a new paragraph preceding the list from a first list item', function() {
             var c = getCanvasFromXML('<section><div class="list"><div class="item">item1</div><div class="item">item2</div></div></section>'),
@@ -342,6 +382,11 @@ describe.only('Keyboard interactions', function() {
             expect(rootContents[0].contents()[0].getText()).to.equal('item1');
 
             expect(rootContents[1].sameNode(list)).to.equal(true);
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('item1', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
         });
         it('removes list after moving up its only item', function() {
             var c = getCanvasFromXML('<section><div class="list"><div class="item">item</div></div></section>'),
@@ -353,6 +398,11 @@ describe.only('Keyboard interactions', function() {
             
             expect(rootContents[0].getClass()).to.equal('p');
             expect(rootContents[0].contents()[0].getText()).to.equal('item');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('item', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
         });
     });
 

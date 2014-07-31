@@ -88,10 +88,23 @@ plugin.documentExtension.elementNode.transformations = {
             prev = toMerge.prev();
 
         var merge = function(from, to) {
-            from.contents().forEach(function(node) {
-                to.append(node);
+            var toret;
+            from.contents().forEach(function(node, idx) {
+                var len, ret;
+                if(idx === 0 && node.nodeType === Node.TEXT_NODE) {
+                    len = node.getText().length;
+                }
+                ret = to.append(node);
+                
+                if(idx === 0) {
+                    toret = {
+                        node: ret,
+                        offset: ret.getText().length - len
+                    };
+                }
             });
             from.detach();
+            return toret;
         };
 
         var strategies = [
@@ -101,12 +114,11 @@ plugin.documentExtension.elementNode.transformations = {
                 },
                 run: function() {
                     if(prev && prev.is('p') || prev.is({tagName: 'header'})) {
-                        merge(toMerge, prev);
+                        return merge(toMerge, prev);
                     }
                     if(prev && prev.is('list')) {
                         var items = prev.contents().filter(function(n) { return n.is('item');});
-                        merge(toMerge, items[items.length-1]);
-                        //return {node: toMerge, offset:0};
+                        return merge(toMerge, items[items.length-1]);
                     }
                 }
             },
@@ -116,7 +128,7 @@ plugin.documentExtension.elementNode.transformations = {
                 },
                 run: function() {
                     if(prev && prev.is('p') || prev.is({tagName: 'header'})) {
-                        merge(toMerge, prev);
+                        return merge(toMerge, prev);
                     }
                 }
             },
@@ -127,7 +139,7 @@ plugin.documentExtension.elementNode.transformations = {
                 run: function() {
                     var list;
                     if(prev && prev.is('item')) {
-                        merge(toMerge, prev);
+                        return merge(toMerge, prev);
                     } else if(!prev && (list = toMerge.parent()) && list.is('list')) {
                         list.before(toMerge);
                         toMerge.setClass('p');

@@ -409,9 +409,7 @@ var keyEventHandlers = [
                 direction = 'below';
                 caretTo = 'start';
                 cursorAtOperationEdge = s.isAtEnd();
-                if(cursorAtOperationEdge) {
-                    element = cursorAtOperationEdge && s.canvas.getNearestTextElement(direction, s.element);
-                }
+                element = cursorAtOperationEdge && s.canvas.getNearestTextElement(direction, s.element);
             }
 
             if(!cursorAtOperationEdge || !element) {
@@ -433,7 +431,18 @@ var keyEventHandlers = [
                 }
             });
         }
-    }, 
+    },
+
+    {
+        applies: function(e,s) {
+            return s.type === 'caret' && s.element.getText().length === 1 && (e.key === KEYS.BACKSPACE || e.key === KEYS.DELETE);
+        },
+        run: function(e,s) {
+            e.preventDefault();
+            e.element.wlxmlNode.setText('');
+            s.canvas.setCurrentElement(s.element, {caretTo: 0});
+        }
+    },
 
     {
         applies: function(e, s) {
@@ -444,14 +453,17 @@ var keyEventHandlers = [
                 caretTo = 'end',
                 goto;
 
-                
             if(e.key === KEYS.DELETE) {
                 direction = 'below';
                 caretTo = 'start';
             }
 
             e.preventDefault();
-            if(direction === 'above') {
+
+            if(s.startsAtBeginning && s.endsAtEnd && s.startElement.sameNode(s.endElement)) {
+                goto = s.startElement;
+                caretTo = s.startOffset;
+            } else if(direction === 'above') {
                 if(s.startsAtBeginning()) {
                     goto = s.canvas.getNearestTextElement('above', s.startElement);
                     caretTo = 'end';
@@ -469,19 +481,28 @@ var keyEventHandlers = [
                 }
             }
 
-            s.canvas.wlxmlDocument.deleteText({
-                from: {
-                    node: s.startElement.wlxmlNode,
-                    offset: s.startOffset
-                },
-                to: {
-                    node: s.endElement.wlxmlNode,
-                    offset: s.endOffset
+            var doc = s.canvas.wlxmlDocument;
+            doc.transaction(function() {
+                
+                doc.deleteText({
+                    from: {
+                        node: s.startElement.wlxmlNode,
+                        offset: s.startOffset
+                    },
+                    to: {
+                        node: s.endElement.wlxmlNode,
+                        offset: s.endOffset
+                    }
+                });
+
+            }, {
+                success: function() {
+                    if(goto) {
+                        s.canvas.setCurrentElement(goto, {caretTo: caretTo});
+                    }
                 }
             });
-            if(goto) {
-                s.canvas.setCurrentElement(goto, {caretTo: caretTo});
-            }
+
         }
     }
 ];
