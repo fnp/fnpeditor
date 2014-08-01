@@ -19,6 +19,7 @@ plugin.documentExtension.textNode.transformations = {
     breakContent: {
         impl: function(args) {
             var node = this,
+                isSpan = node.parent().getTagName() === 'span',
                 parentDescribingNodes = [],
                 newNodes, emptyText;
             newNodes = node.split({offset: args.offset});
@@ -40,10 +41,51 @@ plugin.documentExtension.textNode.transformations = {
             parentDescribingNodes.forEach(function(node) {
                 newNodes.first.append(node);
             });
+
+            var parent, newNode;
+
+            var copyNode = function(n) {
+                var attrs = {};
+                n.getAttrs().forEach(function(attr) {
+                    attrs[attr.name] = attr.value;
+                });
+
+                return node.document.createDocumentNode({
+                    tagName: n.getTagName(),
+                    attrs: attrs
+                });
+            };
+
+            var move = function(node, to) {
+                var copy;
+                if(!node.containsNode(newNodes.second)) {
+                    to.append(node);
+                    return false;
+                } else {
+                    if(!node.sameNode(newNodes.second)) {
+                        copy = to.append(copyNode(node));
+                        node.contents().some(function(n) {
+                            return move(n, copy);
+                        });
+                    }
+                    return true;
+                }
+            };
+
+            if(isSpan) {
+                newNodes.first.parents().some(function(p) {
+                    if(p.getTagName() !== 'span') {
+                        parent = p;
+                        return true;
+                    }
+                });
+                newNode = parent.before({tagName: parent.getTagName(), attrs: {'class': parent.getClass()}});
+                parent.contents().some(function(n) {
+                    return move(n, newNode);
+                });
+            }
+
             return _.extend(newNodes, {emptyText: emptyText});
-        },
-        getChangeRoot: function() {
-            return this.context.parent().parent();
         }
     },
     mergeContentUp: function() {

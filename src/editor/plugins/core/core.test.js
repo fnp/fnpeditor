@@ -463,6 +463,84 @@ describe('Keyboard interactions', function() {
             expect(selection.element.sameNode(getTextElement('', c))).to.equal(true);
             expect(selection.offset).to.equal(0);
         });
+
+        it('splits its parent box if inside a span', function() {
+            var c = getCanvasFromXML('<section><div class="p">this <span>is</span> a paragraph</div></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('i|s').press(K.ENTER);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+
+            expect(rootContents.length).to.equal(2);
+
+            var p1 = rootContents[0],
+                p2 = rootContents[1];
+
+            expect(p1.is({tagName: 'div', klass: 'p'})).to.equal(true);
+            expect(p2.is({tagName: 'div', klass: 'p'})).to.equal(true);
+
+            var p1Contents = p1.contents(),
+                p2Contents = p2.contents();
+
+            expect(p1Contents[0].getText()).to.equal('this ');
+            expect(p1Contents[1].is({tagName: 'span'})).to.equal(true);
+            expect(p1Contents[1].contents()[0].getText()).to.equal('i');
+
+            
+            expect(p2Contents[0].is({tagName: 'span'})).to.equal(true);
+            expect(p2Contents[0].contents()[0].getText()).to.equal('s');
+            expect(p2Contents[1].getText()).to.equal(' a paragraph');
+
+            var selection = c.getSelection();
+            expect(selection.element.sameNode(getTextElement('s', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
+        });
+
+        it('splits its parent box if inside a double span', function() {
+            var c = getCanvasFromXML('<section><div class="p">this <span test="outer"><span test="inner">is</span></span> a paragraph</div></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('i|s').press(K.ENTER);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+
+            expect(rootContents.length).to.equal(2);
+
+            var p1 = rootContents[0],
+                p2 = rootContents[1];
+
+            expect(p1.is({tagName: 'div', klass: 'p'})).to.equal(true);
+            expect(p2.is({tagName: 'div', klass: 'p'})).to.equal(true);
+
+            var p1Contents = p1.contents(),
+                p2Contents = p2.contents();
+
+            /* first paragraph */
+            expect(p1Contents[0].getText()).to.equal('this ');
+            
+            var outer1 = p1Contents[1];
+            expect(outer1.getAttr('test')).to.equal('outer');
+            expect(outer1.contents().length).to.equal(1);
+            var inner1 = outer1.contents()[0];
+            expect(inner1.getAttr('test')).to.equal('inner');
+            expect(inner1.contents()[0].getText()).to.equal('i');
+
+            /* second paragraph */
+            var outer2 = p2Contents[0];
+            expect(outer2.getAttr('test')).to.equal('outer');
+            expect(outer2.contents().length).to.equal(1);
+            var inner2 = outer2.contents()[0];
+            expect(inner2.getAttr('test')).to.equal('inner');
+            expect(inner2.contents()[0].getText()).to.equal('s');
+
+            expect(p2Contents[1].getText()).to.equal(' a paragraph');
+
+            /* caret */
+            var selection = c.getSelection();
+            expect(selection.element.sameNode(getTextElement('s', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
+        });
     });
 
 
