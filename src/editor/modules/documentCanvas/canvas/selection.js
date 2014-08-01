@@ -121,21 +121,25 @@ return {
         /* globals window */
         var nativeSelection =  window.getSelection(),
             params = {},
-            element;
+            element, anchorElement, focusElement;
+            
         if(nativeSelection.focusNode) {
             if(nativeSelection.isCollapsed && isText(nativeSelection.focusNode)) {
+                element = canvas.getDocumentElement(nativeSelection.focusNode);
                 params = {
                     type: 'caret',
-                    element: canvas.getDocumentElement(nativeSelection.focusNode),
-                    offset: nativeSelection.focusOffset
+                    element: element,
+                    offset: element.isEmpty() ? 0 : nativeSelection.focusOffset
                 };
             } else if(isText(nativeSelection.focusNode) && isText(nativeSelection.anchorNode)) {
+                anchorElement = canvas.getDocumentElement(nativeSelection.anchorNode);
+                focusElement = canvas.getDocumentElement(nativeSelection.focusNode);
                 params = {
                     type: 'textSelection',
-                    anchorElement: canvas.getDocumentElement(nativeSelection.anchorNode),
-                    anchorOffset: nativeSelection.anchorOffset,
-                    focusElement: canvas.getDocumentElement(nativeSelection.focusNode),
-                    focusOffset: nativeSelection.focusOffset
+                    anchorElement: anchorElement,
+                    anchorOffset: anchorElement.isEmpty() ? 0 : nativeSelection.anchorOffset,
+                    focusElement: focusElement,
+                    focusOffset: focusElement.isEmpty() ? 0 : nativeSelection.focusOffset
                 };
             }
         } else if((element = canvas.getCurrentNodeElement())) {
