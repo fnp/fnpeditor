@@ -406,6 +406,65 @@ describe('Keyboard interactions', function() {
         });
     });
 
+    describe('splitting with enter', function() {
+        afterEach(removeCanvas);
+
+        it('splits paragraph into two in the middle', function() {
+            var c = getCanvasFromXML('<section><div class="p">paragraph</div></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('para|graph').press(K.ENTER);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(2);
+            expect(rootContents[0].is({tagName: 'div', klass: 'p'})).to.equal(true);
+            expect(rootContents[0].contents()[0].getText()).to.equal('para');
+            expect(rootContents[1].is({tagName: 'div', klass: 'p'})).to.equal(true);
+            expect(rootContents[1].contents()[0].getText()).to.equal('graph');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('graph', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
+        });
+        it('splits paragraph into two at the beginning', function() {
+            var c = getCanvasFromXML('<section><div class="p">paragraph</div></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('|paragraph').press(K.ENTER);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(2);
+            expect(rootContents[0].is({tagName: 'div', klass: 'p'})).to.equal(true);
+            expect(rootContents[0].contents()[0].getText()).to.equal('');
+            expect(rootContents[1].is({tagName: 'div', klass: 'p'})).to.equal(true);
+            expect(rootContents[1].contents()[0].getText()).to.equal('paragraph');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
+        });
+        it('splits paragraph into two at the end', function() {
+            var c = getCanvasFromXML('<section><div class="p">paragraph</div></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('paragraph|').press(K.ENTER);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(2);
+            expect(rootContents[0].is({tagName: 'div', klass: 'p'})).to.equal(true);
+            expect(rootContents[0].contents()[0].getText()).to.equal('paragraph');
+            expect(rootContents[1].is({tagName: 'div', klass: 'p'})).to.equal(true);
+            expect(rootContents[1].contents()[0].getText()).to.equal('');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
+        });
+    });
+
 
 });
 

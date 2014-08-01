@@ -504,6 +504,34 @@ var keyEventHandlers = [
             });
 
         }
+    },
+    {
+        applies: function(e, s) {
+            return s.type === 'caret' && e.key === KEYS.ENTER && !s.element.parent().isRootElement();
+        },
+        run: function(e, s) {
+            var result, goto, gotoOptions;
+            void(e);
+            e.preventDefault();
+            s.canvas.wlxmlDocument.transaction(function() {
+                result = s.element.wlxmlNode.breakContent({offset: s.offset});
+            }, {
+                metadata: {
+                    description: gettext('Splitting text'),
+                    fragment: s.toDocumentFragment()
+                }
+            });
+
+            if(result.emptyText) {
+                goto = result.emptyText;
+                gotoOptions = {};
+            } else {
+                goto = result.second;
+                gotoOptions = {caretTo: 'start'};
+            }
+
+            s.canvas.setCurrentElement(utils.getElementForNode(goto), gotoOptions);
+        }
     }
 ];
 
