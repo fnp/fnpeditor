@@ -12,8 +12,9 @@ define([
 'modules/documentCanvas/canvas/nullElement',
 'modules/documentCanvas/canvas/gutter',
 'modules/documentCanvas/canvas/selection',
+'modules/documentCanvas/canvas/keyEvent',
 'libs/text!./canvas.html'
-], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener, ElementsRegister, genericElement, nullElement, gutter, selection, canvasTemplate) {
+], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener, ElementsRegister, genericElement, nullElement, gutter, selection, keyEvent, canvasTemplate) {
     
 'use strict';
 /* global document:false, window:false, Node:false, gettext */
@@ -159,10 +160,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
 
         /* globals document */
         $(document.body).on('keydown', function(e) {
-            var cursor = canvas.getCursor();
-            if(cursor.isSelecting() || Object.keys(cursor.getPosition()).length) {
-                keyboard.handleKey(e, canvas);
-            }
+            canvas.triggerKeyEvent(keyEvent.fromNativeEvent(e));
         });
 
         this.rootWrapper.on('mouseup', function() {

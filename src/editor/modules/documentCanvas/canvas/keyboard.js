@@ -1,8 +1,7 @@
 define([
 'libs/jquery',
-'modules/documentCanvas/canvas/documentElement',
 'modules/documentCanvas/canvas/utils'
-], function($, documentElement, utils) {
+], function($, utils) {
     
 'use strict';
 /* globals gettext */
@@ -17,26 +16,6 @@ var KEYS = {
     DELETE: 46,
     X: 88
 };
-
-var handleKey = function(event, canvas) {
-    handlers.some(function(handler) {
-        if(handles(handler, event) && handler[event.type]) {
-            handler[event.type](event, canvas);
-            return true;
-        }
-    });
-};
-
-var handles = function(handler, event) {
-    if(handler.key === event.which) {
-        return true;
-    }
-    if(handler.keys && handler.keys.indexOf(event.which) !== -1) {
-        return true;
-    }
-    return false;
-};
-
 
 var scroll = function(place, textElement) {
     var rect = textElement.getBoundingClientRect(),
@@ -85,191 +64,6 @@ var getFirstRectBelow = function(node, y) {
     }
     return toret;
 };
-
-var handlers = [];
-
-
-handlers.push({key: KEYS.ENTER,
-    keydown: function(event, canvas) {
-        event.preventDefault();
-        var cursor = canvas.getCursor(),
-            position = cursor.getPosition(),
-            element = position.element;
-
-        if(Object.keys(cursor.getPosition()).length === 0) {
-            var currentElement = canvas.getCurrentNodeElement();
-            if(currentElement && !currentElement.wlxmlNode.isRoot()) {
-                canvas.wlxmlDocument.transaction(function() {
-                    var added = currentElement.wlxmlNode.after({
-                        tagName: currentElement.wlxmlNode.getTagName() || 'div',
-                        attrs: {'class': currentElement.wlxmlNode.getClass() || 'p'}
-                    });
-                    added.append({text:''});
-                    return added;
-                }, {
-                    metadata: {
-                        description: gettext('Splitting text')
-                    },
-                    success: function(ret) {
-                        canvas.setCurrentElement(utils.getElementForNode(ret), {caretTo: 'start'});
-                    }
-                });
-
-            }
-            return;
-        }
-
-        if(!cursor.isSelecting()) {
-            if(event.ctrlKey) {
-                if(element instanceof documentElement.DocumentTextElement) {
-                    element = element.parent();
-                }
-
-                canvas.wlxmlDocument.transaction(function() {
-                    var added = element.wlxmlNode.after(
-                        {tagName: element.wlxmlNode.getTagName() || 'div', attrs: {'class': element.wlxmlNode.getClass() || 'p'}}
-                    );
-                    added.append({text: ''});
-                    return added;
-                }, {
-                    metadata: {
-                        description: gettext('Splitting text')
-                    },
-                    success: function(ret) {
-                        canvas.setCurrentElement(utils.getElementForNode(ret), {caretTo: 'start'});
-                    }
-                });
-
-            } else {
-
-                if(!(element.parent().parent())) {
-                    return false; // top level element is unsplittable
-                }
-
-                var node = position.element.wlxmlNode,
-                    result, goto, gotoOptions;
-
-                node.document.transaction(function() {
-                    result = position.element.wlxmlNode.breakContent({offset: position.offset});
-                }, {
-                    metadata: {
-                        description: gettext('Splitting text')
-                    }
-                });
-
-                if(result.emptyText) {
-                    goto = result.emptyText;
-                    gotoOptions = {};
-                } else {
-                    goto = result.second;
-                    gotoOptions = {caretTo: 'start'};
-                }
-
-                canvas.setCurrentElement(utils.getElementForNode(goto), gotoOptions);
-            }
-        }
-    }
-});
-
-
-var selectsWholeTextElement = function(cursor) {
-    if(cursor.isSelecting() && cursor.getSelectionStart().offsetAtBeginning && cursor.getSelectionEnd().offsetAtEnd) {
-        return true;
-    }
-    return false;
-};
-
-handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
-    keydown: function(event, canvas) {
-        var cursor = canvas.getCursor(),
-            position = canvas.getCursor().getPosition(),
-            element = position.element,
-            node = element ? element.wlxmlNode : null,
-            direction = 'above',
-            caretTo = 'end',
-            goto;
-
-        if(!element || !node) {
-            return;
-        }
-            
-        if(event.which === KEYS.DELETE) {
-            direction = 'below';
-            caretTo = 'start';
-        }
-
-        if(cursor.isSelecting()) {
-            event.preventDefault();
-            var start = cursor.getSelectionStart(),
-                end = cursor.getSelectionEnd();
-
-            if(direction === 'above') {
-                if(start.offsetAtBeginning) {
-                    goto = canvas.getNearestTextElement('above', start.element);
-                    caretTo = 'end';
-                } else {
-                    goto = start.element;
-                    caretTo = start.offset;
-                }
-            } else {
-                if(end.offsetAtEnd) {
-                    goto = canvas.getNearestTextElement('below', start.element);
-                    caretTo = 'start';
-                } else {
-                    goto = end.element;
-                    caretTo = 0;
-                }
-            }
-
-            canvas.wlxmlDocument.deleteText({
-                from: {
-                    node: start.element.wlxmlNode,
-                    offset: start.offset
-                },
-                to: {
-                    node: end.element.wlxmlNode,
-                    offset: end.offset
-                }
-            });
-            if(goto) {
-                canvas.setCurrentElement(goto, {caretTo: caretTo});
-            }
-            return;
-        }
-            
-        var cursorAtOperationEdge = position.offsetAtBeginning;
-        if(event.which === KEYS.DELETE) {
-            cursorAtOperationEdge = position.offsetAtEnd;
-        }
-
-        var willDeleteWholeText = function() {
-            return element.getText().length === 1 || selectsWholeTextElement(cursor);
-        };
-
-        canvas.wlxmlDocument.transaction(function() {
-            if(willDeleteWholeText()) {
-                event.preventDefault();
-                node.setText('');
-            }
-            else if(cursorAtOperationEdge) {
-                if(direction === 'below') {
-                    element = canvas.getNearestTextElement(direction, element);
-                }
-                if(element && element.wlxmlNode.getIndex() === 0) {
-                    goto = element.wlxmlNode.parent().moveUp();
-                    if(goto) {
-                        canvas.setCurrentElement(goto.node, {caretTo: goto.offset});
-                    }
-                }
-                event.preventDefault();
-            }
-        }, {
-            metadata: {
-                description: gettext('Remove text')
-            }
-        });
-    }
-});
 
 var handleKeyEvent = function(e, s) {
     keyEventHandlers.some(function(handler) {
@@ -585,7 +379,6 @@ var keyEventHandlers = [
 ];
 
 return {
-    handleKey: handleKey,
     handleKeyEvent: handleKeyEvent,
     KEYS: KEYS
 };
