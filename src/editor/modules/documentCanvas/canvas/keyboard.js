@@ -282,7 +282,7 @@ var keyEventHandlers = [
         },
         run: function(e,s) {
             e.preventDefault();
-            e.element.wlxmlNode.setText('');
+            s.element.wlxmlNode.setText('');
             s.canvas.setCurrentElement(s.element, {caretTo: 0});
         }
     },

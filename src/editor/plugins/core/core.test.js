@@ -700,6 +700,26 @@ describe('Keyboard interactions', function() {
         });
     });
 
+    describe('Deleting text from a node', function() {
+        it('deletes last character with backspace', function() {
+            var c = getCanvasFromXML('<section><div class="p">a</div><div class="p">b</div></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('b|').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(2);
+            expect(rootContents[0].is({tagName: 'div', klass: 'p'})).to.equal(true);
+            expect(rootContents[0].contents()[0].getText()).to.equal('a');
+            expect(rootContents[1].is({tagName: 'div', klass: 'p'})).to.equal(true);
+            expect(rootContents[1].contents()[0].getText()).to.equal('');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
+        });
+    });
 
 });
 
