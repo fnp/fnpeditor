@@ -391,6 +391,24 @@ var handleKeyEvent = function(e, s) {
 var keyEventHandlers = [
     {
         applies: function(e, s) {
+            return s.type === 'caret' &&
+                s.element.wlxmlNode.parent().is({tagName: 'span'}) &&
+                s.element.wlxmlNode.getText().length === 1 &&
+                s.offset === 1 &&
+                (e.key === KEYS.BACKSPACE);
+        },
+        run: function(e, s) {
+            var params = {},
+                prevTextNode = s.element.canvas.getPreviousTextElement(s.element).wlxmlNode;
+            e.preventDefault();
+            s.element.wlxmlNode.parent().detach(params);
+            s.canvas.setCurrentElement(
+                (params.ret && params.ret.mergedTo) || prevTextNode,
+                {caretTo: params.ret ? params.ret.previousLen : (prevTextNode ? prevTextNode.getText().length : 0)});
+        }
+    },
+    {
+        applies: function(e, s) {
             return s.type === 'caret' && (
                 (s.isAtBeginning() && e.key === KEYS.BACKSPACE) ||
                 (s.isAtEnd() && e.key === KEYS.DELETE)

@@ -409,6 +409,22 @@ describe('Keyboard interactions', function() {
     describe('backspace at the beginning of a span', function() {
         afterEach(removeCanvas);
 
+        it('deletes span if it contains only one character', function() {
+            var c = getCanvasFromXML('<section>Alice<span class="emp">h</span>a cat</section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('h|').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(1);
+            expect(rootContents[0].getText()).to.equal('Alicea cat');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('Alicea cat', c))).to.equal(true);
+            expect(selection.offset).to.equal(5);
+        });
+
         it('deletes from the end of the preceding text element', function() {
             var c = getCanvasFromXML('<section>Alice<span>has a cat</span></section>'),
                 k = new Keyboard(c);
