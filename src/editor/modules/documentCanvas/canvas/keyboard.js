@@ -421,9 +421,11 @@ var keyEventHandlers = [
             s.canvas.wlxmlDocument.transaction(function() {
                 if(element.wlxmlNode.getIndex() === 0) {
                     goto = element.wlxmlNode.parent().moveUp();
-                    if(goto) {
-                        s.canvas.setCurrentElement(goto.node, {caretTo: goto.offset});
-                    }
+                } else {
+                    goto = element.wlxmlNode.moveUp();
+                }
+                if(goto) {
+                   s.canvas.setCurrentElement(goto.node, {caretTo: goto.offset});
                 }
             }, {
                 metadata: {

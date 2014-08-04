@@ -260,7 +260,7 @@ describe('Keyboard interactions', function() {
     });
 
 
-    describe('backspace at the beginning', function() {
+    describe('backspace at the beginning of a block', function() {
         afterEach(removeCanvas);
 
         it('merges two adjacent paragraphs', function() {
@@ -403,6 +403,147 @@ describe('Keyboard interactions', function() {
             expect(selection.type).to.equal('caret');
             expect(selection.element.sameNode(getTextElement('item', c))).to.equal(true);
             expect(selection.offset).to.equal(0);
+        });
+    });
+
+    describe('backspace at the beginning of a span', function() {
+        afterEach(removeCanvas);
+
+        it('deletes from the end of the preceding text element', function() {
+            var c = getCanvasFromXML('<section>Alice<span>has a cat</span></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('|has a cat').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(2);
+            expect(rootContents[0].getText()).to.equal('Alic');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('has a cat', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
+        });
+
+        it('deletes from the end of the preceding text element - multiple spans', function() {
+            var c = getCanvasFromXML('<section>Alice<span><span>has a cat</span></span></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('|has a cat').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(2);
+            expect(rootContents[0].getText()).to.equal('Alic');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('has a cat', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
+        });
+
+        it('deletes from the end of the preceding span element content', function() {
+            var c = getCanvasFromXML('<section><span>Alice</span><span>has a cat</span></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('|has a cat').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(2);
+            expect(rootContents[0].is({tagName: 'span'})).to.equal(true);
+            expect(rootContents[0].contents()[0].getText()).to.equal('Alic');
+
+            expect(rootContents[1].contents()[0].getText()).to.equal('has a cat');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('has a cat', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
+        });
+
+        it('deletes from the end of the preceding span element content - multiple spans', function() {
+            var c = getCanvasFromXML('<section><span>Alice</span><span><span>has a cat</span></span></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('|has a cat').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(2);
+            expect(rootContents[0].is({tagName: 'span'})).to.equal(true);
+            expect(rootContents[0].contents()[0].getText()).to.equal('Alic');
+
+            var outerSpan = rootContents[1];
+            expect(outerSpan.is({tagName: 'span'})).to.equal(true);
+
+            var innerSpan = outerSpan.contents()[0];
+            expect(innerSpan.contents()[0].getText()).to.equal('has a cat');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('has a cat', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
+        });
+
+        it('merges two paragrahps if span is a first content of the second paragraph', function() {
+            var c = getCanvasFromXML('<section><div class="p">para</div><div class="p"><span>Alice</span> has a cat</div></section>'),
+                k = new Keyboard(c);
+            
+            k.withCaret('|Alice').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+
+            expect(rootContents.length).to.equal(1, 'single paragraph left');
+
+            var p = rootContents[0],
+                pContents = p.contents();
+
+            expect(p.is('p')).to.equal(true);
+
+            expect(pContents.length).to.equal(3);
+            expect(pContents[0].getText()).to.equal('para');
+            expect(pContents[1].contents().length).to.equal(1);
+            expect(pContents[1].contents()[0].getText()).to.equal('Alice');
+
+            expect(pContents[2].getText()).to.equal(' has a cat');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('Alice', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
+        });
+    });
+
+    describe('backspace before a span', function() {
+        it('deletes from the end of a span', function() {
+            var c = getCanvasFromXML('<section><span>Alice</span>has a cat</section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('|has a cat').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(2);
+            expect(rootContents[0].is({tagName: 'span'})).to.equal(true);
+            expect(rootContents[0].contents()[0].getText()).to.equal('Alic');
+            expect(rootContents[1].getText()).to.equal('has a cat');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('has a cat', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
+        });
+        it('deletes span if it contains only one character', function() {
+            var c = getCanvasFromXML('<section>Alice <span>h</span> a cat</section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('| a cat').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(1);
+            expect(rootContents[0].getText()).to.equal('Alice  a cat');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('Alice  a cat', c))).to.equal(true);
+            expect(selection.offset).to.equal(6);
         });
     });
 

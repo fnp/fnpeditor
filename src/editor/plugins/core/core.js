@@ -8,7 +8,7 @@ var _ = require('libs/underscore'),
     footnote = require('plugins/core/footnote'),
     switchTo = require('plugins/core/switch'),
     lists = require('plugins/core/lists'),
-    plugin = {name: 'core', actions: [], canvas: {}, documentExtension: {textNode: {}, elementNode: {}}},
+    plugin = {name: 'core', actions: [], canvas: {}, documentExtension: {textNode: {}, documentNode: {}}},
     Dialog = require('views/dialog/dialog'),
     canvasElements = require('plugins/core/canvasElements'),
     metadataEditor = require('plugins/core/metadataEditor/metadataEditor');
@@ -124,7 +124,7 @@ plugin.documentExtension.textNode.transformations = {
     }
 };
 
-plugin.documentExtension.elementNode.transformations = {
+plugin.documentExtension.documentNode.transformations = {
     moveUp: function() {
         var toMerge = this,
             prev = toMerge.prev();
@@ -138,10 +138,15 @@ plugin.documentExtension.elementNode.transformations = {
                 }
                 ret = to.append(node);
                 
-                if(idx === 0) {
+                if(idx === 0 && ret.nodeType === Node.TEXT_NODE) {
                     toret = {
                         node: ret,
                         offset: ret.getText().length - len
+                    };
+                } else if(!toret) {
+                    toret = {
+                        node: ret.getFirstTextNode(),
+                        offset: 0
                     };
                 }
             });
@@ -152,7 +157,32 @@ plugin.documentExtension.elementNode.transformations = {
         var strategies = [
             {
                 applies: function() {
-                    return toMerge.is('p');
+                    return toMerge.nodeType === Node.TEXT_NODE && prev.is({tagName: 'span'});
+                },
+                run: function() {
+                    var textNode = prev.getLastTextNode(),
+                        txt, prevText, prevTextLen;
+                    if(textNode) {
+                        txt = textNode.getText();
+                        if(txt.length > 1) {
+                            textNode.setText(txt.substr(0, txt.length-1));
+                            return {node: toMerge, offset: 0};
+                        } else {
+                            if((prevText = prev.prev()) && prevText.nodeType === Node.TEXT_NODE) {
+                                prevTextLen = prevText.getText().length;
+                            }
+                            prev.detach();
+                            return {
+                                node: prevText ? prevText : toMerge,
+                                offset : prevText ? prevTextLen : 0
+                            };
+                        }
+                    }
+                }
+            },
+            {
+                applies: function() {
+                    return toMerge.is({tagName: 'div', 'klass': 'p'}) || (toMerge.is({tagName: 'div'}) && toMerge.getClass() === '');
                 },
                 run: function() {
                     if(prev && prev.is('p') || prev.is({tagName: 'header'})) {
@@ -162,6 +192,43 @@ plugin.documentExtension.elementNode.transformations = {
                         var items = prev.contents().filter(function(n) { return n.is('item');});
                         return merge(toMerge, items[items.length-1]);
                     }
+                }
+            },
+            {
+                applies: function() {
+                    return toMerge.is({tagName: 'span'});
+                },
+                run: function() {
+                    /* globals Node */
+                    var toret = {node: toMerge.contents()[0] , offset: 0},
+                        txt, txtNode, parent;
+                    if(!prev) {
+                        toMerge.parents().some(function(p) {
+                            if(p.is({tagName: 'span'})) {
+                                parent = prev = p;
+                            } else {
+                                if(!parent) {
+                                    parent = p;
+                                }
+                                prev = prev && prev.prev();
+                                return true;
+                            }
+                        });
+                    }
+                    if(!prev) {
+                        return parent.moveUp();
+                    }
+                    else if(prev.nodeType === Node.TEXT_NODE && (txt = prev.getText())) {
+                        prev.setText(txt.substr(0, txt.length-1));
+                        return toret;
+                    } else if(prev.is({tagName: 'span'})) {
+                        if((txtNode = prev.getLastTextNode())) {
+                            txt = txtNode.getText();
+                            txtNode.setText(txt.substr(0, txt.length-1));
+                            return toret;
+                        }
+                    }
+
                 }
             },
             {
