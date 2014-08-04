@@ -121,10 +121,13 @@ var documentNodeTransformations = {
 var elementNodeTransformations = {
 
     detach: function(params) {
-        var next;
-        params = _.extend({
-            normalizeStrategy: 'merge'
-        }, params);
+        var next, prev;
+
+        params = params || {};
+
+        if(!params.normalizeStrategy) {
+            params.normalizeStrategy = 'merge';
+        }
 
         if(this.parent() && this.isSurroundedByTextNodes()) {
             if(params.normalizeStrategy === 'detach-left') {
@@ -133,7 +136,12 @@ var elementNodeTransformations = {
                 this.next().detach();
             } else if(params.normalizeStrategy === 'merge') {
                 next = this.next();
-                this.prev().appendText(next.getText());
+                prev = this.prev();
+                params.ret = {
+                    mergedTo: prev,
+                    previousLen: prev.getText().length
+                };
+                prev.appendText(next.getText());
                 next.detach();
             } else {
                 throw new Error('unknown normalize strategy for detach');
