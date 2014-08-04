@@ -171,106 +171,6 @@ handlers.push({key: KEYS.ENTER,
     }
 });
 
-handlers.push({keys: [KEYS.ARROW_UP],
-    keydown: function(event, canvas) {
-        /* globals window */
-        var element = canvas.getCursor().getPosition().element,
-            caretRect = window.getSelection().getRangeAt(0).getClientRects()[0],
-            frameRects = element.dom[0].getClientRects(),
-            caretTop = caretRect.bottom - caretRect.height,
-            position, target,rect, scrolled;
-
-        
-        if((frameRects[0].bottom === caretRect.bottom) || (caretRect.left < frameRects[0].left)) {
-            event.preventDefault();
-            canvas.rootWrapper.find('[document-text-element]').each(function() {
-                var test = getLastRectAbove(this, caretTop);
-                if(test) {
-                    target = this;
-                    rect = test;
-                } else {
-                    return false;
-                }
-            });
-            if(target) {
-                scrolled = scroll('top', target);
-                position = utils.caretPositionFromPoint(caretRect.left, rect.bottom - 1 - scrolled);
-                canvas.setCurrentElement(canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
-            }
-        }
-    }
-});
-
-handlers.push({keys: [KEYS.ARROW_DOWN],
-    keydown: function(event, canvas) {
-        /* globals window */
-        var element = canvas.getCursor().getPosition().element,
-            caretRect = window.getSelection().getRangeAt(0).getClientRects()[0],
-            frameRects = element.dom[0].getClientRects(),
-            lastRect = frameRects[frameRects.length-1],
-            position, target,rect, scrolled;
-
-        if(lastRect.bottom === caretRect.bottom || (caretRect.left > lastRect.left + lastRect.width)) {
-            event.preventDefault();
-            canvas.rootWrapper.find('[document-text-element]').each(function() {
-                var test = getFirstRectBelow(this, caretRect.bottom);
-                if(test) {
-                    target = this;
-                    rect = test;
-                    return false;
-                }
-            });
-            if(target) {
-                scrolled = scroll('bottom', target);
-                position = utils.caretPositionFromPoint(caretRect.left, rect.top +1 - scrolled);
-                canvas.setCurrentElement(canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
-            }
-        }
-    }
-});
-
-handlers.push({keys: [KEYS.ARROW_LEFT],
-    keydown: function(event, canvas) {
-        /* globals window */
-        var position = canvas.getCursor().getPosition(),
-            element = position.element,
-            prev;
-
-        if(position.offset === 0) {
-            event.preventDefault();
-            prev = canvas.getPreviousTextElement(element);
-            if(prev) {
-                scroll('top', prev.dom[0]);
-                canvas.setCurrentElement(canvas.getDocumentElement(prev.dom.contents()[0]), {caretTo: 'end'});
-            }
-        }
-    }
-});
-
-handlers.push({keys: [KEYS.ARROW_RIGHT],
-    keydown: function(event, canvas) {
-        /* globals window */
-        var position = canvas.getCursor().getPosition(),
-            element = position.element,
-            next;
-        if(position.offsetAtEnd) {
-            event.preventDefault();
-            next = canvas.getNextTextElement(element);
-            if(next) {
-                scroll('bottom', next.dom[0]);
-                canvas.setCurrentElement(canvas.getDocumentElement(next.dom.contents()[0]), {caretTo: 0});
-            }
-        } else {
-            var secondToLast = (position.offset === element.wlxmlNode.getText().length -1);
-            if(secondToLast) {
-                // Only Flying Spaghetti Monster knows why this is need for FF (for versions at least 26 to 31)
-                event.preventDefault();
-                canvas.setCurrentElement(element, {caretTo: 'end'});
-            }
-        }
-
-    }
-});
 
 var selectsWholeTextElement = function(cursor) {
     if(cursor.isSelecting() && cursor.getSelectionStart().offsetAtBeginning && cursor.getSelectionEnd().offsetAtEnd) {
@@ -389,6 +289,108 @@ var handleKeyEvent = function(e, s) {
 };
 // todo: whileRemoveWholetext
 var keyEventHandlers = [
+    {
+        applies: function(e, s) {
+            return e.key === KEYS.ARROW_UP && s.type === 'caret';
+        },
+        run: function(e, s) {
+            /* globals window */
+            var caretRect = window.getSelection().getRangeAt(0).getClientRects()[0],
+                frameRects = s.element.dom[0].getClientRects(),
+                caretTop = caretRect.bottom - caretRect.height,
+                position, target,rect, scrolled;
+
+            
+            if((frameRects[0].bottom === caretRect.bottom) || (caretRect.left < frameRects[0].left)) {
+                e.preventDefault();
+                s.canvas.rootWrapper.find('[document-text-element]').each(function() {
+                    var test = getLastRectAbove(this, caretTop);
+                    if(test) {
+                        target = this;
+                        rect = test;
+                    } else {
+                        return false;
+                    }
+                });
+                if(target) {
+                    scrolled = scroll('top', target);
+                    position = utils.caretPositionFromPoint(caretRect.left, rect.bottom - 1 - scrolled);
+                    s.canvas.setCurrentElement(s.canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
+                }
+            }
+        }
+    },
+    {
+        applies: function(e, s) {
+            return e.key === KEYS.ARROW_DOWN && s.type === 'caret';
+        },
+        run: function(e, s) {
+            /* globals window */
+            var caretRect = window.getSelection().getRangeAt(0).getClientRects()[0],
+                frameRects = s.element.dom[0].getClientRects(),
+                lastRect = frameRects[frameRects.length-1],
+                position, target,rect, scrolled;
+
+            if(lastRect.bottom === caretRect.bottom || (caretRect.left > lastRect.left + lastRect.width)) {
+                e.preventDefault();
+                s.canvas.rootWrapper.find('[document-text-element]').each(function() {
+                    var test = getFirstRectBelow(this, caretRect.bottom);
+                    if(test) {
+                        target = this;
+                        rect = test;
+                        return false;
+                    }
+                });
+                if(target) {
+                    scrolled = scroll('bottom', target);
+                    position = utils.caretPositionFromPoint(caretRect.left, rect.top +1 - scrolled);
+                    s.canvas.setCurrentElement(s.canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
+                }
+            }
+        }
+    },
+    {
+        applies: function(e, s) {
+            return e.key === KEYS.ARROW_LEFT && s.type === 'caret';
+        },
+        run: function(e, s) {
+            /* globals window */
+            var prev;
+
+            if(s.offset === 0) {
+                e.preventDefault();
+                prev = s.canvas.getPreviousTextElement(s.element);
+                if(prev) {
+                    scroll('top', prev.dom[0]);
+                    s.canvas.setCurrentElement(s.canvas.getDocumentElement(prev.dom.contents()[0]), {caretTo: 'end'});
+                }
+            }
+        }
+    },
+    {
+        applies: function(e, s) {
+            return e.key === KEYS.ARROW_RIGHT && s.type === 'caret';
+        },
+        run: function(e, s) {
+            /* globals window */
+            var next;
+            if(s.isAtEnd()) {
+                e.preventDefault();
+                next = s.canvas.getNextTextElement(s.element);
+                if(next) {
+                    scroll('bottom', next.dom[0]);
+                    s.canvas.setCurrentElement(s.canvas.getDocumentElement(next.dom.contents()[0]), {caretTo: 0});
+                }
+            } else {
+                var secondToLast = (s.offset === s.element.wlxmlNode.getText().length -1);
+                if(secondToLast) {
+                    // Only Flying Spaghetti Monster knows why this is need for FF (for versions at least 26 to 31)
+                    e.preventDefault();
+                    s.canvas.setCurrentElement(s.element, {caretTo: 'end'});
+                }
+            }
+        }
+    },
     {
         applies: function(e, s) {
             return s.type === 'caret' &&
