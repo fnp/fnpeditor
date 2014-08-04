@@ -179,14 +179,6 @@ var selectsWholeTextElement = function(cursor) {
     return false;
 };
 
-handlers.push({key: KEYS.X,
-    keydown: function(event, canvas) {
-        if(event.ctrlKey && selectsWholeTextElement(canvas.getCursor())) {
-            event.preventDefault();
-        }
-    }
-});
-
 handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
     keydown: function(event, canvas) {
         var cursor = canvas.getCursor(),
@@ -289,6 +281,19 @@ var handleKeyEvent = function(e, s) {
 };
 // todo: whileRemoveWholetext
 var keyEventHandlers = [
+    {
+        applies: function(e, s) {
+            return e.ctrlKey &&
+                e.key === KEYS.X &&
+                s.type === 'textSelection' &&
+                s.startsAtBeginning() &&
+                s.endsAtEnd();
+        },
+        run: function(e,s) {
+            void(s);
+            e.preventDefault();
+        }
+    },
     {
         applies: function(e, s) {
             return e.key === KEYS.ARROW_UP && s.type === 'caret';
