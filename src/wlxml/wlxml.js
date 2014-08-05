@@ -4,8 +4,9 @@ define([
     'smartxml/smartxml',
     'smartxml/transformations',
     'wlxml/extensions/metadata/metadata',
-    'wlxml/extensions/comments/comments'
-], function($, _, smartxml, transformations, metadataExtension, commentExtension) {
+    'wlxml/extensions/comments/comments',
+    'wlxml/extensions/edumed/edumed'
+], function($, _, smartxml, transformations, metadataExtension, commentExtension, edumedExtension) {
     
 'use strict';
 
@@ -184,7 +185,7 @@ $.extend(WLXMLTextNode.prototype, WLXMLDocumentNodeMethods, {
 var WLXMLDocument = function(xml, options) {
     this.classMethods = {};
     this.classTransformations = {};
-    smartxml.Document.call(this, xml, [metadataExtension, commentExtension]);
+    smartxml.Document.call(this, xml, [metadataExtension, commentExtension, edumedExtension]);
     this.options = options;
 };
 
