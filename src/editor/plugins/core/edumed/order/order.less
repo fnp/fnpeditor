@@ -1,0 +1,66 @@
+.exercise-order {
+    
+    overflow-x: hidden;
+
+    .description {
+        margin-bottom: 20px;
+    }
+
+    .wrapper {
+        display: table;
+        width: 100%;
+        border-radius: 5px;
+        background-color: #ddd;
+        -webkit-margin-before: -20px; // compensate for Chrome behavior for ol > li > table
+    }
+
+    .content {
+        display: table-cell;
+        width: calc(~'100% - 40px');
+        padding: 10px 10px;
+        cursor: default;
+
+        .dragEnter {
+            opacity: 0.5;
+        }
+    }
+
+    .handle {
+        vertical-align: middle;
+        display: table-cell;
+        width: 20px;
+        background-color: darken(#ddd, 15%);
+        text-align: center;
+        border-radius: 0 5px 5px 0;
+        padding: 10px 10px;
+        pointer-events: none;
+
+        .dragEnter {
+            opacity: 0.5;
+        }
+    }
+
+    .placeholder {
+        height: 10px;
+        transition: height 0.05s;
+        background-color: white;
+        &.active {
+            height: 60px;
+            transition: height 0.05s;
+            background-color: lighten(@blue,40%);
+            border: 1px dashed @blue;
+        }
+        width:100%;
+    }
+
+    .placeholder-top {
+        margin-left: 25px;
+    }
+
+    li {
+        cursor: move;
+        .dragged {
+            opacity: 0.6;
+        }
+    }
+}

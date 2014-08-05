@@ -11,8 +11,8 @@ var _ = require('libs/underscore'),
     plugin = {name: 'core', actions: [], canvas: {}, documentExtension: {textNode: {}, documentNode: {}}},
     Dialog = require('views/dialog/dialog'),
     canvasElements = require('plugins/core/canvasElements'),
-    metadataEditor = require('plugins/core/metadataEditor/metadataEditor');
-
+    metadataEditor = require('plugins/core/metadataEditor/metadataEditor'),
+    edumed = require('plugins/core/edumed/edumed');
 
 
 plugin.documentExtension.textNode.transformations = {
@@ -590,8 +590,7 @@ plugin.actions = [
     createWrapTextAction({name: 'cite', klass: 'cite', wrapDescription: gettext('Mark as citation'), unwrapDescription: gettext('Remove citation')}),
     linkAction,
     metadataEditor.action(metadataParams)
-].concat(plugin.actions, templates.actions, footnote.actions, switchTo.actions, lists.actions);
-
+].concat(plugin.actions, templates.actions, footnote.actions, switchTo.actions, lists.actions, edumed.actions);
 
 
 plugin.config = function(config) {
@@ -608,7 +607,7 @@ plugin.config = function(config) {
     });
 };
 
-plugin.canvasElements = canvasElements;
+plugin.canvasElements = canvasElements.concat(edumed.canvasElements);
 
 return plugin;
 
