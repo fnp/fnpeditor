@@ -129,7 +129,7 @@ return {
                 params = {
                     type: 'caret',
                     element: element,
-                    offset: element.isEmpty() ? 0 : nativeSelection.focusOffset
+                    offset: element.isEmpty() ? 0 : nativeSelection.getRangeAt(0).startOffset
                 };
             } else if(isText(nativeSelection.focusNode) && isText(nativeSelection.anchorNode)) {
                 anchorElement = canvas.getDocumentElement(nativeSelection.anchorNode);
