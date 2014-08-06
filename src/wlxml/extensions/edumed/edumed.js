@@ -157,6 +157,9 @@ var extension = {wlxmlClass: {'exercise.order': {
 }}};
 
 var choiceMethods = {
+    isContextRoot: function(node) {
+        return this.object.isChoiceList(node.parent()) || this.sameNode(node);
+    },
     getChoiceList: function() {
         return this.contents()
             .filter(function(n) { return this.object.isChoiceList(n); }.bind(this))[0];
@@ -207,6 +210,14 @@ extension.wlxmlClass['exercise.choice.true-or-false'] = {
         }
     },
     methods: choiceMethods
+};
+
+extension.wlxmlClass['exercise.gap'] = extension.wlxmlClass['exercise.replace'] = {
+    methods: {
+        isContextRoot: function(node) {
+            return this.sameNode(node);
+        }
+    }
 };
 
 extension.document = {
