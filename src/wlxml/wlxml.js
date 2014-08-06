@@ -106,6 +106,16 @@ $.extend(WLXMLElementNode.prototype, WLXMLDocumentNodeMethods, smartxml.ElementN
             return child.is(query);
         }.bind(this));
     },
+    find: function(query) {
+        var doc = this.document;
+        return this._$.find('*')
+            .map(function() {
+                return doc.createDocumentNode(this);
+            })
+            .filter(function() {
+                return this.is(query);
+            });
+    },
 
     _getXMLDOMToDump: function() {
         var DOM = this._$.clone(true, true),
