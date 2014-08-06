@@ -376,9 +376,16 @@ var keyEventHandlers = [
             return s.type === 'caret' && e.key === KEYS.ENTER && !s.element.parent().isRootElement();
         },
         run: function(e, s) {
-            var result, goto, gotoOptions;
+            var parent = s.element.parent(),
+                children = parent.children(),
+                result, goto, gotoOptions;
             void(e);
             e.preventDefault();
+
+            if(children.length === 1 && s.element.isEmpty()) {
+                return;
+            }
+
             s.canvas.wlxmlDocument.transaction(function() {
                 result = s.element.wlxmlNode.breakContent({offset: s.offset});
             }, {

@@ -621,6 +621,17 @@ describe('Keyboard interactions', function() {
             expect(selection.offset).to.equal(0);
         });
 
+        it('does nothing on an empty paragraph', function() {
+            var c = getCanvasFromXML('<section><div class="p">a</div></section>'),
+                k = new Keyboard(c),
+                spy = sinon.spy();
+
+            k.withCaret('a|').press(K.BACKSPACE);
+            c.wlxmlDocument.on('change', spy);
+            k.press(K.ENTER);
+            expect(spy.callCount).to.equal(0);
+        });
+
         it('splits its parent box if inside a span', function() {
             var c = getCanvasFromXML('<section><div class="p">this <span>is</span> a paragraph</div></section>'),
                 k = new Keyboard(c);

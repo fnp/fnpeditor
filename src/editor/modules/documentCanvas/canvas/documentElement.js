@@ -241,6 +241,9 @@ $.extend(DocumentNodeElement.prototype, {
         // })
         this.dom.css('display', what);
         this._container().css('display', what);
+    },
+    children: function() {
+        return [];
     }
 });
 
