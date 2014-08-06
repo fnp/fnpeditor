@@ -350,6 +350,29 @@ var keyEventHandlers = [
     },
     {
         applies: function(e, s) {
+            var parent = s.element && s.element.wlxmlNode.parent(),
+                parentIsItem = parent && parent.is('item'),
+                itemIsOnList = parent && parent.parent() && parent.parent().is('list');
+            return s.type === 'caret' && e.key === KEYS.ENTER && s.element.isEmpty() && parentIsItem && itemIsOnList;
+        },
+        run: function(e, s) {
+            var item = s.element.wlxmlNode.parent(),
+                list = item.parent();
+            e.preventDefault();
+            s.canvas.wlxmlDocument.transaction(function() {
+                var p = list.after({tagName: 'div', attrs: {'class': 'p'}});
+                p.append({text: ''});
+                item.detach();
+                return p;
+            }, {
+                success: function(p) {
+                    s.canvas.setCurrentElement(p);
+                }
+            });
+        }
+    },
+    {
+        applies: function(e, s) {
             return s.type === 'caret' && e.key === KEYS.ENTER && !s.element.parent().isRootElement();
         },
         run: function(e, s) {

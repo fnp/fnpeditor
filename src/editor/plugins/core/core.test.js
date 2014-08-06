@@ -700,6 +700,29 @@ describe('Keyboard interactions', function() {
         });
     });
 
+    describe('Enter on a list items', function() {
+        afterEach(removeCanvas);
+
+        it('creates a paragraph after a list if hitting enter on the last and empty list item', function() {
+            var c = getCanvasFromXML('<section><div class="list"><div class="item">item</div></div></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('item|').press(K.ENTER).press(K.ENTER);
+            
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(2);
+            expect(rootContents[0].is('list')).to.equal(true);
+            expect(rootContents[1].is('p')).to.equal(true);
+
+            var list = rootContents[0];
+            expect(list.contents().length).to.equal(1);
+            
+            var selection = c.getSelection();
+            expect(selection.element.wlxmlNode.sameNode(rootContents[1].contents()[0])).to.equal(true);
+            expect(selection.offset).to.equal(0);
+        });
+    });
+
     describe('Deleting text from a node', function() {
         it('deletes last character with backspace', function() {
             var c = getCanvasFromXML('<section><div class="p">a</div><div class="p">b</div></section>'),
