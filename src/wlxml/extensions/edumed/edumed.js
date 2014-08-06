@@ -3,7 +3,14 @@ define(function(require) {
 'use strict';
 
 var _ = require('libs/underscore'),
-    orderExerciseTemplate = require('libs/text!./order.xml');
+    templates = {
+        order: require('libs/text!./order.xml'),
+        choice: require('libs/text!./choice.xml'),
+        'choice.single': require('libs/text!./choiceSingle.xml'),
+        'choice.true-or-false': require('libs/text!./choiceTrueOrFalse.xml'),
+        gap: require('libs/text!./gaps.xml'),
+        replace: require('libs/text!./replace.xml')
+    };
 
 var Item = function(node, exerciseNode) {
     Object.defineProperty(this, 'text', {
@@ -206,7 +213,7 @@ extension.document = {
     methods: {
          edumedCreateExerciseNode: function(klass) {
             void(klass);
-            return this.createDocumentNode(orderExerciseTemplate);
+            return this.createDocumentNode(templates[klass]);
          }
     }
 };
