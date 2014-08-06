@@ -5,13 +5,13 @@ define(function(require) {
 
 var $ = require('libs/jquery'),
     _ = require('libs/underscore'),
-    documentElement = require('modules/documentCanvas/canvas/documentElement'),
+    elementBase = require('plugins/core/edumed/elementBase'),
     viewTemplate = require('libs/text!./view.html');
 
-var OrderExerciceElement = Object.create(documentElement.DocumentNodeElement.prototype);
+var OrderExerciceElement = Object.create(elementBase);
 _.extend(OrderExerciceElement, {
     init: function() {
-        documentElement.DocumentNodeElement.prototype.init.call(this);
+        elementBase.init.call(this);
         var view  = $(_.template(viewTemplate)());
         this._container().append(view);
 

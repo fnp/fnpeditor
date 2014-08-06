@@ -6,13 +6,13 @@ define(function(require) {
 
 var _ = require('libs/underscore');
 
-var documentElement = require('modules/documentCanvas/canvas/documentElement'),
+var elementBase = require('plugins/core/edumed/elementBase'),
     OrderExerciseView = require('./view');
 
-var OrderExerciceElement = Object.create(documentElement.DocumentNodeElement.prototype);
+var OrderExerciceElement = Object.create(elementBase);
 _.extend(OrderExerciceElement, {
     init: function() {
-        documentElement.DocumentNodeElement.prototype.init.call(this);
+        elementBase.init.call(this);
         
         this.view = new OrderExerciseView(this, this.wlxmlNode);
         this._container().append(this.view.dom);

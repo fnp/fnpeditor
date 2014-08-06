@@ -4,14 +4,14 @@ define(function(require) {
 
 var $ = require('libs/jquery'),
     _ = require('libs/underscore'),
-    documentElement = require('modules/documentCanvas/canvas/documentElement'),
+    elementBase = require('plugins/core/edumed/elementBase'),
     template = require('libs/text!./element.html');
 
 
-var choiceBase = Object.create(documentElement.DocumentNodeElement.prototype);
+var choiceBase = Object.create(elementBase);
 _.extend(choiceBase, {
     init: function() {
-        documentElement.DocumentNodeElement.prototype.init.call(this);
+        elementBase.init.call(this);
         this.view = $(_.template(template)({type: this.type}));
         this._container().append(this.view);
 
