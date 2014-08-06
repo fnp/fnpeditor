@@ -546,7 +546,7 @@ describe('Keyboard interactions', function() {
             expect(selection.element.sameNode(getTextElement('has a cat', c))).to.equal(true);
             expect(selection.offset).to.equal(0);
         });
-        it('deletes span if it contains only one character', function() {
+        it('deletes span if it contains only one character (1)', function() {
             var c = getCanvasFromXML('<section>Alice <span>h</span> a cat</section>'),
                 k = new Keyboard(c);
 
@@ -560,6 +560,21 @@ describe('Keyboard interactions', function() {
             expect(selection.type).to.equal('caret');
             expect(selection.element.sameNode(getTextElement('Alice  a cat', c))).to.equal(true);
             expect(selection.offset).to.equal(6);
+        });
+        it('deletes span if it contains only one character (2)', function() {
+            var c = getCanvasFromXML('<section><span>a</span><span>b</span></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('|b').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(1);
+            expect(rootContents[0].contents()[0].getText()).to.equal('b');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('b', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
         });
     });
 

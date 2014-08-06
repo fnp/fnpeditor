@@ -224,7 +224,16 @@ plugin.documentExtension.documentNode.transformations = {
                     } else if(prev.is({tagName: 'span'})) {
                         if((txtNode = prev.getLastTextNode())) {
                             txt = txtNode.getText();
-                            txtNode.setText(txt.substr(0, txt.length-1));
+                            if(txt.length > 1) {
+                                txtNode.setText(txt.substr(0, txt.length-1));
+                            } else {
+                                if(txtNode.parent().contents().length === 1) {
+                                    txtNode.parent().detach();
+                                } else {
+                                    txtNode.detach();
+                                }
+
+                            }
                             return toret;
                         }
                     }
