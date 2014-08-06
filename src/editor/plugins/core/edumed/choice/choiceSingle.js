@@ -44,7 +44,7 @@ _.extend(choiceSingle, {
 });
 
 var RadioView = function(checked, name, onValueChange) {
-    this.dom = $('<input type="radio" style="float: left; margin-right: 40px;">')
+    this.dom = $('<input type="radio">')
             .attr('checked', checked)
             .attr('name', name);
     this.dom.on('change', function() {
