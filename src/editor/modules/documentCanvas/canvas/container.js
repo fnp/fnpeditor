@@ -8,9 +8,11 @@ var $ = require('libs/jquery'),
 
 
 var Container = function(nodes, params, element) {
+    params = params || {};
     _.extend(this, params);
     this.dom = this.dom || $('<div>');
     this.dom.addClass('canvas-container');
+    this.dom.toggleClass('reset-background', !!params.resetBackground);
     this.element = element;
 
     nodes.forEach(function(node) {
