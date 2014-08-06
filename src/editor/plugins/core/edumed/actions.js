@@ -26,6 +26,9 @@ var createAction = function(actionConfig) {
                 if(node.nodeType === Node.TEXT_NODE) {
                     node = node.parent();
                 }
+                if(node.isInside('exercise')) {
+                    node = node.getParent('exercise');
+                }
 
                 node.document.transaction(function() {
                     var exerciseNode = node.after(node.document.edumedCreateExerciseNode(actionConfig.exercise)),
@@ -57,7 +60,7 @@ var createAction = function(actionConfig) {
         },
         getState: function(params) {
             return {
-                allowed: params.fragment && params.fragment.isValid() && params.fragment instanceof params.fragment.NodeFragment && !params.fragment.node.isInside('exercise'),
+                allowed: params.fragment && params.fragment.isValid() && params.fragment instanceof params.fragment.NodeFragment,
                 description: gettext('Insert exercise: ' + actionConfig.exerciseTitle)
             };
         }
