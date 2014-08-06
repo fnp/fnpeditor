@@ -61,7 +61,7 @@ var createAction = function(actionConfig) {
         getState: function(params) {
             return {
                 allowed: params.fragment && params.fragment.isValid() && params.fragment instanceof params.fragment.NodeFragment,
-                description: gettext('Insert exercise: ' + actionConfig.exerciseTitle)
+                description: gettext('Insert exercise') + ': ' + actionConfig.exerciseTitle
             };
         }
     };
@@ -70,8 +70,8 @@ var createAction = function(actionConfig) {
 
 return [
     createAction({name: 'insertOrderExercise', icon: 'random', exercise: 'order', exerciseTitle: gettext('Order')}),
-    createAction({name: 'insertChoiceSingleExercise', icon: 'ok-circle', exercise: 'choice.single', exerciseTitle: gettext('Single choice')}),
-    createAction({name: 'insertChoiceMultiExercise', icon: 'check', exercise: 'choice', exerciseTitle: gettext('Mutiple Choice')}),
+    createAction({name: 'insertChoiceSingleExercise', icon: 'ok-circle', exercise: 'choice.single', exerciseTitle: gettext('Single Choice')}),
+    createAction({name: 'insertChoiceMultiExercise', icon: 'check', exercise: 'choice', exerciseTitle: gettext('Multiple Choice')}),
     createAction({name: 'insertChoiceTrueOrFalseExercise', icon: 'adjust', exercise: 'choice.true-or-false', exerciseTitle: gettext('True or False')}),
     createAction({name: 'insertGapsExercise', icon: 'question-sign', exercise: 'gap', exerciseTitle: gettext('Gaps')}),
     createAction({name: 'insertReplaceExercise', icon: 'thumbs-down', exercise: 'replace', exerciseTitle: gettext('Replace')})

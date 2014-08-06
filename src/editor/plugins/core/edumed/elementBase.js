@@ -18,7 +18,7 @@ _.extend(choiceBase, {
         this.x = $('<div class="edumed-exercise-remove btn btn-mini btn-danger">x</div>');
         this.x.on('click', function() {
             var dialog = Dialog.create({
-                title: 'Removing exercise',
+                title: gettext('Removing exercise'),
                 text: gettext('Do you really want to remove this exercise?'),
                 executeButtonText: gettext('Yes'),
                 cancelButtonText: gettext('No, don\'t do anything!')

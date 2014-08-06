@@ -14,7 +14,7 @@ var $ = require('libs/jquery'),
 var trueOrFalse  = Object.create(choiceBase);
 _.extend(trueOrFalse, {
     type: 'true-or-false',
-    name: 'True or False',
+    name: gettext('True or False'),
     createListView: function(listNode) {
         return new ListView(this, listNode, {
             onItemViewAdded: function(itemView) {
