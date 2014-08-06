@@ -13,6 +13,7 @@ var $ = require('libs/jquery'),
 var choiceSingle = Object.create(choiceBase);
 _.extend(choiceSingle, {
     type: 'single',
+    name: gettext('Single Choice'),
     init: function() {
         this._comboName = _.uniqueId('edumed_exercise_hash_');
         choiceBase.init.call(this);

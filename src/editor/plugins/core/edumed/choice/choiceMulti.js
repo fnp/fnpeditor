@@ -13,6 +13,7 @@ var $ = require('libs/jquery'),
 var choiceMulti = Object.create(choiceBase);
 _.extend(choiceMulti, {
     type: 'multi',
+    name: gettext('Multiple Choice'),
     createListView: function(listNode) {
         return new ListView(this, listNode, {
             onItemViewAdded: function(itemView) {

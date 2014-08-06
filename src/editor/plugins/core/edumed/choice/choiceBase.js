@@ -12,7 +12,7 @@ var choiceBase = Object.create(elementBase);
 _.extend(choiceBase, {
     init: function() {
         elementBase.init.call(this);
-        this.view = $(_.template(template)({type: this.type}));
+        this.view = $(_.template(template)({type: this.type, name: this.name}));
         this._container().append(this.view);
 
         this.createContainer(this.wlxmlNode.contents().filter(function(n) {return !n.is('list');}), {
