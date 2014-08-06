@@ -16,6 +16,7 @@ _.extend(choiceBase, {
         this._container().append(this.view);
 
         this.createContainer(this.wlxmlNode.contents().filter(function(n) {return !n.is('list');}), {
+            resetBackground: true,
             manages: function(node, removedFrom) {
                 if(node.is('list.orderable')) {
                     return false;

@@ -1,3 +1,4 @@
+@exercise-order-gray: darken(#ddd, 15%);
 .exercise-order {
     
     overflow-x: hidden;
@@ -29,7 +30,7 @@
         vertical-align: middle;
         display: table-cell;
         width: 20px;
-        background-color: darken(#ddd, 15%);
+        background-color: @exercise-order-gray;
         text-align: center;
         border-radius: 0 5px 5px 0;
         padding: 10px 10px;
@@ -43,7 +44,7 @@
     .placeholder {
         height: 10px;
         transition: height 0.05s;
-        background-color: white;
+        background-color: transparent;
         &.active {
             height: 60px;
             transition: height 0.05s;
@@ -62,5 +63,9 @@
         .dragged {
             opacity: 0.6;
         }
+    }
+
+    .nav-tabs > .active > a {
+        background-color: @exercise-order-gray;
     }
 }

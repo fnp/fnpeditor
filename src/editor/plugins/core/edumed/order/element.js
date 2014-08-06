@@ -55,6 +55,7 @@ _.extend(OrderExerciceElement, {
 
         var exerciseNode = this.wlxmlNode;
         this.createContainer(this.wlxmlNode.object.getDescription(), {
+            resetBackground: true,
             manages: function(node, removedFrom) {
                 if(node.is('list.orderable')) {
                     return false;

@@ -49,6 +49,7 @@ _.extend(ReplaceExerciseElement, {
         );
 
         this.createContainer(this.wlxmlNode.contents(), {
+            resetBackground: true,
             manages: function() {
                 return true;
             },

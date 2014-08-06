@@ -16,6 +16,7 @@ _.extend(OrderExerciceElement, {
         this._container().append(view);
 
         this.createContainer(this.wlxmlNode.contents(), {
+            resetBackground: true,
             manages: function() {
                 return true;
             },

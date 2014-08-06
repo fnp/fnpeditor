@@ -74,6 +74,7 @@ var ItemView = function(node, exerciseView) {
     this.dom = $(_.template(viewItemTemplate)());
 
     this.container = exerciseView.element.createContainer(node.contents(), {
+        resetBackground: true,
         manages: function(node, originaParent) {
             return this.node.sameNode(node.parent() || originaParent);
         }.bind(this),
