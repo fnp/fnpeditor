@@ -15,6 +15,27 @@ var _ = require('libs/underscore'),
     edumed = require('plugins/core/edumed/edumed');
 
 
+var exerciseFix = function(newNodes) {
+    var list, exercise, max, addedItem, answerValues;
+    if(newNodes.created.is('item')) {
+        list = newNodes.created.parent();
+        exercise = list.parent();
+        if(exercise && exercise.is('exercise')) {
+            if(exercise.is('exercise.order')) {
+                answerValues = exercise.object.getItems()
+                            .map(function(item) {
+                                if(!addedItem && item.node.sameNode(newNodes.created)) {
+                                    addedItem = item;
+                                }
+                                return item.getAnswer();
+                            });
+                max = Math.max.apply(Math.max, answerValues);
+                addedItem.setAnswer(max + 1);
+            }
+        }
+    }
+};
+
 plugin.documentExtension.textNode.transformations = {
     breakContent: {
         impl: function(args) {
@@ -38,6 +59,21 @@ plugin.documentExtension.textNode.transformations = {
                     return true; // break
                 }
             });
+
+            /* <hack>
+            /*
+                This makes sure that adding a new item to the list in some of the edumed exercises
+                sets an answer attribute that makes sense (and not just copies it which would create
+                a duplicate value).
+
+                This won't be neccessary when/if we introduce canvas element own key event handlers.
+
+                Alternatively, WLXML elements could implement their own item split methods that we
+                would delegate to.
+            */
+                exerciseFix(newNodes);
+            /* </hack> */
+
             parentDescribingNodes.forEach(function(node) {
                 newNodes.first.append(node);
             });
