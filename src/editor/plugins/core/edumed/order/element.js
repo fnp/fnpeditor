@@ -57,7 +57,7 @@ _.extend(OrderExerciceElement, {
         this.createContainer(this.wlxmlNode.object.getDescription(), {
             resetBackground: true,
             manages: function(node, removedFrom) {
-                if(node.is('list.orderable')) {
+                if(node.is('list.orderable') || (removedFrom && removedFrom.is('list.orderable'))) {
                     return false;
                 }
                 return exerciseNode.sameNode(node.parent() || removedFrom); //!n.hasFollowingSibing(this.params.listnode);    
@@ -76,6 +76,12 @@ _.extend(OrderExerciceElement, {
     onNodeAttrChange: function(event) {
         var node = event.meta.node;
         if(node.is('item.answer') && node.parent() && node.parent().is('list.orderable')) {
+            this.reloadView();
+        }
+    },
+    onNodeDetached: function(event) {
+        var node = event.meta.node;
+        if(node.is('item.answer') && event.meta.parent && event.meta.parent.is('list.orderable')) {
             this.reloadView();
         }
     },
