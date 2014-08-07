@@ -359,7 +359,7 @@ var textNodeTransformations = {
             newElement.prepend({text: suffix});
         }
 
-        return {first: parentElement, second: newElement};
+        return {first: parentElement, second: newElement, created: newElement};
     },
 
     divideWithElementNode: function(node, params) {
