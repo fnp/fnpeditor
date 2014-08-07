@@ -203,7 +203,12 @@ return function(sandbox) {
         },
         displayVersion: function(event) {
             /* globals window */
-            window.open('/' + gettext('editor') + '/' + sandbox.getModule('data').getDocumentId() + '?version=' + event.version, _.uniqueId());
+            var config = sandbox.getConfig();
+            if(config.documentUrl) {
+                window.open(config.documentUrl(sandbox.getModule('data').getDocumentId(), event.version), _.uniqueId());
+            } else {
+                logger.error('Unable to show version ' + event.version + ' of a document - config.documentUrl missing');
+            }
         }
     };
     
