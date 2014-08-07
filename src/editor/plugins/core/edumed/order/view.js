@@ -82,6 +82,7 @@ var OrderExerciseView = function(element) {
 
         this.trigger(this.mode === 'initial' ? 'moveItem' : 'moveAnswer', droppedItem.item, first.item, 'before');
         dropTargets.removeClass('active');
+        e.preventDefault();
     }.bind(this));
 };
 _.extend(OrderExerciseView.prototype, Backbone.Events, {
@@ -150,7 +151,7 @@ var ItemView = function(item, exerciseView) {
 
 
     var dropTargets = this.dom.find('.placeholder'),
-        dragSources = this.dom.find('.wrapper');
+        dragSources = this.dom.find('.handle');
 
     dragSources.on('dragstart', function(e) {
         this.dom.addClass('dragged');

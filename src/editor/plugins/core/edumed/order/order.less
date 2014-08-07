@@ -12,7 +12,6 @@
         width: 100%;
         border-radius: 5px;
         background-color: #ddd;
-        -webkit-margin-before: -20px; // compensate for Chrome behavior for ol > li > table
     }
 
     .content {
@@ -34,7 +33,6 @@
         text-align: center;
         border-radius: 0 5px 5px 0;
         padding: 10px 10px;
-        pointer-events: none;
 
         .dragEnter {
             opacity: 0.5;
@@ -54,11 +52,12 @@
         width:100%;
     }
 
-    .placeholder-top {
-        margin-left: 25px;
+    ol {
+        margin: 0;
+        counter-reset: edumed-order-counter;
     }
-
-    li {
+    ol li {
+        list-style-type: none;
         cursor: move;
         .dragged {
             opacity: 0.6;
