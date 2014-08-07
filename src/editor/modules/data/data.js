@@ -16,16 +16,11 @@ var logger = logging.getLogger('editor.modules.data');
 
 return function(sandbox) {
 
-    var document_id = sandbox.getBootstrappedData().document_id;
-    var history = sandbox.getBootstrappedData().history;
-    var documentDirty = false;
-    var draftDirty = false;
+    var data = sandbox.getBootstrappedData(),
+        documentDirty = false,
+        draftDirty = false,
+        wlxmlDocument;
 
-    var data = sandbox.getBootstrappedData();
-    var document_version = data.version;
-
-
-    var wlxmlDocument, text;
 
     var loadDocument = function(text, isDraft, draftTimestamp) {
         logger.debug('loading document');
@@ -65,16 +60,17 @@ return function(sandbox) {
 
         if(window.localStorage) {
             window.setInterval(function() {
+                var timestamp = datetime.currentStrfmt(),
+                    key = getLocalStorageKey();
                 if(modificationFlag) {
                     modificationFlag = false;
                     return;
                 }
                 if(wlxmlDocument && documentDirty && draftDirty) {
-                    var timestamp = datetime.currentStrfmt();
                     logger.debug('Saving draft to local storage.');
                     sandbox.publish('savingStarted', 'local');
-                    window.localStorage.setItem(getLocalStorageKey().content, wlxmlDocument.toXML());
-                    window.localStorage.setItem(getLocalStorageKey().contentTimestamp, timestamp);
+                    window.localStorage.setItem(key.content, wlxmlDocument.toXML());
+                    window.localStorage.setItem(key.contentTimestamp, timestamp);
                     sandbox.publish('savingEnded', 'success', 'local', {timestamp: timestamp});
                     draftDirty = false;
                 }
@@ -111,16 +107,16 @@ return function(sandbox) {
     var reloadHistory = function() {
         $.ajax({
             method: 'get',
-            url: sandbox.getConfig().documentHistoryUrl(document_id),
-            success: function(data) {
-                history = data;
-                sandbox.publish('historyItemAdded', data.slice(-1)[0]);
+            url: sandbox.getConfig().documentHistoryUrl(data.document_id),
+            success: function(history) {
+                data.history = history;
+                sandbox.publish('historyItemAdded', history.slice(-1)[0]);
             },
         });
     };
 
     var getLocalStorageKey = function(forVersion) {
-        var base = 'draft-id:' + document_id + '-ver:' + (forVersion || wlxmlDocument.properties.version);
+        var base = 'draft-id:' + data.document_id + '-ver:' + (forVersion || wlxmlDocument.properties.version);
         return {
             content: base,
             contentTimestamp: base + '-content-timestamp'
@@ -130,10 +126,11 @@ return function(sandbox) {
    
     return {
         start: function() {
+            var text;
             if(window.localStorage) {
-                text = window.localStorage.getItem(getLocalStorageKey(document_version).content);
+                text = window.localStorage.getItem(getLocalStorageKey(data.version).content);
 
-                var timestamp = window.localStorage.getItem(getLocalStorageKey(document_version).contentTimestamp),
+                var timestamp = window.localStorage.getItem(getLocalStorageKey(data.version).contentTimestamp),
                     usingDraft;
                 if(text) {
                     logger.debug('Local draft exists');
@@ -196,7 +193,7 @@ return function(sandbox) {
                 dialog.toggleButtons(false);
                 $.ajax({
                     method: 'post',
-                    url: sandbox.getConfig().documentSaveUrl(document_id),
+                    url: sandbox.getConfig().documentSaveUrl(data.document_id),
                     data: formData,
                     success: function(data) {
                         event.success();
@@ -222,12 +219,12 @@ return function(sandbox) {
 
         },
         getHistory: function() {
-            return history;
+            return data.history;
         },
         fetchDiff: function(ver1, ver2) {
             $.ajax({
                 method: 'get',
-                url: sandbox.getConfig().documentDiffUrl(document_id),
+                url: sandbox.getConfig().documentDiffUrl(data.document_id),
                 data: {from: ver1, to: ver2},
                 success: function(data) {
                     sandbox.publish('diffFetched', {table: data, ver1: ver1, ver2: ver2});
@@ -258,7 +255,7 @@ return function(sandbox) {
                 $.ajax({
                     method: 'post',
                     dataType: 'json',
-                    url: sandbox.getConfig().documentRestoreUrl(document_id),
+                    url: sandbox.getConfig().documentRestoreUrl(data.document_id),
                     data: formData,
                     success: function(data) {
                         Object.keys(data)
