@@ -284,9 +284,6 @@ return function(sandbox) {
             draftDirty = false;
             logger.debug('Draft dropped');
             sandbox.publish('draftDropped');
-        },
-        getDocumentId: function() {
-            return document_id;
         }
     };
 };

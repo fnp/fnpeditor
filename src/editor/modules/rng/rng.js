@@ -203,9 +203,11 @@ return function(sandbox) {
         },
         displayVersion: function(event) {
             /* globals window */
-            var config = sandbox.getConfig();
+            var config = sandbox.getConfig(),
+                doc = sandbox.getModule('data').getDocument();
+
             if(config.documentUrl) {
-                window.open(config.documentUrl(sandbox.getModule('data').getDocumentId(), event.version), _.uniqueId());
+                window.open(config.documentUrl(doc.properties.document_id, event.version), _.uniqueId());
             } else {
                 logger.error('Unable to show version ' + event.version + ' of a document - config.documentUrl missing');
             }
