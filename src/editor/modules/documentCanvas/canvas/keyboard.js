@@ -257,6 +257,14 @@ var keyEventHandlers = [
                 return;
             }
 
+
+            var parent = element.wlxmlNode.parent();
+            if(element.wlxmlNode.getIndex() === 0 && parent.isContextRoot() && (!parent.is('item') || parent.getIndex() === 0)) {
+                // Don't even try to do anything at the edge of a context root, except for non-first items
+                // - this is a temporary solution until key events handling get refactored into something more sane.
+                return;
+            }
+
             e.preventDefault();
 
             s.canvas.wlxmlDocument.transaction(function() {
