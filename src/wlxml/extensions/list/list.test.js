@@ -136,10 +136,10 @@ describe('Lists extension', function() {
             expect(list1.contents()[0].contents()[0].getText()).to.equal('0', 'first item of the first list is a first item of the original list');
 
             expect(oldItem1.contents()[0].getText()).to.equal('1', 'first item got extracted');
-            expect(oldItem1.getClass() === '').to.equal(true, 'first extracted element has no wlxml class');
+            expect(oldItem1.getClass() === 'p').to.equal(true, 'first extracted element became a paragraph');
 
             expect(oldItem2.contents()[0].getText()).to.equal('2', 'second item got extracted');
-            expect(oldItem2.getClass() === '').to.equal(true, 'second extracted element has no wlxml class');
+            expect(oldItem2.getClass() === 'p').to.equal(true, 'second extracted element became a paragraph');
 
             expect(list2.is('list')).to.equal(true, 'last section child is a list');
             expect(list2.contents().length).to.equal(1, 'second list has one child');
@@ -414,7 +414,7 @@ describe('Lists extension', function() {
             expect(sectionContents[0].is('list')).to.equal(true, 'first child is a list');
 
             expect(extractedItem.getTagName()).to.equal('div', 'extracted item is a wlxml div');
-            expect(extractedItem.getClass()).to.equal('', 'extracted item has no wlxml class');
+            expect(extractedItem.getClass()).to.equal('p', 'extracted item became a paragraph');
             expect(extractedItem.contents()[0].getText()).to.equal('1.1', 'extracted item ok');
             expect(sectionContents[2].is('list')).to.equal(true, 'second child is a list');
         });

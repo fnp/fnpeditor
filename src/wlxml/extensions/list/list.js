@@ -133,7 +133,7 @@ extension.document.transformations.extractItems = {
                 reference.after(item);
                 reference = item;
                 if(!listIsNested) {
-                    item.setClass('');
+                    item.setClass('p');
                 }
             });
             if(precedingItems.length === 0) {
@@ -143,14 +143,14 @@ extension.document.transformations.extractItems = {
             extractedItems.forEach(function(item) {
                 reference.before(item);
                 if(!listIsNested) {
-                    item.setClass('');
+                    item.setClass('p');
                 }
             });
         } else {
             extractedItems.forEach(function(item) {
                 reference.after(item);
                 if(!listIsNested) {
-                    item.setClass('');
+                    item.setClass('p');
                 }
                 reference = item;
             });
