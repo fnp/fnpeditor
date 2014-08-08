@@ -44,6 +44,19 @@ var WLXMLDocumentNodeMethods =  {
             }
         }.bind(this));
         return toret;
+    },
+    getContextRoot: function() {
+        var contextRoot;
+        [this].concat(this.parents()).some(function(n) {
+            if(n.isContextRoot()) {
+                contextRoot = n;
+                return true;
+            }
+        });
+        return contextRoot;
+    },
+    hasSameContextRoot: function(other) {
+        return this.getContextRoot().sameNode(other.getContextRoot());
     }
 };
 
@@ -182,7 +195,6 @@ var WLXMLDocumentNode = function() {
     smartxml.DocumentNode.apply(this, arguments);
 };
 WLXMLDocumentNode.prototype = Object.create(smartxml.DocumentNode.prototype);
-
 
 var WLXMLTextNode = function() {
     smartxml.TextNode.apply(this, arguments);
