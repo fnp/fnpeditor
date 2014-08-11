@@ -167,14 +167,6 @@ return function(sandbox) {
             views.visualEditing.setView('leftColumn', sandbox.getModule('documentCanvas').getView());
         },
         
-        nodeHovered: function(canvasNode) {
-            commands.highlightDocumentNode(canvasNode);
-        },
-        
-        nodeBlured: function(canvasNode) {
-            commands.dimDocumentNode(canvasNode);
-        },
-
         selectionChanged: function(selection) {
             commands.refreshCanvasSelection(selection);
         }
