@@ -33,10 +33,6 @@ var Runner = function(app, modules) {
             return bootstrappedData[moduleName];
         };
         
-        this.getTemplate = function(templateName) {
-            return _.template($('[data-template-name="' + moduleName + '.' + templateName + '"]').html().trim());
-        };
-        
         this.publish = function(eventName) {
             var eventArgs = Array.prototype.slice.call(arguments, 1);
             _.each(eventListeners, function(listenerModuleName) {
