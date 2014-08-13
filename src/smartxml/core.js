@@ -169,7 +169,11 @@ var elementNodeTransformations = {
 
     setAttr: function(name, value, silent) {
         var oldVal = this.getAttr(name);
-        this._$.attr(name, value);
+        if(_.isUndefined(value)) {
+            this._$.removeAttr(name);
+        } else {
+            this._$.attr(name, value);
+        }
         if(!silent) {
             this.triggerChangeEvent('nodeAttrChange', {attr: name, oldVal: oldVal, newVal: value});
         }
