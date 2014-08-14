@@ -1,8 +1,7 @@
 define([
 'libs/jquery',
-'modules/documentCanvas/canvas/documentElement',
 'modules/documentCanvas/canvas/utils'
-], function($, documentElement, utils) {
+], function($, utils) {
     
 'use strict';
 /* globals gettext */
@@ -17,26 +16,6 @@ var KEYS = {
     DELETE: 46,
     X: 88
 };
-
-var handleKey = function(event, canvas) {
-    handlers.some(function(handler) {
-        if(handles(handler, event) && handler[event.type]) {
-            handler[event.type](event, canvas);
-            return true;
-        }
-    });
-};
-
-var handles = function(handler, event) {
-    if(handler.key === event.which) {
-        return true;
-    }
-    if(handler.keys && handler.keys.indexOf(event.which) !== -1) {
-        return true;
-    }
-    return false;
-};
-
 
 var scroll = function(place, textElement) {
     var rect = textElement.getBoundingClientRect(),
@@ -86,321 +65,322 @@ var getFirstRectBelow = function(node, y) {
     return toret;
 };
 
-var handlers = [];
-
-
-handlers.push({key: KEYS.ENTER,
-    keydown: function(event, canvas) {
-        event.preventDefault();
-        var cursor = canvas.getCursor(),
-            position = cursor.getPosition(),
-            element = position.element;
-
-        if(Object.keys(cursor.getPosition()).length === 0) {
-            var currentElement = canvas.getCurrentNodeElement();
-            if(currentElement && !currentElement.wlxmlNode.isRoot()) {
-                canvas.wlxmlDocument.transaction(function() {
-                    var added = currentElement.wlxmlNode.after({
-                        tagName: currentElement.wlxmlNode.getTagName() || 'div',
-                        attrs: {'class': currentElement.wlxmlNode.getClass() || 'p'}
-                    });
-                    added.append({text:''});
-                    return added;
-                }, {
-                    metadata: {
-                        description: gettext('Splitting text')
-                    },
-                    success: function(ret) {
-                        canvas.setCurrentElement(utils.getElementForNode(ret), {caretTo: 'start'});
-                    }
-                });
-
-            }
-            return;
+var handleKeyEvent = function(e, s) {
+    keyEventHandlers.some(function(handler) {
+        if(handler.applies(e, s)) {
+            handler.run(e, s);
+            return true;
         }
-
-        if(!cursor.isSelecting()) {
-            if(event.ctrlKey) {
-                if(element instanceof documentElement.DocumentTextElement) {
-                    element = element.parent();
-                }
-
-                canvas.wlxmlDocument.transaction(function() {
-                    var added = element.wlxmlNode.after(
-                        {tagName: element.wlxmlNode.getTagName() || 'div', attrs: {'class': element.wlxmlNode.getClass() || 'p'}}
-                    );
-                    added.append({text: ''});
-                    return added;
-                }, {
-                    metadata: {
-                        description: gettext('Splitting text')
-                    },
-                    success: function(ret) {
-                        canvas.setCurrentElement(utils.getElementForNode(ret), {caretTo: 'start'});
-                    }
-                });
-
-            } else {
-
-                if(!(element.parent().parent())) {
-                    return false; // top level element is unsplittable
-                }
-
-                var node = position.element.wlxmlNode,
-                    result, goto, gotoOptions;
-
-                node.document.transaction(function() {
-                    result = position.element.wlxmlNode.breakContent({offset: position.offset});
-                }, {
-                    metadata: {
-                        description: gettext('Splitting text')
-                    }
-                });
-
-                if(result.emptyText) {
-                    goto = result.emptyText;
-                    gotoOptions = {};
-                } else {
-                    goto = result.second;
-                    gotoOptions = {caretTo: 'start'};
-                }
-
-                canvas.setCurrentElement(utils.getElementForNode(goto), gotoOptions);
-            }
+    });
+};
+// todo: whileRemoveWholetext
+var keyEventHandlers = [
+    {
+        applies: function(e, s) {
+            return e.ctrlKey &&
+                e.key === KEYS.X &&
+                s.type === 'textSelection' &&
+                s.startsAtBeginning() &&
+                s.endsAtEnd();
+        },
+        run: function(e,s) {
+            void(s);
+            e.preventDefault();
         }
-    }
-});
+    },
+    {
+        applies: function(e, s) {
+            return e.key === KEYS.ARROW_UP && s.type === 'caret';
+        },
+        run: function(e, s) {
+            /* globals window */
+            var caretRect = window.getSelection().getRangeAt(0).getClientRects()[0],
+                frameRects = s.element.dom[0].getClientRects(),
+                caretTop = caretRect.bottom - caretRect.height,
+                position, target,rect, scrolled;
 
-handlers.push({keys: [KEYS.ARROW_UP],
-    keydown: function(event, canvas) {
-        /* globals window */
-        var element = canvas.getCursor().getPosition().element,
-            caretRect = window.getSelection().getRangeAt(0).getClientRects()[0],
-            frameRects = element.dom[0].getClientRects(),
-            caretTop = caretRect.bottom - caretRect.height,
-            position, target,rect, scrolled;
-
-        
-        if((frameRects[0].bottom === caretRect.bottom) || (caretRect.left < frameRects[0].left)) {
-            event.preventDefault();
-            canvas.rootWrapper.find('[document-text-element]').each(function() {
-                var test = getLastRectAbove(this, caretTop);
-                if(test) {
-                    target = this;
-                    rect = test;
-                } else {
-                    return false;
+            
+            if((frameRects[0].bottom === caretRect.bottom) || (caretRect.left < frameRects[0].left)) {
+                e.preventDefault();
+                s.canvas.rootWrapper.find('[document-text-element]').each(function() {
+                    var test = getLastRectAbove(this, caretTop);
+                    if(test) {
+                        target = this;
+                        rect = test;
+                    } else {
+                        return false;
+                    }
+                });
+                if(target) {
+                    scrolled = scroll('top', target);
+                    position = utils.caretPositionFromPoint(caretRect.left, rect.bottom - 1 - scrolled);
+                    s.canvas.setCurrentElement(s.canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
                 }
-            });
+            }
             if(target) {
                 scrolled = scroll('top', target);
-                position = utils.caretPositionFromPoint(caretRect.left, rect.bottom - 1 - scrolled);
-                canvas.setCurrentElement(canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
+                var left = caretRect.left;
+                if(left > rect.left + rect.width) {
+                    left = rect.left + rect.width;
+                } else if(left < rect.left ) {
+                    left = rect.left;
+                }
+                position = utils.caretPositionFromPoint(left, rect.bottom - 1 - scrolled);
+                s.canvas.setCurrentElement(s.canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
             }
         }
-    }
-});
+    },
+    {
+        applies: function(e, s) {
+            return e.key === KEYS.ARROW_DOWN && s.type === 'caret';
+        },
+        run: function(e, s) {
+            /* globals window */
+            var caretRect = window.getSelection().getRangeAt(0).getClientRects()[0],
+                frameRects = s.element.dom[0].getClientRects(),
+                lastRect = frameRects[frameRects.length-1],
+                position, target,rect, scrolled;
 
-handlers.push({keys: [KEYS.ARROW_DOWN],
-    keydown: function(event, canvas) {
-        /* globals window */
-        var element = canvas.getCursor().getPosition().element,
-            caretRect = window.getSelection().getRangeAt(0).getClientRects()[0],
-            frameRects = element.dom[0].getClientRects(),
-            lastRect = frameRects[frameRects.length-1],
-            position, target,rect, scrolled;
-
-        if(lastRect.bottom === caretRect.bottom || (caretRect.left > lastRect.left + lastRect.width)) {
-            event.preventDefault();
-            canvas.rootWrapper.find('[document-text-element]').each(function() {
-                var test = getFirstRectBelow(this, caretRect.bottom);
-                if(test) {
-                    target = this;
-                    rect = test;
-                    return false;
+            if(lastRect.bottom === caretRect.bottom || (caretRect.left > lastRect.left + lastRect.width)) {
+                e.preventDefault();
+                s.canvas.rootWrapper.find('[document-text-element]').each(function() {
+                    var test = getFirstRectBelow(this, caretRect.bottom);
+                    if(test) {
+                        target = this;
+                        rect = test;
+                        return false;
+                    }
+                });
+                if(target) {
+                    scrolled = scroll('bottom', target);
+                    position = utils.caretPositionFromPoint(caretRect.left, rect.top +1 - scrolled);
+                    s.canvas.setCurrentElement(s.canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
                 }
-            });
+            }
             if(target) {
                 scrolled = scroll('bottom', target);
-                position = utils.caretPositionFromPoint(caretRect.left, rect.top +1 - scrolled);
-                canvas.setCurrentElement(canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
+                var left = caretRect.left;
+                if(left > rect.left + rect.width) {
+                    left = rect.left + rect.width;
+                } else if(left < rect.left ) {
+                    left = rect.left;
+                }
+                position = utils.caretPositionFromPoint(left, rect.top +1 - scrolled);
+                s.canvas.setCurrentElement(s.canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
             }
         }
-    }
-});
+    },
+    {
+        applies: function(e, s) {
+            return e.key === KEYS.ARROW_LEFT && s.type === 'caret';
+        },
+        run: function(e, s) {
+            /* globals window */
+            var prev;
 
-handlers.push({keys: [KEYS.ARROW_LEFT],
-    keydown: function(event, canvas) {
-        /* globals window */
-        var position = canvas.getCursor().getPosition(),
-            element = position.element,
-            prev;
-
-        if(position.offset === 0) {
-            event.preventDefault();
-            prev = canvas.getPreviousTextElement(element);
-            if(prev) {
-                scroll('top', prev.dom[0]);
-                canvas.setCurrentElement(canvas.getDocumentElement(prev.dom.contents()[0]), {caretTo: 'end'});
+            if(s.offset === 0) {
+                e.preventDefault();
+                prev = s.canvas.getPreviousTextElement(s.element);
+                if(prev) {
+                    scroll('top', prev.dom[0]);
+                    s.canvas.setCurrentElement(s.canvas.getDocumentElement(prev.dom.contents()[0]), {caretTo: 'end'});
+                }
             }
         }
-    }
-});
-
-handlers.push({keys: [KEYS.ARROW_RIGHT],
-    keydown: function(event, canvas) {
-        /* globals window */
-        var position = canvas.getCursor().getPosition(),
-            element = position.element,
-            next;
-        if(position.offsetAtEnd) {
-            event.preventDefault();
-            next = canvas.getNextTextElement(element);
-            if(next) {
-                scroll('bottom', next.dom[0]);
-                canvas.setCurrentElement(canvas.getDocumentElement(next.dom.contents()[0]), {caretTo: 0});
-            }
-        } else {
-            var secondToLast = (position.offset === element.wlxmlNode.getText().length -1);
-            if(secondToLast) {
-                // Only Flying Spaghetti Monster knows why this is need for FF (for versions at least 26 to 31)
-                event.preventDefault();
-                canvas.setCurrentElement(element, {caretTo: 'end'});
-            }
-        }
-
-    }
-});
-
-var selectsWholeTextElement = function(cursor) {
-    if(cursor.isSelecting() && cursor.getSelectionStart().offsetAtBeginning && cursor.getSelectionEnd().offsetAtEnd) {
-        return true;
-    }
-    return false;
-};
-
-handlers.push({key: KEYS.X,
-    keydown: function(event, canvas) {
-        if(event.ctrlKey && selectsWholeTextElement(canvas.getCursor())) {
-            event.preventDefault();
-        }
-    }
-});
-
-handlers.push({keys: [KEYS.BACKSPACE, KEYS.DELETE],
-    keydown: function(event, canvas) {
-        var cursor = canvas.getCursor(),
-            position = canvas.getCursor().getPosition(),
-            element = position.element,
-            node = element ? element.wlxmlNode : null,
-            direction = 'above',
-            caretTo = 'end',
-            goto;
-
-        if(!element || !node) {
-            return;
-        }
-            
-        if(event.which === KEYS.DELETE) {
-            direction = 'below';
-            caretTo = 'start';
-        }
-
-        if(cursor.isSelecting()) {
-            event.preventDefault();
-            var start = cursor.getSelectionStart(),
-                end = cursor.getSelectionEnd();
-
-            if(direction === 'above') {
-                if(start.offsetAtBeginning) {
-                    goto = canvas.getNearestTextElement('above', start.element);
-                    caretTo = 'end';
-                } else {
-                    goto = start.element;
-                    caretTo = start.offset;
+    },
+    {
+        applies: function(e, s) {
+            return e.key === KEYS.ARROW_RIGHT && s.type === 'caret';
+        },
+        run: function(e, s) {
+            /* globals window */
+            var next;
+            if(s.isAtEnd()) {
+                e.preventDefault();
+                next = s.canvas.getNextTextElement(s.element);
+                if(next) {
+                    scroll('bottom', next.dom[0]);
+                    s.canvas.setCurrentElement(s.canvas.getDocumentElement(next.dom.contents()[0]), {caretTo: 0});
                 }
             } else {
-                if(end.offsetAtEnd) {
-                    goto = canvas.getNearestTextElement('below', start.element);
+                var secondToLast = (s.offset === s.element.wlxmlNode.getText().length -1);
+                if(secondToLast) {
+                    // Only Flying Spaghetti Monster knows why this is need for FF (for versions at least 26 to 31)
+                    e.preventDefault();
+                    s.canvas.setCurrentElement(s.element, {caretTo: 'end'});
+                }
+            }
+        }
+    },
+    {
+        applies: function(e, s) {
+            return s.type === 'caret' &&
+                s.element.wlxmlNode.parent().is({tagName: 'span'}) &&
+                s.element.wlxmlNode.getText().length === 1 &&
+                s.offset === 1 &&
+                (e.key === KEYS.BACKSPACE);
+        },
+        run: function(e, s) {
+            var params = {},
+                prevTextNode = s.element.canvas.getPreviousTextElement(s.element).wlxmlNode;
+            e.preventDefault();
+            s.element.wlxmlNode.parent().detach(params);
+            s.canvas.setCurrentElement(
+                (params.ret && params.ret.mergedTo) || prevTextNode,
+                {caretTo: params.ret ? params.ret.previousLen : (prevTextNode ? prevTextNode.getText().length : 0)});
+        }
+    },
+    {
+        applies: function(e, s) {
+            return s.type === 'caret' && (
+                (s.isAtBeginning() && e.key === KEYS.BACKSPACE) ||
+                (s.isAtEnd() && e.key === KEYS.DELETE)
+            );
+        },
+        run: function(e,s) {
+            var direction, caretTo, cursorAtOperationEdge, goto, element;
+
+            if(e.key === KEYS.BACKSPACE) {
+                direction = 'above';
+                caretTo = 'end';
+                cursorAtOperationEdge = s.isAtBeginning();
+                element = s.element;
+            }
+            else {
+                direction = 'below';
+                caretTo = 'start';
+                cursorAtOperationEdge = s.isAtEnd();
+                element = cursorAtOperationEdge && s.canvas.getNearestTextElement(direction, s.element);
+            }
+
+            if(!cursorAtOperationEdge || !element) {
+                return;
+            }
+
+            e.preventDefault();
+
+            s.canvas.wlxmlDocument.transaction(function() {
+                if(element.wlxmlNode.getIndex() === 0) {
+                    goto = element.wlxmlNode.parent().moveUp();
+                } else {
+                    goto = element.wlxmlNode.moveUp();
+                }
+                if(goto) {
+                   s.canvas.setCurrentElement(goto.node, {caretTo: goto.offset});
+                }
+            }, {
+                metadata: {
+                    description: gettext('Remove text')
+                }
+            });
+        }
+    },
+
+    {
+        applies: function(e,s) {
+            return s.type === 'caret' && s.element.getText().length === 1 && (e.key === KEYS.BACKSPACE || e.key === KEYS.DELETE);
+        },
+        run: function(e,s) {
+            e.preventDefault();
+            s.element.wlxmlNode.setText('');
+            s.canvas.setCurrentElement(s.element, {caretTo: 0});
+        }
+    },
+
+    {
+        applies: function(e, s) {
+            return s.type === 'textSelection' && (e.key === KEYS.BACKSPACE || e.key === KEYS.DELETE);
+        },
+        run: function(e, s) {
+            var direction = 'above',
+                caretTo = 'end',
+                goto;
+
+            if(e.key === KEYS.DELETE) {
+                direction = 'below';
+                caretTo = 'start';
+            }
+
+            e.preventDefault();
+
+            if(s.startsAtBeginning && s.endsAtEnd && s.startElement.sameNode(s.endElement)) {
+                goto = s.startElement;
+                caretTo = s.startOffset;
+            } else if(direction === 'above') {
+                if(s.startsAtBeginning()) {
+                    goto = s.canvas.getNearestTextElement('above', s.startElement);
+                    caretTo = 'end';
+                } else {
+                    goto = s.startElement;
+                    caretTo = s.startOffset;
+                }
+            } else {
+                if(s.endsAtEnd()) {
+                    goto = s.canvas.getNearestTextElement('below', s.startElement);
                     caretTo = 'start';
                 } else {
-                    goto = end.element;
+                    goto = s.endElement;
                     caretTo = 0;
                 }
             }
 
-            canvas.wlxmlDocument.deleteText({
-                from: {
-                    node: start.element.wlxmlNode,
-                    offset: start.offset
-                },
-                to: {
-                    node: end.element.wlxmlNode,
-                    offset: end.offset
+            var doc = s.canvas.wlxmlDocument;
+            doc.transaction(function() {
+                
+                doc.deleteText({
+                    from: {
+                        node: s.startElement.wlxmlNode,
+                        offset: s.startOffset
+                    },
+                    to: {
+                        node: s.endElement.wlxmlNode,
+                        offset: s.endOffset
+                    }
+                });
+
+            }, {
+                success: function() {
+                    if(goto) {
+                        s.canvas.setCurrentElement(goto, {caretTo: caretTo});
+                    }
                 }
             });
-            if(goto) {
-                canvas.setCurrentElement(goto, {caretTo: caretTo});
-            }
-            return;
-        }
-            
-        var cursorAtOperationEdge = position.offsetAtBeginning;
-        if(event.which === KEYS.DELETE) {
-            cursorAtOperationEdge = position.offsetAtEnd;
-        }
 
-        var willDeleteWholeText = function() {
-            return element.getText().length === 1 || selectsWholeTextElement(cursor);
-        };
+        }
+    },
+    {
+        applies: function(e, s) {
+            return s.type === 'caret' && e.key === KEYS.ENTER && !s.element.parent().isRootElement();
+        },
+        run: function(e, s) {
+            var result, goto, gotoOptions;
+            void(e);
+            e.preventDefault();
+            s.canvas.wlxmlDocument.transaction(function() {
+                result = s.element.wlxmlNode.breakContent({offset: s.offset});
+            }, {
+                metadata: {
+                    description: gettext('Splitting text'),
+                    fragment: s.toDocumentFragment()
+                }
+            });
 
-        canvas.wlxmlDocument.transaction(function() {
-            if(willDeleteWholeText()) {
-                event.preventDefault();
-                node.setText('');
+            if(result.emptyText) {
+                goto = result.emptyText;
+                gotoOptions = {};
+            } else {
+                goto = result.second;
+                gotoOptions = {caretTo: 'start'};
             }
-            else if(element.isEmpty()) {
-                event.preventDefault();
-                var parent = element.parent(),
-                    grandParent = parent ? parent.parent() : null;
-                if(!grandParent && parent.children().length === 1) {
-                    return;
-                }
-                if(parent.children().length === 1 && parent.children()[0].sameNode(element)) {
-                    if(grandParent && grandParent.children().length === 1) {
-                        goto = grandParent.wlxmlNode.append({text: ''});
-                    } else {
-                        goto = canvas.getNearestTextElement(direction, element);
-                    }
-                    parent.wlxmlNode.detach();
-                } else {
-                    goto = canvas.getNearestTextElement(direction, element);
-                    element.wlxmlNode.detach();
-                }
-                canvas.setCurrentElement(goto, {caretTo: caretTo});
-            }
-            else if(cursorAtOperationEdge) {
-                if(direction === 'below') {
-                    element = canvas.getNearestTextElement(direction, element);
-                }
-                if(element) {
-                    goto = element.wlxmlNode.mergeContentUp();
-                    if(goto) {
-                        canvas.setCurrentElement(goto.node, {caretTo: goto.offset});
-                    }
-                }
-                event.preventDefault();
-            }
-        }, {
-            metadata: {
-                description: gettext('Remove text')
-            }
-        });
+
+            s.canvas.setCurrentElement(utils.getElementForNode(goto), gotoOptions);
+        }
     }
-});
+];
 
 return {
-    handleKey: handleKey
+    handleKeyEvent: handleKeyEvent,
+    KEYS: KEYS
 };
 
 });

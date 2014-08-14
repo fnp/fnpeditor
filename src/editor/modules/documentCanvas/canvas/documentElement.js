@@ -78,6 +78,9 @@ $.extend(DocumentElement.prototype, {
     sameNode: function(other) {
         return other && (typeof other === typeof this) && other.dom[0] === this.dom[0];
     },
+    isRootElement: function() {
+        return this.sameNode(this.canvas.rootElement);
+    },
 
     trigger: function() {
         this.canvas.eventBus.trigger.apply(this.canvas.eventBus, Array.prototype.slice.call(arguments, 0));

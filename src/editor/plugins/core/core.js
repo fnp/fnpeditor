@@ -8,7 +8,7 @@ var _ = require('libs/underscore'),
     footnote = require('plugins/core/footnote'),
     switchTo = require('plugins/core/switch'),
     lists = require('plugins/core/lists'),
-    plugin = {name: 'core', actions: [], canvas: {}, documentExtension: {textNode: {}}},
+    plugin = {name: 'core', actions: [], canvas: {}, documentExtension: {textNode: {}, documentNode: {}}},
     Dialog = require('views/dialog/dialog'),
     canvasElements = require('plugins/core/canvasElements'),
     metadataEditor = require('plugins/core/metadataEditor/metadataEditor');
@@ -19,6 +19,7 @@ plugin.documentExtension.textNode.transformations = {
     breakContent: {
         impl: function(args) {
             var node = this,
+                isSpan = node.parent().getTagName() === 'span',
                 parentDescribingNodes = [],
                 newNodes, emptyText;
             newNodes = node.split({offset: args.offset});
@@ -40,10 +41,51 @@ plugin.documentExtension.textNode.transformations = {
             parentDescribingNodes.forEach(function(node) {
                 newNodes.first.append(node);
             });
+
+            var parent, newNode;
+
+            var copyNode = function(n) {
+                var attrs = {};
+                n.getAttrs().forEach(function(attr) {
+                    attrs[attr.name] = attr.value;
+                });
+
+                return node.document.createDocumentNode({
+                    tagName: n.getTagName(),
+                    attrs: attrs
+                });
+            };
+
+            var move = function(node, to) {
+                var copy;
+                if(!node.containsNode(newNodes.second)) {
+                    to.append(node);
+                    return false;
+                } else {
+                    if(!node.sameNode(newNodes.second)) {
+                        copy = to.append(copyNode(node));
+                        node.contents().some(function(n) {
+                            return move(n, copy);
+                        });
+                    }
+                    return true;
+                }
+            };
+
+            if(isSpan) {
+                newNodes.first.parents().some(function(p) {
+                    if(p.getTagName() !== 'span') {
+                        parent = p;
+                        return true;
+                    }
+                });
+                newNode = parent.before({tagName: parent.getTagName(), attrs: {'class': parent.getClass()}});
+                parent.contents().some(function(n) {
+                    return move(n, newNode);
+                });
+            }
+
             return _.extend(newNodes, {emptyText: emptyText});
-        },
-        getChangeRoot: function() {
-            return this.context.parent().parent();
         }
     },
     mergeContentUp: function() {
@@ -79,6 +121,154 @@ plugin.documentExtension.textNode.transformations = {
             }
             return {node: ret, offset: ret.sameNode(this) ? null : ret.getText().length - this.getText().length};
         }
+    }
+};
+
+plugin.documentExtension.documentNode.transformations = {
+    moveUp: function() {
+        var toMerge = this,
+            prev = toMerge.prev();
+
+        var merge = function(from, to) {
+            var toret;
+            from.contents().forEach(function(node, idx) {
+                var len, ret;
+                if(idx === 0 && node.nodeType === Node.TEXT_NODE) {
+                    len = node.getText().length;
+                }
+                ret = to.append(node);
+                
+                if(idx === 0 && ret.nodeType === Node.TEXT_NODE) {
+                    toret = {
+                        node: ret,
+                        offset: ret.getText().length - len
+                    };
+                } else if(!toret) {
+                    toret = {
+                        node: ret.getFirstTextNode(),
+                        offset: 0
+                    };
+                }
+            });
+            from.detach();
+            return toret;
+        };
+
+        var strategies = [
+            {
+                applies: function() {
+                    return toMerge.nodeType === Node.TEXT_NODE && prev.is({tagName: 'span'});
+                },
+                run: function() {
+                    var textNode = prev.getLastTextNode(),
+                        txt, prevText, prevTextLen;
+                    if(textNode) {
+                        txt = textNode.getText();
+                        if(txt.length > 1) {
+                            textNode.setText(txt.substr(0, txt.length-1));
+                            return {node: toMerge, offset: 0};
+                        } else {
+                            if((prevText = prev.prev()) && prevText.nodeType === Node.TEXT_NODE) {
+                                prevTextLen = prevText.getText().length;
+                            }
+                            prev.detach();
+                            return {
+                                node: prevText ? prevText : toMerge,
+                                offset : prevText ? prevTextLen : 0
+                            };
+                        }
+                    }
+                }
+            },
+            {
+                applies: function() {
+                    return toMerge.is({tagName: 'div', 'klass': 'p'}) || (toMerge.is({tagName: 'div'}) && toMerge.getClass() === '');
+                },
+                run: function() {
+                    if(prev && prev.is('p') || prev.is({tagName: 'header'})) {
+                        return merge(toMerge, prev);
+                    }
+                    if(prev && prev.is('list')) {
+                        var items = prev.contents().filter(function(n) { return n.is('item');});
+                        return merge(toMerge, items[items.length-1]);
+                    }
+                }
+            },
+            {
+                applies: function() {
+                    return toMerge.is({tagName: 'span'});
+                },
+                run: function() {
+                    /* globals Node */
+                    var toret = {node: toMerge.contents()[0] , offset: 0},
+                        txt, txtNode, parent;
+                    if(!prev) {
+                        toMerge.parents().some(function(p) {
+                            if(p.is({tagName: 'span'})) {
+                                parent = prev = p;
+                            } else {
+                                if(!parent) {
+                                    parent = p;
+                                }
+                                prev = prev && prev.prev();
+                                return true;
+                            }
+                        });
+                    }
+                    if(!prev) {
+                        return parent.moveUp();
+                    }
+                    else if(prev.nodeType === Node.TEXT_NODE && (txt = prev.getText())) {
+                        prev.setText(txt.substr(0, txt.length-1));
+                        return toret;
+                    } else if(prev.is({tagName: 'span'})) {
+                        if((txtNode = prev.getLastTextNode())) {
+                            txt = txtNode.getText();
+                            txtNode.setText(txt.substr(0, txt.length-1));
+                            return toret;
+                        }
+                    }
+
+                }
+            },
+            {
+                applies: function() {
+                    return toMerge.is({tagName: 'header'});
+                },
+                run: function() {
+                    if(prev && prev.is('p') || prev.is({tagName: 'header'})) {
+                        return merge(toMerge, prev);
+                    }
+                }
+            },
+            {
+                applies: function() {
+                    return toMerge.is('item');
+                },
+                run: function() {
+                    var list;
+                    if(prev && prev.is('item')) {
+                        return merge(toMerge, prev);
+                    } else if(!prev && (list = toMerge.parent()) && list.is('list')) {
+                        list.before(toMerge);
+                        toMerge.setClass('p');
+                        if(!list.contents().length) {
+                            list.detach();
+                        }
+                        return {node: toMerge.contents()[0], offset:0};
+                    }
+                }
+            }
+        ];
+
+        var toret;
+        strategies.some(function(strategy) {
+            if(strategy.applies()) {
+                toret = strategy.run();
+                return true;
+            }
+        });
+        return toret;
     }
 };
 

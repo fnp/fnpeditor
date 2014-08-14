@@ -250,11 +250,21 @@ $.extend(ElementNode.prototype, {
         return node && (node.nativeNode === this.nativeNode || node._$.parents().index(this._$) !== -1);
     },
 
+    getFirstTextNode: function() {
+        return this._getTextNode('first');
+    },
+
     getLastTextNode: function() {
+        return this._getTextNode('last');
+    },
+
+    _getTextNode: function(which) {
         var contents = this.contents(),
             toret;
-
-        contents.reverse().some(function(node) {
+        if(which === 'last') {
+            contents = contents.reverse();
+        }
+        contents.some(function(node) {
             if(node.nodeType === Node.TEXT_NODE) {
                 toret = node;
                 return true;
