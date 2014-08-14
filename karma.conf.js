@@ -21,8 +21,6 @@ captureTimeout = 60000;
 autoWatch = true;
 singleRun = false;
 
-browsers = ['PhantomJS'];
-
 colors = true;
 logLevel = LOG_INFO;
 
