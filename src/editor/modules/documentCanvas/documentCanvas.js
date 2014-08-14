@@ -75,7 +75,7 @@ return function(sandbox) {
             canvasWrapper.find('#rng-module-documentCanvas-contentWrapper').empty().append(canvas.view());
         },
         onAfterActionExecuted: function(action, ret) {
-            if(ret && ret.isValid()) {
+            if(ret && ret.isValid && ret.isValid()) {
                 logger.debug('The action returned a valid fragment');
                 return canvas.select(ret);
             }
