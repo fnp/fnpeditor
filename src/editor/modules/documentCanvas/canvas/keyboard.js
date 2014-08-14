@@ -318,6 +318,17 @@ var keyEventHandlers = [
                     s.canvas.setCurrentElement(s.canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
                 }
             }
+            if(target) {
+                scrolled = scroll('top', target);
+                var left = caretRect.left;
+                if(left > rect.left + rect.width) {
+                    left = rect.left + rect.width;
+                } else if(left < rect.left ) {
+                    left = rect.left;
+                }
+                position = utils.caretPositionFromPoint(left, rect.bottom - 1 - scrolled);
+                s.canvas.setCurrentElement(s.canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
+            }
         }
     },
     {
@@ -346,6 +357,17 @@ var keyEventHandlers = [
                     position = utils.caretPositionFromPoint(caretRect.left, rect.top +1 - scrolled);
                     s.canvas.setCurrentElement(s.canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
                 }
+            }
+            if(target) {
+                scrolled = scroll('bottom', target);
+                var left = caretRect.left;
+                if(left > rect.left + rect.width) {
+                    left = rect.left + rect.width;
+                } else if(left < rect.left ) {
+                    left = rect.left;
+                }
+                position = utils.caretPositionFromPoint(left, rect.top +1 - scrolled);
+                s.canvas.setCurrentElement(s.canvas.getDocumentElement(position.textNode), {caretTo: position.offset});
             }
         }
     },
