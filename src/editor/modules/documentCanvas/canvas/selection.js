@@ -60,7 +60,8 @@ $.extend(TextSelection.prototype, {
     toDocumentFragment: function() {
         var doc = this.canvas.wlxmlDocument,
             anchorNode = this.anchorElement ? this.anchorElement.wlxmlNode : null,
-            focusNode = this.focusElement ? this.focusElement.wlxmlNode : null;
+            focusNode = this.focusElement ? this.focusElement.wlxmlNode : null,
+            node1, node2;
         
         if(!anchorNode || !focusNode) {
             return;
@@ -75,10 +76,17 @@ $.extend(TextSelection.prototype, {
             });
         }
         else {
-            var siblingParents = doc.getSiblingParents({node1: anchorNode, node2: focusNode});
+            if(anchorNode.hasSameContextRoot(focusNode)) {
+                var siblingParents = doc.getSiblingParents({node1: anchorNode, node2: focusNode});
+                node1 = siblingParents.node1;
+                node2 = siblingParents.node2;
+            } else {
+                node1 = focusNode;
+                node2 = anchorNode;
+            }
             return doc.createFragment(doc.RangeFragment, {
-                node1: siblingParents.node1,
-                node2: siblingParents.node2
+                node1: node1,
+                node2: node2
             });
         }
     },
@@ -129,7 +137,7 @@ return {
                 params = {
                     type: 'caret',
                     element: element,
-                    offset: element.isEmpty() ? 0 : nativeSelection.focusOffset
+                    offset: element.isEmpty() ? 0 : nativeSelection.getRangeAt(0).startOffset
                 };
             } else if(isText(nativeSelection.focusNode) && isText(nativeSelection.anchorNode)) {
                 anchorElement = canvas.getDocumentElement(nativeSelection.anchorNode);

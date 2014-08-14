@@ -1,0 +1,70 @@
+@exercise-order-gray: darken(#ddd, 15%);
+.exercise-order {
+    
+    overflow-x: hidden;
+
+    .description {
+        margin-bottom: 20px;
+    }
+
+    .wrapper {
+        display: table;
+        width: 100%;
+        border-radius: 5px;
+        background-color: #ddd;
+    }
+
+    .content {
+        display: table-cell;
+        width: calc(~'100% - 40px');
+        padding: 10px 10px;
+        cursor: default;
+
+        .dragEnter {
+            opacity: 0.5;
+        }
+    }
+
+    .handle {
+        vertical-align: middle;
+        display: table-cell;
+        width: 20px;
+        background-color: @exercise-order-gray;
+        text-align: center;
+        border-radius: 0 5px 5px 0;
+        padding: 10px 10px;
+
+        .dragEnter {
+            opacity: 0.5;
+        }
+    }
+
+    .placeholder {
+        height: 10px;
+        transition: height 0.05s;
+        background-color: transparent;
+        &.active {
+            height: 60px;
+            transition: height 0.05s;
+            background-color: lighten(@blue,40%);
+            border: 1px dashed @blue;
+        }
+        width:100%;
+    }
+
+    ol {
+        margin: 0;
+        counter-reset: edumed-order-counter;
+    }
+    ol li {
+        list-style-type: none;
+        cursor: move;
+        .dragged {
+            opacity: 0.6;
+        }
+    }
+
+    .nav-tabs > .active > a {
+        background-color: @exercise-order-gray;
+    }
+}

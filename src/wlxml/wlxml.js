@@ -4,8 +4,9 @@ define([
     'smartxml/smartxml',
     'smartxml/transformations',
     'wlxml/extensions/metadata/metadata',
-    'wlxml/extensions/comments/comments'
-], function($, _, smartxml, transformations, metadataExtension, commentExtension) {
+    'wlxml/extensions/comments/comments',
+    'wlxml/extensions/edumed/edumed'
+], function($, _, smartxml, transformations, metadataExtension, commentExtension, edumedExtension) {
     
 'use strict';
 
@@ -24,11 +25,39 @@ var WLXMLDocumentNodeMethods =  {
         me.concat(this.parents()).some(function(node) {
             if(node.is(query)) {
                 toret = node;
+            }
+            return !!toret || (!node.sameNode(this) && node.isContextRoot());
+        }.bind(this));
+
+        return toret;
+    },
+    isContextRoot: function() {
+        var me = this.nodeType === Node.ELEMENT_NODE ? [this] : [],
+            toret = false;
+        if(!this.parent()) {
+            return true;
+        }
+        me.concat(this.parents()).some(function(node) {
+            if(_.isFunction(node.object.isContextRoot) && node.object.isContextRoot(this)) {
+                toret = true;
+                return true;
+            }
+        }.bind(this));
+        return toret;
+    },
+    getContextRoot: function() {
+        var contextRoot;
+        [this].concat(this.parents()).some(function(n) {
+            if(n.isContextRoot()) {
+                contextRoot = n;
                 return true;
             }
         });
-        return toret;
+        return contextRoot;
     },
+    hasSameContextRoot: function(other) {
+        return this.getContextRoot().sameNode(other.getContextRoot());
+    }
 };
 
 var getClassLists = function(klassName) {
@@ -89,6 +118,16 @@ $.extend(WLXMLElementNode.prototype, WLXMLDocumentNodeMethods, smartxml.ElementN
         return this.contents().some(function(child) {
             return child.is(query);
         }.bind(this));
+    },
+    find: function(query) {
+        var doc = this.document;
+        return this._$.find('*')
+            .map(function() {
+                return doc.createDocumentNode(this);
+            })
+            .filter(function() {
+                return this.is(query);
+            });
     },
 
     _getXMLDOMToDump: function() {
@@ -157,7 +196,6 @@ var WLXMLDocumentNode = function() {
 };
 WLXMLDocumentNode.prototype = Object.create(smartxml.DocumentNode.prototype);
 
-
 var WLXMLTextNode = function() {
     smartxml.TextNode.apply(this, arguments);
 };
@@ -169,7 +207,7 @@ $.extend(WLXMLTextNode.prototype, WLXMLDocumentNodeMethods, {
 var WLXMLDocument = function(xml, options) {
     this.classMethods = {};
     this.classTransformations = {};
-    smartxml.Document.call(this, xml, [metadataExtension, commentExtension]);
+    smartxml.Document.call(this, xml, [metadataExtension, commentExtension, edumedExtension]);
     this.options = options;
 };
 

@@ -546,7 +546,7 @@ describe('Keyboard interactions', function() {
             expect(selection.element.sameNode(getTextElement('has a cat', c))).to.equal(true);
             expect(selection.offset).to.equal(0);
         });
-        it('deletes span if it contains only one character', function() {
+        it('deletes span if it contains only one character (1)', function() {
             var c = getCanvasFromXML('<section>Alice <span>h</span> a cat</section>'),
                 k = new Keyboard(c);
 
@@ -560,6 +560,21 @@ describe('Keyboard interactions', function() {
             expect(selection.type).to.equal('caret');
             expect(selection.element.sameNode(getTextElement('Alice  a cat', c))).to.equal(true);
             expect(selection.offset).to.equal(6);
+        });
+        it('deletes span if it contains only one character (2)', function() {
+            var c = getCanvasFromXML('<section><span>a</span><span>b</span></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('|b').press(K.BACKSPACE);
+
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(1);
+            expect(rootContents[0].contents()[0].getText()).to.equal('b');
+
+            var selection = c.getSelection();
+            expect(selection.type).to.equal('caret');
+            expect(selection.element.sameNode(getTextElement('b', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
         });
     });
 
@@ -619,6 +634,17 @@ describe('Keyboard interactions', function() {
             expect(selection.type).to.equal('caret');
             expect(selection.element.sameNode(getTextElement('', c))).to.equal(true);
             expect(selection.offset).to.equal(0);
+        });
+
+        it('does nothing on an empty paragraph', function() {
+            var c = getCanvasFromXML('<section><div class="p">a</div></section>'),
+                k = new Keyboard(c),
+                spy = sinon.spy();
+
+            k.withCaret('a|').press(K.BACKSPACE);
+            c.wlxmlDocument.on('change', spy);
+            k.press(K.ENTER);
+            expect(spy.callCount).to.equal(0);
         });
 
         it('splits its parent box if inside a span', function() {
@@ -696,6 +722,29 @@ describe('Keyboard interactions', function() {
             /* caret */
             var selection = c.getSelection();
             expect(selection.element.sameNode(getTextElement('s', c))).to.equal(true);
+            expect(selection.offset).to.equal(0);
+        });
+    });
+
+    describe('Enter on a list items', function() {
+        afterEach(removeCanvas);
+
+        it('creates a paragraph after a list if hitting enter on the last and empty list item', function() {
+            var c = getCanvasFromXML('<section><div class="list"><div class="item">item</div></div></section>'),
+                k = new Keyboard(c);
+
+            k.withCaret('item|').press(K.ENTER).press(K.ENTER);
+            
+            var rootContents = c.wlxmlDocument.root.contents();
+            expect(rootContents.length).to.equal(2);
+            expect(rootContents[0].is('list')).to.equal(true);
+            expect(rootContents[1].is('p')).to.equal(true);
+
+            var list = rootContents[0];
+            expect(list.contents().length).to.equal(1);
+            
+            var selection = c.getSelection();
+            expect(selection.element.wlxmlNode.sameNode(rootContents[1].contents()[0])).to.equal(true);
             expect(selection.offset).to.equal(0);
         });
     });

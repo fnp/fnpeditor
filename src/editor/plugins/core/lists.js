@@ -8,10 +8,14 @@ var getBoundriesForAList = function(fragment) {
     var node;
 
     if(fragment instanceof fragment.RangeFragment && fragment.hasSiblingBoundries()) {
-        return fragment.boundriesSiblingParents();
+        return fragment.startNode.hasSameContextRoot(fragment.endNode) && fragment.boundriesSiblingParents();
     }
     if(fragment instanceof fragment.NodeFragment) {
         node = fragment.node.getNearestElementNode();
+        if(node.isContextRoot()) {
+            node = fragment.node;
+        }
+
         return {
             node1: node,
             node2: node
@@ -152,7 +156,7 @@ var toggleListAction = function(type) {
 
             }
             var boundries = getBoundriesForAList(params.fragment);
-            if(boundries) {
+            if(boundries && boundries.node1.hasSameContextRoot(boundries.node2)) {
                 return {
                     allowed: true,
                     description: interpolate(gettext('Make %s fragment(s) into list'), [countItems(getBoundriesForAList(params.fragment))]),

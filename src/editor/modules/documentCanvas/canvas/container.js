@@ -8,13 +8,15 @@ var $ = require('libs/jquery'),
 
 
 var Container = function(nodes, params, element) {
+    params = params || {};
     _.extend(this, params);
     this.dom = this.dom || $('<div>');
     this.dom.addClass('canvas-container');
+    this.dom.toggleClass('reset-background', !!params.resetBackground);
     this.element = element;
 
     nodes.forEach(function(node) {
-        var el = this.element.canvas.createElement(node);
+        var el = this.element.createElement(node);
         if(el.dom) {
             this.dom.append(el.dom);
         }
@@ -102,7 +104,7 @@ _.extend(Container.prototype, {
         if(param instanceof documentElement.DocumentElement) {
             element = param;
         } else {
-            element = this.element.canvas.createElement(param);//
+            element = this.element.createElement(param);//
         }
         if(element.dom) {
             this.dom.prepend(element.dom);

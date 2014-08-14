@@ -3,6 +3,7 @@ define([
 'libs/underscore',
 'libs/backbone',
 'fnpjs/logging/logging',
+'views/menu/menu',
 'modules/documentCanvas/canvas/documentElement',
 'modules/documentCanvas/canvas/keyboard',
 'modules/documentCanvas/canvas/utils',
@@ -14,8 +15,8 @@ define([
 'modules/documentCanvas/canvas/selection',
 'modules/documentCanvas/canvas/keyEvent',
 'libs/text!./canvas.html'
-], function($, _, Backbone, logging, documentElement, keyboard, utils, wlxmlListener, ElementsRegister, genericElement, nullElement, gutter, selection, keyEvent, canvasTemplate) {
-    
+], function($, _, Backbone, logging, Menu, documentElement, keyboard, utils, wlxmlListener, ElementsRegister, genericElement, nullElement, gutter, selection, keyEvent, canvasTemplate) {
+
 'use strict';
 /* global document:false, window:false, Node:false, gettext */
 
@@ -62,9 +63,10 @@ $.extend(TextHandler.prototype, {
 });
 
 
-var Canvas = function(wlxmlDocument, elements, metadata) {
+var Canvas = function(wlxmlDocument, elements, metadata, sandbox) {
     this.metadata = metadata || {};
-    this.elementsRegister = new ElementsRegister(documentElement.DocumentNodeElement, nullElement);
+    this.sandbox = sandbox;
+    this.elementsRegister = this.createElementsRegister();
 
     elements = [
         {tag: 'section', klass: null, prototype: genericElement},
@@ -95,6 +97,15 @@ var Canvas = function(wlxmlDocument, elements, metadata) {
 
 $.extend(Canvas.prototype, Backbone.Events, {
 
+    createElementType: function(elementPrototype) {
+        /* TODO: reconcile this with ElementsRegister behavior */
+        var Constructor = function() {
+            documentElement.DocumentNodeElement.apply(this, Array.prototype.slice.call(arguments, 0));
+        };
+        Constructor.prototype = elementPrototype;
+        return Constructor;
+    },
+
     getElementOffset: function(element) {
         return element.dom.offset().top - this.dom.offset().top;
     },
@@ -109,14 +120,28 @@ $.extend(Canvas.prototype, Backbone.Events, {
         this.reloadRoot();
     },
 
-    createElement: function(wlxmlNode) {
+    createElement: function(wlxmlNode, register, useRoot) {
         var Factory;
+        register = register || this.elementsRegister;
         if(wlxmlNode.nodeType === Node.TEXT_NODE) {
             Factory = documentElement.DocumentTextElement;
         } else {
-            Factory = this.elementsRegister.getElement({tag: wlxmlNode.getTagName(), klass: wlxmlNode.getClass()});
+            Factory = register.getElement({tag: wlxmlNode.getTagName(), klass: wlxmlNode.getClass()});
         }
-        return new Factory(wlxmlNode, this);
+        if(!Factory && useRoot) {
+            Factory = this.elementsRegister.getElement({tag: wlxmlNode.getTagName(), klass: wlxmlNode.getClass()});
+            if(!Factory) {
+                Factory = documentElement.DocumentNodeElement;
+            }
+        }
+
+        if(Factory) {
+            return new Factory(wlxmlNode, this);
+        }
+    },
+
+    createElementsRegister: function() {
+        return new ElementsRegister(documentElement.DocumentNodeElement, nullElement);
     },
 
     getDocumentElement: function(htmlElement) {
@@ -147,12 +172,15 @@ $.extend(Canvas.prototype, Backbone.Events, {
         this.rootWrapper.append(this.rootElement.dom);
     },
 
-
     triggerKeyEvent: function(keyEvent, selection) {
         selection = selection || this.getSelection();
         if(selection && (selection.type === 'caret' || selection.type === 'textSelection') && selection.toDocumentFragment().isValid()) {
             keyboard.handleKeyEvent(keyEvent, selection);
         }
+    },
+
+    createAction: function(fqName, config) {
+        return this.sandbox.createAction(fqName, config);
     },
 
     setupEventHandling: function() {
@@ -195,6 +223,17 @@ $.extend(Canvas.prototype, Backbone.Events, {
                 }
             }
         });
+
+        this.rootWrapper.on('contextmenu', function(e) {
+            var el = canvas.getDocumentElement(e.target);
+            
+            if(!el) {
+                return;
+            }
+
+            e.preventDefault();
+            this.showContextMenu(el, {x: e.clientX, y: e.clientY});
+        }.bind(this));
 
         this.rootWrapper.on('paste', function(e) {
             e.preventDefault();
@@ -454,6 +493,18 @@ $.extend(Canvas.prototype, Backbone.Events, {
         if(position.element) {
             this._moveCaretToTextElement(position.element, position.offset);
         }
+    },
+    showContextMenu: function(element, coors) {
+        var menu = new Menu();
+
+        while(element) {
+            (element.contextMenuActions || []).forEach(menu.addAction.bind(menu));
+            element = element.parent();
+        }
+        if(menu.actions.length) {
+            menu.updateContextParam('fragment', this.getSelection().toDocumentFragment());
+            this.sandbox.showContextMenu(menu, {x: coors.x, y: coors.y});
+        }
     }
 });
 
@@ -585,8 +636,8 @@ $.extend(Cursor.prototype, {
 });
 
 return {
-    fromXMLDocument: function(wlxmlDocument, elements, metadata) {
-        return new Canvas(wlxmlDocument, elements, metadata);
+    fromXMLDocument: function(wlxmlDocument, elements, metadata, sandbox) {
+        return new Canvas(wlxmlDocument, elements, metadata, sandbox);
     }
 };
 

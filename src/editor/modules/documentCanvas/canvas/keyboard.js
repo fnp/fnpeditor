@@ -257,6 +257,14 @@ var keyEventHandlers = [
                 return;
             }
 
+
+            var parent = element.wlxmlNode.parent();
+            if(element.wlxmlNode.getIndex() === 0 && parent.isContextRoot() && (!parent.is('item') || parent.getIndex() === 0)) {
+                // Don't even try to do anything at the edge of a context root, except for non-first items
+                // - this is a temporary solution until key events handling get refactored into something more sane.
+                return;
+            }
+
             e.preventDefault();
 
             s.canvas.wlxmlDocument.transaction(function() {
@@ -350,12 +358,42 @@ var keyEventHandlers = [
     },
     {
         applies: function(e, s) {
+            var parent = s.element && s.element.wlxmlNode.parent(),
+                parentIsItem = parent && parent.is('item'),
+                itemIsOnList = parent && parent.parent() && parent.parent().is('list');
+            return s.type === 'caret' && e.key === KEYS.ENTER && s.element.isEmpty() && parentIsItem && itemIsOnList;
+        },
+        run: function(e, s) {
+            var item = s.element.wlxmlNode.parent(),
+                list = item.parent();
+            e.preventDefault();
+            s.canvas.wlxmlDocument.transaction(function() {
+                var p = list.after({tagName: 'div', attrs: {'class': 'p'}});
+                p.append({text: ''});
+                item.detach();
+                return p;
+            }, {
+                success: function(p) {
+                    s.canvas.setCurrentElement(p);
+                }
+            });
+        }
+    },
+    {
+        applies: function(e, s) {
             return s.type === 'caret' && e.key === KEYS.ENTER && !s.element.parent().isRootElement();
         },
         run: function(e, s) {
-            var result, goto, gotoOptions;
+            var parent = s.element.parent(),
+                children = parent.children(),
+                result, goto, gotoOptions;
             void(e);
             e.preventDefault();
+
+            if(children.length === 1 && s.element.isEmpty()) {
+                return;
+            }
+
             s.canvas.wlxmlDocument.transaction(function() {
                 result = s.element.wlxmlNode.breakContent({offset: s.offset});
             }, {

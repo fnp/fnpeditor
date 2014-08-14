@@ -95,6 +95,8 @@ $.extend(DocumentElement.prototype, {
 var DocumentNodeElement = function(wlxmlNode, canvas) {
     DocumentElement.call(this, wlxmlNode, canvas);
     this.containers = [];
+    this.elementsRegister = canvas.createElementsRegister();
+    this.contextMenuActions = [];
     this.init(this.dom);
 };
 
@@ -104,7 +106,7 @@ var manipulate = function(e, params, action) {
     if(params instanceof DocumentElement) {
         element = params;
     } else {
-        element = e.canvas.createElement(params);
+        element = e.createElement(params);
     }
     if(element.dom) {
         e.dom[action](element.dom);
@@ -145,6 +147,13 @@ $.extend(DocumentNodeElement.prototype, {
         if((idx = this.containers.indexOf(container)) !== -1) {
             this.containers.splice(idx, 1);
         }
+    },
+    createElement: function(wlxmlNode) {
+        var parent = this.wlxmlNode.parent() ? utils.getElementForNode(this.wlxmlNode.parent()) : null;
+        return this.canvas.createElement(wlxmlNode, this.elementsRegister, !parent) || parent.createElement(wlxmlNode);
+    },
+    addToContextMenu: function(actionFqName) {
+        this.contextMenuActions.push(this.canvas.createAction(actionFqName));
     },
     handle: function(event) {
         var method = 'on' + event.type[0].toUpperCase() + event.type.substr(1),
@@ -232,6 +241,9 @@ $.extend(DocumentNodeElement.prototype, {
         // })
         this.dom.css('display', what);
         this._container().css('display', what);
+    },
+    children: function() {
+        return [];
     }
 });
 
@@ -293,7 +305,7 @@ $.extend(DocumentTextElement.prototype, {
         if(params instanceof DocumentNodeElement) {
             element = params;
         } else {
-            element = this.canvas.createElement(params);
+            element = this.parent().createElement(params);
         }
         if(element.dom) {
             this.dom.wrap('<div>');
@@ -311,7 +323,7 @@ $.extend(DocumentTextElement.prototype, {
         if(params instanceof DocumentNodeElement) {
             element = params;
         } else {
-            element = this.canvas.createElement(params);
+            element = this.createElement(params);
         }
         if(element.dom) {
             this.dom.wrap('<div>');

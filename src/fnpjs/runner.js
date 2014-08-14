@@ -15,7 +15,8 @@ var Runner = function(app, modules) {
         plugins = [],
         actionDefinitions = {},
         config,
-        actionsAppObject;
+        actionsAppObject,
+        currentContextMenu;
         
     _.each(_.keys(modules || {}), function(moduleName) {
         if(_.contains(app.permissions[moduleName] || [], 'handleEvents')) {
@@ -78,9 +79,18 @@ var Runner = function(app, modules) {
         this.registerActionsAppObject = function(_actionsAppObject) {
             actionsAppObject = _actionsAppObject;
         };
+
+        this.showContextMenu = function(menu, coors) {
+            if(currentContextMenu) {
+                currentContextMenu.close();
+            }
+            currentContextMenu = menu;
+            $(config.rootSelector).append(menu.dom);
+            menu.dom.css({top: coors.y, left: coors.x});
+            menu.show();
+        };
     };
-    
-    
+      
     this.setBootstrappedData = function(moduleName, data) {
         bootstrappedData[moduleName] = data;
     };
@@ -120,6 +130,13 @@ var Runner = function(app, modules) {
         app.initModules.forEach(function(moduleName) {
             getModuleInstance(moduleName).start();
         });
+
+        $(config.rootSelector)[0].addEventListener('click', function(e) {
+            if(currentContextMenu && !currentContextMenu.dom[0].contains(e.target)) {
+                currentContextMenu.close();
+                currentContextMenu = null;
+            }
+        }, true);
     };
 };
 

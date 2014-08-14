@@ -9,6 +9,7 @@ files = [
   {pattern: 'libs/*.js', included: false},
   {pattern: 'src/**/*.js', included: false},
   {pattern: 'src/**/*.html', included: false},
+  {pattern: 'src/**/*.xml', included: false},
   'tests/main.js',
 ];
 

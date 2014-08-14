@@ -37,7 +37,7 @@ $.extend(generic, {
     },
     
     refresh: function() {
-        if(this.wlxmlNode.getTagName() === 'span') {
+        if(this.wlxmlNode.getTagName() === 'span' || this.wlxmlNode.getTagName() === 'aside') {
             if(this.containsBlock()) {
                 this.displayAsBlock();
             } else {

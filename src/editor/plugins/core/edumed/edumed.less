@@ -1,0 +1,30 @@
+@import 'order/order.less';
+@import 'gaps/gaps.less';
+@import 'replace/replace.less';
+@import 'choice/choice.less';
+
+.edumed-exercise {
+    background-color: @grayLighter;
+    border: 1px lighten(#000, 35%) dashed;
+    margin: 15px 0;
+    padding: 10px;
+
+    .header {
+        font-weight: bold;
+        font-variant: small-caps;
+        margin-bottom: 10px;
+        background-color: @grayLighter;;
+    }
+
+    .btn {
+        line-height: 12px;
+    }
+}
+
+.edumed-exercise-remove {
+    position: absolute;
+    top: 20px;
+    right: 5px;
+    padding: 0 3px;
+    line-height: 15px;
+}

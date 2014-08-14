@@ -11,9 +11,30 @@ var _ = require('libs/underscore'),
     plugin = {name: 'core', actions: [], canvas: {}, documentExtension: {textNode: {}, documentNode: {}}},
     Dialog = require('views/dialog/dialog'),
     canvasElements = require('plugins/core/canvasElements'),
-    metadataEditor = require('plugins/core/metadataEditor/metadataEditor');
+    metadataEditor = require('plugins/core/metadataEditor/metadataEditor'),
+    edumed = require('plugins/core/edumed/edumed');
 
 
+var exerciseFix = function(newNodes) {
+    var list, exercise, max, addedItem, answerValues;
+    if(newNodes.created.is('item')) {
+        list = newNodes.created.parent();
+        exercise = list.parent();
+        if(exercise && exercise.is('exercise')) {
+            if(exercise.is('exercise.order')) {
+                answerValues = exercise.object.getItems()
+                            .map(function(item) {
+                                if(!addedItem && item.node.sameNode(newNodes.created)) {
+                                    addedItem = item;
+                                }
+                                return item.getAnswer();
+                            });
+                max = Math.max.apply(Math.max, answerValues);
+                addedItem.setAnswer(max + 1);
+            }
+        }
+    }
+};
 
 plugin.documentExtension.textNode.transformations = {
     breakContent: {
@@ -38,6 +59,21 @@ plugin.documentExtension.textNode.transformations = {
                     return true; // break
                 }
             });
+
+            /* <hack>
+            /*
+                This makes sure that adding a new item to the list in some of the edumed exercises
+                sets an answer attribute that makes sense (and not just copies it which would create
+                a duplicate value).
+
+                This won't be neccessary when/if we introduce canvas element own key event handlers.
+
+                Alternatively, WLXML elements could implement their own item split methods that we
+                would delegate to.
+            */
+                exerciseFix(newNodes);
+            /* </hack> */
+
             parentDescribingNodes.forEach(function(node) {
                 newNodes.first.append(node);
             });
@@ -185,7 +221,7 @@ plugin.documentExtension.documentNode.transformations = {
                     return toMerge.is({tagName: 'div', 'klass': 'p'}) || (toMerge.is({tagName: 'div'}) && toMerge.getClass() === '');
                 },
                 run: function() {
-                    if(prev && prev.is('p') || prev.is({tagName: 'header'})) {
+                    if(prev && (prev.is('p') || prev.is({tagName: 'header'}))) {
                         return merge(toMerge, prev);
                     }
                     if(prev && prev.is('list')) {
@@ -224,7 +260,16 @@ plugin.documentExtension.documentNode.transformations = {
                     } else if(prev.is({tagName: 'span'})) {
                         if((txtNode = prev.getLastTextNode())) {
                             txt = txtNode.getText();
-                            txtNode.setText(txt.substr(0, txt.length-1));
+                            if(txt.length > 1) {
+                                txtNode.setText(txt.substr(0, txt.length-1));
+                            } else {
+                                if(txtNode.parent().contents().length === 1) {
+                                    txtNode.parent().detach();
+                                } else {
+                                    txtNode.detach();
+                                }
+
+                            }
                             return toret;
                         }
                     }
@@ -590,8 +635,7 @@ plugin.actions = [
     createWrapTextAction({name: 'cite', klass: 'cite', wrapDescription: gettext('Mark as citation'), unwrapDescription: gettext('Remove citation')}),
     linkAction,
     metadataEditor.action(metadataParams)
-].concat(plugin.actions, templates.actions, footnote.actions, switchTo.actions, lists.actions);
-
+].concat(plugin.actions, templates.actions, footnote.actions, switchTo.actions, lists.actions, edumed.actions);
 
 
 plugin.config = function(config) {
@@ -608,7 +652,7 @@ plugin.config = function(config) {
     });
 };
 
-plugin.canvasElements = canvasElements;
+plugin.canvasElements = canvasElements.concat(edumed.canvasElements);
 
 return plugin;
 
