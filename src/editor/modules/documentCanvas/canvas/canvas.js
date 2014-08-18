@@ -120,8 +120,11 @@ $.extend(Canvas.prototype, Backbone.Events, {
         this.reloadRoot();
     },
 
-    createElement: function(wlxmlNode, register, useRoot) {
+    createElement: function(wlxmlNode, register, useRoot, params) {
         var Factory;
+        params = params || {
+            mirror: false
+        };
         register = register || this.elementsRegister;
         if(wlxmlNode.nodeType === Node.TEXT_NODE) {
             Factory = documentElement.DocumentTextElement;
@@ -136,7 +139,7 @@ $.extend(Canvas.prototype, Backbone.Events, {
         }
 
         if(Factory) {
-            return new Factory(wlxmlNode, this);
+            return new Factory(wlxmlNode, this, params);
         }
     },
 

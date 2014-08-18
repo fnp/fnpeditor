@@ -5,6 +5,7 @@ define(function(require) {
 var actions = require('./actions'),
     gapsActions = require('./gaps/actions'),
     replaceActions = require('./replace/actions'),
+    assignExerciseElement = require('./assign/element'),
     orderExerciseElement = require('./order/element'),
     gapsExerciseElement = require('./gaps/element'),
     replaceExerciseElement = require('./replace/element'),
@@ -12,7 +13,12 @@ var actions = require('./actions'),
 
 return {
     actions: actions.concat(gapsActions).concat(replaceActions),
-    canvasElements: [orderExerciseElement, gapsExerciseElement, replaceExerciseElement].concat(choiceExerciseElements)
+    canvasElements: [
+        assignExerciseElement,
+        orderExerciseElement,
+        gapsExerciseElement,
+        replaceExerciseElement
+    ].concat(choiceExerciseElements)
 };
 
 });

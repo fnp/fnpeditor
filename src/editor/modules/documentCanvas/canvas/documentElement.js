@@ -9,8 +9,12 @@ define([
 /* global Node:false */
 
 // DocumentElement represents a text or an element node from WLXML document rendered inside Canvas
-var DocumentElement = function(wlxmlNode, canvas) {
+var DocumentElement = function(wlxmlNode, canvas, params) {
+    params = params || {
+        mirror: false
+    };
     this.wlxmlNode = wlxmlNode;
+    this.mirror = params.mirror;
     this.canvas = canvas;
     this.state = {
         exposed: false,
@@ -19,7 +23,17 @@ var DocumentElement = function(wlxmlNode, canvas) {
 
     this.dom = this.createDOM();
     this.dom.data('canvas-element', this);
-    this.wlxmlNode.setData('canvasElement', this);
+    
+    var mirrorElements = this.wlxmlNode.getData('mirrorElements');
+    if(!mirrorElements) {
+        mirrorElements = [];
+        this.wlxmlNode.setData('mirrorElements', mirrorElements);
+    }
+    if(params.mirror) {
+        mirrorElements.push(this);
+    } else {
+        this.wlxmlNode.setData('canvasElement', this);    
+    }
 };
 
 $.extend(DocumentElement.prototype, {
@@ -92,8 +106,8 @@ $.extend(DocumentElement.prototype, {
 
 
 // DocumentNodeElement represents an element node from WLXML document rendered inside Canvas
-var DocumentNodeElement = function(wlxmlNode, canvas) {
-    DocumentElement.call(this, wlxmlNode, canvas);
+var DocumentNodeElement = function(wlxmlNode, canvas, params) {
+    DocumentElement.call(this, wlxmlNode, canvas, params);
     this.containers = [];
     this.elementsRegister = canvas.createElementsRegister();
     this.contextMenuActions = [];
@@ -101,12 +115,12 @@ var DocumentNodeElement = function(wlxmlNode, canvas) {
 };
 
 
-var manipulate = function(e, params, action) {
+var manipulate = function(e, params, action, params2) {
     var element;
     if(params instanceof DocumentElement) {
         element = params;
     } else {
-        element = e.createElement(params);
+        element = e.createElement(params, params2);
     }
     if(element.dom) {
         e.dom[action](element.dom);
@@ -148,32 +162,34 @@ $.extend(DocumentNodeElement.prototype, {
             this.containers.splice(idx, 1);
         }
     },
-    createElement: function(wlxmlNode) {
+    createElement: function(wlxmlNode, params) {
+        params = params || {mirror: false};
         var parent = this.wlxmlNode.parent() ? utils.getElementForNode(this.wlxmlNode.parent()) : null;
-        return this.canvas.createElement(wlxmlNode, this.elementsRegister, !parent) || parent.createElement(wlxmlNode);
+        return this.canvas.createElement(wlxmlNode, this.elementsRegister, !parent, params) || parent.createElement(wlxmlNode, params);
     },
     addToContextMenu: function(actionFqName) {
         this.contextMenuActions.push(this.canvas.createAction(actionFqName));
     },
     handle: function(event) {
         var method = 'on' + event.type[0].toUpperCase() + event.type.substr(1),
-            target;
+            containerExisted = false;
         if(event.type === 'nodeAdded' || event.type === 'nodeDetached') {
             this.containers.some(function(container) {
                 if(container.manages(event.meta.node, event.meta.parent)) {
-                    target = container;
-                    return true;
+                    //target = container;
+                    container[method](event);
+                    containerExisted = true;
                 }
             });
         }
         
-        if(!target && this[method]) {
-            target = this;
+        if(!containerExisted && this[method]) {
+            this[method](event);
         }
         
-        if(target) {
-            target[method](event);
-        }
+        // if(target) {
+        //     target[method](event);
+        // }
     },
     createDOM: function() {
         var wrapper = $('<div>').attr('document-node-element', ''),
@@ -210,12 +226,12 @@ $.extend(DocumentNodeElement.prototype, {
         }
         return this;
     },
-    before: function(params) {
-        return manipulate(this, params, 'before');
+    before: function(params, params2) {
+        return manipulate(this, params, 'before', params2);
 
     },
-    after: function(params) {
-        return manipulate(this, params, 'after');
+    after: function(params, params2) {
+        return manipulate(this, params, 'after', params2);
     },
 
     isBlock: function() {
@@ -249,8 +265,8 @@ $.extend(DocumentNodeElement.prototype, {
 
 
 // DocumentNodeElement represents a text node from WLXML document rendered inside Canvas
-var DocumentTextElement = function(wlxmlTextNode, canvas) {
-    DocumentElement.call(this, wlxmlTextNode, canvas);
+var DocumentTextElement = function(wlxmlTextNode, canvas, params) {
+    DocumentElement.call(this, wlxmlTextNode, canvas, params);
 };
 
 $.extend(DocumentTextElement, {
@@ -297,7 +313,7 @@ $.extend(DocumentTextElement.prototype, {
         // Having at least Zero Width Space is guaranteed be Content Observer
         return this.dom.contents()[0].data === utils.unicode.ZWS;
     },
-    after: function(params) {
+    after: function(params, params2) {
         if(params instanceof DocumentTextElement || params.text) {
             return false;
         }
@@ -305,7 +321,7 @@ $.extend(DocumentTextElement.prototype, {
         if(params instanceof DocumentNodeElement) {
             element = params;
         } else {
-            element = this.parent().createElement(params);
+            element = this.parent().createElement(params, params2);
         }
         if(element.dom) {
             this.dom.wrap('<div>');

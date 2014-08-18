@@ -35,14 +35,19 @@ $.extend(Listener.prototype, {
 
 
 var _metadataEventHandler = function(event) {
-    var element = utils.getElementForNode(event.meta.node);
+    var element = utils.getElementForNode(event.meta.node),
+        mirrors = utils.getElementForNode(event.meta.node, true);
     element.handle(event);
+    mirrors.forEach(function(mirror) {
+        mirror.handle(event);
+    });
 };
 
 
 var handlers = {
     nodeAttrChange: function(event) {
         var element = utils.getElementForNode(event.meta.node),
+            mirrors = utils.getElementForNode(event.meta.node, true),
             newElement;
         if(event.meta.attr === 'class') {
             if(element.wlxmlNode.getClass() !== event.meta.attr) {
@@ -51,11 +56,18 @@ var handlers = {
                 } else {
                     newElement = element.parent().createElement(event.meta.node);
                     element.dom.replaceWith(newElement.dom);
+                    mirrors.forEach(function(mirror) {
+                        var newElement = element.parent().createElement(event.meta.node, true);
+                        mirror.dom.replaceWith(newElement.dom);
+                    });
                 }
             }
 
         } else {
             element.handle(event);
+            mirrors.forEach(function(mirror) {
+                mirror.handle(event);
+            });
         }
     },
     nodeAdded: function(event) {
@@ -63,19 +75,30 @@ var handlers = {
             this.canvas.reloadRoot();
             return;
         }
-
         var containingNode = event.meta.node.parent(),
-            containingElement = utils.getElementForNode(containingNode);
+            containingElement = utils.getElementForNode(containingNode),
+            mirrors = utils.getElementForNode(containingNode, true);
 
         containingElement.handle(event);
+        mirrors.forEach(function(mirror) {
+            mirror.handle(event);
+        });
     },
     nodeDetached: function(event) {
-        var element = utils.getElementForDetachedNode(event.meta.node, event.meta.parent);
+        var element = utils.getElementForDetachedNode(event.meta.node, event.meta.parent),
+            mirrors = utils.getElementForDetachedNode(event.meta.node, event.meta.parent, true);
         element.handle(event);
+        mirrors.forEach(function(mirror) {
+            mirror.handle(event);
+        });
     },
     nodeTextChange: function(event) {
-        var element = utils.getElementForNode(event.meta.node);
+        var element = utils.getElementForNode(event.meta.node),
+            mirrors =  utils.getElementForNode(event.meta.node, true);
         element.handle(event);
+        mirrors.forEach(function(mirror) {
+            mirror.handle(event);
+        });
     },
 
     metadataChanged: _metadataEventHandler,

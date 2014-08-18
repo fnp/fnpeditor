@@ -21,7 +21,8 @@ $.extend(generic, {
 
         this.container = this.createContainer(this.wlxmlNode.contents(), {
             manages: function(node) { return !node.isInside('comment'); },
-            dom: this._container()
+            dom: this._container(),
+            mirrors: this.mirror
         });
 
         this.commentsView = new CommentsView(this.wlxmlNode, this.canvas.metadata.user);

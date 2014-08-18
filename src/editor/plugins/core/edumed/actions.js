@@ -50,6 +50,11 @@ var createAction = function(actionConfig) {
                         if(cursorTarget) {
                             cursorTarget = cursorTarget.append({text: ''});
                         }
+                    } else if(actionConfig.exercise === 'assign') {
+                        cursorTarget = _.first(exerciseNode.contents('.p'));
+                        if(cursorTarget) {
+                            cursorTarget = cursorTarget.append({text: descriptionText});
+                        }
                     }
                     if(cursorTarget) {
                         callback(doc.createFragment(doc.CaretFragment, {node: cursorTarget, offset: cursorTarget.getText().length}));
@@ -69,6 +74,7 @@ var createAction = function(actionConfig) {
 };
 
 return [
+    createAction({name: 'insertAssignExercise', icon: 'resize-horizontal', exercise: 'assign', exerciseTitle: gettext('Assign')}),
     createAction({name: 'insertOrderExercise', icon: 'random', exercise: 'order', exerciseTitle: gettext('Order')}),
     createAction({name: 'insertChoiceSingleExercise', icon: 'ok-circle', exercise: 'choice.single', exerciseTitle: gettext('Single Choice')}),
     createAction({name: 'insertChoiceMultiExercise', icon: 'check', exercise: 'choice', exerciseTitle: gettext('Multiple Choice')}),

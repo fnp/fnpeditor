@@ -16,7 +16,7 @@ var Container = function(nodes, params, element) {
     this.element = element;
 
     nodes.forEach(function(node) {
-        var el = this.element.createElement(node);
+        var el = this.element.createElement(node, {mirror: this.mirrors});
         if(el.dom) {
             this.dom.append(el.dom);
         }
@@ -37,7 +37,7 @@ _.extend(Container.prototype, {
         var ptr = event.meta.node.prev(),
             referenceElement, referenceAction, actionArg;
             
-        while(ptr && !(referenceElement = utils.getElementForElementRootNode(ptr))) {
+        while(ptr && !(referenceElement = utils.getElementForElementRootNode(ptr, false, this))) {
             ptr = ptr.prev();
         }
 
@@ -50,13 +50,17 @@ _.extend(Container.prototype, {
       
         if(event.meta.move) {
             /* Let's check if this node had its own canvas element and it's accessible. */
-            actionArg = utils.getElementForElementRootNode(event.meta.node);
+            actionArg = utils.getElementForElementRootNode(event.meta.node, false, this);
         }
         if(!actionArg) {
             actionArg = event.meta.node;
         }
 
-        referenceElement[referenceAction](actionArg);
+        if(referenceAction === 'after') {
+            referenceElement.after(actionArg, {mirror: this.mirrors});
+        } else {
+            referenceElement[referenceAction](actionArg);
+        }
     },
     onNodeDetached: function(event) {
         var container = this;
@@ -104,7 +108,7 @@ _.extend(Container.prototype, {
         if(param instanceof documentElement.DocumentElement) {
             element = param;
         } else {
-            element = this.element.createElement(param);//
+            element = this.element.createElement(param, {mirror: this.mirrors});//
         }
         if(element.dom) {
             this.dom.prepend(element.dom);

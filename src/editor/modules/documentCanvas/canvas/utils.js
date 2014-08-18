@@ -20,26 +20,38 @@ var nearestInDocumentOrder = function(selector, direction, element) {
     return null;
 };
 
-var getElementForElementRootNode = function(node) {
-    return node.getData('canvasElement');
+var getElementForElementRootNode = function(node, mirrors, canvasContainer) {
+    if(canvasContainer) {
+        var candidates = [node.getData('canvasElement')].concat(node.getData('mirrorElements')),
+            toret;
+        candidates.some(function(c) {
+            // @@
+            if(c.dom.parents().index(canvasContainer.dom) !== -1) {
+                toret = c;
+                return true;
+            }
+        });
+        return toret;
+    }
+    return node.getData(mirrors ? 'mirrorElements' : 'canvasElement');
 };
 
-var getElementForNode = function(node) {
+var getElementForNode = function(node, mirrors) {
     while(!node.getData('canvasElement')) {
         node = node.parent();
     }
-    return node.getData('canvasElement');
+    return node.getData(mirrors ? 'mirrorElements' : 'canvasElement');
 };
 
-var getElementForDetachedNode = function(node, originalParent) {
+var getElementForDetachedNode = function(node, originalParent, mirrors) {
     var ptr = originalParent;
     if(ptr === null) {
-        return node.getData('canvasElement');
+        return node.getData(mirrors ? 'mirrorElements' : 'canvasElement');
     }
     while(!ptr.getData('canvasElement')) {
         ptr = ptr.parent();
     }
-    return ptr.getData('canvasElement');
+    return ptr.getData(mirrors ? 'mirrorElements' : 'canvasElement');
 };
 
 var caretPositionFromPoint = function(x, y) {
