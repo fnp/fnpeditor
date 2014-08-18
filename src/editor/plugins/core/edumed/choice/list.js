@@ -15,7 +15,6 @@ var ListView = function(element, listNode, params) {
     this.params = params;
     this.dom = $(_.template(viewTemplate)());
     this.list = this.dom.find('ul');
-    this.addButton = this.dom.find('button.add');
     this.itemViews = [];
 
     this.listNode.contents()

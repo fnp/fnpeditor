@@ -14,16 +14,8 @@ var OrderExerciseView = function(element) {
     this.dom = $(_.template(viewTemplate)());
     this.modePills = this.dom.find('.modePills');
     this.list = this.dom.find('ol');
-    this.addButton = this.dom.find('button.add');
     this.description = this.dom.find('.description');
     this.itemViews = [];
-
-    this.addButton.on('click', function(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        this.trigger('newItemRequested');
-        //_.last(this.itemViews).editStart();
-    }.bind(this));
 
     this.modePills.find('a').on('click', function(e) {
         e.stopPropagation();
@@ -88,9 +80,6 @@ var OrderExerciseView = function(element) {
 _.extend(OrderExerciseView.prototype, Backbone.Events, {
     addItem: function(item) {
         var view = new ItemView(item, this);
-        view.on('edit', function(text) {
-            this.trigger('itemEdited', item, text);
-        }.bind(this));
         view.on('receivedDrop', function(droppedItem) {
             this.trigger(this.mode === 'initial' ? 'moveItem' : 'moveAnswer', droppedItem.item, item, 'after');
         }.bind(this));
