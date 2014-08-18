@@ -1,0 +1,9 @@
+<div class="exercise.assign">
+    <div class="p"></div>
+    <div class="list" target="categories">
+        <div class="item.answer">aaa</div>
+    </div>
+    <div class="list" id="categories">
+        <div class="item" id="kat1">bbb</div>
+    </div>
+</div>

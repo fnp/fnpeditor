@@ -9,7 +9,8 @@ var _ = require('libs/underscore'),
         'choice.single': require('libs/text!./choiceSingle.xml'),
         'choice.true-or-false': require('libs/text!./choiceTrueOrFalse.xml'),
         gap: require('libs/text!./gaps.xml'),
-        replace: require('libs/text!./replace.xml')
+        replace: require('libs/text!./replace.xml'),
+        assign: require('libs/text!./assign.xml')
     };
 
 var Item = function(node, exerciseNode) {
@@ -216,6 +217,111 @@ extension.wlxmlClass['exercise.gap'] = extension.wlxmlClass['exercise.replace'] 
     methods: {
         isContextRoot: function(node) {
             return this.sameNode(node);
+        }
+    }
+};
+
+
+var SourceItem = function(node) {
+    this.node = node;
+};
+_.extend(SourceItem.prototype, {
+    assignTo: function(destinationItem) {
+        var ids;
+        if(!destinationItem.accepts(this)) {
+            throw new Error('Cannot assign: target ids mismatch.');
+        }
+        ids = (this.node.getAttr('answer') || '').split(',');
+        ids.push(destinationItem.getId());
+        this.node.setAttr('answer', ids.filter(function(id) { return !!id; }).join(','));
+    },
+    removeFrom: function(destinationItem) {
+        var ids;
+        if(!destinationItem.accepts(this)) {
+            throw new Error('Cannot assign: target ids mismatch.');
+        }
+        ids = (this.node.getAttr('answer') || '').split(',');
+        this.node.setAttr('answer', ids.filter(function(id) { return id !== destinationItem.getId(); }).join(',') || undefined);
+    },
+    isAssignedTo: function(destinationItem) {
+        return (this.node.getAttr('answer') || '').indexOf(destinationItem.getId()) !== -1;
+    },
+    getMyTargetId: function() {
+        return this.node.parent().getAttr('target');
+    },
+    contents: function() {
+        return this.node.contents();
+    }
+});
+
+var DestinationItem = function(node, exerciseNode) {
+    this.node = node;
+    this.exerciseNode = exerciseNode;
+};
+_.extend(DestinationItem.prototype, {
+    getId: function() {
+        return this.node.getAttr('id');
+    },
+    getTargetId: function() {
+        return this.node.parent().getAttr('id');
+    },
+    accepts: function(sourceItem) {
+        return sourceItem && sourceItem.getMyTargetId() === this.getTargetId();
+    },
+    getAssignedSources: function() {
+        return this.exerciseNode.object.getSourceItems()
+            .filter(function(item) {
+                return item.isAssignedTo(this);
+            }.bind(this));
+    }
+});
+
+extension.wlxmlClass['exercise.assign'] = {
+    methods: {
+        isContextRoot: function(node) {
+            return this.object.isList(node.parent()) || this.sameNode(node);
+        },
+        getSourceItems: function() {
+            var list;
+            this.contents().some(function(node) {
+                if(node.is('list') && node.getAttr('target')) {
+                    list = node;
+                    return true;
+                }
+            });
+            if(!list) {
+                throw new Error('Missing source list');
+            }
+            return list.contents().map(function(node) {return new SourceItem(node, this);});
+        },
+        getDestinationItems: function() {
+            var list;
+            this.contents().some(function(node) {
+                if(node.is('list') && node.getAttr('id')) {
+                    list = node;
+                    return true;
+                }
+            });
+            if(!list) {
+                throw new Error('Missing destination list');
+            }
+            return list.contents().map(function(node) {return new DestinationItem(node, this);}.bind(this));
+        },
+        getDescription: function() {
+            var toret = [];
+            this.contents().some(function(node) {
+                if(this.isList(node)) {
+                   return true;
+                }
+                toret.push(node);
+            }.bind(this.object));
+            return toret;
+        },
+        isList: function(node) {
+            return this.sameNode(node.parent()) && node.is('list') && (node.getAttr('target') || node.getAttr('id'));
+        },
+        isItemNode: function(node, parent) {
+            return node && this.object.isList(node.parent() || parent);
         }
     }
 };
