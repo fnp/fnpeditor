@@ -114,7 +114,7 @@ _.extend(linkElement, {
 
     getUrl: function(link) {
         var pattern = /^[a-z]*:\/\//g;
-        if(!pattern.test(link)) {
+        if(!pattern.test(link) && !/^\//.test(link)) {
             link = 'http://' + link;
         }
         return this.wlxmlNode.document.getUrlForLink(link);
