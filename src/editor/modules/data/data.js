@@ -179,6 +179,12 @@ return function(sandbox) {
                     executeButtonText: gettext('Save'),
                     cancelButtonText: gettext('Cancel')
                 });
+            /* Set stage field initial value to current document stage. */
+            for (var i in documentSaveForm.fields) {
+                if (documentSaveForm.fields[i].name == 'textsave-stage') {
+                    documentSaveForm.fields[i].initialValue = data.stage;
+                }
+            }
             
             dialog.on('execute', function(event) {
                 sandbox.publish('savingStarted', 'remote');
@@ -269,6 +275,42 @@ return function(sandbox) {
                         wlxmlDocument.loadXML(data.document);
                         documentDirty = false;
                         sandbox.publish('documentReverted', data.version);
+                        event.success();
+                    },
+                });
+            });
+            dialog.show();
+        },
+        publishVersion: function(revision) {
+            var documentPublishForm = $.extend({
+                        fields: [],
+                        revision_field_name: 'revision'
+                    },
+                    sandbox.getConfig().documentPublishForm
+                ),
+                dialog = Dialog.create({
+                    fields: documentPublishForm.fields,
+                    title: gettext('Publish'),
+                    executeButtonText: gettext('Publish'),
+                    cancelButtonText: gettext('Cancel')
+                });
+
+            dialog.on('execute', function(event) {
+                var formData = event.formData;
+                formData[documentPublishForm.revision_field_name] = revision;
+                sandbox.publish('publishingStarted', {version: revision});
+                if(sandbox.getConfig().jsonifySentData) {
+                    formData = JSON.stringify(formData);
+                }
+                $.ajax({
+                    method: 'post',
+                    //dataType: 'json',
+                    dataType: 'text',
+                    url: sandbox.getConfig().documentPublishUrl,
+                    data: formData,
+                    success: function(data) {
+                        reloadHistory();
+                        sandbox.publish('documentPublished');
                         event.success();
                     },
                 });

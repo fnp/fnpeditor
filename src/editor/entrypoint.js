@@ -4,6 +4,8 @@
     /* globals requirejs, editor_init */
 
     requirejs.config({
+        urlArgs: "bust=" + (new Date()).getTime(),
+
         paths: {
             'fnpjs': '../fnpjs',
             'libs': '../../libs',

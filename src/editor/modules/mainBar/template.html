@@ -1,10 +1,16 @@
 <div class="rng-module-mainBar">
     <div class="top">
+        <a target="_blank" href="/"><span style="color: #dd8000">MIL</span>/<span style="color: #0a0">PEER</span></a> | 
         <%= userName %> (<a href="/"><%= gettext('Exit') %></a>)
     </div>
     <div style="clear:both;"></div>
     <div class="bottom">
         <ul>
+            <!--li><a target="_blank" href="<%= documentScheduleUrl %>">Edit schedule</a></li>
+            <li><a target="_blank" href="<%= documentForkUrl %>">Create another version</a></li-->
+	    <li><a target="_blank" href="<%= documentPreviewUrl %>">Preview saved version</a></li>
+            <li><a target="_blank" href="<%= documentGalleryUrl %>">Attachments</a></li>
+
             <li><a href="#" data-cmd="drop-draft" data-disabled-text="<%= gettext('no draft exists') %>"><%= gettext('drop a working draft') %></a></li>
             <li><button class="btn btn-mini btn-info" data-cmd="save"><%= gettext('Save') %></button></li>
         </ul>

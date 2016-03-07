@@ -67,12 +67,13 @@ var createSwitchAction = function(createParams) {
 };
 
 var headerAction = createSwitchAction({name: 'switchToHeader', from: {tagName: 'div', klass: 'p'}, to: {tagName: 'header', klass: '', name: gettext('header')}}),
-    paragraphAction = createSwitchAction({name: 'switchToParagraph', from: {tagName: 'header'}, to: {tagName: 'div', klass: 'p', name: gettext('paragraf')}});
+    paragraphAction = createSwitchAction({name: 'switchToParagraph', from: {tagName: 'header'}, to: {tagName: 'div', klass: 'p', name: gettext('paragraph')}}),
+    imageAction = createSwitchAction({name: 'switchToImage', from: {tagName: 'div'}, to: {tagName: 'div', klass: 'img', name: gettext('image')}});
 
 return {
-    actions: [headerAction, paragraphAction],
+    actions: [headerAction, paragraphAction, imageAction],
     canvasActionHandler: {
-        handles: [headerAction, paragraphAction],
+        handles: [headerAction, paragraphAction, imageAction],
         // handle: function(canvas, action, ret) {
         //     var params = {},
         //         f;

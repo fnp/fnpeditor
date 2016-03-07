@@ -4,7 +4,9 @@ define(function(require) {
 
 var $ = require('libs/jquery'),
     genericElement = require('modules/documentCanvas/canvas/genericElement'), // TODO: This should be accessible via plugin infrastructure
-    linkElement = require('./links/linkElement');
+    linkElement = require('./links/linkElement'),
+    imgElement = require('./img/imgElement')
+    ;
 
 var widgets = {
     footnoteHandler: function(clickHandler) {
@@ -113,7 +115,8 @@ $.extend(footnote, {
 return [
     {tag: 'aside', klass: 'comment', prototype: null},
     {tag: 'aside', klass: 'footnote', prototype: footnote},
-    {tag: 'span', klass: 'link', prototype: linkElement}
+    {tag: 'span', klass: 'link', prototype: linkElement},
+    {tag: 'div', klass: 'img', prototype: imgElement}
 ];
 
 

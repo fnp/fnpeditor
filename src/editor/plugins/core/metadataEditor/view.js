@@ -3,8 +3,9 @@ define([
 'libs/underscore',
 'libs/text!./templates/main.html',
 'libs/text!./templates/item.html',
-'views/openSelect/openSelect'
-], function($, _, mainTemplate, itemTemplate, OpenSelectView) {
+'views/openSelect/openSelect',
+'views/attachments/attachments'
+], function($, _, mainTemplate, itemTemplate, OpenSelectView, attachments) {
 
 'use strict';
 /* globals gettext */
@@ -104,6 +105,16 @@ _.extend(View.prototype, {
         });
         return toret;
     },
+    getIsFileForKey: function(key) {
+        var toret = false;
+        this.metadataConfig.some(function(configRow) {
+            if (configRow.key == key) {
+                toret = configRow.isFile || false;
+                return true
+            }
+        });
+        return toret;
+    },
     setMetadata: function(node) {
         this.dom.find('.rng-module-metadataEditor-addBtn').attr('disabled', !node);
         if(!node) {
@@ -118,6 +129,7 @@ _.extend(View.prototype, {
         });
     },
     addMetadataRow: function(row) {
+        console.log(row);
         var newRow = $(_.template(itemTemplate)({key: row.getKey() || '', value: row.getValue() || ''}));
         newRow.appendTo(this.metaTable);
         newRow.data('row', row);
@@ -134,6 +146,7 @@ _.extend(View.prototype, {
                 this.getValuesForKey(value).forEach(function(value) {
                     valueSelectView.addItem(value);
                 });
+                
             }.bind(this)
         });
         newRow.find('td:first').append(keySelectView.el).data('view', keySelectView);
@@ -152,7 +165,18 @@ _.extend(View.prototype, {
             }
         });
         newRow.find('td:nth-child(2)').append(valueSelectView.el).data('view', valueSelectView);
-        
+
+        if (this.getIsFileForKey(row.getKey())) {
+            var el = $("<a href='#-' class='attachment-library' style='float: right'>attachments</a>");
+            el.on('click', function() {
+                attachments.select(function(v) {
+                    valueSelectView.setInput(v);
+                });
+                return false;
+            });
+            newRow.find('td:nth-child(2)').append(el);
+        }
+
 
         this.metadataConfig.forEach(function(configRow) {
             keySelectView.addItem(configRow.key);

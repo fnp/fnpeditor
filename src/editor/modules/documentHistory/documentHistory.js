@@ -26,7 +26,11 @@ return function(sandbox) {
     });
     
     dom.find('.btn.display').click(function() {
-        sandbox.publish('displayVersion', {version: historyItems.getSelected()[0]});
+        sandbox.publish('displayVersion', historyItems.getSelected()[0]);
+    });
+
+    dom.find('.btn.publish').click(function() {
+        sandbox.publish('publishVersion', historyItems.getSelected()[0]);
     });
         
     var addHistoryItem = function(item, options) {
@@ -56,21 +60,21 @@ return function(sandbox) {
         _selected: [],
         select: function(item) {
             if(this._selected.length < 2) {
-                this._selected.push(item.version);
+                this._selected.push(item.revision);
                 this._updateUI();
                 return true;
             }
             return false;
         },
         unselect: function(item) {
-            this._selected = _.without(this._selected, item.version);
+            this._selected = _.without(this._selected, item.revision);
             this._updateUI();
         },
         add: function(item) {
             this._itemsById[item.version] = item;
         },
         isSelected: function(item) {
-            return _.contains(this._selected, item.version);
+            return _.contains(this._selected, item.revision);
         },
         getSelected: function() {
             return this._selected;
@@ -81,17 +85,20 @@ return function(sandbox) {
                 toggleButton('compare', false);
                 toggleButton('display', false);
                 toggleButton('restore', false);
+                toggleButton('publish', false);
             }
             if(len === 1) {
                 toggleButton('compare', false);
                 toggleButton('display', true);
                 toggleButton('restore', true);
+                toggleButton('publish', true);
             }
             if(len === 2) {
                 toggleItemViews(false);
                 toggleButton('compare', true);
                 toggleButton('display', false);
                 toggleButton('restore', false);
+                toggleButton('publish', false);
             } else {
                 toggleItemViews(true);
             }

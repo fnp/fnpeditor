@@ -132,7 +132,13 @@ return function(sandbox) {
         },
         documentReverted: function(version) {
             documentIsDirty = false;
-            sandbox.getModule('indicator').clearMessage({message:'Wersja ' + version + ' przywrócona'});
+            sandbox.getModule('indicator').clearMessage({message:'Revision restored'});
+        },
+        publishingStarted: function(version) {
+            sandbox.getModule('indicator').showMessage(gettext('Publishing...'));
+        },
+        documentPublished: function(version) {
+            sandbox.getModule('indicator').clearMessage({message:'Published.'});
         }
     };
     
@@ -193,16 +199,13 @@ return function(sandbox) {
         restoreVersion: function(version) {
             sandbox.getModule('data').restoreVersion(version);
         },
-        displayVersion: function(event) {
+        displayVersion: function(revision) {
             /* globals window */
-            var config = sandbox.getConfig(),
-                doc = sandbox.getModule('data').getDocument();
-
-            if(config.documentUrl) {
-                window.open(config.documentUrl(doc.properties.document_id, event.version), _.uniqueId());
-            } else {
-                logger.error('Unable to show version ' + event.version + ' of a document - config.documentUrl missing');
-            }
+            //window.open(sandbox.getConfig().documentPreviewUrl(revision), _.uniqueId());
+            window.open(sandbox.getConfig().documentPreviewUrl(revision), 'preview');
+        },
+        publishVersion: function(version) {
+            sandbox.getModule('data').publishVersion(version);
         }
     };
     

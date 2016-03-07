@@ -2,7 +2,7 @@
     <div style="float: left; width:100px;"><%= label %>:</div>
     <select name="<%= name %>">
     <% options.forEach(function(option) { %>
-        <option value="<%= option.value %>"><%= option.text %></option>
+        <option <% if (initialValue == option.value) { %>selected="selected" <% } %>value="<%= option.value %>"><%= option.text %></option>
     <% }); %>
     </select>
     <span class="description"><%= description %></span>

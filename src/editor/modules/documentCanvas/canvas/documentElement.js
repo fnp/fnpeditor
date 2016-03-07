@@ -43,6 +43,7 @@ $.extend(DocumentElement.prototype, {
                     this.state[key] = changes[key] = toUpdate[key];
                 }
             }.bind(this));
+        console.log(changes);
         if(_.isFunction(this.onStateChange)) {
             this.onStateChange(changes);
             if(_.isBoolean(changes.active)) {

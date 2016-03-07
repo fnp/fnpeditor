@@ -12,7 +12,11 @@ return function(sandbox) {
     var config = sandbox.getConfig(),
         userName = config.user && config.user.name,
         view = $(_.template(template)({
-            userName: userName || gettext('anonymous')
+            userName: userName || gettext('anonymous'),
+            documentScheduleUrl: config.documentScheduleUrl,
+            documentForkUrl: config.documentForkUrl,
+            documentPreviewUrl: config.documentPreviewMainUrl(data.revision),
+            documentGalleryUrl: config.documentGalleryUrl,
         }));
 
     view.find('[data-cmd]').click(function(e) {

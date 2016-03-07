@@ -18,8 +18,10 @@ _.extend(linkElement, {
         genericElement.init.call(this);
         _.bindAll(this, 'changeLink', 'deleteLink');
 
-        var linkText = this.wlxmlNode.getAttr('href') || '',
+        var linkText = this.wlxmlNode.getAttr('src') || '',
             linkUrl = this.getUrl(linkText);
+        
+        this._container().attr('style', 'background-image: url(\'' + linkUrl + '\');');
 
         this.box = $(_.template(boxTemplate)({text: linkText, url: linkUrl}));
         this.box.find('.change').on('click', this.changeLink);
@@ -34,23 +36,25 @@ _.extend(linkElement, {
         }
     },
     onNodeAttrChange: function(event) {
-        if(event.meta.attr === 'href') {
+        if(event.meta.attr === 'src') {
             var link = this.box.find('[link]');
             link.text(event.meta.newVal);
-            link.attr('href', this.getUrl(event.meta.newVal));
+            var linkUrl = this.getUrl(event.meta.newVal);
+            link.attr('href', linkUrl);
+            this._container().attr('style', 'background-image: url(\'' + linkUrl + '\');');
         }
     },
 
     changeLink: function(e) {
         var el = this,
-            doc = this.wlxmlNode.document,
-            offset = el.canvas.getSelection().toDocumentFragment().offset,
+            //doc = this.wlxmlNode.document,
+            //offset = el.canvas.getSelection().toDocumentFragment().offset,
             dialog = Dialog.create({
-            title: gettext('Edit link'),
+            title: gettext('Edit image'),
             executeButtonText: gettext('Apply'),
             cancelButtonText: gettext('Cancel'),
             fields: [
-                {label: gettext('Link'), name: 'href', type: 'input', initialValue: el.wlxmlNode.getAttr('href'),
+                {label: gettext('Image'), name: 'src', type: 'input', initialValue: el.wlxmlNode.getAttr('src'),
                 prePasteHandler: function(text) {
                                     return this.wlxmlNode.document.getLinkForUrl(text);
                                 }.bind(this),
@@ -63,15 +67,15 @@ _.extend(linkElement, {
 
         dialog.on('execute', function(event) {
             el.wlxmlNode.document.transaction(function() {
-                el.wlxmlNode.setAttr('href', event.formData.href);
+                el.wlxmlNode.setAttr('src', event.formData.src);
                 event.success();
             }, {
                 metadata: {
-                    description: gettext('Edit link'),
-                    fragment: doc.createFragment(doc.CaretFragment, {node: el.wlxmlNode.contents()[0], offset:offset})
+                    description: gettext('Edit image'),
+                    //fragment: doc.createFragment(doc.CaretFragment, {node: el.wlxmlNode.contents()[0], offset:offset})
                 },
                 success: function() {
-                    el.canvas.select(doc.createFragment(doc.CaretFragment, {node: el.wlxmlNode.contents()[0], offset:offset}));
+                    //el.canvas.select(doc.createFragment(doc.CaretFragment, {node: el.wlxmlNode.contents()[0], offset:offset}));
                 }
             });
         });

@@ -12,7 +12,10 @@ var _ = require('libs/underscore'),
     Dialog = require('views/dialog/dialog'),
     canvasElements = require('plugins/core/canvasElements'),
     metadataEditor = require('plugins/core/metadataEditor/metadataEditor'),
-    edumed = require('plugins/core/edumed/edumed');
+    edumed = require('plugins/core/edumed/edumed'),
+    attachments = require('views/attachments/attachments');
+
+
 
 
 var exerciseFix = function(newNodes) {
@@ -520,6 +523,7 @@ var createWrapTextAction = function(createParams) {
 };
 
 
+
 var createLinkFromSelection = function(callback, params) {
     var doc = params.fragment.document,
         dialog = Dialog.create({
@@ -530,7 +534,8 @@ var createLinkFromSelection = function(callback, params) {
                 {label: gettext('Link'), name: 'href', type: 'input',
                 prePasteHandler: function(text) {
                                     return params.fragment.document.getLinkForUrl(text);
-                                }.bind(this)
+                                }.bind(this),
+                description: '<a href="#-" class="attachment-library">attachment library</a>'
                 }
             ]
         }),
@@ -556,6 +561,9 @@ var createLinkFromSelection = function(callback, params) {
         });
     });
     dialog.show();
+    $(".attachment-library", dialog.$el).on('click', function() {
+        attachments.select(function(v) {$("input", dialog.$el).val(v);});
+    });
 };
 
 var editLink = function(callback, params) {
@@ -624,6 +632,7 @@ var linkAction = {
         return {allowed: false};
     }
 };
+
 
 var metadataParams = {};
 
