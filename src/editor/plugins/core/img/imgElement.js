@@ -71,7 +71,7 @@ _.extend(linkElement, {
                 event.success();
             }, {
                 metadata: {
-                    description: gettext('Edit image'),
+                    description: gettext('Edit image')
                     //fragment: doc.createFragment(doc.CaretFragment, {node: el.wlxmlNode.contents()[0], offset:offset})
                 },
                 success: function() {

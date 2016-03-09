@@ -102,7 +102,7 @@ $.extend(generic, {
         if(_.isBoolean(changes.active) && !isSpan) {
             this._container().toggleClass('current-node-element', changes.active);
         }
-    },
+    }
 });
 
 
