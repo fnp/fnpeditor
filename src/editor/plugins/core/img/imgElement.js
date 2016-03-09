@@ -91,23 +91,20 @@ _.extend(linkElement, {
             doc = this.wlxmlNode.document;
 
         el.wlxmlNode.document.transaction(function() {
-            var f = el.canvas.getSelection().toDocumentFragment(),
-                prefLen = 0,
-                ret;
-
-            if(el.wlxmlNode.isPrecededByTextNode()) {
-                prefLen = el.wlxmlNode.prev().getText().length;
-            }
-
-            ret = el.wlxmlNode.unwrapContent();
-            return doc.createFragment(doc.CaretFragment, {node: ret.element1, offset: prefLen + f.offset});
+            //var f = el.canvas.getSelection().toDocumentFragment(),
+            //    prefLen = 0,
+            //    ret;
+            //
+            //if(el.wlxmlNode.isPrecededByTextNode()) {
+            //    prefLen = el.wlxmlNode.prev().getText().length;
+            //}
+            //
+            //ret = el.wlxmlNode.unwrapContent();
+            //return doc.createFragment(doc.CaretFragment, {node: ret.element1, offset: prefLen + f.offset});
+            el.wlxmlNode.detach();
         }, {
             metadata: {
-                description: gettext('Remove link'),
-                fragment: doc.createFragment(doc.CaretFragment, {node: el.wlxmlNode.contents()[0], offset:0})
-            },
-            success: function(ret) {
-                el.canvas.select(ret);
+                description: gettext('Remove link')
             }
         });
     },
