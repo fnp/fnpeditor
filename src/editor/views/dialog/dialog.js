@@ -70,7 +70,10 @@ define(function(require) {
 
             (this.options.fields || []).forEach(function(field) {
                 var widget = view.$('[name=' + field.name +']');
-                formData[field.name] = widget.val();
+                var widget_type = widget.attr('type');
+                if (!(widget_type == 'checkbox' || widget_type == 'radio') || widget.is(':checked')) {
+                    formData[field.name] = widget.val();
+                }
             });
 
             this.trigger('execute', {

@@ -196,6 +196,12 @@ return function(sandbox) {
                     url: sandbox.getConfig().documentSaveUrl(data.document_id),
                     data: formData,
                     success: function(data) {
+                        // ugly!
+                        $.each(sandbox.getConfig().documentSaveForm.fields, function(i, field) {
+                            if (field.name.indexOf('for_cybernauts') !== -1) {
+                                field.checked = event.formData['textsave-for_cybernauts'] === 'on';
+                            }
+                        });
                         event.success();
                         sandbox.publish('savingEnded', 'success', 'remote', data);
 

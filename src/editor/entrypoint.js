@@ -40,8 +40,9 @@
             '../../libs/ace/ace': {
                 exports: 'ace'
             },
-        }
+        },
 
+        urlArgs: "bust=" + (new Date()).getTime()
     });
     
     requirejs([

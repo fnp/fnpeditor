@@ -1,5 +1,7 @@
-<div>
-    <div style="float: left; width:100px;"><%= label %>:</div>
-    <input type="checkbox" name="<%= name %>"/> 
+<div style="vertical-align: top">
+    <label style="display: inline-block;">
+        <span style="display: inline-block; width:100px;"><%= label %>:</span>
+        <input type="checkbox" name="<%= name %>" <% if (checked) print('checked="checked"'); %>/>
+    </label>
     <span class="description"><%= description %></span>
 </div>
