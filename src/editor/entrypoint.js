@@ -8,7 +8,7 @@
             'fnpjs': '../fnpjs',
             'libs': '../../libs',
             'smartxml': '../smartxml',
-            'wlxml': '../wlxml',
+            'wlxml': '../wlxml'
 
         },
 
@@ -25,7 +25,7 @@
 
         shim: {
             '../../libs/jquery-1.9.1.min': {
-                exports: '$',
+                exports: '$'
             },
             '../../libs/underscore-min': {
                 exports: '_'
@@ -39,10 +39,10 @@
             },
             '../../libs/ace/ace': {
                 exports: 'ace'
-            },
-        },
-
-        urlArgs: "bust=" + (new Date()).getTime()
+            }
+        }
+        // DEBUGGING ONLY
+        // , urlArgs: "bust=" + (new Date()).getTime()
     });
     
     requirejs([
