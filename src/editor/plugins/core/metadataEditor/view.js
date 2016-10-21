@@ -143,7 +143,7 @@ _.extend(View.prototype, {
             value: row.getValue(),
             inputTemplate: _.template('<div class="openInput rng-module-metadataEditor-metaItemValue" contentEditable="true"><%= value %></div>')({value: row.getValue() || '' }),
             maxHeight: '300px',
-            maxWidth: '100px',
+            maxWidth: '600px',
             setInput: function(inputDOM, value) {
                 if(inputDOM.text() !== value) {
                     inputDOM.text(value);
