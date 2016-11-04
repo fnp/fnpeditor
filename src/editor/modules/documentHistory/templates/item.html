@@ -1,6 +1,7 @@
-<div class="item">
+<div class="item<% if (publishable) { %> publishable<% } %>">
     <div class="version"><%= version %></div>
     <div class="date"><%= date %></div>
     <div class="author"><%= author %></div>
     <div class="description"><%= description %></div>
+    <div class="publishable"><%= publishable %></div>
 </div>
