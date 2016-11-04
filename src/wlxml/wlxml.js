@@ -238,6 +238,12 @@ $.extend(WLXMLDocument.prototype, {
             metadataNode.remove();
         });
         nativeNode.normalize();
+        $(nativeNode).find('*').each(function() {
+            if (this.childNodes.length === 0) {
+                var fakeTextNode = window.document.createTextNode("");
+                this.appendChild(fakeTextNode);
+            }
+        });
 
         $(nativeNode).find(':not(iframe)').addBack().contents()
             .filter(function() {return this.nodeType === Node.TEXT_NODE;})
@@ -247,7 +253,8 @@ $.extend(WLXMLDocument.prototype, {
                     elParent = el.parent(),
                     hasSpanParent = elParent.prop('tagName') === 'SPAN',
                     hasSpanBefore = el.prev().length && $(el.prev()).prop('tagName') === 'SPAN',
-                    hasSpanAfter = el.next().length && $(el.next()).prop('tagName') === 'SPAN';
+                    hasSpanAfter = el.next().length && $(el.next()).prop('tagName') === 'SPAN',
+                    onlyChild = el.is(':only-child');
 
 
                 var addInfo = function(toAdd, where, transformed, original) {
@@ -288,7 +295,7 @@ $.extend(WLXMLDocument.prototype, {
                     }
                 }
 
-                if(!text.transformed) {
+                if(!text.transformed  && !onlyChild) {
                     addInfo(text.original, 'below');
                     el.remove();
                     return true; // continue
