@@ -201,6 +201,9 @@ return function(sandbox) {
                             if (field.name.indexOf('for_cybernauts') !== -1) {
                                 field.checked = event.formData['textsave-for_cybernauts'] === 'on';
                             }
+                            if (field.name.indexOf('publishable') !== -1) {
+                                field.checked = event.formData['textsave-publishable'] === 'on';
+                            }
                         });
                         event.success();
                         sandbox.publish('savingEnded', 'success', 'remote', data);
