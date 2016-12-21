@@ -104,20 +104,25 @@ return function(sandbox) {
             void(status);
             var msg = {
                 remote: gettext('Document saved'),
-                local: gettext('Local copy saved')
+                local: gettext('Local copy saved'),
+                error: gettext('Failed to save')
             };
             documentIsDirty = false;
-            
-            sandbox.getModule('indicator').clearMessage({message: msg[what]});
-            if(status === 'success' && what === 'remote') {
-                documentSummary.setDraftField('-');
-                sandbox.getModule('mainBar').setCommandEnabled('drop-draft', false);
-                sandbox.getModule('mainBar').setCommandEnabled('save', false);
-            }
-            if(what === 'local') {
-                documentSummary.setDraftField(data.timestamp);
-                sandbox.getModule('mainBar').setCommandEnabled('drop-draft', true);
-                sandbox.getModule('mainBar').setCommandEnabled('save', true);
+
+            if (status === 'success') {
+                sandbox.getModule('indicator').clearMessage({message: msg[what]});
+                if (what === 'remote') {
+                    documentSummary.setDraftField('-');
+                    sandbox.getModule('mainBar').setCommandEnabled('drop-draft', false);
+                    sandbox.getModule('mainBar').setCommandEnabled('save', false);
+                }
+                if (what === 'local') {
+                    documentSummary.setDraftField(data.timestamp);
+                    sandbox.getModule('mainBar').setCommandEnabled('drop-draft', true);
+                    sandbox.getModule('mainBar').setCommandEnabled('save', true);
+                }
+            } else {
+                sandbox.getModule('indicator').clearMessage({message: msg[status]});
             }
         },
         restoringStarted: function(event) {

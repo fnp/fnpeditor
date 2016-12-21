@@ -215,7 +215,19 @@ return function(sandbox) {
 
                         reloadHistory();
                     },
-                    error: function() {event.error(); sandbox.publish('savingEnded', 'error', 'remote');}
+                    error: function(data) {
+                        event.error();
+                        sandbox.publish('savingEnded', 'error', 'remote');
+                        var dialog = Dialog.create({
+                            title: gettext('Error'),
+                            text: JSON.parse(data.responseText).text.join('\n'),
+                            executeButtonText: gettext('Close')
+                        });
+                        dialog.show();
+                        dialog.on('execute', function(e) {
+                            e.success();
+                        });
+                    }
                 });
             });
             dialog.on('cancel', function() {
