@@ -174,7 +174,9 @@ $.extend(Canvas.prototype, Backbone.Events, {
 
     triggerKeyEvent: function(keyEvent, selection) {
         selection = selection || this.getSelection();
-        if(selection && (selection.type === 'caret' || selection.type === 'textSelection') && selection.toDocumentFragment().isValid()) {
+        if(selection && (
+            (selection.type === 'caret' || selection.type === 'textSelection') && selection.toDocumentFragment().isValid()
+            || selection.type == 'nodeSelection')) {
             keyboard.handleKeyEvent(keyEvent, selection);
         }
     },

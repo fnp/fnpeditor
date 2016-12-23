@@ -417,6 +417,28 @@ var keyEventHandlers = [
 
             s.canvas.setCurrentElement(utils.getElementForNode(goto), gotoOptions);
         }
+    },
+    {
+        applies: function (e, s) {
+            return s.type === 'nodeSelection' && e.key === KEYS.ENTER && !s.element.isRootElement();
+        },
+        run: function (e, s) {
+            var parent = s.element.parent(),
+                children = parent.children(),
+                result, goto, gotoOptions;
+            e.preventDefault();
+
+            s.canvas.wlxmlDocument.transaction(function() {
+                result = s.element.wlxmlNode.insertNewNode();
+            }, {
+                metadata: {
+                    description: gettext('Splitting node'),
+                    fragment: s.toDocumentFragment()
+                }
+            });
+
+            s.canvas.setCurrentElement(utils.getElementForNode(result), {caretTo: 'start'});
+        }
     }
 ];
 
