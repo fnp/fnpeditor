@@ -5,7 +5,8 @@ define(function(require) {
 var $ = require('libs/jquery'),
     genericElement = require('modules/documentCanvas/canvas/genericElement'), // TODO: This should be accessible via plugin infrastructure
     linkElement = require('./links/linkElement'),
-    imgElement = require('./img/imgElement')
+    imgElement = require('./img/imgElement'),
+    videoElement = require('./video/videoElement')
     ;
 
 var widgets = {
@@ -116,7 +117,8 @@ return [
     {tag: 'aside', klass: 'comment', prototype: null},
     {tag: 'aside', klass: 'footnote', prototype: footnote},
     {tag: 'span', klass: 'link', prototype: linkElement},
-    {tag: 'div', klass: 'img', prototype: imgElement}
+    {tag: 'div', klass: 'img', prototype: imgElement},
+    {tag: 'div', klass: 'video', prototype: videoElement}
 ];
 
 

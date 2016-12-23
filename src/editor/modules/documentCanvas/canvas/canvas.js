@@ -162,6 +162,11 @@ $.extend(Canvas.prototype, Backbone.Events, {
             //return DocumentTextElement.fromHTMLElement(htmlElement, canvas);
             return $element.data('canvas-element');
         }
+
+        /* experimental */
+        if($element.parent().data('canvas-element')) {
+            return $element.parent().data('canvas-element');
+        }
     },
 
     reloadRoot: function() {

@@ -68,12 +68,13 @@ var createSwitchAction = function(createParams) {
 
 var headerAction = createSwitchAction({name: 'switchToHeader', from: {tagName: 'div', klass: 'p'}, to: {tagName: 'header', klass: '', name: gettext('header')}}),
     paragraphAction = createSwitchAction({name: 'switchToParagraph', from: {tagName: 'header'}, to: {tagName: 'div', klass: 'p', name: gettext('paragraph')}}),
-    imageAction = createSwitchAction({name: 'switchToImage', from: {tagName: 'div'}, to: {tagName: 'div', klass: 'img', name: gettext('image')}});
+    imageAction = createSwitchAction({name: 'switchToImage', from: {tagName: 'div'}, to: {tagName: 'div', klass: 'img', name: gettext('image')}}),
+    videoAction = createSwitchAction({name: 'switchToVideo', from: {tagName: 'div'}, to: {tagName: 'div', klass: 'video', name: gettext('video')}});
 
 return {
-    actions: [headerAction, paragraphAction, imageAction],
+    actions: [headerAction, paragraphAction, imageAction, videoAction],
     canvasActionHandler: {
-        handles: [headerAction, paragraphAction, imageAction],
+        handles: [headerAction, paragraphAction, imageAction, videoAction]
         // handle: function(canvas, action, ret) {
         //     var params = {},
         //         f;

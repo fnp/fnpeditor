@@ -12,6 +12,11 @@ var $ = require('libs/jquery'),
     attachments = require('views/attachments/attachments'),
     linkElement = Object.create(genericElement);
 
+function youtubeParser(url) {
+    var regExp = /^.*(?:youtu.be\/|v\/|\/u\/\w\/|embed\/|\?v=|&v=|shared\?ci=)([^#&?]*).*/;
+    var match = url.match(regExp);
+    return (match && match[1].length == 11) ? match[1] : false;
+}
 
 _.extend(linkElement, {
     init: function() {
@@ -20,7 +25,7 @@ _.extend(linkElement, {
 
         var linkText = this.wlxmlNode.getAttr('src') || '',
             linkUrl = this.getUrl(linkText);
-
+        
         this.refreshLink(linkUrl);
 
         this.box = $(_.template(boxTemplate)({text: linkText, url: linkUrl}));
@@ -46,25 +51,35 @@ _.extend(linkElement, {
     },
 
     refreshLink: function(linkUrl) {
-        this._container().text('');
-        this._container().attr('style', 'background-image: url(\'' + linkUrl + '\');');
+        this._container().find('iframe').remove();
+        var video_id = youtubeParser(linkUrl);
+        if (video_id) {
+            var video_frame = '<iframe width="480" height="270" src="//www.youtube.com/embed/' + video_id +
+                '?controls=2&amp;rel=0&amp;showinfo=0&amp;theme=light" frameborder="0" allowfullscreen></iframe>';
+            this._container().text('');
+            this._container().append($(video_frame));
+        } else {
+            this._container().text(gettext('No video'));
+        }
     },
 
     changeLink: function(e) {
         var el = this,
-            //doc = this.wlxmlNode.document,
-            //offset = el.canvas.getSelection().toDocumentFragment().offset,
             dialog = Dialog.create({
-            title: gettext('Edit image'),
+            title: gettext('Edit video url'),
             executeButtonText: gettext('Apply'),
             cancelButtonText: gettext('Cancel'),
             fields: [
-                {label: gettext('Image'), name: 'src', type: 'input', initialValue: el.wlxmlNode.getAttr('src'),
-                prePasteHandler: function(text) {
-                                    return this.wlxmlNode.document.getLinkForUrl(text);
-                                }.bind(this),
-                                description: '<a href="#-" class="attachment-library">attachment library</a>'
-            }
+                {
+                    label: gettext('YouTube link'),
+                    name: 'src',
+                    type: 'input',
+                    initialValue: el.wlxmlNode.getAttr('src'),
+                    prePasteHandler:
+                        function(text) {
+                            return this.wlxmlNode.document.getLinkForUrl(text);
+                        }.bind(this)
+                }
             ]
         });
         e.preventDefault();
@@ -73,10 +88,11 @@ _.extend(linkElement, {
         dialog.on('execute', function(event) {
             el.wlxmlNode.document.transaction(function() {
                 el.wlxmlNode.setAttr('src', event.formData.src);
+                el.wlxmlNode.setAttr('videoid', youtubeParser(event.formData.src));
                 event.success();
             }, {
                 metadata: {
-                    description: gettext('Edit image')
+                    description: gettext('Edit video url')
                     //fragment: doc.createFragment(doc.CaretFragment, {node: el.wlxmlNode.contents()[0], offset:offset})
                 },
                 success: function() {
@@ -92,20 +108,9 @@ _.extend(linkElement, {
     },
 
     deleteLink: function() {
-        var el = this,
-            doc = this.wlxmlNode.document;
+        var el = this;
 
         el.wlxmlNode.document.transaction(function() {
-            //var f = el.canvas.getSelection().toDocumentFragment(),
-            //    prefLen = 0,
-            //    ret;
-            //
-            //if(el.wlxmlNode.isPrecededByTextNode()) {
-            //    prefLen = el.wlxmlNode.prev().getText().length;
-            //}
-            //
-            //ret = el.wlxmlNode.unwrapContent();
-            //return doc.createFragment(doc.CaretFragment, {node: ret.element1, offset: prefLen + f.offset});
             el.wlxmlNode.detach();
         }, {
             metadata: {
