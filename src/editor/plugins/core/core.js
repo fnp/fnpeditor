@@ -317,6 +317,13 @@ plugin.documentExtension.documentNode.transformations = {
             }
         });
         return toret;
+    },
+    insertNewNode: function () {
+        var node = this;
+        var newElement = this.document.createDocumentNode({tagName: 'div', attrs: {class: 'p'}});
+        node.after(newElement);
+        newElement.append({text: ''});
+        return newElement;
     }
 };
 
