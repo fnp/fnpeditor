@@ -54,7 +54,7 @@ _.extend(linkElement, {
                 prePasteHandler: function(text) {
                                     return this.wlxmlNode.document.getLinkForUrl(text);
                                 }.bind(this),
-                                description: '<a href="#-" class="attachment-library">attachment library</a>'
+                                description: '<a href="#-" class="attachment-library">' + gettext('attachment library') + '</a>'
             }
             ]
         });

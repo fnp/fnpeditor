@@ -542,7 +542,7 @@ var createLinkFromSelection = function(callback, params) {
                 prePasteHandler: function(text) {
                                     return params.fragment.document.getLinkForUrl(text);
                                 }.bind(this),
-                description: '<a href="#-" class="attachment-library">attachment library</a>'
+                description: '<a href="#-" class="attachment-library">' + gettext('attachment library') + '</a>'
                 }
             ]
         }),

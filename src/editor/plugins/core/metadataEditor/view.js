@@ -167,7 +167,7 @@ _.extend(View.prototype, {
         newRow.find('td:nth-child(2)').append(valueSelectView.el).data('view', valueSelectView);
 
         if (this.getIsFileForKey(row.getKey())) {
-            var el = $("<a href='#-' class='attachment-library' style='float: right'>attachments</a>");
+            var el = $("<a href='#-' class='attachment-library' style='float: right'>" + gettext('attachments') + "</a>");
             el.on('click', function() {
                 attachments.select(function(v) {
                     valueSelectView.setInput(v);
