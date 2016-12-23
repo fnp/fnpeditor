@@ -428,7 +428,7 @@ var keyEventHandlers = [
                 result = s.element.wlxmlNode.insertNewNode();
             }, {
                 metadata: {
-                    description: gettext('Splitting node'),
+                    description: gettext('Inserting node'),
                     fragment: s.toDocumentFragment()
                 }
             });
