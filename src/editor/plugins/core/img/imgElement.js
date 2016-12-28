@@ -47,7 +47,7 @@ _.extend(linkElement, {
 
     refreshLink: function(linkUrl) {
         this._container().text('');
-        if (linkUrl) {
+        if (linkUrl && linkUrl !== 'http://') {
             this._container().text('');
             this._container().attr('style', 'background-image: url(\'' + linkUrl + '\');');
         } else {
