@@ -59,7 +59,7 @@ _.extend(linkElement, {
             this._container().text('');
             this._container().append($(video_frame));
         } else {
-            this._container().text(gettext('No video'));
+            this._container().text(gettext('No video. Click here to add link to your video'));
         }
     },
 

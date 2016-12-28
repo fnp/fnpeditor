@@ -47,7 +47,12 @@ _.extend(linkElement, {
 
     refreshLink: function(linkUrl) {
         this._container().text('');
-        this._container().attr('style', 'background-image: url(\'' + linkUrl + '\');');
+        if (linkUrl) {
+            this._container().text('');
+            this._container().attr('style', 'background-image: url(\'' + linkUrl + '\');');
+        } else {
+            this._container().text(gettext('No image. Click here to add image'));
+        }
     },
 
     changeLink: function(e) {
