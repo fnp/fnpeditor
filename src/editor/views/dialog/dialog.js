@@ -29,7 +29,8 @@ define(function(require) {
             this.setElement(this.template(_.extend({
                 executeButtonText: null,
                 cancelButtonText: null,
-                cssClass: ''
+                cssClass: '',
+                closeButton: true
             }, this.options)));
 
             var body = this.$('.modal-body');

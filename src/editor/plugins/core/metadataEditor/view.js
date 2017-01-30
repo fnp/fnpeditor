@@ -128,6 +128,16 @@ _.extend(View.prototype, {
             view.addMetadataRow(row);
         });
     },
+    getMetadataByKey: function (key) {
+        var ret;
+        this.node.getMetadata().some(function (row) {
+            if (row.key == 'relation.coverimage.url') {
+                ret = row.value;
+                return true;
+            }
+        });
+        return ret;
+    },
     addMetadataRow: function(row) {
         console.log(row);
         var newRow = $(_.template(itemTemplate)({key: row.getKey() || '', value: row.getValue() || ''}));
