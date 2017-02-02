@@ -43,7 +43,7 @@ var attachmentLibrary = function(callback, params) {
                 });
                 body.append(div);
             }
-            var editlink = $("<a target='_blank'>Manage attachments</a>");
+            var editlink = $("<a target='_blank'>" + gettext("Manage attachments") + "</a>");
             editlink.attr('href', config.documentGalleryUrl);
             body.append(editlink);
         },
