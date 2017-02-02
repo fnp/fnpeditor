@@ -28,17 +28,21 @@ var attachmentLibrary = function(callback, params) {
         dataType: 'json',
         success: function(data, status, jqxhr) {
             for (var i in data) {
-                var img = $("<img style='margin-right: 1em'>")
+                var img = $("<img style='margin-right: 1em'>");
+                var input = $("<input type='radio' name='attachment'>");
+                var label = $("<label/>");
                 var div = $("<div style='border: 1px solid white'/>");
-                div.append(img);
-                div.append(data[i]['name'])
+                label.append(input);
+                label.append(img);
+                label.append(data[i]['name']);
                 img.attr("src", data[i]['thumbnail_url']);
                 img.attr("title", data[i]['name']);
+                input.attr('id', 'attachment' + i);
+                label.attr('for', 'attachment' + i);
+                div.append(label);
                 div.attr("data-output", 'file://' + data[i]['name']);
                 div.on('click', function() {
-                    $("div", body).attr('style', 'border: 1px solid white');
-                    $("div", body).removeClass('active');
-                    $(this).attr('style', 'border: 1px solid black');
+                    $("div.active", body).removeClass('active');
                     $(this).addClass('active');
                 });
                 body.append(div);
