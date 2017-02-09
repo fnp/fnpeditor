@@ -231,9 +231,9 @@ return function(sandbox) {
         var txt = gettext('Do you really want to exit?');
         if(documentIsDirty) {
             txt += ' ' + gettext('Document contains unsaved changes!');
+            event.returnValue = txt; // FF
+            return txt; // Chrome
         }
-        event.returnValue = txt; // FF
-        return txt; // Chrome
     });
     
     /* api */
