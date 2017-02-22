@@ -375,6 +375,9 @@ var keyEventHandlers = [
                 var p = list.after({tagName: 'div', attrs: {'class': 'p'}});
                 p.append({text: ''});
                 item.detach();
+                if(list.contents().length === 0) {
+                    list.detach();
+                }
                 return p;
             }, {
                 success: function(p) {
