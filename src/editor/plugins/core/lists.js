@@ -42,9 +42,30 @@ var toggleListAction = function(type) {
                 action = this;
 
             if(boundries && boundries.node1) {
-                listParams.node1 = boundries.node1;
-                listParams.node2 = boundries.node2;
                 boundries.node1.document.transaction(function() {
+                    var iterNode = boundries.node1;
+                    while(true) {
+                        if(!iterNode.is({tagName: 'div', klass: 'p'})) {
+                            if(iterNode.is({tagName: 'header'})) {
+                                var newNode = iterNode.setTag('div');
+                                newNode.setClass('p');
+                                if(iterNode.sameNode(boundries.node1)) {
+                                    boundries.node1 = newNode;
+                                }
+                                if(iterNode.sameNode(boundries.node2)) {
+                                    boundries.node2 = newNode;
+                                }
+                                iterNode = newNode;
+                            } else {
+                                throw new Error('Invalid element');
+                            }
+                        }
+                        if(iterNode.sameNode(boundries.node2))
+                            break;
+                        iterNode = iterNode.next();
+                    }
+                    listParams.node1 = boundries.node1;
+                    listParams.node2 = boundries.node2;
                     var list = boundries.node1.document.createList(listParams),
                         item1 = list.object.getItem(0),
                         text = item1 ? item1.contents()[0] : undefined, //
@@ -67,6 +88,27 @@ var toggleListAction = function(type) {
             /* globals Node */
             var current = params.fragment.node,
                 action = this;
+
+            if(current.parent().is('item') && current.parent().parent().is('list') && current.parent().next() === null) {
+                var item = current.parent();
+                var list = item.parent();
+                current.document.transaction(function() {
+                    var p = list.after({tagName: 'div', attrs: {'class': 'p'}});
+                    p.append({text: current.getText()});
+                    item.detach();
+                    if(list.contents().length === 0) {
+                        list.detach();
+                    }
+                    return current.document.createFragment(current.document.NodeFragment, {node: p});
+                }, {
+                    metadata: {
+                        description: action.getState().description,
+                        fragment: params.fragment
+                    },
+                    success: callback
+                });
+                return;
+            }
 
             var toSearch = current.nodeType === Node.ELEMENT_NODE ? [current] : [];
             toSearch = toSearch.concat(current.parents());
@@ -157,6 +199,19 @@ var toggleListAction = function(type) {
             }
             var boundries = getBoundriesForAList(params.fragment);
             if(boundries && boundries.node1.hasSameContextRoot(boundries.node2)) {
+                var iterNode = boundries.node1;
+                while(true) {
+                    if(!iterNode.is({tagName: 'div', klass: 'p'}) && !iterNode.is({tagName: 'header'})) {
+                        return {
+                            allowed: false,
+                            description: gettext('Invalid element for a list item')
+                        }
+                    }
+                    if(iterNode.sameNode(boundries.node2))
+                        break;
+                    iterNode = iterNode.next();
+                }
+
                 return {
                     allowed: true,
                     description: interpolate(gettext('Make %s fragment(s) into list'), [countItems(getBoundriesForAList(params.fragment))]),
