@@ -4,11 +4,11 @@ define(function() {
 /* globals gettext, interpolate */
 
 
-var getBoundriesForAList = function(fragment) {
+var getBoundariesForAList = function(fragment) {
     var node;
 
-    if(fragment instanceof fragment.RangeFragment && fragment.hasSiblingBoundries()) {
-        return fragment.startNode.hasSameContextRoot(fragment.endNode) && fragment.boundriesSiblingParents();
+    if(fragment instanceof fragment.RangeFragment && fragment.hasSiblingBoundaries()) {
+        return fragment.startNode.hasSameContextRoot(fragment.endNode) && fragment.boundariesSiblingParents();
     }
     if(fragment instanceof fragment.NodeFragment) {
         node = fragment.node.getNearestElementNode();
@@ -23,10 +23,10 @@ var getBoundriesForAList = function(fragment) {
     }
 };
 
-var countItems = function(boundries) {
-    var ptr = boundries.node1,
+var countItems = function(boundaries) {
+    var ptr = boundaries.node1,
         c = 1;
-    while(ptr && !ptr.sameNode(boundries.node2)) {
+    while(ptr && !ptr.sameNode(boundaries.node2)) {
         c++;
         ptr = ptr.next();
     }
@@ -37,39 +37,39 @@ var toggleListAction = function(type) {
     
     var execute = {
         add: function(callback, params) {
-            var boundries = getBoundriesForAList(params.fragment),
+            var boundaries = getBoundariesForAList(params.fragment),
                 listParams = {klass: type === 'Bullet' ? 'list' : 'list.enum'},
                 action = this;
 
-            if(boundries && boundries.node1) {
-                boundries.node1.document.transaction(function() {
-                    var iterNode = boundries.node1;
+            if(boundaries && boundaries.node1) {
+                boundaries.node1.document.transaction(function() {
+                    var iterNode = boundaries.node1;
                     while(true) {
                         if(!iterNode.is({tagName: 'div', klass: 'p'})) {
                             if(iterNode.is({tagName: 'header'})) {
                                 var newNode = iterNode.setTag('div');
                                 newNode.setClass('p');
-                                if(iterNode.sameNode(boundries.node1)) {
-                                    boundries.node1 = newNode;
+                                if(iterNode.sameNode(boundaries.node1)) {
+                                    boundaries.node1 = newNode;
                                 }
-                                if(iterNode.sameNode(boundries.node2)) {
-                                    boundries.node2 = newNode;
+                                if(iterNode.sameNode(boundaries.node2)) {
+                                    boundaries.node2 = newNode;
                                 }
                                 iterNode = newNode;
                             } else {
                                 throw new Error('Invalid element');
                             }
                         }
-                        if(iterNode.sameNode(boundries.node2))
+                        if(iterNode.sameNode(boundaries.node2))
                             break;
                         iterNode = iterNode.next();
                     }
-                    listParams.node1 = boundries.node1;
-                    listParams.node2 = boundries.node2;
-                    var list = boundries.node1.document.createList(listParams),
+                    listParams.node1 = boundaries.node1;
+                    listParams.node2 = boundaries.node2;
+                    var list = boundaries.node1.document.createList(listParams),
                         item1 = list.object.getItem(0),
                         text = item1 ? item1.contents()[0] : undefined, //
-                        doc = boundries.node1.document;
+                        doc = boundaries.node1.document;
                     if(text) {
                         return doc.createFragment(doc.CaretFragment, {node: text, offset:0});
                     }
@@ -81,7 +81,7 @@ var toggleListAction = function(type) {
                     success: callback
                 });
             } else {
-                throw new Error('Invalid boundries');
+                throw new Error('Invalid boundaries');
             }
         },
         remove: function(callback, params) {
@@ -197,9 +197,9 @@ var toggleListAction = function(type) {
                 };
 
             }
-            var boundries = getBoundriesForAList(params.fragment);
-            if(boundries && boundries.node1.hasSameContextRoot(boundries.node2)) {
-                var iterNode = boundries.node1;
+            var boundaries = getBoundariesForAList(params.fragment);
+            if(boundaries && boundaries.node1.hasSameContextRoot(boundaries.node2)) {
+                var iterNode = boundaries.node1;
                 while(true) {
                     if(!iterNode.is({tagName: 'div', klass: 'p'}) && !iterNode.is({tagName: 'header'})) {
                         return {
@@ -207,14 +207,14 @@ var toggleListAction = function(type) {
                             description: gettext('Invalid element for a list item')
                         }
                     }
-                    if(iterNode.sameNode(boundries.node2))
+                    if(iterNode.sameNode(boundaries.node2))
                         break;
                     iterNode = iterNode.next();
                 }
 
                 return {
                     allowed: true,
-                    description: interpolate(gettext('Make %s fragment(s) into list'), [countItems(getBoundriesForAList(params.fragment))]),
+                    description: interpolate(gettext('Make %s fragment(s) into list'), [countItems(getBoundariesForAList(params.fragment))]),
                     execute: execute.add
                 };
             }
