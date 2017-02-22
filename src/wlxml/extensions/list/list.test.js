@@ -60,7 +60,7 @@ describe('Lists extension', function() {
             expect(child3.contents()[0].getText()).to.equal('cat');
         });
 
-        it('Handles text nodes on the boundries', function() {
+        it('Handles text nodes on the boundaries', function() {
             var doc = getDocumentFromXML('<section>Alice<span>has</span>a cat</section>'),
                 textNode1 = doc.root.contents()[0],
                 textNode2 = doc.root.contents()[2];

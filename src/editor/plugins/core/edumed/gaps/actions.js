@@ -41,7 +41,7 @@ var createGap = {
             allowed: params.fragment &&
                         params.fragment.isValid() &&
                         params.fragment instanceof params.fragment.TextRangeFragment &&
-                        params.fragment.hasSiblingBoundries() &&
+                        params.fragment.hasSiblingBoundaries() &&
                         params.fragment.startNode.isInside('exercise.gap') &&
                         !params.fragment.startNode.isInside({tagName: 'aside', klass: 'gap'}),
                         

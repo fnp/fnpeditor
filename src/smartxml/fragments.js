@@ -76,20 +76,20 @@ $.extend(RangeFragment.prototype, {
         this.startNode = this.document.getNodeByPath(this.startNodePath);
         this.endNode = this.document.getNodeByPath(this.endNodePath);
     },
-    hasSiblingBoundries: function() {
+    hasSiblingBoundaries: function() {
         return this.isValid() && this.startNode.isSiblingOf(this.endNode);
     },
-    hasSameBoundries: function() {
+    hasSameBoundaries: function() {
         return this.isValid() && this.startNode.sameNode(this.endNode);
     },
-    boundriesSiblingParents: function() {
+    boundariesSiblingParents: function() {
         return this.startNode.document.getSiblingParents({
             node1: this.startNode,
             node2: this.endNode
         });
     },
     getCommonParent: function() {
-        var siblingParents = this.boundriesSiblingParents();
+        var siblingParents = this.boundariesSiblingParents();
         if(siblingParents) {
             return siblingParents.node1.parent();
         }

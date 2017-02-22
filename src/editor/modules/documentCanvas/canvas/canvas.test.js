@@ -489,7 +489,7 @@ describe('Cursor', function() {
         });
     });
 
-    it('returns boundries of selection when browser selection not collapsed', function() {
+    it('returns boundaries of selection when browser selection not collapsed', function() {
         var c = getCanvasFromXML('<section>Alice <span>has</span> a <span>big</span> cat</section>'),
             dom = c.doc().dom,
             text = {
@@ -521,7 +521,7 @@ describe('Cursor', function() {
         });
     });
 
-    it('recognizes when browser selection boundries lies in sibling DocumentTextElements', function() {
+    it('recognizes when browser selection boundaries lies in sibling DocumentTextElements', function() {
         var c = getCanvasFromXML('<section>Alice <span>has</span> a <span>big</span> cat</section>'),
             dom = c.doc().dom,
             text = {

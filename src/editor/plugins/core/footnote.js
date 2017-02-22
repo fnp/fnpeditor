@@ -45,7 +45,7 @@ var footnoteAction =  {
         if(!params.fragment || !params.fragment.isValid()) {
             return {allowed: false};
         }
-        if(params.fragment instanceof params.fragment.TextRangeFragment && params.fragment.hasSiblingBoundries()) {
+        if(params.fragment instanceof params.fragment.TextRangeFragment && params.fragment.hasSiblingBoundaries()) {
             return {
                 allowed: true,
                 description: gettext('Create footnote from selection'),

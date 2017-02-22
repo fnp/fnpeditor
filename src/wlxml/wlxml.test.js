@@ -55,7 +55,7 @@ describe('WLXMLDocument', function() {
             expect(node.contents()[0].getText()).to.equal('Alice ');
             expect(node.contents()[2].getText()).to.equal(' a cat');
         });
-        it('normalizes string of white characters to one space at the inline element boundries', function() {
+        it('normalizes string of white characters to one space at the inline element boundaries', function() {
             var node = nodeFromXML('<span>   Alice has a cat   </span>');
             expect(node.contents()[0].getText()).to.equal(' Alice has a cat ');
         });

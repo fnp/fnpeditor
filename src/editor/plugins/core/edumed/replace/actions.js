@@ -54,7 +54,7 @@ var markToReplace = {
             allowed: params.fragment &&
                         params.fragment.isValid() &&
                         params.fragment instanceof params.fragment.TextRangeFragment &&
-                        params.fragment.hasSameBoundries() &&
+                        params.fragment.hasSameBoundaries() &&
                         params.fragment.startNode.isInside('exercise.replace') &&
                         !params.fragment.startNode.isInside({tagName: 'span', klass: 'answer'}),
                         

@@ -554,18 +554,18 @@ $.extend(Cursor.prototype, {
         return this.getSelectionAnchor();
     },
     getSelectionStart: function() {
-        return this.getSelectionBoundry('start');
+        return this.getSelectionBoundary('start');
     },
     getSelectionEnd: function() {
-        return this.getSelectionBoundry('end');
+        return this.getSelectionBoundary('end');
     },
     getSelectionAnchor: function() {
-        return this.getSelectionBoundry('anchor');
+        return this.getSelectionBoundary('anchor');
     },
     getSelectionFocus: function() {
-        return this.getSelectionBoundry('focus');
+        return this.getSelectionBoundary('focus');
     },
-    getSelectionBoundry: function(which) {
+    getSelectionBoundary: function(which) {
         /* globals window */
         var selection = window.getSelection(),
             anchorElement = this.canvas.getDocumentElement(selection.anchorNode),

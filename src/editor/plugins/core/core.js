@@ -488,7 +488,7 @@ var createWrapTextAction = function(createParams) {
                 });
             }
 
-            if(params.fragment instanceof params.fragment.TextRangeFragment && params.fragment.hasSiblingBoundries()) {
+            if(params.fragment instanceof params.fragment.TextRangeFragment && params.fragment.hasSiblingBoundaries()) {
                 parent = params.fragment.startNode.parent();
                 if(parent && parent.is(createParams.klass) || parent.isInside(createParams.klass)) {
                     return _.extend(state, {allowed: false});
@@ -616,7 +616,7 @@ var linkAction = {
         }
 
         if(params.fragment instanceof params.fragment.TextRangeFragment) {
-            if(!params.fragment.hasSiblingBoundries() || params.fragment.startNode.parent().is('link')) {
+            if(!params.fragment.hasSiblingBoundaries() || params.fragment.startNode.parent().is('link')) {
                 return {allowed: false};
             }
             return {
