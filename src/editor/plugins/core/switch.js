@@ -26,7 +26,7 @@ var createSwitchAction = function(createParams) {
             ) {
                 return _.extend(state, {
                     allowed: false,
-                    description: 'wrong or no selection'
+                    description: gettext('wrong or no selection')
                 });
             }
 
