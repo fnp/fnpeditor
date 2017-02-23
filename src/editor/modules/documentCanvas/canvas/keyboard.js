@@ -360,8 +360,10 @@ var keyEventHandlers = [
         applies: function(e, s) {
             var parent = s.element && s.element.wlxmlNode.parent(),
                 parentIsItem = parent && parent.is('item'),
-                itemIsOnList = parent && parent.parent() && parent.parent().is('list');
-            return s.type === 'caret' && e.key === KEYS.ENTER && s.element.isEmpty() && parentIsItem && itemIsOnList;
+                itemIsOnList = parent && parent.parent() && parent.parent().is('list'),
+                onlyChild = parent.contents().length === 1;
+            return s.type === 'caret' && e.key === KEYS.ENTER && s.element.isEmpty() && onlyChild &&
+                parentIsItem && itemIsOnList;
         },
         run: function(e, s) {
             var item = s.element.wlxmlNode.parent(),
