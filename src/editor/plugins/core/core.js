@@ -120,6 +120,11 @@ plugin.documentExtension.textNode.transformations = {
                 parent.contents().some(function(n) {
                     return move(n, newNode);
                 });
+                if(newNodes.second.contents()[0].getText().length === 0) {
+                    newNodes.second.detach();
+                    newNodes.second = parent;
+                    emptyText = newNodes.second.append({text: '\u200b'}); // why? why is ZWS needed here?
+                }
             }
 
             return _.extend(newNodes, {emptyText: emptyText});
