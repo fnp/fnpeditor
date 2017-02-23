@@ -92,14 +92,16 @@ var toggleListAction = function(type) {
             if(current.parent().is('item') && current.parent().parent().is('list') && current.parent().next() === null) {
                 var item = current.parent();
                 var list = item.parent();
-                current.document.transaction(function() {
+                var doc = current.document;
+                doc.transaction(function() {
                     var p = list.after({tagName: 'div', attrs: {'class': 'p'}});
                     p.append({text: current.getText()});
                     item.detach();
                     if(list.contents().length === 0) {
                         list.detach();
                     }
-                    return current.document.createFragment(current.document.NodeFragment, {node: p});
+                    return doc.createFragment(
+                        doc.CaretFragment, {node: p.contents()[0], offset: params.fragment.offset});
                 }, {
                     metadata: {
                         description: action.getState().description,
@@ -113,14 +115,15 @@ var toggleListAction = function(type) {
             var toSearch = current.nodeType === Node.ELEMENT_NODE ? [current] : [];
             toSearch = toSearch.concat(current.parents());
             toSearch.some(function(node) {
+                var doc = node.document;
                 if(node.is('list')) {
-                    node.document.transaction(function() {
+                    doc.transaction(function() {
                         var firstItem = node.object.extractListItems(),
                             toret;
                         if(params.fragment.isValid()) {
                             toret = params.fragment;
                         } else {
-                            toret = node.document.createFragment(node.document.NodeFragment, {node: firstItem});
+                            toret = doc.createFragment(doc.NodeFragment, {node: firstItem});
                         }
                         return toret;
                     }, {
