@@ -75,7 +75,7 @@ var handleKeyEvent = function(e, s) {
 };
 // todo: whileRemoveWholetext
 var keyEventHandlers = [
-    {
+    { // ctrl+x - prevented (?)
         applies: function(e, s) {
             return e.ctrlKey &&
                 e.key === KEYS.X &&
@@ -212,7 +212,7 @@ var keyEventHandlers = [
             }
         }
     },
-    {
+    { // backspace removing the last character in a span
         applies: function(e, s) {
             return s.type === 'caret' &&
                 s.element.wlxmlNode.parent().is({tagName: 'span'}) &&
@@ -230,7 +230,7 @@ var keyEventHandlers = [
                 {caretTo: params.ret ? params.ret.previousLen : (prevTextNode ? prevTextNode.getText().length : 0)});
         }
     },
-    {
+    { // backspace/delete through an edge (behaves weirdly at spans)
         applies: function(e, s) {
             return s.type === 'caret' && (
                 (s.isAtBeginning() && e.key === KEYS.BACKSPACE) ||
@@ -243,13 +243,13 @@ var keyEventHandlers = [
             if(e.key === KEYS.BACKSPACE) {
                 direction = 'above';
                 caretTo = 'end';
-                cursorAtOperationEdge = s.isAtBeginning();
+                cursorAtOperationEdge = s.isAtBeginning(); // always true?
                 element = s.element;
             }
             else {
                 direction = 'below';
                 caretTo = 'start';
-                cursorAtOperationEdge = s.isAtEnd();
+                cursorAtOperationEdge = s.isAtEnd(); // always true?
                 element = cursorAtOperationEdge && s.canvas.getNearestTextElement(direction, s.element);
             }
 
@@ -284,7 +284,7 @@ var keyEventHandlers = [
         }
     },
 
-    {
+    { // backspace/delete last character in a node - why is it needed?
         applies: function(e,s) {
             return s.type === 'caret' && s.element.getText().length === 1 && (e.key === KEYS.BACKSPACE || e.key === KEYS.DELETE);
         },
@@ -356,7 +356,7 @@ var keyEventHandlers = [
 
         }
     },
-    {
+    { // enter on an empty list item - creates paragraph after list
         applies: function(e, s) {
             var parent = s.element && s.element.wlxmlNode.parent(),
                 parentIsItem = parent && parent.is('item'),
@@ -382,7 +382,7 @@ var keyEventHandlers = [
             });
         }
     },
-    {
+    { // enter - split node
         applies: function(e, s) {
             return s.type === 'caret' && e.key === KEYS.ENTER && !s.element.parent().isRootElement();
         },
@@ -417,7 +417,7 @@ var keyEventHandlers = [
             s.canvas.setCurrentElement(utils.getElementForNode(goto), gotoOptions);
         }
     },
-    {
+    { // enter - new paragraph after image/video
         applies: function (e, s) {
             return s.type === 'nodeSelection' && e.key === KEYS.ENTER && !s.element.isRootElement();
         },
