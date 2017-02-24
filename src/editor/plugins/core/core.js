@@ -121,10 +121,17 @@ plugin.documentExtension.textNode.transformations = {
                     return move(n, newNode);
                 });
                 if(newNodes.second.contents()[0].getText().length === 0) {
+                    var textNode = newNodes.second.contents()[0];
                     newNodes.second.detach();
                     newNodes.second = parent;
-                    emptyText = newNodes.second.append({text: '\u200b'}); // why? why is ZWS needed here?
+                    emptyText = newNodes.second.append(textNode);
                 }
+            }
+
+            var newNodeText = newNodes.second.contents()[0].getText();
+            if(newNodes.second.is({tagName: 'header'}) && newNodeText === '') {
+                newNodes.second = newNodes.second.setTag('div');
+                newNodes.second.setClass('p');
             }
 
             return _.extend(newNodes, {emptyText: emptyText});
