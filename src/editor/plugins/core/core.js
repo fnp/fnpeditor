@@ -192,7 +192,7 @@ plugin.documentExtension.documentNode.transformations = {
                         node: ret,
                         offset: ret.getText().length - len
                     };
-                } else if(!toret) {
+                } else {
                     toret = {
                         node: ret.getFirstTextNode(),
                         offset: 0
@@ -234,10 +234,12 @@ plugin.documentExtension.documentNode.transformations = {
                     return toMerge.is({tagName: 'div', 'klass': 'p'}) || (toMerge.is({tagName: 'div'}) && toMerge.getClass() === '');
                 },
                 run: function() {
-                    if(prev && (prev.is('p') || prev.is({tagName: 'header'}))) {
+                    if (!prev)
+                        return;
+                    if(prev.is('p') || prev.is({tagName: 'header'})) {
                         return merge(toMerge, prev);
                     }
-                    if(prev && prev.is('list')) {
+                    if(prev.is('list')) {
                         var items = prev.contents().filter(function(n) { return n.is('item');});
                         return merge(toMerge, items[items.length-1]);
                     }
@@ -294,7 +296,7 @@ plugin.documentExtension.documentNode.transformations = {
                     return toMerge.is({tagName: 'header'});
                 },
                 run: function() {
-                    if(prev && prev.is('p') || prev.is({tagName: 'header'})) {
+                    if(prev && (prev.is('p') || prev.is({tagName: 'header'}))) {
                         return merge(toMerge, prev);
                     }
                 }
