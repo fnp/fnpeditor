@@ -238,22 +238,16 @@ var keyEventHandlers = [
             );
         },
         run: function(e,s) {
-            var direction, caretTo, cursorAtOperationEdge, goto, element;
+            var goto, element;
 
             if(e.key === KEYS.BACKSPACE) {
-                direction = 'above';
-                caretTo = 'end';
-                cursorAtOperationEdge = s.isAtBeginning(); // always true?
                 element = s.element;
             }
             else {
-                direction = 'below';
-                caretTo = 'start';
-                cursorAtOperationEdge = s.isAtEnd(); // always true?
-                element = cursorAtOperationEdge && s.canvas.getNearestTextElement(direction, s.element);
+                element = s.canvas.getNearestTextElement('below', s.element);
             }
 
-            if(!cursorAtOperationEdge || !element) {
+            if(!element) {
                 return;
             }
 
