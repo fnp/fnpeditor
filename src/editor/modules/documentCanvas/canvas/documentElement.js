@@ -278,7 +278,7 @@ $.extend(DocumentTextElement.prototype, {
         if(text === '') {
             text = utils.unicode.ZWS;
         }
-        if(text !== this.getText()) {
+        if(text !== this.dom.contents()[0].data) {
             this.dom.contents()[0].data = text;
         }
     },

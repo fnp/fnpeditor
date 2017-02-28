@@ -247,10 +247,11 @@ var keyEventHandlers = [
                 element = s.canvas.getNearestTextElement('below', s.element);
             }
 
+            e.preventDefault();
+
             if(!element) {
                 return;
             }
-
 
             var parent = element.wlxmlNode.parent();
             if(element.wlxmlNode.getIndex() === 0 && parent.isContextRoot() && (!parent.is('item') || parent.getIndex() === 0)) {
@@ -258,8 +259,6 @@ var keyEventHandlers = [
                 // - this is a temporary solution until key events handling get refactored into something more sane.
                 return;
             }
-
-            e.preventDefault();
 
             s.canvas.wlxmlDocument.transaction(function() {
                 if(element.wlxmlNode.getIndex() === 0) {
