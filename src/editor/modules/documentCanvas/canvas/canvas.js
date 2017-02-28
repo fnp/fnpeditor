@@ -274,7 +274,10 @@ $.extend(Canvas.prototype, Backbone.Events, {
                     if(mutation.target.data === '') {
                         mutation.target.data = utils.unicode.ZWS;
                     }
-                    else if(mutation.oldValue === utils.unicode.ZWS) {
+                    if(mutation.target.data === mutation.oldValue) {
+                        return; // shouldn't happen, but better be safe
+                    }
+                    if(mutation.oldValue === utils.unicode.ZWS) {
                         mutation.target.data = mutation.target.data.replace(utils.unicode.ZWS, '');
                         canvas._moveCaretToTextElement(canvas.getDocumentElement(mutation.target), 'end');
                     }
