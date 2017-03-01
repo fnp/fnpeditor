@@ -29,8 +29,8 @@ return function(ctx) {
                 dialog.setContentView(view.dom);
                 dialog.on('execute', function(e) {
                     var cover_url = view.getMetadataByKey('relation.coverimage.url');
-                    if (cover_url && !cover_url.match(/\.(png|jpg|jpeg|gif|tif|tiff)$/i)) {
-                        window.alert(gettext('The cover needs to be an image file: jpg, png, gif. Use another URL or clear the cover field.'));
+                    if (cover_url && !cover_url.match(/\.(png|jpg|jpeg|gif|svg)$/i)) {
+                        window.alert(gettext('The cover needs to be an image file: jpg, png, gif, svg. Use another URL or clear the cover field.'));
                         return;
                     }
                     e.success();
