@@ -194,7 +194,7 @@ plugin.documentExtension.documentNode.transformations = {
                         node: ret,
                         offset: ret.getText().length - len
                     };
-                } else {
+                } else if(!toret) {
                     toret = {
                         node: ret.getFirstTextNode(),
                         offset: 0
