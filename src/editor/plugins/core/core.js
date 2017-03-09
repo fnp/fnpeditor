@@ -122,6 +122,8 @@ plugin.documentExtension.textNode.transformations = {
                 parent.contents().some(function(n) {
                     return move(n, newNode);
                 });
+                // span can't be the last node
+                newNode.append({'text': ''});
                 if(newNodes.second.contents()[0].getText().length === 0) {
                     var textNode = newNodes.second.contents()[0];
                     newNodes.second.detach();
@@ -523,6 +525,10 @@ var createWrapTextAction = function(createParams) {
                                 offsetEnd: params.fragment.endOffset,
                                 textNodeIdx: [params.fragment.startNode.getIndex(), params.fragment.endNode.getIndex()]
                             });
+                            if(wrapper.next() === null) {
+                                // span can't be the last node
+                                parent.append({text: ''});
+                            }
                                 
                             lastTextNode = wrapper.getLastTextNode();
                             if(lastTextNode) {
