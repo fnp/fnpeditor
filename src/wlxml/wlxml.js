@@ -239,7 +239,9 @@ $.extend(WLXMLDocument.prototype, {
         });
         nativeNode.normalize();
         $(nativeNode).find('*').each(function() {
-            if (this.childNodes.length === 0) {
+            var emptyNode = this.childNodes.length === 0;
+            var endsWithSpan = !emptyNode && this.childNodes[this.childNodes.length - 1].nodeName.toLowerCase() === 'span';
+            if(emptyNode || endsWithSpan) {
                 var fakeTextNode = window.document.createTextNode("");
                 this.appendChild(fakeTextNode);
             }
@@ -295,7 +297,7 @@ $.extend(WLXMLDocument.prototype, {
                     }
                 }
 
-                if(!text.transformed  && !onlyChild) {
+                if(!text.transformed && !(el.is(':only-child') || (el.is(':last-child') && hasSpanBefore))) {
                     addInfo(text.original, 'below');
                     el.remove();
                     return true; // continue
