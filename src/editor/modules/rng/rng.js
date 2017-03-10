@@ -67,7 +67,7 @@ return function(sandbox) {
             sandbox.getModule('mainBar').setSummaryView(documentSummary.dom);
 
             sandbox.getModule('mainBar').setCommandEnabled('drop-draft', usingDraft);
-            sandbox.getModule('mainBar').setCommandEnabled('save', usingDraft);
+            //sandbox.getModule('mainBar').setCommandEnabled('save', usingDraft);
 
             
             var toStart = ['sourceEditor', 'documentToolbar', 'mainBar', 'indicator', 'documentHistory', 'diffViewer', 'statusBar'];
@@ -81,7 +81,7 @@ return function(sandbox) {
             documentIsDirty = false;
             wlxmlDocument.on('change', function() {
                 documentIsDirty = true;
-                sandbox.getModule('mainBar').setCommandEnabled('save', true);
+                //sandbox.getModule('mainBar').setCommandEnabled('save', true);
             });
             wlxmlDocument.on('contentSet', function() {
                 documentIsDirty = true;
@@ -90,14 +90,14 @@ return function(sandbox) {
         draftDropped: function() {
             documentSummary.setDraftField('-');
             sandbox.getModule('mainBar').setCommandEnabled('drop-draft', false);
-            sandbox.getModule('mainBar').setCommandEnabled('save', false);
+            //sandbox.getModule('mainBar').setCommandEnabled('save', false);
         },
         savingStarted: function(what) {
             var msg = {
                 remote: gettext('Saving document'),
                 local: gettext('Saving local copy')
             };
-            sandbox.getModule('mainBar').setCommandEnabled('save', false);
+            //sandbox.getModule('mainBar').setCommandEnabled('save', false);
             sandbox.getModule('indicator').showMessage(msg[what] + '...');
         },
         savingEnded: function(status, what, data) {
@@ -114,19 +114,19 @@ return function(sandbox) {
                 if (what === 'remote') {
                     documentSummary.setDraftField('-');
                     sandbox.getModule('mainBar').setCommandEnabled('drop-draft', false);
-                    sandbox.getModule('mainBar').setCommandEnabled('save', false);
+                    //sandbox.getModule('mainBar').setCommandEnabled('save', false);
                 }
                 if (what === 'local') {
                     documentSummary.setDraftField(data.timestamp);
                     sandbox.getModule('mainBar').setCommandEnabled('drop-draft', true);
-                    sandbox.getModule('mainBar').setCommandEnabled('save', true);
+                    //sandbox.getModule('mainBar').setCommandEnabled('save', true);
                 }
             } else {
                 sandbox.getModule('indicator').clearMessage({message: msg[status]});
             }
         },
         restoringStarted: function(event) {
-            sandbox.getModule('mainBar').setCommandEnabled('save', false);
+            //sandbox.getModule('mainBar').setCommandEnabled('save', false);
             sandbox.getModule('indicator').showMessage(gettext('Restoring version ') + event.version + '...');
         },
         historyItemAdded: function(item) {
