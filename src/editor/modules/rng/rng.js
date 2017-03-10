@@ -137,7 +137,7 @@ return function(sandbox) {
         },
         documentReverted: function(version) {
             documentIsDirty = false;
-            sandbox.getModule('indicator').clearMessage({message:'Revision restored'});
+            sandbox.getModule('indicator').clearMessage({message:gettext('Revision restored')});
         },
         publishingStarted: function(version) {
             sandbox.getModule('indicator').showMessage(gettext('Publishing...'));
