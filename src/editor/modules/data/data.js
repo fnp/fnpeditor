@@ -201,16 +201,18 @@ return function(sandbox) {
                     method: 'post',
                     url: sandbox.getConfig().documentSaveUrl(data.document_id),
                     data: formData,
-                    success: function(data) {
+                    success: function(ajax_data) {
                         event.success();
-                        sandbox.publish('savingEnded', 'success', 'remote', data);
+                        sandbox.publish('savingEnded', 'success', 'remote', ajax_data);
 
-                        Object.keys(data)
+                        Object.keys(ajax_data)
                             .filter(function(key) {
                                 return key !== 'text';
                             })
                             .forEach(function(key) {
-                                wlxmlDocument.setProperty(key, data[key]);
+                                wlxmlDocument.setProperty(key, ajax_data[key]);
+                                // ugly, but whatever
+                                data[key] = ajax_data[key];
                             });
 
                         reloadHistory();
@@ -275,18 +277,20 @@ return function(sandbox) {
                     dataType: 'json',
                     url: sandbox.getConfig().documentRestoreUrl(data.document_id),
                     data: formData,
-                    success: function(data) {
-                        Object.keys(data)
+                    success: function(ajax_data) {
+                        Object.keys(ajax_data)
                             .filter(function(key) {
                                 return key !== 'document';
                             })
                             .forEach(function(key) {
-                                wlxmlDocument.setProperty(key, data[key]);
+                                wlxmlDocument.setProperty(key, ajax_data[key]);
+                                // ugly, but whatever
+                                data[key] = ajax_data[key];
                             });
                         reloadHistory();
-                        wlxmlDocument.loadXML(data.document);
+                        wlxmlDocument.loadXML(ajax_data.document);
                         documentDirty = false;
-                        sandbox.publish('documentReverted', data.version);
+                        sandbox.publish('documentReverted', ajax_data.version);
                         event.success();
                     },
                 });
