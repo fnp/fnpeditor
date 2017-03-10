@@ -4,10 +4,11 @@ gettext('remove');
 gettext('Delete this comment?');
 gettext('Delete');
 
-// template.html
+// mainbar/template.html
 gettext('Exit');
 gettext('Preview saved version');
 gettext('Attachments');
+gettext('no draft exists');
 gettext('drop a working draft');
 
 // documentSummary.html
