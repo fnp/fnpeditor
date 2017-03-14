@@ -349,6 +349,10 @@ var keyEventHandlers = [
             }, {
                 success: function() {
                     if(goto) {
+                        if(!doc.containsNode(goto.wlxmlNode)) {
+                            goto = s.startElement;
+                            caretTo = s.startOffset;
+                        }
                         s.canvas.setCurrentElement(goto, {caretTo: caretTo});
                     }
                 }
