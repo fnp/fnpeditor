@@ -517,6 +517,9 @@ var documentTransformations = {
                     nextNext = next ? next.next() : null;
                     toDetach.detach({normalizeStrategy: (next && next.sameNode(params.to.node)) ? 'merge' : 'detach-right'});
                     if(next && !next.isInDocument()) {
+                        if(next.sameNode(params.to.node)) {
+                            return;
+                        }
                         next = nextNext;
                     }
                 }
