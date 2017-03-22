@@ -89,6 +89,21 @@ var Runner = function(app, modules) {
             menu.dom.css({top: coors.y, left: coors.x});
             menu.show();
         };
+
+        this.getTutorialItem = function(name) {
+            var tutorial = this.getConfig().tutorial;
+            var tutorialText, index;
+            tutorial.some(function(item, i) {
+                if(item.name === name) {
+                    tutorialText = item.text;
+                    index = i;
+                    return true;
+                }
+            });
+            if(!tutorialText)
+                return;
+            return {index: index + 1, text: tutorialText};
+        }
     };
       
     this.setBootstrappedData = function(moduleName, data) {

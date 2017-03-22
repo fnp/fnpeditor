@@ -16,11 +16,11 @@ return function(sandbox) {
     /* globals gettext */
 
     var logger = logging.getLogger('editor.modules.rng');
-    
+
     function addMainTab(title, slug, view) {
-        views.mainTabs.addTab(title, slug, view);
+        views.mainTabs.addTab(title, slug, view, sandbox.getTutorialItem(slug));
     }
-     
+
     var commands = {
         refreshCanvasSelection: function(selection) {
             var fragment = selection.toDocumentFragment();

@@ -8,7 +8,7 @@ var $ = require('libs/jquery'),
     gutterBoxTemplate = require('libs/text!./gutterBox.html');
 
 
-var GutterView = function(gutter) {
+var GutterView = function(gutter, tutorial) {
     gutter.on('show', function(group) {
         if(this.groupView) {
             this.groupView.remove();
@@ -19,6 +19,9 @@ var GutterView = function(gutter) {
         this.groupView.show();
     }, this);
     this.dom = $('<div class="gutter"></div>');
+    var tutorialHolder = $('<div/>').attr('data-toggle', 'tutorial').attr('data-tutorial', tutorial.index)
+        .attr('data-placement', 'bottom').attr('data-content', tutorial.text);
+    this.dom.append(tutorialHolder);
 };
 
 

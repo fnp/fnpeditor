@@ -18,7 +18,7 @@ return function(sandbox) {
             var action = sandbox.createAction(actionDescription.actionName, actionDescription.actionConfig),
                 view;
             addedActions.push(action);
-            view = actionView.create(action);
+            view = actionView.create(action, sandbox.getTutorialItem(action.definition.name));
             
             _.pairs(contextParams).forEach(function(pair) {
                 var name = pair[0],

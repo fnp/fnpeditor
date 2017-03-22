@@ -1,1 +1,1 @@
-<li><a href="#<%= slug %>"><% if(icon) { %><i class="icon-<%= icon %>"></i><% } %><%= text %></a></li>
+<li<% if(tutorial) { %> data-toggle="tutorial" data-tutorial="<%= tutorial.index %>" data-placement="bottom" data-content="<%= tutorial.text %>"<% } %>><a href="#<%= slug %>"><% if(icon) { %><i class="icon-<%= icon %>"></i><% } %><%= text %></a></li>

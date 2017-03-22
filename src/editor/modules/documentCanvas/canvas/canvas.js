@@ -86,7 +86,7 @@ var Canvas = function(wlxmlDocument, elements, metadata, sandbox) {
     
 
     this.gutter = gutter.create();
-    this.gutterView = new gutter.GutterView(this.gutter);
+    this.gutterView = new gutter.GutterView(this.gutter, sandbox.getTutorialItem('comment'));
     this.dom.find('.view-row').append(this.gutterView.dom);
     
     this.wlxmlListener = wlxmlListener.create(this);

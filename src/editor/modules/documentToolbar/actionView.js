@@ -38,7 +38,7 @@ var ActionView = Backbone.View.extend({
         this.action.on('paramsChanged', function() {
             this.render();
         }, this);
-        this.setElement(viewTemplate());
+        this.setElement(viewTemplate({tutorial: this.options.tutorial}));
     },
     render: function() {
         /* globals document */
@@ -126,8 +126,8 @@ var ActionView = Backbone.View.extend({
     }
 });
 
-var create = function(action) {
-    var view = new ActionView({action:action});
+var create = function(action, tutorial) {
+    var view = new ActionView({action: action, tutorial: tutorial});
     view.render();
 
     return {

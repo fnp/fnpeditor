@@ -17,6 +17,12 @@ return function(sandbox) {
             documentForkUrl: config.documentForkUrl,
             documentPreviewUrl: config.documentPreviewMainUrl(data.revision),
             documentGalleryUrl: config.documentGalleryUrl,
+            previewTutorial: sandbox.getTutorialItem('preview'),
+            attachmentsTutorial: sandbox.getTutorialItem('attachments'),
+            draftTutorial: sandbox.getTutorialItem('draft'),
+            saveTutorial: sandbox.getTutorialItem('save'),
+            mainPageTutorial: sandbox.getTutorialItem('mainpage'),
+            exitTutorial: sandbox.getTutorialItem('exit')
         }));
 
     view.find('[data-cmd]').click(function(e) {

@@ -39,7 +39,7 @@ define([
             return this;
         },
         
-        addTab: function(title, slug, content) {
+        addTab: function(title, slug, content, tutorial) {
             if(this.contents[slug]) {
                 this.contents[slug].detach();
             }
@@ -49,7 +49,7 @@ define([
             var icon = title.icon || null;
             
             if(!this.tabExists(slug)) {
-                this.nodes.tabBar.append(this.handleTemplate({text: text, icon: icon, slug: slug}));
+                this.nodes.tabBar.append(this.handleTemplate({text: text, icon: icon, slug: slug, tutorial: tutorial}));
             }
             if(!this.selectedTab) {
                 this.selectTab(slug);
