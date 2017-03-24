@@ -127,6 +127,7 @@ return function(sandbox) {
     return {
         start: function() {
             var text;
+            $('#tuton').remove();
             if(window.localStorage) {
                 text = window.localStorage.getItem(getLocalStorageKey(data.version).content);
 
