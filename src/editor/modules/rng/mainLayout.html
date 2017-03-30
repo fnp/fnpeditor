@@ -5,5 +5,5 @@
     <div style="clear:both"></div>
     <div fnpjs-place="mainView">
     </div>
-    <div fnpjs-place="bottomPanel"></div>
+    <div fnpjs-place="bottomPanel"<% if(tutorial) { %> data-toggle="tutorial" data-tutorial="<%= tutorial.index %>" data-placement="top" data-content="<%= tutorial.text %>"<% } %>></div>
 </div>

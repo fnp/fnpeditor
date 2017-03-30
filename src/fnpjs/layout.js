@@ -1,9 +1,9 @@
 define(['libs/jquery', 'libs/underscore'], function($ ,_) {
     'use strict';
       
-    var Layout = function(template) {
+    var Layout = function(template, tutorial) {
         var layout = this;
-        this.dom = $(_.template(template)());
+        this.dom = $(_.template(template)({tutorial: tutorial}));
         this.views = {};
         
         this.dom.onShow = function() {

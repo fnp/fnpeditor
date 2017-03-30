@@ -30,7 +30,7 @@ return function(sandbox) {
     
 
     var views = {
-        mainLayout: new layout.Layout(mainLayoutTemplate),
+        mainLayout: new layout.Layout(mainLayoutTemplate, sandbox.getTutorialItem('statusBar')),
         mainTabs: (new tabs.View()).render(),
         visualEditing: new layout.Layout(visualEditingLayoutTemplate),
         diffLayout: new layout.Layout(diffLayoutTemplate)
