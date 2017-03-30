@@ -20,8 +20,8 @@ var GutterView = function(gutter, tutorial) {
     }, this);
     this.dom = $('<div class="gutter"></div>');
     var tutorialHolder = $('<div/>').attr('data-toggle', 'tutorial').attr('data-tutorial', tutorial.index)
-        .attr('data-placement', 'bottom').attr('data-content', tutorial.text);
-    this.dom.append(tutorialHolder);
+        .attr('data-placement', 'left').attr('data-content', tutorial.text).css('height', '200px');
+    this.dom.append($('<div>/').css('height', '0').append(tutorialHolder));
 };
 
 
