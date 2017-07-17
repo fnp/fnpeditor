@@ -15,12 +15,19 @@ var OrderExerciseView = function(element) {
     this.modePills = this.dom.find('.modePills');
     this.list = this.dom.find('ol');
     this.description = this.dom.find('.description');
+    this.shuffleButton = this.dom.find('.shuffle');
     this.itemViews = [];
 
     this.modePills.find('a').on('click', function(e) {
         e.stopPropagation();
         e.preventDefault();
         this.setMode($(e.target).parent().attr('mode'));
+    }.bind(this));
+
+    this.shuffleButton.on('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        this.trigger('shuffleItems');
     }.bind(this));
 
     this.mode = 'initial';
@@ -34,13 +41,7 @@ var OrderExerciseView = function(element) {
     dropTargets.on('dragenter', function() {
         var first = this.itemViews[0];
         if(this.mode === 'correct') {
-            first = this.itemViews.slice(0)
-                .sort(function(view1, view2) {
-                    if(view1.item.getAnswer() > view2.item.getAnswer()) {
-                        return 1;
-                    }
-                    return -1;
-                })[0];
+            first = this.sortedItemViews()[0];
         }
         if(!this.allowDropAt(first, true)) {
             return;
@@ -63,13 +64,7 @@ var OrderExerciseView = function(element) {
 
         var first = this.itemViews[0];
         if(this.mode === 'correct') {
-            first = this.itemViews.slice(0)
-                .sort(function(view1, view2) {
-                    if(view1.item.getAnswer() > view2.item.getAnswer()) {
-                        return 1;
-                    }
-                    return -1;
-                })[0];
+            first = this.sortedItemViews()[0];
         }
 
         this.trigger(this.mode === 'initial' ? 'moveItem' : 'moveAnswer', droppedItem.item, first.item, 'before');
@@ -110,18 +105,23 @@ _.extend(OrderExerciseView.prototype, Backbone.Events, {
             this.itemViews.forEach(function(itemView) {
                 this.list.append(itemView.dom);
             }.bind(this));
+            this.shuffleButton.show();
         } else {
-            this.itemViews.slice(0)
-                .sort(function(view1, view2) {
-                    if(view1.item.getAnswer() > view2.item.getAnswer()) {
-                        return 1;
-                    }
-                    return -1;
-                })
+            this.sortedItemViews()
                 .forEach(function(itemView) {
                     this.list.append(itemView.dom);
                 }.bind(this));
+            this.shuffleButton.hide();
         }
+    },
+    sortedItemViews: function () {
+        return this.itemViews.slice(0)
+            .sort(function(view1, view2) {
+                if(view1.item.getAnswer() > view2.item.getAnswer()) {
+                    return 1;
+                }
+                return -1;
+            });
     },
     allowDropAt: function(view, up) {
         var arr = [this.draggedView.dom[0]];

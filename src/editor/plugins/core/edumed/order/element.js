@@ -53,6 +53,16 @@ _.extend(OrderExerciceElement, {
             
         }.bind(this));
 
+        this.view.on('shuffleItems', function () {
+            this.wlxmlNode.document.transaction(function() {
+                this.shuffleItems();
+            }.bind(this), {
+                metadata: {
+                    description: gettext('Set random order')
+                }
+            });
+        }.bind(this));
+
         var exerciseNode = this.wlxmlNode;
         this.createContainer(this.wlxmlNode.object.getDescription(), {
             resetBackground: true,
@@ -83,6 +93,7 @@ _.extend(OrderExerciceElement, {
         var node = event.meta.node;
         if(node.is('item.answer') && event.meta.parent && event.meta.parent.is('list.orderable')) {
             this.reloadView();
+            this.updateNumbers();
         }
     },
     reloadView: function() {
@@ -90,6 +101,23 @@ _.extend(OrderExerciceElement, {
         this.wlxmlNode.object.getItems().forEach(function(item) {
             this.view.addItem(item);
         }.bind(this));
+    },
+    updateNumbers: function () {
+        var answer = 1;
+        this.view.sortedItemViews().forEach(function (itemView) {
+            itemView.item.setAnswer(answer);
+            answer++;
+        })
+    },
+    shuffleItems: function () {
+        var items = this.wlxmlNode.object.getItems();
+        var currentIndex = items.length, randomIndex;
+        while (0 !== currentIndex) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+            items[currentIndex].node.after(items[randomIndex].node);
+        }
+        this.reloadView();
     },
     getVerticallyFirstTextElement: function() {
         var toret;
