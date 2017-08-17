@@ -74,8 +74,8 @@ var ItemView = function(node, exerciseView) {
 
     this.container = exerciseView.element.createContainer(node.contents(), {
         resetBackground: true,
-        manages: function(node, originaParent) {
-            return this.node.sameNode(node.parent() || originaParent);
+        manages: function(node, originalParent) {
+            return this.node.sameNode(node.parent() || originalParent);
         }.bind(this),
         dom: this.dom.find('.content')
     });

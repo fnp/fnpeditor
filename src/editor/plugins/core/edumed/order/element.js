@@ -9,8 +9,8 @@ var _ = require('libs/underscore');
 var elementBase = require('plugins/core/edumed/elementBase'),
     OrderExerciseView = require('./view');
 
-var OrderExerciceElement = Object.create(elementBase);
-_.extend(OrderExerciceElement, {
+var OrderExerciseElement = Object.create(elementBase);
+_.extend(OrderExerciseElement, {
     init: function() {
         elementBase.init.call(this);
         
@@ -129,6 +129,6 @@ _.extend(OrderExerciceElement, {
     }
 });
 
-return {tag: 'div', klass: 'exercise.order', prototype: OrderExerciceElement};
+return {tag: 'div', klass: 'exercise.order', prototype: OrderExerciseElement};
 
 });

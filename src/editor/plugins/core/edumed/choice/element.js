@@ -9,7 +9,7 @@ var choiceSingle = require('./choiceSingle'),
 return [
     {tag: 'div', klass: 'exercise.choice', prototype: choiceMulti},
     {tag: 'div', klass: 'exercise.choice.single', prototype: choiceSingle},
-    {tag: 'div', klass: 'exercise.choice.true-or-false', prototype: choiceTrueOrFalse},
+    {tag: 'div', klass: 'exercise.choice.true-or-false', prototype: choiceTrueOrFalse}
 ];
 
 });

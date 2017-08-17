@@ -8,8 +8,8 @@ var $ = require('libs/jquery'),
     elementBase = require('plugins/core/edumed/elementBase'),
     viewTemplate = require('libs/text!./view.html');
 
-var OrderExerciceElement = Object.create(elementBase);
-_.extend(OrderExerciceElement, {
+var GapsExerciseElement = Object.create(elementBase);
+_.extend(GapsExerciseElement, {
     init: function() {
         elementBase.init.call(this);
         var view  = $(_.template(viewTemplate)());
@@ -42,12 +42,6 @@ _.extend(OrderExerciceElement, {
     }
 });
 
-return {tag: 'div', klass: 'exercise.gap', prototype: OrderExerciceElement};
+return {tag: 'div', klass: 'exercise.gap', prototype: GapsExerciseElement};
 
 });
-
-
-    
-
-
-
