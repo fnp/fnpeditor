@@ -8,11 +8,13 @@ var actions = require('./actions'),
     orderExerciseElement = require('./order/element'),
     gapsExerciseElement = require('./gaps/element'),
     replaceExerciseElement = require('./replace/element'),
-    choiceExerciseElements = require('./choice/element');
+    choiceExerciseElements = require('./choice/element'),
+    matchExerciseElement = require('./match/element');
 
 return {
     actions: actions.concat(gapsActions).concat(replaceActions),
-    canvasElements: [orderExerciseElement, gapsExerciseElement, replaceExerciseElement].concat(choiceExerciseElements)
+    canvasElements: [orderExerciseElement, gapsExerciseElement, replaceExerciseElement, matchExerciseElement]
+        .concat(choiceExerciseElements)
 };
 
 });

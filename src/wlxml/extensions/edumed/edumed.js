@@ -9,7 +9,8 @@ var _ = require('libs/underscore'),
         'choice.single': require('libs/text!./choiceSingle.xml'),
         'choice.true-or-false': require('libs/text!./choiceTrueOrFalse.xml'),
         gap: require('libs/text!./gaps.xml'),
-        replace: require('libs/text!./replace.xml')
+        replace: require('libs/text!./replace.xml'),
+        match: require('libs/text!./match.xml')
     };
 
 var Item = function(node, exerciseNode) {
@@ -212,7 +213,7 @@ extension.wlxmlClass['exercise.choice.true-or-false'] = {
     methods: choiceMethods
 };
 
-extension.wlxmlClass['exercise.gap'] = extension.wlxmlClass['exercise.replace'] = {
+extension.wlxmlClass['exercise.gap'] = extension.wlxmlClass['exercise.replace'] = extension.wlxmlClass['exercise.match'] = {
     methods: {
         isContextRoot: function(node) {
             return this.sameNode(node);

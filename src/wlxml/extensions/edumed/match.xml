@@ -1,0 +1,10 @@
+<div class="exercise.match">
+    <div class="p">[polecenie]</div>
+    <div class="list" name="kategorie">
+        <div class="item.category" name="1">a</div>
+    </div>
+    <div class="p">nagłówek:</div>
+    <div class="list" dest="kategorie">
+        <div class="item.answer" answer="1">alina</div>
+    </div>
+</div>
