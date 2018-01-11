@@ -12,7 +12,8 @@ var _ = require('libs/underscore'),
     Dialog = require('views/dialog/dialog'),
     canvasElements = require('plugins/core/canvasElements'),
     metadataEditor = require('plugins/core/metadataEditor/metadataEditor'),
-    edumed = require('plugins/core/edumed/edumed');
+    edumed = require('plugins/core/edumed/edumed'),
+    add_attachments = require('views/attachments/add_attachments');
 
 
 var exerciseFix = function(newNodes) {
@@ -556,6 +557,7 @@ var createLinkFromSelection = function(callback, params) {
         });
     });
     dialog.show();
+    add_attachments(dialog);
 };
 
 var editLink = function(callback, params) {

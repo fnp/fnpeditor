@@ -9,6 +9,7 @@ var $ = require('libs/jquery'),
     genericElement = require('modules/documentCanvas/canvas/genericElement'),
     Dialog = require('views/dialog/dialog'),
     boxTemplate = require('libs/text!./box.html'),
+    add_attachments = require('views/attachments/add_attachments'),
     linkElement = Object.create(genericElement);
 
 
@@ -18,9 +19,16 @@ _.extend(linkElement, {
         _.bindAll(this, 'changeLink', 'deleteLink');
 
         var linkText = this.wlxmlNode.getAttr('href') || '',
-            linkUrl = this.getUrl(linkText);
+            linkUrl = this.getUrl(linkText),
+            badLink;
 
-        this.box = $(_.template(boxTemplate)({text: linkText, url: linkUrl}));
+        if (linkText.substr(0,7) === 'file://') {
+            var filename = linkText.substr(7);
+            // ugly
+            badLink = (window.materials.indexOf(filename) < 0);
+        }
+
+        this.box = $(_.template(boxTemplate)({text: linkText, url: linkUrl, bad: badLink}));
         this.box.find('.change').on('click', this.changeLink);
         this.box.find('.delete').on('click', this.deleteLink);
         this.box.hide();
@@ -74,6 +82,7 @@ _.extend(linkElement, {
             });
         });
         dialog.show();
+        add_attachments(dialog);
     },
 
     deleteLink: function() {
