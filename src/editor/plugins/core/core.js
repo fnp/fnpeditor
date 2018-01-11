@@ -522,13 +522,21 @@ var createWrapTextAction = function(createParams) {
 
 
 var createLinkFromSelection = function(callback, params) {
-    var doc = params.fragment.document,
-        dialog = Dialog.create({
+    var fragment = params.fragment,
+        doc = fragment.document,
+        text = fragment.startNode.nativeNode.data.substring(fragment.startOffset, fragment.endOffset),
+        url;
+    if (text.indexOf('//') >= 0 && text.indexOf(' ') < 0) {
+        url = text;
+    } else if (text.substr(0, 4) === 'www.' && text.indexOF(' ') < 0) {
+        url = 'http://' + text;
+    }
+    var dialog = Dialog.create({
             title: gettext('Create link'),
             executeButtonText: gettext('Apply'),
             cancelButtonText: gettext('Cancel'),
             fields: [
-                {label: gettext('Link'), name: 'href', type: 'input',
+                {label: gettext('Link'), name: 'href', type: 'input', initialValue: url || '',
                 prePasteHandler: function(text) {
                                     return params.fragment.document.getLinkForUrl(text);
                                 }.bind(this)
