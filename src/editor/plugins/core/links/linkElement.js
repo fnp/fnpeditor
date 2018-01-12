@@ -23,7 +23,7 @@ _.extend(linkElement, {
             badLink;
 
         if (linkText.substr(0,7) === 'file://') {
-            var filename = linkText.substr(7);
+            var filename = decodeURIComponent(linkText.substr(7));
             // ugly
             badLink = (window.materials.indexOf(filename) < 0);
         }
