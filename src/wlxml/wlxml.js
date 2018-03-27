@@ -255,9 +255,7 @@ $.extend(WLXMLDocument.prototype, {
                     elParent = el.parent(),
                     hasSpanParent = elParent.prop('tagName') === 'SPAN',
                     hasSpanBefore = el.prev().length && $(el.prev()).prop('tagName') === 'SPAN',
-                    hasSpanAfter = el.next().length && $(el.next()).prop('tagName') === 'SPAN',
-                    onlyChild = el.is(':only-child');
-
+                    hasSpanAfter = el.next().length && $(el.next()).prop('tagName') === 'SPAN';
 
                 var addInfo = function(toAdd, where, transformed, original) {
                     var parentContents = elParent.contents(),
