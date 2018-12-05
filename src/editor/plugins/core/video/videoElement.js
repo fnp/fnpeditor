@@ -12,10 +12,27 @@ var $ = require('libs/jquery'),
     attachments = require('views/attachments/attachments'),
     linkElement = Object.create(genericElement);
 
+function videoParser(url) {
+    var youtubeId = youtubeParser(url);
+    if (youtubeId) {
+        return {'videoProvider': 'youtube', 'videoId': youtubeId}
+    }
+    var vimeoId = vimeoParser(url);
+    if (vimeoId) {
+        return {'videoProvider': 'vimeo', 'videoId': vimeoId}
+    }
+}
+
 function youtubeParser(url) {
     var regExp = /^.*(?:youtu.be\/|v\/|\/u\/\w\/|embed\/|\?v=|&v=|shared\?ci=)([^#&?]*).*/;
     var match = url.match(regExp);
-    return (match && match[1].length == 11) ? match[1] : false;
+    return (match && match[1].length === 11) ? match[1] : false;
+}
+
+function vimeoParser(url) {
+    var regExp = /https?:\/\/(www\.)?vimeo.com\/(\d+)($|\/)/;
+    var match = url.match(regExp);
+    return match? match[2]: false;
 }
 
 _.extend(linkElement, {
@@ -52,12 +69,18 @@ _.extend(linkElement, {
 
     refreshLink: function(linkUrl) {
         this._container().find('iframe').remove();
-        var video_id = youtubeParser(linkUrl);
-        if (video_id) {
-            var video_frame = '<iframe width="480" height="270" src="//www.youtube.com/embed/' + video_id +
-                '?controls=2&amp;rel=0&amp;showinfo=0&amp;theme=light" frameborder="0" allowfullscreen></iframe>';
+        var videoData = videoParser(linkUrl);
+        var videoFrame;
+        if (videoData) {
+            if (videoData.videoProvider === 'youtube') {
+                videoFrame = '<iframe width="480" height="270" src="//www.youtube.com/embed/' + videoData.videoId +
+                    '?controls=2&amp;rel=0&amp;showinfo=0&amp;theme=light" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+            } else if (videoData.videoProvider === 'vimeo') {
+                videoFrame = '<iframe src="//player.vimeo.com/video/' + videoData.videoId +
+                    '" width="480" height="270" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+            }
             this._container().text('');
-            this._container().append($(video_frame));
+            this._container().append($(videoFrame));
         } else {
             this._container().text(gettext('No video. Click here to add link to your video'));
         }
@@ -71,7 +94,7 @@ _.extend(linkElement, {
             cancelButtonText: gettext('Cancel'),
             fields: [
                 {
-                    label: gettext('YouTube link'),
+                    label: gettext('YouTube or Vimeo link'),
                     name: 'src',
                     type: 'input',
                     initialValue: el.wlxmlNode.getAttr('src'),
@@ -86,9 +109,11 @@ _.extend(linkElement, {
         e.stopPropagation();
 
         dialog.on('execute', function(event) {
+            var videoData = videoParser(event.formData.src);
             el.wlxmlNode.document.transaction(function() {
                 el.wlxmlNode.setAttr('src', event.formData.src);
-                el.wlxmlNode.setAttr('videoid', youtubeParser(event.formData.src));
+                el.wlxmlNode.setAttr('videoid', videoData.videoId);
+                el.wlxmlNode.setAttr('provider', videoData.videoProvider);
                 event.success();
             }, {
                 metadata: {
